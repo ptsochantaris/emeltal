@@ -1,0 +1,5 @@
+*.bin
+*.gguf
+*.xcbkptlist
+Safespace/ggml-large-v3-encoder.mlmodelc/*
+*.xcbkptlist
