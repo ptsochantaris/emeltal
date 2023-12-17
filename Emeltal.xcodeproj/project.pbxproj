@@ -69,8 +69,8 @@
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
 		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
-		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MicStart.caf; sourceTree = SOURCE_ROOT; };
-		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MicStop.caf; sourceTree = SOURCE_ROOT; };
+		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
+		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
 		16C7C21C2B2A0A6700755BC4 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -123,8 +123,7 @@
 		1608DB6A2B151B4F00FFFB09 /* Emeltal */ = {
 			isa = PBXGroup;
 			children = (
-				16C57E922B2D357000A6A6C5 /* MicStart.caf */,
-				16C57E932B2D357000A6A6C5 /* MicStop.caf */,
+				16C7943F2B2F3DEF0052B707 /* Audio */,
 				16578A312B18CA5A0038A680 /* AppState.swift */,
 				1608DB6F2B151B5000FFFB09 /* Assets.xcassets */,
 				1608DB6D2B151B4F00FFFB09 /* ContentView.swift */,
@@ -153,6 +152,15 @@
 				1608DB922B151C4600FFFB09 /* Metal.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		16C7943F2B2F3DEF0052B707 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				16C57E922B2D357000A6A6C5 /* MicStart.caf */,
+				16C57E932B2D357000A6A6C5 /* MicStop.caf */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
