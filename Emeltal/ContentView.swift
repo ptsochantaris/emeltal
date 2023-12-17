@@ -300,7 +300,7 @@ private struct ContentView: View {
 
                     } else {
                         let va = state.listenState == .voiceActivated
-                        if state.mode == .waiting {
+                        if state.mode.showAlwaysOn {
                             Button("ALWAYS ON") {
                                 if va {
                                     state.switchToPushButton()
@@ -314,17 +314,10 @@ private struct ContentView: View {
                             .padding(.vertical, 4)
                             .padding(.horizontal, 8)
                             .background {
-                                if va {
-                                    Capsule(style: .continuous)
-                                        .foregroundColor(.widgetForeground)
-                                } else {
-                                    Capsule(style: .continuous)
-                                        .stroke(.widgetForeground, lineWidth: 1)
-                                        .foregroundColor(.clear)
-                                }
+                                Capsule(style: .continuous)
+                                    .stroke(va ? .accent : .widgetForeground, lineWidth: 1)
                             }
                             .padding(1)
-                            .opacity(va ? 0.7 : 0.7)
                         }
 
                         Color(.clear)

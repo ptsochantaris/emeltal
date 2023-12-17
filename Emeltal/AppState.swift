@@ -86,6 +86,15 @@ final class AppState {
                 false
             }
         }
+
+        var showAlwaysOn: Bool {
+            switch self {
+            case .noting, .replying, .thinking, .loading:
+                false
+            case .listening, .waiting:
+                true
+            }
+        }
     }
 
     func reset() async throws {
@@ -181,6 +190,7 @@ final class AppState {
 
         if hasSavedState {
             messageLog = try String(contentsOf: textPath)
+            messageLog += "\n"
         } else {
             if let speaker, await !speaker.havePreferredVoice {
                 messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n_Starting…_ "

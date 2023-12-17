@@ -48,8 +48,8 @@
 
 /* Begin PBXFileReference section */
 		160189852B1A026B0012B315 /* Mic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mic.swift; sourceTree = "<group>"; };
-		160199BD2B1E9C3400696377 /* libwhisper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwhisper.dylib; sourceTree = "<group>"; };
-		160199BF2B1E9C4600696377 /* libllama.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libllama.dylib; sourceTree = "<group>"; };
+		160199BD2B1E9C3400696377 /* libwhisper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwhisper.dylib; path = "Emeltal/llama-cpp/libwhisper.dylib"; sourceTree = "<group>"; };
+		160199BF2B1E9C4600696377 /* libllama.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libllama.dylib; path = "Emeltal/llama-cpp/libllama.dylib"; sourceTree = "<group>"; };
 		1608DB682B151B4F00FFFB09 /* Emeltal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emeltal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1608DB6D2B151B4F00FFFB09 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1608DB6F2B151B5000FFFB09 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -421,7 +421,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -471,7 +471,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/**",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
