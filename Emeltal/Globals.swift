@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import OSLog
 
 extension String: Error {}
 
@@ -32,3 +33,9 @@ let sizeFormatter: ByteCountFormatter = {
     b.formattingContext = .standalone
     return b
 }()
+
+func log(_ message: @autoclosure () -> String) {
+    #if DEBUG
+        os_log("%{public}@", message())
+    #endif
+}

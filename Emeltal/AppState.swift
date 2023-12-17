@@ -377,11 +377,11 @@ final class AppState {
                 send()
 
             } else {
-                print("Transcription too short, will ignore it")
+                log("Transcription too short, will ignore it")
                 shouldWaitOrListen()
             }
         } else {
-            print("Sound clip too short, will ignore it")
+            log("Sound clip too short, will ignore it")
             shouldWaitOrListen()
         }
     }
@@ -427,7 +427,7 @@ final class AppState {
         var started = false
         var backtickCount = 0
         for await fragment in stream {
-            // print(fragment)
+            // log(fragment)
             if !started {
                 withAnimation {
                     mode = .replying
@@ -496,13 +496,13 @@ final class AppState {
             if fm.fileExists(atPath: textPath.path) {
                 try fm.removeItem(at: textPath)
                 try fm.removeItem(at: statePath)
-                print("Cleared state at \(statePath.path)")
+                log("Cleared state at \(statePath.path)")
             }
 
         } else {
             try messageLog.write(toFile: textPath.path, atomically: true, encoding: .utf8)
             try await llamaContext?.save(to: statePath)
-            print("Saved state to \(statePath.path)")
+            log("Saved state to \(statePath.path)")
         }
     }
 }

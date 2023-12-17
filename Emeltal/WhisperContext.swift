@@ -16,7 +16,7 @@ final class WhisperContext {
         }
 
         self.context = context
-        whisper_print_system_info()
+        // whisper_print_system_info()
     }
 
     deinit {
@@ -55,12 +55,12 @@ final class WhisperContext {
 
     func transcribe(samples: [Float]) -> String {
         samples.withUnsafeBufferPointer { floats in
-            print("About to run whisper_full")
+            log("About to run whisper_full")
             whisper_reset_timings(context)
             if whisper_full(context, params, floats.baseAddress, Int32(floats.count)) < 0 {
                 fatalError("Failed to run the whisper model")
             } else {
-                whisper_print_timings(context)
+                // whisper_print_timings(context)
                 var transcription = ""
                 for i in 0 ..< whisper_full_n_segments(context) {
                     transcription += String(cString: whisper_full_get_segment_text(context, i))

@@ -38,21 +38,21 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
                     break
 
                 case .listening:
-                    print("Starting to listen")
+                    log("Starting to listen")
                     statePublisher.send(.listening(quietPeriods: 0))
                 }
 
             case let .listening(quietPeriods1):
                 switch state {
                 case .quiet:
-                    print("Stopped listening")
+                    log("Stopped listening")
                     statePublisher.send(.quiet(prefixBuffer: []))
 
                 case let .listening(quietPeriods2):
                     if quietPeriods1 == 0, quietPeriods2 != 0 {
-                        print("Stopped or paused?")
+                        log("Stopped or paused?")
                     } else if quietPeriods1 != 0, quietPeriods2 == 0 {
-                        print("Was a pause, still listening")
+                        log("Was a pause, still listening")
                     }
                 }
             }
@@ -78,7 +78,7 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
             throw "Capture device not accessible"
         }
 
-        print("Using mic: \(mic.description)")
+        log("Using mic: \(mic.description)")
 
         let input = try AVCaptureDeviceInput(device: mic)
 
@@ -107,7 +107,7 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         buffer.removeAll()
         state = .quiet(prefixBuffer: [])
         session.startRunning()
-        print("Mic running")
+        log("Mic running")
     }
 
     nonisolated func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -170,7 +170,7 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         session.stopRunning()
         let ret = buffer
         buffer.removeAll()
-        print("Mic stopped")
+        log("Mic stopped")
         _session = nil
         return ret
     }

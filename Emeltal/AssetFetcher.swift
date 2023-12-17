@@ -47,11 +47,11 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     deinit {
-        print("Completed setup for \(asset.displayName)")
+        log("Completed setup for \(asset.displayName)")
     }
 
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {
-        print("Download task created: \(task.taskIdentifier)")
+        log("Download task created: \(task.taskIdentifier)")
     }
 
     nonisolated func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didWriteData _: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -65,7 +65,7 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     private func handleNetworkError(_ error: Error, in task: URLSessionTask) {
-        print("Network error on \(task.originalRequest?.url?.absoluteString ?? "<no url>"): \(error.localizedDescription)")
+        log("Network error on \(task.originalRequest?.url?.absoluteString ?? "<no url>"): \(error.localizedDescription)")
         phase = .error(error: error)
         urlSession.invalidateAndCancel()
         builderDone?(phase)
@@ -88,7 +88,7 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
 
         Task {
-            print("Downloaded asset to \(asset.localPath.path)...")
+            log("Downloaded asset to \(asset.localPath.path)...")
             Task { @MainActor in
                 phase = .done
                 urlSession.invalidateAndCancel()
@@ -98,17 +98,17 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     private func startup() async {
-        print("Setting up asset for \(asset.displayName)")
+        log("Setting up asset for \(asset.displayName)")
 
         if FileManager.default.fileExists(atPath: asset.localPath.path) {
-            print("Asset ready at \(asset.localPath.path)...")
+            log("Asset ready at \(asset.localPath.path)...")
             phase = .done
             urlSession.invalidateAndCancel()
             builderDone?(phase)
             return
         }
 
-        print("Need to fetch asset...")
+        log("Need to fetch asset...")
         phase = .fetching(downloaded: 0, expected: 0)
 
         let downloadTasks = await urlSession.tasks.2
@@ -120,17 +120,17 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
 
         if !related.isEmpty {
-            print("Existing download for currently selected asset detected, continuing")
+            log("Existing download for currently selected asset detected, continuing")
             return
         }
 
         do {
-            print("Requesting new asset transfer...")
+            log("Requesting new asset transfer...")
             urlSession.downloadTask(with: asset.fetchUrl).resume()
         }
     }
 
     nonisolated func urlSessionDidFinishEvents(forBackgroundURLSession _: URLSession) {
-        print("Background URL session events complete")
+        log("Background URL session events complete")
     }
 }

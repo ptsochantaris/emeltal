@@ -36,10 +36,10 @@ final actor Speaker {
             let allVoices = AVSpeechSynthesisVoice.speechVoices()
             let enVoices = allVoices.filter { $0.language.hasPrefix("en-US") && !$0.voiceTraits.contains(.isNoveltyVoice) && !$0.voiceTraits.contains(.isPersonalVoice) }
             if let enVoice = Self.pickFavourite(from: enVoices) {
-                print("Selected voice: \(enVoice.identifier)")
+                log("Selected voice: \(enVoice.identifier)")
                 voice = enVoice
             } else if let anyVoice = Self.pickFavourite(from: allVoices) {
-                print("Fallback voice: \(anyVoice.identifier)")
+                log("Fallback voice: \(anyVoice.identifier)")
                 voice = anyVoice
             } else {
                 throw "Could not find any TTS voices in the system"

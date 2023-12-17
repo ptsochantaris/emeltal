@@ -88,7 +88,7 @@ final class LlamaContext {
             var emptyData = [bosTokenId, eosTokenId]
             llama_decode(context, llama_batch_get_one(&emptyData, 2, 0, 0))
             llama_kv_cache_clear(context)
-            print("Warmup complete - Loading state from \(llmState.path)")
+            log("Warmup complete - Loading state from \(llmState.path)")
 
             var loaded = 0
             llama_load_session_file(context, llmState.path.cString(using: .utf8), nil, 0, &loaded)
@@ -96,12 +96,12 @@ final class LlamaContext {
             let infoData = try Data(contentsOf: turnStates)
             turns = try JSONDecoder().decode([Turn].self, from: infoData)
         } else {
-            print("Adding initial prompt", template.text(for: .initial))
+            log("Adding initial prompt: \(template.text(for: .initial))")
             let tokens = tokenize(text: template.text(for: .initial))
             let seq = Turn(id: 0)
             _ = seq.append(tokens: tokens, in: context, andPredict: false, offset: 0)
             turns.append(seq)
-            print("Warmup complete")
+            log("Warmup complete")
         }
     }
 
@@ -113,7 +113,7 @@ final class LlamaContext {
 
     nonisolated func process(text: String, template: Template) -> AsyncStream<String> {
         let promptText = template.text(for: .turn(text: text))
-        print("Prompt: \(promptText)\n")
+        log("Prompt: \(promptText)\n")
 
         return AsyncStream<String> { continuation in
             Task {
@@ -137,7 +137,7 @@ final class LlamaContext {
 
         func append(tokens: [llama_token], in context: OpaquePointer, andPredict: Bool, offset: Int) -> UnsafeMutablePointer<Float>? {
             let promptCount = tokens.count
-            print("Seq ID \(id): \(promptCount) tokens, offset: \(offset): ", terminator: "")
+            // print("Seq ID \(id): \(promptCount) tokens, offset: \(offset): ", terminator: "")
             var b = llama_batch_init(Int32(promptCount), 0, 1)
             defer {
                 length += tokens.count
@@ -146,14 +146,14 @@ final class LlamaContext {
             b.n_tokens = Int32(promptCount)
             for (i, token) in tokens.enumerated() {
                 let pos = Int32(i + offset)
-                print("[\(pos): \(token)] ", terminator: "")
+                // print("[\(pos): \(token)] ", terminator: "")
                 b.token[i] = token
                 b.pos[i] = pos
                 b.n_seq_id[i] = 1
                 b.seq_id[i]![0] = 0
                 b.logits[i] = 0
             }
-            print()
+            // print()
             if andPredict {
                 b.logits[promptCount - 1] = 1
                 llama_decode(context, b)
@@ -165,7 +165,7 @@ final class LlamaContext {
         }
 
         func appendAndPredict(token: llama_token, in context: OpaquePointer, pos: Int) -> UnsafeMutablePointer<Float> {
-            print("+[\(pos): \(token)] ", terminator: "")
+            // print("+[\(pos): \(token)] ", terminator: "")
             var b = llama_batch_init(1, 0, 1)
             b.n_tokens = 1
             b.token[0] = token
@@ -200,7 +200,7 @@ final class LlamaContext {
             }
 
             if evictedCount < count {
-                print("\nDropping all tokens from token window to fit new tokens")
+                log("\nDropping all tokens from token window to fit new tokens")
                 reset()
                 return
             }
@@ -213,7 +213,7 @@ final class LlamaContext {
             llama_kv_cache_seq_rm(context, 0, evictStart, evictEnd)
             llama_kv_cache_seq_shift(context, 0, evictEnd, -1, -evictedCount)
 
-            print("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
+            log("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
         }
     }
 
@@ -265,11 +265,11 @@ final class LlamaContext {
             if let new_token_str = Self.text(from: new_token_id, in: model) {
                 continuation.yield(new_token_str)
             } else {
-                print("Warning, wordbuffer was invalid - token ID was \(new_token_id)")
+                log("Warning, wordbuffer was invalid - token ID was \(new_token_id)")
             }
         }
 
-        print("Turn was \(currentTurn.length) tokens long")
+        log("Turn was \(currentTurn.length) tokens long")
 
         continuation.finish()
     }
