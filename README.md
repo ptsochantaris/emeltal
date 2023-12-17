@@ -9,7 +9,7 @@ Work in progress; testflight beta available soon.
 
 |Full|Minimised|
 |-|-|
-|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot1.png" alt="Screenshot" width=512>|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot2.png" alt="Screenshot" width=512>|
+|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot1.png" alt="Screenshot" width=600>|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot2.png" alt="Screenshot" width=400>|
 
 ## Packages
 - Emeltal heavily relies on the [llama.cpp](https://github.com/ggerganov/llama.cpp) and [whisper.cpp](https://github.com/ggerganov/whisper.cpp) libraries for ML processing.
