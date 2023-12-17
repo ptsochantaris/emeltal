@@ -3,9 +3,13 @@
 Emeltal
 ====
 
-ML voice chat using high-end models.
+Local ML voice chat using high-end models.
 
-Work in progress, testflight available soon.
+Work in progress; testflight beta available soon.
+
+|Full|Minimised|
+|-|-|
+|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot1.png" alt="Screenshot" width=512>|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot2.png" alt="Screenshot" width=512>|
 
 ## Packages
 - Emeltal heavily relies on the [llama.cpp](https://github.com/ggerganov/llama.cpp) and [whisper.cpp](https://github.com/ggerganov/whisper.cpp) libraries for ML processing.
