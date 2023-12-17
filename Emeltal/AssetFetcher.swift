@@ -39,15 +39,12 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         phase = .boot
         self.asset = asset
         super.init()
-        urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
-
-        Task {
-            await startup()
+        if asset != .none {
+            urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
+            Task {
+                await startup()
+            }
         }
-    }
-
-    deinit {
-        log("Completed setup for \(asset.displayName)")
     }
 
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {

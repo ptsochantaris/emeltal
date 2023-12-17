@@ -4,10 +4,12 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class AppState {
+final class AppState: Identifiable {
+    nonisolated var id: String { llmFetcher.asset.id }
+
     var multiLineText = ""
     var messageLog = ""
-    var mode: Mode = .loading(assetFetchers: []) {
+    var mode: Mode = .startup {
         didSet {
             if oldValue != mode, let speaker {
                 mode.audioFeedback(using: speaker)
@@ -30,9 +32,33 @@ final class AppState {
 
     var listenState = ListenState.notListening
 
+    var statusMessage: String? = "Starting…"
+
+    var floatingMode: Bool = Persisted._floatingMode {
+        didSet {
+            if oldValue == floatingMode {
+                return
+            }
+            Persisted._floatingMode = floatingMode
+            processFloatingMode(fromBoot: false)
+        }
+    }
+
     enum Mode: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
+            case .startup:
+                if case .startup = rhs {
+                    return true
+                }
+            case .booting:
+                if case .booting = rhs {
+                    return true
+                }
+            case .warmup:
+                if case .warmup = rhs {
+                    return true
+                }
             case .listening:
                 if case .listening = rhs {
                     return true
@@ -61,7 +87,7 @@ final class AppState {
             return false
         }
 
-        case loading(assetFetchers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
+        case startup, booting, warmup, loading(assetFetchers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
 
         func audioFeedback(using speaker: Speaker) {
             switch self {
@@ -73,7 +99,7 @@ final class AppState {
                 Task {
                     await speaker.playEffect(speaker.endEffect)
                 }
-            case .loading, .replying, .thinking, .waiting:
+            case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
                 break
             }
         }
@@ -82,14 +108,14 @@ final class AppState {
             switch self {
             case .noting, .replying, .thinking:
                 true
-            case .listening, .loading, .waiting:
+            case .booting, .listening, .loading, .startup, .waiting, .warmup:
                 false
             }
         }
 
         var showAlwaysOn: Bool {
             switch self {
-            case .noting, .replying, .thinking, .loading:
+            case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
                 false
             case .listening, .waiting:
                 true
@@ -104,8 +130,13 @@ final class AppState {
     }
 
     init(asset: Asset) {
-        llmFetcher = AssetFetcher(fetching: asset)
-        whisperFetcher = AssetFetcher(fetching: .whisper)
+        if asset == .none {
+            llmFetcher = AssetFetcher(fetching: .none)
+            whisperFetcher = AssetFetcher(fetching: .none)
+        } else {
+            llmFetcher = AssetFetcher(fetching: asset)
+            whisperFetcher = AssetFetcher(fetching: .whisper)
+        }
     }
 
     private let llmFetcher: AssetFetcher
@@ -115,16 +146,7 @@ final class AppState {
     private var template: Template!
     private var speaker: Speaker?
     private let mic = Mic()
-
-    var floatingMode: Bool = Persisted._floatingMode {
-        didSet {
-            if oldValue == floatingMode {
-                return
-            }
-            Persisted._floatingMode = floatingMode
-            processFloatingMode(fromBoot: false)
-        }
-    }
+    private var micObservation: Cancellable?
 
     private func processFloatingMode(fromBoot: Bool) {
         if floatingMode {
@@ -162,12 +184,14 @@ final class AppState {
         }
     }
 
-    private var booted = false
+    var canBoot: Bool {
+        llmFetcher.asset != .none
+    }
+
     func boot() async throws {
-        if booted {
+        guard mode == .startup else {
             return
         }
-        booted = true
 
         mode = .loading(assetFetchers: [llmFetcher, whisperFetcher])
 
@@ -189,19 +213,15 @@ final class AppState {
         processFloatingMode(fromBoot: true)
 
         if hasSavedState {
-            messageLog = try String(contentsOf: textPath)
+            messageLog = (try? String(contentsOf: textPath)) ?? ""
             messageLog += "\n"
-        } else {
-            if let speaker, await !speaker.havePreferredVoice {
-                messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n_Starting…_ "
-            } else {
-                messageLog = "_Starting…_ "
-            }
+        } else if let speaker, await !speaker.havePreferredVoice {
+            messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n"
         }
 
-        let w = Task { let W = try await WhisperContext(asset: whisperFetcher.asset); _ = await W.warmup(); return W }
-        let s = Task { try await Speaker() }
-        let l = Task { try await LlamaContext(asset: llmFetcher.asset) }
+        let l = Task.detached { try await LlamaContext(asset: self.llmFetcher.asset) }
+        let w = Task.detached { let W = try await WhisperContext(asset: self.whisperFetcher.asset); _ = await W.warmup(); return W }
+        let s = Task.detached { try await Speaker() }
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
@@ -215,22 +235,25 @@ final class AppState {
             }
         }
 
-        messageLog += "_Loading TTS…_ "
+        statusMessage = "Loading TTS…"
         speaker = try await s.value
-        messageLog += "_Loading ASR…_ "
+
+        statusMessage = "Loading ASR…"
         whisperContext = try await w.value
-        messageLog += "_Loading LLM…_ "
+
+        statusMessage = "Loading LLM…"
         llamaContext = try await l.value
-        messageLog += "**Ready**\n"
 
         template = llmFetcher.asset.mlTemplate(in: llamaContext!)
 
-        shouldWaitOrListen()
+        mode = .warmup
+        statusMessage = "Warming up AI…"
 
         try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
-    }
 
-    private var micObservation: Cancellable?
+        shouldWaitOrListen()
+        statusMessage = nil
+    }
 
     /*
      private func buildTemplate() {
@@ -327,7 +350,7 @@ final class AppState {
     func send() {
         let text = multiLineText.trimmingCharacters(in: .whitespacesAndNewlines)
         switch mode {
-        case .listening, .loading, .replying, .thinking:
+        case .booting, .listening, .loading, .replying, .startup, .thinking, .warmup:
             return
         case .noting, .waiting:
             break
@@ -472,14 +495,14 @@ final class AppState {
         shouldWaitOrListen()
     }
 
-    private let statePath: URL = {
+    private var statePath: URL {
         let fm = FileManager.default
-        let statePath = appDocumentsUrl.appendingPathComponent("states", conformingTo: .directory)
+        let statePath = appDocumentsUrl.appendingPathComponent("states-\(llmFetcher.asset.id)", conformingTo: .directory)
         if !fm.fileExists(atPath: statePath.path) {
             try? fm.createDirectory(at: statePath, withIntermediateDirectories: true)
         }
         return statePath
-    }()
+    }
 
     private var textPath: URL {
         statePath.appendingPathComponent("text.txt")

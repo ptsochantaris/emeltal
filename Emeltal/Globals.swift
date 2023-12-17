@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
 import OSLog
+import SwiftUI
 
 extension String: Error {}
 
@@ -23,6 +23,7 @@ let performanceCpuCount = {
 enum Persisted {
     @AppStorage("_textOnly") static var _textOnly = false
     @AppStorage("_floatingMode") static var _floatingMode = false
+    @AppStorage("_selectedAsset") static var selectedAsset: Asset?
 }
 
 extension NSSound: @unchecked Sendable {}

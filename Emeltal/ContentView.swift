@@ -77,7 +77,7 @@ private struct Assistant: View {
     var body: some View {
         ZStack {
             switch state.mode {
-            case .loading:
+            case .booting, .loading, .startup, .warmup:
                 ProgressView()
                     .colorScheme(.dark)
 
@@ -219,6 +219,15 @@ private struct ContentView: View {
                                     FetcherRow(fetcher: $0)
                                 }
                             }
+                        } else if let message = state.statusMessage {
+                            Text(message)
+                                .foregroundStyle(.black)
+                                .font(.headline)
+                                .padding()
+                                .background {
+                                    Capsule(style: .continuous)
+                                        .foregroundStyle(.accent)
+                                }
                         }
 
                         ScrollViewReader { proxy in
@@ -371,13 +380,130 @@ private struct ContentView: View {
     }
 }
 
+private struct AssetSelection: View {
+    let asset: Asset
+    let recommended: Bool
+    let selected: Bool
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
+                .foregroundStyle(.ultraThinMaterial)
+
+            if selected {
+                RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
+                    .stroke(style: StrokeStyle(lineWidth: 4))
+            }
+
+            VStack(spacing: 8) {
+                Text(asset.displayName)
+                    .font(.title2)
+                    .lineLimit(2, reservesSpace: true)
+
+                Text(asset.aboutText)
+
+                Spacer(minLength: 0)
+
+                HStack {
+                    if recommended {
+                        Text(" RECOMMENDED ")
+                            .font(.caption2)
+                            .padding(4)
+                            .background {
+                                Capsule(style: .continuous)
+                                    .foregroundStyle(.ultraThinMaterial)
+                            }
+                    }
+
+                    Spacer()
+
+                    Text(asset.sizeDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .multilineTextAlignment(.center)
+            .padding()
+            .frame(minHeight: 0)
+        }
+    }
+}
+
+private struct ModelPicker: View {
+    let allowCancel: Bool
+    @State var selectedAsset: Asset
+    let selection: (Asset) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                Text("The model you select will be downloaded and installed locally on your system. You can change your selection from the menu later. Please ensure you have enough disk space for the model you select.")
+                    .font(.subheadline)
+                    .padding()
+                    .multilineTextAlignment(.center)
+
+                HStack(alignment: .top) {
+                    AssetSelection(asset: .dolphinMixtral, recommended: true, selected: selectedAsset == .dolphinMixtral)
+                        .onTapGesture {
+                            selectedAsset = .dolphinMixtral
+                        }
+                    AssetSelection(asset: .mythoMax, recommended: false, selected: selectedAsset == .mythoMax)
+                        .onTapGesture {
+                            selectedAsset = .mythoMax
+                        }
+                    AssetSelection(asset: .deepSeekCoder, recommended: false, selected: selectedAsset == .deepSeekCoder)
+                        .onTapGesture {
+                            selectedAsset = .deepSeekCoder
+                        }
+                }
+
+                HStack {
+                    Spacer()
+                    if allowCancel {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                    }
+                    Button("Install") {
+                        selection(selectedAsset)
+                    }
+                }
+            }
+            .padding()
+            .background(Image(.canvas).resizable())
+            .navigationTitle("Please select an ML model to be used with Emeltal")
+        }
+    }
+}
+
+#Preview {
+    ModelPicker(allowCancel: true, selectedAsset: .dolphinMixtral) { asset in
+        print("selected: \(asset.id)")
+    }
+    .frame(height: 360)
+}
+
 @main
 @MainActor
 struct EmeltalApp: App {
-    @Bindable var state = AppState(asset: .dolphinMixtral)
+    @State private var state = AppState(asset: .none) // TODO: AppState(asset: Persisted.selectedAsset ?? .none) - for when we have the option to select in menu
+
     var body: some Scene {
         Window("Emeltal", id: "Emeltal") {
-            ContentView(state: state)
+            if state.canBoot {
+                ContentView(state: state)
+            } else {
+                ModelPicker(allowCancel: false, selectedAsset: Persisted.selectedAsset ?? .dolphinMixtral) { asset in
+                    Persisted.selectedAsset = asset
+                    state = AppState(asset: asset)
+                }
+                .preferredColorScheme(.dark)
+                .frame(width: 800, height: 400)
+                .fixedSize()
+            }
         }
+        .windowResizability(state.canBoot ? .automatic : .contentSize)
     }
 }
