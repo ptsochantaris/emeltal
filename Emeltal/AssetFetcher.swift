@@ -58,7 +58,7 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     nonisolated func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        try? FileManager.default.moveItem(at: location, to: asset.localPath)
+        try? FileManager.default.moveItem(at: location, to: asset.localModelPath)
     }
 
     private func handleNetworkError(_ error: Error, in task: URLSessionTask) {
@@ -85,7 +85,7 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
 
         Task {
-            log("Downloaded asset to \(asset.localPath.path)...")
+            log("Downloaded asset to \(asset.localModelPath.path)...")
             Task { @MainActor in
                 phase = .done
                 urlSession.invalidateAndCancel()
@@ -97,8 +97,8 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     private func startup() async {
         log("Setting up asset for \(asset.displayName)")
 
-        if FileManager.default.fileExists(atPath: asset.localPath.path) {
-            log("Asset ready at \(asset.localPath.path)...")
+        if FileManager.default.fileExists(atPath: asset.localModelPath.path) {
+            log("Asset ready at \(asset.localModelPath.path)...")
             phase = .done
             urlSession.invalidateAndCancel()
             builderDone?(phase)

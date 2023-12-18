@@ -29,13 +29,18 @@ final class LlamaContext {
     init(asset: Asset) throws {
         self.asset = asset
 
+        let useGpu = asset.useGpuOnThisSystem
+
         llama_backend_init(false)
 
         var model_params = llama_model_default_params()
         model_params.use_mlock = false
         model_params.use_mmap = true
+        if !useGpu {
+            model_params.n_gpu_layers = 0
+        }
 
-        guard let model = llama_load_model_from_file(asset.localPath.path, model_params) else {
+        guard let model = llama_load_model_from_file(asset.localModelPath.path, model_params) else {
             throw "Could not initialise context"
         }
 
@@ -68,6 +73,7 @@ final class LlamaContext {
         ctx_params.n_threads_batch = UInt32(performanceCpuCount)
         ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         ctx_params.logits_all = true
+        ctx_params.offload_kqv = true
 
         guard let newContext = llama_new_context_with_model(model, ctx_params) else {
             throw "Could not initialise context"

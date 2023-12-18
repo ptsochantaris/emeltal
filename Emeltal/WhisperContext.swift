@@ -11,7 +11,7 @@ final class WhisperContext {
         var params = whisper_context_default_params()
         params.use_gpu = true
 
-        guard let context = whisper_init_from_file_with_params(asset.localPath.path, params) else {
+        guard let context = whisper_init_from_file_with_params(asset.localModelPath.path, params) else {
             throw "Could not initialise context"
         }
 

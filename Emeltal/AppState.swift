@@ -30,6 +30,10 @@ final class AppState: Identifiable {
         case notListening, pushButton, voiceActivated
     }
 
+    var displayName: String {
+        llmFetcher.asset.displayName
+    }
+
     var listenState = ListenState.notListening
 
     var statusMessage: String? = "Starting…"
@@ -496,12 +500,7 @@ final class AppState: Identifiable {
     }
 
     private var statePath: URL {
-        let fm = FileManager.default
-        let statePath = appDocumentsUrl.appendingPathComponent("states-\(llmFetcher.asset.id)", conformingTo: .directory)
-        if !fm.fileExists(atPath: statePath.path) {
-            try? fm.createDirectory(at: statePath, withIntermediateDirectories: true)
-        }
-        return statePath
+        llmFetcher.asset.localStatePath
     }
 
     private var textPath: URL {

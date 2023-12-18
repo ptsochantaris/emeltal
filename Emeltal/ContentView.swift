@@ -353,6 +353,7 @@ private struct ContentView: View {
             }
         }
         .padding()
+        .navigationTitle("Emeltal — \(state.displayName)")
         .task {
             do {
                 try await state.boot()
@@ -383,14 +384,14 @@ private struct ContentView: View {
 private struct AssetSelection: View {
     let asset: Asset
     let recommended: Bool
-    let selected: Bool
+    @Binding var selected: Asset
 
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
                 .foregroundStyle(.ultraThinMaterial)
 
-            if selected {
+            if selected == asset {
                 RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
                     .stroke(style: StrokeStyle(lineWidth: 4))
             }
@@ -398,7 +399,7 @@ private struct AssetSelection: View {
             VStack(spacing: 8) {
                 Text(asset.displayName)
                     .font(.title2)
-                    .lineLimit(2, reservesSpace: true)
+                    .lineLimit(1)
 
                 Text(asset.aboutText)
 
@@ -406,7 +407,16 @@ private struct AssetSelection: View {
 
                 HStack {
                     if recommended {
-                        Text(" RECOMMENDED ")
+                        Text(" START HERE ")
+                            .font(.caption2)
+                            .padding(4)
+                            .background {
+                                Capsule(style: .continuous)
+                                    .foregroundStyle(.ultraThinMaterial)
+                            }
+                    }
+                    if asset.isInstalled {
+                        Text(" INSTALLED ")
                             .font(.caption2)
                             .padding(4)
                             .background {
@@ -426,6 +436,9 @@ private struct AssetSelection: View {
             .padding()
             .frame(minHeight: 0)
         }
+        .onTapGesture {
+            selected = asset
+        }
     }
 }
 
@@ -440,40 +453,48 @@ private struct ModelPicker: View {
         NavigationStack {
             VStack(spacing: 16) {
                 Text("The model you select will be downloaded and installed locally on your system. You can change your selection from the menu later. Please ensure you have enough disk space for the model you select.")
-                    .font(.subheadline)
-                    .padding()
                     .multilineTextAlignment(.center)
+                    .font(.subheadline)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding()
+                    .padding([.leading, .trailing], 64)
 
-                HStack(alignment: .top) {
-                    AssetSelection(asset: .dolphinMixtral, recommended: true, selected: selectedAsset == .dolphinMixtral)
-                        .onTapGesture {
-                            selectedAsset = .dolphinMixtral
-                        }
-                    AssetSelection(asset: .mythoMax, recommended: false, selected: selectedAsset == .mythoMax)
-                        .onTapGesture {
-                            selectedAsset = .mythoMax
-                        }
-                    AssetSelection(asset: .deepSeekCoder, recommended: false, selected: selectedAsset == .deepSeekCoder)
-                        .onTapGesture {
-                            selectedAsset = .deepSeekCoder
-                        }
+                LazyVGrid(columns: [GridItem(), GridItem()]) {
+                    AssetSelection(asset: .solar, recommended: true, selected: $selectedAsset)
+                    AssetSelection(asset: .dolphinMixtral, recommended: false, selected: $selectedAsset)
+                    AssetSelection(asset: .mythoMax, recommended: false, selected: $selectedAsset)
+                    AssetSelection(asset: .deepSeekCoder, recommended: false, selected: $selectedAsset)
                 }
 
                 HStack {
+                    if selectedAsset.isInstalled {
+                        Button("Uninstall") {
+                            let a = selectedAsset
+                            selectedAsset = .none
+                            a.unInstall()
+                            selectedAsset = a
+                        }
+                        Spacer()
+                    }
+                    if !selectedAsset.useGpuOnThisSystem {
+                        Text("This model won't fit in this system's video memory and will need to use the CPU, which will make it **too slow for real-time chat**.")
+                        .foregroundStyle(.accent)
+                    }
                     Spacer()
                     if allowCancel {
                         Button("Cancel") {
                             dismiss()
                         }
                     }
-                    Button("Install") {
+                    Button(selectedAsset.isInstalled ? "Select" : "Install") {
                         selection(selectedAsset)
                     }
                 }
             }
+            .foregroundStyle(.white)
             .padding()
             .background(Image(.canvas).resizable())
-            .navigationTitle("Please select an ML model to be used with Emeltal")
+            .navigationTitle("Please select an ML model")
         }
     }
 }
@@ -482,7 +503,8 @@ private struct ModelPicker: View {
     ModelPicker(allowCancel: true, selectedAsset: .dolphinMixtral) { asset in
         print("selected: \(asset.id)")
     }
-    .frame(height: 360)
+    .frame(height: 600)
+    .preferredColorScheme(.dark)
 }
 
 @main
@@ -495,11 +517,10 @@ struct EmeltalApp: App {
             if state.canBoot {
                 ContentView(state: state)
             } else {
-                ModelPicker(allowCancel: false, selectedAsset: Persisted.selectedAsset ?? .dolphinMixtral) { asset in
+                ModelPicker(allowCancel: false, selectedAsset: Persisted.selectedAsset ?? .solar) { asset in
                     Persisted.selectedAsset = asset
                     state = AppState(asset: asset)
                 }
-                .preferredColorScheme(.dark)
                 .frame(width: 800, height: 400)
                 .fixedSize()
             }
