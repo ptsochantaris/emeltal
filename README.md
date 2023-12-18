@@ -5,7 +5,7 @@ Emeltal
 
 Local ML voice chat using high-end models.
 
-Work in progress; testflight beta available soon.
+This is a work in progress; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk).
 
 |Full|Mini|
 |-|-|
