@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 @Observable
 final class AppState: Identifiable {
-    nonisolated var id: String { llmFetcher.asset.id }
+    nonisolated var id: String { llm.asset.id }
 
     var multiLineText = ""
     var messageLog = ""
@@ -31,7 +31,7 @@ final class AppState: Identifiable {
     }
 
     var displayName: String {
-        llmFetcher.asset.displayName
+        llm.asset.displayName
     }
 
     var listenState = ListenState.notListening
@@ -91,7 +91,7 @@ final class AppState: Identifiable {
             return false
         }
 
-        case startup, booting, warmup, loading(assetFetchers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
+        case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
 
         func audioFeedback(using speaker: Speaker) {
             switch self {
@@ -134,17 +134,12 @@ final class AppState: Identifiable {
     }
 
     init(asset: Asset) {
-        if asset == .none {
-            llmFetcher = AssetFetcher(fetching: .none)
-            whisperFetcher = AssetFetcher(fetching: .none)
-        } else {
-            llmFetcher = AssetFetcher(fetching: asset)
-            whisperFetcher = AssetFetcher(fetching: .whisper)
-        }
+        llm = AssetManager(fetching: asset)
+        whisper = AssetManager(fetching: .whisper)
     }
 
-    private let llmFetcher: AssetFetcher
-    private let whisperFetcher: AssetFetcher
+    private let llm: AssetManager
+    private let whisper: AssetManager
     private var llamaContext: LlamaContext?
     private var whisperContext: WhisperContext?
     private var template: Template!
@@ -188,28 +183,24 @@ final class AppState: Identifiable {
         }
     }
 
-    var canBoot: Bool {
-        llmFetcher.asset != .none
-    }
-
     func boot() async throws {
         guard mode == .startup else {
             return
         }
 
-        mode = .loading(assetFetchers: [llmFetcher, whisperFetcher])
+        mode = .loading(managers: [llm, whisper])
 
-        for fetcher in [llmFetcher, whisperFetcher] {
+        for manager in [llm, whisper] {
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-                if fetcher.phase.isOngoing {
-                    fetcher.builderDone = { _ in
+                if manager.phase.isOngoing {
+                    manager.builderDone = { _ in
                         continuation.resume()
                     }
                 } else {
                     continuation.resume()
                 }
             }
-            if case let .error(error) = fetcher.phase {
+            if case let .error(error) = manager.phase {
                 throw error
             }
         }
@@ -223,8 +214,8 @@ final class AppState: Identifiable {
             messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n"
         }
 
-        let l = Task.detached { try await LlamaContext(asset: self.llmFetcher.asset) }
-        let w = Task.detached { let W = try await WhisperContext(asset: self.whisperFetcher.asset); _ = await W.warmup(); return W }
+        let l = Task.detached { try await LlamaContext(asset: self.llm.asset) }
+        let w = Task.detached { let W = try await WhisperContext(asset: self.whisper.asset); _ = await W.warmup(); return W }
         let s = Task.detached { try await Speaker() }
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
@@ -248,7 +239,7 @@ final class AppState: Identifiable {
         statusMessage = "Loading LLM…"
         llamaContext = try await l.value
 
-        template = llmFetcher.asset.mlTemplate(in: llamaContext!)
+        template = llm.asset.mlTemplate(in: llamaContext!)
 
         mode = .warmup
         statusMessage = "Warming up AI…"
@@ -500,7 +491,7 @@ final class AppState: Identifiable {
     }
 
     private var statePath: URL {
-        llmFetcher.asset.localStatePath
+        llm.asset.localStatePath
     }
 
     private var textPath: URL {

@@ -125,7 +125,7 @@ private struct Assistant: View {
                     .symbolEffect(.variableColor)
             }
 
-            if state.mode != .loading(assetFetchers: []) {
+            if state.mode != .loading(managers: []) {
                 PushButton { down in
                     if down {
                         state.pushButtonDown()
@@ -161,28 +161,28 @@ private struct Genie: View {
 }
 
 @MainActor
-private struct FetcherRow: View {
-    let fetcher: AssetFetcher
+private struct ManagerRow: View {
+    let manager: AssetManager
 
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                switch fetcher.phase {
+                switch manager.phase {
                 case .boot, .done:
-                    Text("**\(fetcher.asset.displayName)** Starting")
+                    Text("**\(manager.asset.displayName)** Starting")
                 case let .error(error):
-                    Text("**\(fetcher.asset.displayName)** error: \(error.localizedDescription)")
+                    Text("**\(manager.asset.displayName)** error: \(error.localizedDescription)")
                 case let .fetching(downloaded, expected):
                     let progress: Double = (Double(downloaded) / Double(expected))
                     let downloadedString = sizeFormatter.string(fromByteCount: downloaded)
                     let totalString = sizeFormatter.string(fromByteCount: expected)
                     HStack(alignment: .top) {
-                        Text("**\(fetcher.asset.displayName)**")
+                        Text("**\(manager.asset.displayName)**")
                         Spacer()
                         Text("\(downloadedString) / \(totalString)")
                     }
                     ProgressView(value: progress)
-                    Text(fetcher.asset.fetchUrl.absoluteString)
+                    Text(manager.asset.fetchUrl.absoluteString)
                 }
             }
             .multilineTextAlignment(.leading)
@@ -210,13 +210,13 @@ private struct ContentView: View {
             HStack(alignment: .top, spacing: 14) {
                 if !state.floatingMode {
                     VStack {
-                        if case let .loading(fetchers) = state.mode {
-                            let visibleFetchers = fetchers.filter(\.phase.shouldShowToUser)
+                        if case let .loading(managers) = state.mode {
+                            let visibleFetchers = managers.filter(\.phase.shouldShowToUser)
                             if !visibleFetchers.isEmpty {
                                 Text("Fetching ML models. This can take a while, but is only needed once.")
                                     .font(.headline)
                                 ForEach(visibleFetchers) {
-                                    FetcherRow(fetcher: $0)
+                                    ManagerRow(manager: $0)
                                 }
                             }
                         } else if let message = state.statusMessage {
@@ -470,8 +470,9 @@ private struct ModelPicker: View {
                     if selectedAsset.isInstalled {
                         Button("Uninstall") {
                             let a = selectedAsset
-                            selectedAsset = .none
                             a.unInstall()
+                            selectedAsset = .mythoMax // force an update
+                            selectedAsset = .solar // force an update
                             selectedAsset = a
                         }
                         Spacer()
@@ -510,11 +511,11 @@ private struct ModelPicker: View {
 @main
 @MainActor
 struct EmeltalApp: App {
-    @State private var state = AppState(asset: .none) // TODO: AppState(asset: Persisted.selectedAsset ?? .none) - for when we have the option to select in menu
+    @State private var state: AppState? = nil // TODO: AppState(asset: Persisted.selectedAsset) - for when we have the option to select in menu
 
     var body: some Scene {
         Window("Emeltal", id: "Emeltal") {
-            if state.canBoot {
+            if let state {
                 ContentView(state: state)
             } else {
                 ModelPicker(allowCancel: false, selectedAsset: Persisted.selectedAsset ?? .solar) { asset in
@@ -525,6 +526,6 @@ struct EmeltalApp: App {
                 .fixedSize()
             }
         }
-        .windowResizability(state.canBoot ? .automatic : .contentSize)
+        .windowResizability(state != nil ? .automatic : .contentSize)
     }
 }

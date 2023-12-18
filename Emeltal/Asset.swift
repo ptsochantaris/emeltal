@@ -2,7 +2,7 @@ import Foundation
 import Metal
 
 enum Asset: String, Identifiable, CaseIterable {
-    case dolphinMixtral, deepSeekCoder, mythoMax, solar, whisper, none
+    case dolphinMixtral, deepSeekCoder, mythoMax, solar, whisper
 
     func mlTemplate(in context: LlamaContext) -> Template? {
         switch self {
@@ -26,7 +26,7 @@ enum Asset: String, Identifiable, CaseIterable {
                      system: "You are an intelligent and helpful writing assistant.",
                      bosToken: context.bosToken)
 
-        case .none, .whisper:
+        case .whisper:
             nil
         }
     }
@@ -39,13 +39,18 @@ enum Asset: String, Identifiable, CaseIterable {
         log("Checking if current model selection can run on GPU (\(vramSize) GB)")
         return switch vramSize {
         case 0 ..< 22:
-            false
+            switch self {
+            case .deepSeekCoder: false
+            case .dolphinMixtral: false
+            case .mythoMax, .solar: false
+            case .whisper: true
+            }
         case 22 ..< 51:
             switch self {
             case .deepSeekCoder: false
             case .dolphinMixtral: false
             case .mythoMax, .solar: true
-            case .whisper, .none: false
+            case .whisper: true
             }
         default:
             true
@@ -59,7 +64,6 @@ enum Asset: String, Identifiable, CaseIterable {
         case .solar: "7.6 GB"
         case .mythoMax: "10.6 GB"
         case .whisper: "1.1 GB"
-        case .none: ""
         }
     }
 
@@ -75,8 +79,6 @@ enum Asset: String, Identifiable, CaseIterable {
             "One of the highest performing models for chat. A great starting point."
         case .whisper:
             "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
-        case .none:
-            ""
         }
     }
 
@@ -86,7 +88,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 1024
         case .mythoMax: 1024
         case .solar: 1024
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -96,7 +98,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 49
         case .mythoMax: 49
         case .solar: 49
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -106,7 +108,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 0.14
         case .mythoMax: 0.14
         case .solar: 0.14
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -116,7 +118,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 1.31
         case .mythoMax: 1.31
         case .solar: 1.31
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -126,7 +128,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 1.17
         case .mythoMax: 1.17
         case .solar: 1.17
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -136,7 +138,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 0.1
         case .mythoMax: 0.1
         case .solar: 0.1
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -146,7 +148,7 @@ enum Asset: String, Identifiable, CaseIterable {
         case .dolphinMixtral: 1.1
         case .mythoMax: 1.1
         case .solar: 1.1
-        case .none, .whisper: 0
+        case .whisper: 0
         }
     }
 
@@ -162,8 +164,6 @@ enum Asset: String, Identifiable, CaseIterable {
             "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin"
         case .solar:
             "https://huggingface.co/jan-hq/Solar-10.7B-SLERP-GGUF/resolve/main/solar-10.7b-slerp.Q5_K_M.gguf"
-        case .none:
-            ""
         }
         return URL(string: uri)!
     }
@@ -202,7 +202,6 @@ enum Asset: String, Identifiable, CaseIterable {
         case .mythoMax: "MythoMax Writing Assistant"
         case .whisper: "Whisper Large v3"
         case .solar: "Pandora Solar"
-        case .none: ""
         }
     }
 

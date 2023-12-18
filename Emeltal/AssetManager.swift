@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
+final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     enum Phase {
         case boot, fetching(downloaded: Int64, expected: Int64), error(error: Error), done
 
@@ -27,7 +27,6 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
 
     nonisolated var id: String { asset.id }
 
-    @MainActor
     var builderDone: ((Phase) -> Void)?
 
     var phase: Phase
@@ -39,11 +38,9 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         phase = .boot
         self.asset = asset
         super.init()
-        if asset != .none {
-            urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
-            Task {
-                await startup()
-            }
+        urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
+        Task {
+            await startup()
         }
     }
 
