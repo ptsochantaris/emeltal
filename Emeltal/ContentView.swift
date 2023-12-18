@@ -234,6 +234,7 @@ private struct ContentView: View {
                             ScrollView {
                                 VStack(spacing: 0) {
                                     Markdown(MarkdownContent(state.messageLog))
+                                        .textSelection(.enabled)
                                         .markdownTheme(.docC)
                                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                                     Spacer()
