@@ -11,7 +11,7 @@ final class LlamaContext {
 
     let n_ctx: Int32
     let bosToken: String
-    let asset: Asset
+    let manager: AssetManager
 
     func reset() {
         turns.removeAll()
@@ -26,9 +26,10 @@ final class LlamaContext {
         try data.write(to: url.appendingPathComponent("turns.json"))
     }
 
-    init(asset: Asset) throws {
-        self.asset = asset
+    init(manager: AssetManager) async throws {
+        self.manager = manager
 
+        let asset = manager.asset
         let useGpu = asset.useGpuOnThisSystem
 
         llama_backend_init(false)
@@ -227,7 +228,7 @@ final class LlamaContext {
         let maxTokens = text.utf8.count
         var newTokens = [llama_token](repeating: 0, count: maxTokens)
         let tokenisedCount = llama_tokenize(model, text, Int32(maxTokens), &newTokens, Int32(maxTokens), false, true)
-        let newTokenLimit = Int(min(asset.maxBatch, UInt32(tokenisedCount)))
+        let newTokenLimit = Int(min(manager.asset.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
     }
 
@@ -251,6 +252,7 @@ final class LlamaContext {
             }
 
             var candidates_p = llama_token_data_array(data: candidateBuffer.baseAddress, size: candidateBuffer.count, sorted: false)
+            let asset = manager.asset
             llama_sample_top_k(context, &candidates_p, asset.topK, 1)
             llama_sample_top_p(context, &candidates_p, asset.topP, 1)
             llama_sample_temp(context, &candidates_p, asset.temperature)

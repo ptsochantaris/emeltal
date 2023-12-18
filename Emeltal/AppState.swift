@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 @Observable
 final class AppState: Identifiable {
-    nonisolated var id: String { llm.asset.id }
+    nonisolated var id: String { asset.id }
 
     var multiLineText = ""
     var messageLog = ""
@@ -31,7 +31,7 @@ final class AppState: Identifiable {
     }
 
     var displayName: String {
-        llm.asset.displayName
+        asset.displayName
     }
 
     var listenState = ListenState.notListening
@@ -133,13 +133,12 @@ final class AppState: Identifiable {
         try await save()
     }
 
+    let asset: Asset
+
     init(asset: Asset) {
-        llm = AssetManager(fetching: asset)
-        whisper = AssetManager(fetching: .whisper)
+        self.asset = asset
     }
 
-    private let llm: AssetManager
-    private let whisper: AssetManager
     private var llamaContext: LlamaContext?
     private var whisperContext: WhisperContext?
     private var template: Template!
@@ -188,6 +187,9 @@ final class AppState: Identifiable {
             return
         }
 
+        let llm = AssetManager(fetching: asset)
+        let whisper = AssetManager(fetching: .whisper)
+
         mode = .loading(managers: [llm, whisper])
 
         for manager in [llm, whisper] {
@@ -214,8 +216,8 @@ final class AppState: Identifiable {
             messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n"
         }
 
-        let l = Task.detached { try await LlamaContext(asset: self.llm.asset) }
-        let w = Task.detached { let W = try await WhisperContext(asset: self.whisper.asset); _ = await W.warmup(); return W }
+        let l = Task.detached { try await LlamaContext(manager: llm) }
+        let w = Task.detached { let W = try await WhisperContext(manager: whisper); _ = await W.warmup(); return W }
         let s = Task.detached { try await Speaker() }
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
@@ -491,7 +493,7 @@ final class AppState: Identifiable {
     }
 
     private var statePath: URL {
-        llm.asset.localStatePath
+        asset.localStatePath
     }
 
     private var textPath: URL {

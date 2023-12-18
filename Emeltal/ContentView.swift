@@ -479,7 +479,7 @@ private struct ModelPicker: View {
                     }
                     if !selectedAsset.useGpuOnThisSystem {
                         Text("This model won't fit in this system's video memory and will need to use the CPU, which will make it **too slow for real-time chat**.")
-                        .foregroundStyle(.accent)
+                            .foregroundStyle(.accent)
                     }
                     Spacer()
                     if allowCancel {

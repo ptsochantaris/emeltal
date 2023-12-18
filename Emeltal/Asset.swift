@@ -33,7 +33,7 @@ enum Asset: String, Identifiable, CaseIterable {
 
     var useGpuOnThisSystem: Bool {
         guard let device = MTLCreateSystemDefaultDevice() else {
-            fatalError( "Failed to get the system's default Metal device." )
+            fatalError("Failed to get the system's default Metal device.")
         }
         let vramSize = device.recommendedMaxWorkingSetSize / 1_000_000_000
         log("Checking if current model selection can run on GPU (\(vramSize) GB)")

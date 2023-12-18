@@ -3,15 +3,15 @@ import Foundation
 @GGMLActor
 final class WhisperContext {
     private var context: OpaquePointer
-    private let asset: Asset
+    private let manager: AssetManager
 
-    init(asset: Asset) throws {
-        self.asset = asset
+    init(manager: AssetManager) async throws {
+        self.manager = manager
 
         var params = whisper_context_default_params()
         params.use_gpu = true
 
-        guard let context = whisper_init_from_file_with_params(asset.localModelPath.path, params) else {
+        guard let context = whisper_init_from_file_with_params(manager.asset.localModelPath.path, params) else {
             throw "Could not initialise context"
         }
 
