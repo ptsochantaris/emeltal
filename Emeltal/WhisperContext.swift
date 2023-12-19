@@ -1,7 +1,6 @@
 import Foundation
 
-@GGMLActor
-final class WhisperContext {
+final actor WhisperContext {
     private var context: OpaquePointer
     private let manager: AssetManager
 

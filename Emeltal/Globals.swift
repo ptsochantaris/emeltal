@@ -9,10 +9,6 @@ let appDocumentsUrl: URL = FileManager.default.urls(for: .documentDirectory, in:
 let assistantWidth: CGFloat = 140
 let assistantHeight: CGFloat = 380
 
-@globalActor actor GGMLActor {
-    static var shared = GGMLActor()
-}
-
 let performanceCpuCount = {
     var performanceCpuCount = Int32()
     var size = MemoryLayout.size(ofValue: performanceCpuCount)
