@@ -4,6 +4,10 @@ import Metal
 enum Asset: String, Identifiable, CaseIterable {
     case dolphinMixtral, deepSeekCoder, mythoMax, solar, whisper
 
+    static var assetList: [Asset] {
+        [.solar, .dolphinMixtral, .mythoMax, .deepSeekCoder]
+    }
+
     func mlTemplate(in context: LlamaContext) -> Template? {
         switch self {
         case .solar:
@@ -37,23 +41,16 @@ enum Asset: String, Identifiable, CaseIterable {
         }
         let vramSize = device.recommendedMaxWorkingSetSize / 1_000_000_000
         log("Checking if current model selection can run on GPU (\(vramSize) GB)")
-        return switch vramSize {
-        case 0 ..< 22:
-            switch self {
-            case .deepSeekCoder: false
-            case .dolphinMixtral: false
-            case .mythoMax, .solar: false
-            case .whisper: true
-            }
-        case 22 ..< 51:
-            switch self {
-            case .deepSeekCoder: false
-            case .dolphinMixtral: false
-            case .mythoMax, .solar: true
-            case .whisper: true
-            }
-        default:
-            true
+        return vramSize > vramRequiredToFitInGpu
+    }
+
+    var vramRequiredToFitInGpu: Int {
+        switch self {
+        case .dolphinMixtral: 34
+        case .deepSeekCoder: 37
+        case .solar: 9
+        case .mythoMax: 12
+        case .whisper: 2
         }
     }
 
