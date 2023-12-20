@@ -11,7 +11,7 @@ extension Asset {
             case .deepSeekCoder: .instruct
             case .dolphinMixtral: .chatml
             case .mythoMax: .instruct
-            case .solar: .instruct
+            case .solar: .userAssistant
             case .whisper: .instruct
             case .zephyr3b: .zephyr
             }
@@ -94,39 +94,15 @@ extension Asset {
         }
 
         private var defaultTopK: Int {
-            switch self {
-            case .deepSeekCoder: 49
-            case .dolphinMixtral: 49
-            case .mythoMax: 49
-            case .solar: 49
-            case .shiningValiant: 49
-            case .zephyr3b: 49
-            case .whisper: 0
-            }
+            50
         }
 
         private var defaultTopP: Float {
-            switch self {
-            case .deepSeekCoder: 0.14
-            case .dolphinMixtral: 0.14
-            case .mythoMax: 0.14
-            case .solar: 0.14
-            case .shiningValiant: 0.14
-            case .zephyr3b: 0.14
-            case .whisper: 0
-            }
+            0.5
         }
 
         private var defaultTemperature: Float {
-            switch self {
-            case .deepSeekCoder: 0.4
-            case .dolphinMixtral: 1.31
-            case .mythoMax: 1.31
-            case .solar: 1.31
-            case .shiningValiant: 0.7
-            case .zephyr3b: 0.7
-            case .whisper: 0
-            }
+            0.7
         }
 
         private var defaultRepeatPenatly: Float {
@@ -135,8 +111,8 @@ extension Asset {
             case .dolphinMixtral: 1.17
             case .mythoMax: 1.17
             case .solar: 1.17
-            case .shiningValiant: 1.1
-            case .zephyr3b: 1.1
+            case .shiningValiant: 1.17
+            case .zephyr3b: 1.17
             case .whisper: 0
             }
         }
@@ -154,15 +130,7 @@ extension Asset {
         }
 
         private var defaultPresentPenalty: Float {
-            switch self {
-            case .deepSeekCoder: 1
-            case .dolphinMixtral: 1.1
-            case .mythoMax: 1.1
-            case .solar: 1.1
-            case .shiningValiant: 1.1
-            case .zephyr3b: 1.1
-            case .whisper: 0
-            }
+            1
         }
 
         var fetchUrl: URL {

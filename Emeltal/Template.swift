@@ -73,9 +73,9 @@ struct Template {
         case .userAssistant:
             switch step {
             case .initial:
-                "### System:\n"
+                " ### System:\n"
             case .turn:
-                "### User:\n"
+                "<s> ### User:\n"
             }
         }
     }
@@ -93,14 +93,14 @@ struct Template {
         case .userAssistant:
             switch step {
             case .initial:
-                "\n\n"
+                "</s>\n\n"
             case .turn:
                 "\n\n### Assistant:\n"
             }
         case .chatml:
             switch step {
             case .initial:
-                ""
+                "<|im_end|>"
             case .turn:
                 "<|im_end|>\n<|im_start|>assistant\n"
             }
