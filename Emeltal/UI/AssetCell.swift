@@ -17,11 +17,11 @@ struct AssetCell: View {
             }
 
             VStack(spacing: 8) {
-                Text(asset.displayName)
+                Text(asset.category.displayName)
                     .font(.title2)
                     .lineLimit(1)
 
-                Text(asset.aboutText)
+                Text(asset.category.aboutText)
 
                 Spacer(minLength: 0)
 
@@ -47,7 +47,7 @@ struct AssetCell: View {
 
                     Spacer()
 
-                    Text(asset.sizeDescription)
+                    Text(asset.category.sizeDescription)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

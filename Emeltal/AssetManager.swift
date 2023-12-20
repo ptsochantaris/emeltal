@@ -92,7 +92,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     private func startup() async {
-        log("Setting up asset for \(asset.displayName)")
+        log("Setting up asset for \(asset.category.displayName)")
 
         if FileManager.default.fileExists(atPath: asset.localModelPath.path) {
             log("Asset ready at \(asset.localModelPath.path)...")
@@ -106,7 +106,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         phase = .fetching(downloaded: 0, expected: 0)
 
         let downloadTasks = await urlSession.tasks.2
-        var related = downloadTasks.filter { $0.originalRequest?.url?.lastPathComponent == asset.fetchUrl.lastPathComponent }
+        var related = downloadTasks.filter { $0.originalRequest?.url?.lastPathComponent == asset.category.fetchUrl.lastPathComponent }
         while related.count > 1 {
             if let task = related.popLast() {
                 task.cancel()
@@ -120,7 +120,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
 
         do {
             log("Requesting new asset transfer...")
-            urlSession.downloadTask(with: asset.fetchUrl).resume()
+            urlSession.downloadTask(with: asset.category.fetchUrl).resume()
         }
     }
 

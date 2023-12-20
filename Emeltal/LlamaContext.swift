@@ -29,7 +29,7 @@ final actor LlamaContext {
         self.manager = manager
 
         let asset = manager.asset
-        let useGpu = asset.useGpuOnThisSystem
+        let useGpu = asset.category.useGpuOnThisSystem
 
         llama_backend_init(false)
 
@@ -68,7 +68,7 @@ final actor LlamaContext {
 
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = 0
-        ctx_params.n_batch = asset.maxBatch
+        ctx_params.n_batch = asset.category.maxBatch
         ctx_params.n_threads = UInt32(performanceCpuCount)
         ctx_params.n_threads_batch = UInt32(performanceCpuCount)
         ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
@@ -227,7 +227,7 @@ final actor LlamaContext {
         let maxTokens = text.utf8.count
         var newTokens = [llama_token](repeating: 0, count: maxTokens)
         let tokenisedCount = llama_tokenize(model, text, Int32(maxTokens), &newTokens, Int32(maxTokens), false, true)
-        let newTokenLimit = Int(min(manager.asset.maxBatch, UInt32(tokenisedCount)))
+        let newTokenLimit = Int(min(manager.asset.category.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
     }
 
@@ -251,15 +251,15 @@ final actor LlamaContext {
             }
 
             var candidates_p = llama_token_data_array(data: candidateBuffer.baseAddress, size: candidateBuffer.count, sorted: false)
-            let asset = manager.asset
-            llama_sample_top_k(context, &candidates_p, asset.topK, 1)
-            llama_sample_top_p(context, &candidates_p, asset.topP, 1)
-            llama_sample_temp(context, &candidates_p, asset.temperature)
+            let params = manager.asset.params
+            llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
+            llama_sample_top_p(context, &candidates_p, params.topP, 1)
+            llama_sample_temp(context, &candidates_p, params.temperature)
             llama_sample_repetition_penalties(context, &candidates_p, newTokens,
                                               newTokens.count, // previous token count
-                                              asset.repeatPenatly, // repeat penalty
-                                              asset.frequencyPenalty, // freq penalty
-                                              asset.presentPenalty) // present penalty
+                                              params.repeatPenatly, // repeat penalty
+                                              params.frequencyPenatly, // freq penalty
+                                              params.presentPenatly) // present penalty
             let new_token_id = llama_sample_token(context, &candidates_p)
             if new_token_id == eosTokenId {
                 break

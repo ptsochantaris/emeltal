@@ -10,20 +10,20 @@ struct ManagerRow: View {
             VStack(alignment: .leading) {
                 switch manager.phase {
                 case .boot, .done:
-                    Text("**\(manager.asset.displayName)** Starting")
+                    Text("**\(manager.asset.category.displayName)** Starting")
                 case let .error(error):
-                    Text("**\(manager.asset.displayName)** error: \(error.localizedDescription)")
+                    Text("**\(manager.asset.category.displayName)** error: \(error.localizedDescription)")
                 case let .fetching(downloaded, expected):
                     let progress: Double = (Double(downloaded) / Double(expected))
                     let downloadedString = sizeFormatter.string(fromByteCount: downloaded)
                     let totalString = sizeFormatter.string(fromByteCount: expected)
                     HStack(alignment: .top) {
-                        Text("**\(manager.asset.displayName)**")
+                        Text("**\(manager.asset.category.displayName)**")
                         Spacer()
                         Text("\(downloadedString) / \(totalString)")
                     }
                     ProgressView(value: progress)
-                    Text(manager.asset.fetchUrl.absoluteString)
+                    Text(manager.asset.category.fetchUrl.absoluteString)
                 }
             }
             .multilineTextAlignment(.leading)

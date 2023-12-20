@@ -31,7 +31,7 @@ final class AppState: Identifiable {
     }
 
     var displayName: String {
-        asset.displayName
+        asset.category.displayName
     }
 
     var listenState = ListenState.notListening
@@ -131,6 +131,7 @@ final class AppState: Identifiable {
         messageLog = ""
         await llamaContext?.reset()
         try await save()
+        try await chatInit()
     }
 
     let asset: Asset
@@ -188,7 +189,7 @@ final class AppState: Identifiable {
         }
 
         let llm = AssetManager(fetching: asset)
-        let whisper = AssetManager(fetching: .whisper)
+        let whisper = AssetManager(fetching: Asset(defaultFor: .whisper))
 
         mode = .loading(managers: [llm, whisper])
 
@@ -246,8 +247,11 @@ final class AppState: Identifiable {
         mode = .warmup
         statusMessage = "Warming up AI…"
 
-        try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
+        try await chatInit()
+    }
 
+    private func chatInit() async throws {
+        try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
         shouldWaitOrListen()
         statusMessage = nil
     }

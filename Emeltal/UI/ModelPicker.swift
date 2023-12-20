@@ -2,10 +2,11 @@ import Foundation
 import SwiftUI
 
 struct ModelPicker: View {
+    @Binding var selectedAsset: Asset
     let allowCancel: Bool
-    @State var selectedAsset: Asset
-    let selection: (Asset) -> Void
+    let selection: () -> Void
 
+    @State private var showOverrides = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -18,26 +19,97 @@ struct ModelPicker: View {
                     .padding()
                     .padding([.leading, .trailing], 64)
 
-                let recommended = Asset.solar
+                let recommended = Asset.Category.solar
                 let item = GridItem(spacing: 14)
                 LazyVGrid(columns: [item, item], spacing: 14) {
                     ForEach(Asset.assetList) {
-                        AssetCell(asset: $0, recommended: $0 == recommended, selected: $selectedAsset)
+                        AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
                     }
+                }
+
+                if showOverrides {
+                    Grid(alignment: .leading) {
+                        GridRow {
+                            Text("System Prompt")
+                                .gridColumnAlignment(.trailing)
+                            TextField("System Prompt", text: $selectedAsset.params.systemPrompt)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+
+                        GridRow {
+                            Spacer()
+                            Text("(for new conversations, or when reset)")
+                                .foregroundStyle(.secondary)
+                                .font(.caption2)
+                                .padding([.bottom], 4)
+                        }
+
+                        GridRow {
+                            Text("Top K")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .convert(from: $selectedAsset.params.topK), in: 1 ... 100)
+                            Text(selectedAsset.params.topK, format: .number)
+                        }
+
+                        GridRow {
+                            Text("Top P")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .round(from: $selectedAsset.params.topP), in: 0 ... 1)
+                            Text(selectedAsset.params.topP, format: .number)
+                        }
+
+                        GridRow {
+                            Text("Temperature")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .round(from: $selectedAsset.params.temperature), in: 0 ... 2)
+                            Text(selectedAsset.params.temperature, format: .number)
+                        }
+
+                        GridRow {
+                            Text("Repeat Penalty")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .round(from: $selectedAsset.params.repeatPenatly), in: 0 ... 2)
+                            Text(selectedAsset.params.repeatPenatly, format: .number)
+                        }
+
+                        GridRow {
+                            Text("Frequency Penalty")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .round(from: $selectedAsset.params.frequencyPenatly), in: 0 ... 2)
+                            Text(selectedAsset.params.frequencyPenatly, format: .number)
+                        }
+
+                        GridRow {
+                            Text("Present Penalty")
+                                .gridColumnAlignment(.trailing)
+                            Slider(value: .round(from: $selectedAsset.params.presentPenatly), in: 0 ... 2)
+                            Text(selectedAsset.params.presentPenatly, format: .number)
+                        }
+                    }
+                    .font(.callout)
+                    .padding([.top, .bottom], 16)
                 }
 
                 HStack {
                     if selectedAsset.isInstalled {
                         Button("Uninstall") {
-                            uninstall(selectedAsset)
+                            selectedAsset.unInstall()
                         }
                     }
-                    if selectedAsset.useGpuOnThisSystem {
+                    if selectedAsset.category.useGpuOnThisSystem {
                         Spacer()
                     } else {
                         Text("This model won't fit in this system's video memory and will need to use the CPU. It will work but it will be **too slow for real-time chat**.")
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
+                    }
+                    Button(showOverrides ? "Use Defaults" : "Customize…") {
+                        if showOverrides {
+                            let currentCategory = selectedAsset.category
+                            selectedAsset = Asset(defaultFor: currentCategory)
+                        } else {
+                            showOverrides = true
+                        }
                     }
                     if allowCancel {
                         Button("Cancel") {
@@ -45,12 +117,12 @@ struct ModelPicker: View {
                         }
                     }
                     Button(selectedAsset.isInstalled ? "Select" : "Install") {
-                        selection(selectedAsset)
+                        selection()
                     }
                 }
-                .padding([.leading, .trailing], selectedAsset.useGpuOnThisSystem ? 0 : 16)
+                .padding([.leading, .trailing], selectedAsset.category.useGpuOnThisSystem ? 0 : 16)
                 .padding([.top, .bottom], 8)
-                .background(selectedAsset.useGpuOnThisSystem ? .clear : .accent)
+                .background(selectedAsset.category.useGpuOnThisSystem ? .clear : .accent)
                 .cornerRadius(8.0)
             }
             .padding([.leading, .trailing])
@@ -59,12 +131,5 @@ struct ModelPicker: View {
             .background(Image(.canvas).resizable())
             .navigationTitle("Select an ML model")
         }
-    }
-
-    private func uninstall(_ asset: Asset) {
-        asset.unInstall()
-        selectedAsset = .mythoMax // force an update
-        selectedAsset = .solar // force an update
-        selectedAsset = asset
     }
 }

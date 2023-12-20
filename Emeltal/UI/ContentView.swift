@@ -1,6 +1,6 @@
+import AVFoundation
 import MarkdownUI
 import SwiftUI
-import AVFoundation
 
 @MainActor
 struct ContentView: View {
