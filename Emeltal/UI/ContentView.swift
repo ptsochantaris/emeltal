@@ -22,7 +22,7 @@ struct ContentView: View {
                         if case let .loading(managers) = state.mode {
                             let visibleFetchers = managers.filter(\.phase.shouldShowToUser)
                             if !visibleFetchers.isEmpty {
-                                Text("Fetching ML models. This can take a while, but is only needed once.")
+                                Text("Fetching ML data. This is only needed once per type of model.")
                                     .font(.headline)
                                 ForEach(visibleFetchers) {
                                     ManagerRow(manager: $0)

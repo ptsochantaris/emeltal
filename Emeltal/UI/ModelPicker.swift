@@ -33,12 +33,18 @@ struct ModelPicker: View {
                             Text("System Prompt")
                                 .gridColumnAlignment(.trailing)
                             TextField("System Prompt", text: $selectedAsset.params.systemPrompt)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .padding([.top, .bottom], 4)
+                                .padding([.leading, .trailing], 7)
+                                .background {
+                                    RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
+                                        .stroke(.secondary)
+                                }
                         }
 
                         GridRow {
                             Spacer()
-                            Text("(for new conversations, or when reset)")
+                            Text("(applies when creating, or after resetting, a conversation)")
                                 .foregroundStyle(.secondary)
                                 .font(.caption2)
                                 .padding([.bottom], 4)

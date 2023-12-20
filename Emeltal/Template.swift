@@ -2,11 +2,11 @@ import Foundation
 
 struct Template {
     enum Step {
-        case initial, turn(text: String)
+        case initial, turn(text: String, index: Int)
     }
 
     enum Format {
-        case instruct, chatml, userAssistant
+        case instruct, chatml, userAssistant, llamaInst, zephyr
     }
 
     init(format: Format, system: String, bosToken: String) {
@@ -31,7 +31,7 @@ struct Template {
             } else {
                 "\(bosToken)\(prefix)\(system)\(suffix)"
             }
-        case let .turn(text):
+        case let .turn(text, _):
             "\(prefix)\(text)\(suffix)"
         }
     }
@@ -49,12 +49,26 @@ struct Template {
             case .turn:
                 "\n<|im_start|>user\n"
             }
+        case .zephyr:
+            switch step {
+            case .initial:
+                "<|system|>\n"
+            case .turn:
+                "<|user|>\n"
+            }
         case .instruct:
             switch step {
             case .initial:
                 ""
             case .turn:
                 "\n\n### Instruction:\n\n"
+            }
+        case .llamaInst:
+            switch step {
+            case .initial:
+                "[INST] << SYS >>"
+            case let .turn(_, index):
+                index == 0 ? "" : "[INST]"
             }
         case .userAssistant:
             switch step {
@@ -68,6 +82,14 @@ struct Template {
 
     private func suffix(for step: Step) -> String {
         switch format {
+        case .zephyr:
+            switch step {
+            case .initial:
+                "<|endoftext|>\n"
+            case .turn:
+                "<|endoftext|>\n<|assistant|>\n"
+            }
+
         case .userAssistant:
             switch step {
             case .initial:
@@ -81,6 +103,13 @@ struct Template {
                 ""
             case .turn:
                 "<|im_end|>\n<|im_start|>assistant\n"
+            }
+        case .llamaInst:
+            switch step {
+            case .initial:
+                "<< /SYS >>"
+            case .turn:
+                "[/INST]"
             }
         case .instruct:
             switch step {

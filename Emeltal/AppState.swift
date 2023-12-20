@@ -444,7 +444,8 @@ final class AppState: Identifiable {
         let sanitisedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         messageLog += "\n#### \(sanitisedText)\n"
 
-        let stream = llamaContext.process(text: sanitisedText, template: template)
+        let index = await max(0, llamaContext.turnCount - 1)
+        let stream = llamaContext.process(text: sanitisedText, template: template, turnIndex: index)
 
         var sentenceBuffer = ""
         var inQuote = false

@@ -102,12 +102,17 @@ final actor LlamaContext {
             let infoData = try Data(contentsOf: turnStates)
             turns = try JSONDecoder().decode([Turn].self, from: infoData)
         } else {
-            log("Adding initial prompt: \(template.text(for: .initial))")
-            let tokens = tokenize(text: template.text(for: .initial))
-            let seq = Turn(id: 0)
-            _ = seq.append(tokens: tokens, in: context, andPredict: false, offset: 0)
-            turns.append(seq)
-            log("Warmup complete")
+            let initial = template.text(for: .initial)
+            if initial.isEmpty {
+                log("No system prompt, skipping warmup")
+            } else {
+                log("Adding initial prompt: \(initial)")
+                let tokens = tokenize(text: initial)
+                let seq = Turn(id: 0)
+                _ = seq.append(tokens: tokens, in: context, andPredict: false, offset: 0)
+                turns.append(seq)
+                log("Warmup complete")
+            }
         }
     }
 
@@ -117,8 +122,8 @@ final actor LlamaContext {
         llama_backend_free()
     }
 
-    nonisolated func process(text: String, template: Template) -> AsyncStream<String> {
-        let promptText = template.text(for: .turn(text: text))
+    nonisolated func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<String> {
+        let promptText = template.text(for: .turn(text: text, index: turnIndex))
         log("Prompt: \(promptText)\n")
 
         return AsyncStream<String> { continuation in
@@ -229,6 +234,10 @@ final actor LlamaContext {
         let tokenisedCount = llama_tokenize(model, text, Int32(maxTokens), &newTokens, Int32(maxTokens), false, true)
         let newTokenLimit = Int(min(manager.asset.category.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
+    }
+
+    var turnCount: Int {
+        turns.count
     }
 
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation) {

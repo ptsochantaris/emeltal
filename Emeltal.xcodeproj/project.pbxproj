@@ -30,10 +30,13 @@
 		16578A322B18CA5A0038A680 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* AppState.swift */; };
 		16578A342B18CA820038A680 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16578A392B1924B80038A680 /* WhisperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A382B1924B80038A680 /* WhisperContext.swift */; };
+		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
+		168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56002B331BA8007CADC1 /* AssetParams.swift */; };
+		168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56022B331BCC007CADC1 /* AssetCollection.swift */; };
 		16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */; };
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
-		16905E522B2E52BD006B4EC8 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Category.swift */; };
+		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C7C21D2B2A0A6700755BC4 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C7C21C2B2A0A6700755BC4 /* llama.metallib */; };
@@ -80,10 +83,13 @@
 		16578A312B18CA5A0038A680 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		16578A382B1924B80038A680 /* WhisperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhisperContext.swift; sourceTree = "<group>"; };
+		168F55FE2B331B8B007CADC1 /* AssetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCategory.swift; sourceTree = "<group>"; };
+		168F56002B331BA8007CADC1 /* AssetParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetParams.swift; sourceTree = "<group>"; };
+		168F56022B331BCC007CADC1 /* AssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCollection.swift; sourceTree = "<group>"; };
 		16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
-		16905E512B2E52BD006B4EC8 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
 		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
@@ -140,10 +146,9 @@
 		1608DB6A2B151B4F00FFFB09 /* Emeltal */ = {
 			isa = PBXGroup;
 			children = (
+				168F56042B331BD8007CADC1 /* Assets */,
 				163EF0512B31B6B400565F49 /* UI */,
 				16578A312B18CA5A0038A680 /* AppState.swift */,
-				16905E512B2E52BD006B4EC8 /* Category.swift */,
-				16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */,
 				1608DB6F2B151B5000FFFB09 /* Assets.xcassets */,
 				16C7943F2B2F3DEF0052B707 /* Audio */,
 				1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */,
@@ -186,6 +191,18 @@
 				163EF0612B31D0CD00565F49 /* SideBar.swift */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		168F56042B331BD8007CADC1 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				16905E512B2E52BD006B4EC8 /* Asset.swift */,
+				16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */,
+				168F55FE2B331B8B007CADC1 /* AssetCategory.swift */,
+				168F56002B331BA8007CADC1 /* AssetParams.swift */,
+				168F56022B331BCC007CADC1 /* AssetCollection.swift */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		16C7943F2B2F3DEF0052B707 /* Audio */ = {
@@ -278,14 +295,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */,
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
 				16578A392B1924B80038A680 /* WhisperContext.swift in Sources */,
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
 				163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */,
-				16905E522B2E52BD006B4EC8 /* Category.swift in Sources */,
+				16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
+				168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */,
+				168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */,
 				16578A322B18CA5A0038A680 /* AppState.swift in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,

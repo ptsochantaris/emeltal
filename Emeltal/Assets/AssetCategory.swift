@@ -1,143 +1,19 @@
 import Foundation
 import Metal
 
-extension [Asset]: RawRepresentable {
-    public init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8),
-              let instance = try? JSONDecoder().decode([Asset].self, from: data) else {
-            return nil
-        }
-        self = instance
-    }
-
-    public var rawValue: String {
-        let data = (try? JSONEncoder().encode(self)) ?? Data()
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-}
-
-struct Asset: RawRepresentable, Codable, Identifiable {
-    let id: String
-    let category: Category
-    var params: Params {
-        didSet {
-            Asset.assetList = Asset.assetList.map {
-                if $0.id == id {
-                    return self
-                }
-                return $0
-            }
-        }
-    }
-
-    static var assetList: [Asset] {
-        get {
-            Persisted.assetList ?? [Asset(defaultFor: .solar),
-                                    Asset(defaultFor: .dolphinMixtral),
-                                    Asset(defaultFor: .mythoMax),
-                                    Asset(defaultFor: .deepSeekCoder)]
-        }
-        set {
-            Persisted.assetList = newValue
-        }
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    enum CodingKeys: CodingKey {
-        case id
-        case category
-        case params
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(category, forKey: .category)
-        try container.encode(params, forKey: .params)
-    }
-
-    init(defaultFor category: Asset.Category) {
-        id = category.id
-        self.category = category
-        params = category.defaultParams
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        category = try container.decode(Category.self, forKey: .category)
-        params = try container.decode(Params.self, forKey: .params)
-    }
-
-    init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8), let instance = try? JSONDecoder().decode(Asset.self, from: data) else {
-            return nil
-        }
-        self = instance
-    }
-
-    var rawValue: String {
-        let data = (try? JSONEncoder().encode(self)) ?? Data()
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-
-    var isInstalled: Bool {
-        FileManager.default.fileExists(atPath: localModelPath.path)
-    }
-
-    mutating func unInstall() {
-        let fm = FileManager.default
-        try? fm.removeItem(at: localModelPath)
-        try? fm.removeItem(at: localStatePath)
-    }
-
-    var localModelPath: URL {
-        let modelDir = appDocumentsUrl.appendingPathComponent("models", conformingTo: .directory)
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: modelDir.path) {
-            try! fm.createDirectory(at: modelDir, withIntermediateDirectories: true)
-        }
-        return modelDir.appendingPathComponent(category.fetchUrl.lastPathComponent)
-    }
-
-    var localStatePath: URL {
-        let fm = FileManager.default
-        let statePath = appDocumentsUrl.appendingPathComponent("states-\(id)", conformingTo: .directory)
-        if !fm.fileExists(atPath: statePath.path) {
-            try? fm.createDirectory(at: statePath, withIntermediateDirectories: true)
-        }
-        return statePath
-    }
-
-    func mlTemplate(in context: LlamaContext) -> Template? {
-        Template(format: category.format,
-                 system: params.systemPrompt,
-                 bosToken: context.bosToken)
-    }
-
-    struct Params: Codable {
-        var topK: Int
-        var topP: Float
-        var systemPrompt: String
-        var temperature: Float
-        var repeatPenatly: Float
-        var frequencyPenatly: Float
-        var presentPenatly: Float
-    }
-
+extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, solar, whisper
+        case dolphinMixtral, deepSeekCoder, mythoMax, solar, shiningValiant, zephyr3b, whisper
 
         var format: Template.Format {
             switch self {
+            case .shiningValiant: .llamaInst
             case .deepSeekCoder: .instruct
             case .dolphinMixtral: .chatml
             case .mythoMax: .instruct
             case .solar: .instruct
             case .whisper: .instruct
+            case .zephyr3b: .zephyr
             }
         }
 
@@ -146,7 +22,9 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .deepSeekCoder: "You are an intelligent and helpful coding assistant."
             case .solar: "You are an intelligent and cheerful chatbot."
             case .dolphinMixtral: "You are an intelligent and cheerful chatbot."
-            case .mythoMax: "You are an intelligent and helpful writing assistant"
+            case .mythoMax: "You are an intelligent and helpful writing assistant."
+            case .shiningValiant: "You are an intelligent, helpful AI assistant."
+            case .zephyr3b: "You are an intelligent, helpful AI assistant."
             case .whisper: ""
             }
         }
@@ -156,7 +34,7 @@ struct Asset: RawRepresentable, Codable, Identifiable {
                 fatalError("Failed to get the system's default Metal device.")
             }
             let vramSize = device.recommendedMaxWorkingSetSize / 1_000_000_000
-            log("Checking if current model selection can run on GPU (\(vramSize) GB)")
+            // log("Checking if current model selection can run on GPU (\(vramSize) GB)")
             return vramSize > vramRequiredToFitInGpu
         }
 
@@ -165,18 +43,22 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 34
             case .deepSeekCoder: 37
             case .solar: 9
+            case .zephyr3b: 5
             case .mythoMax: 12
             case .whisper: 2
+            case .shiningValiant: 60
             }
         }
 
         var sizeDescription: String {
             switch self {
+            case .shiningValiant: "48.8 GB"
             case .dolphinMixtral: "32.2 GB"
             case .deepSeekCoder: "35.4 GB"
             case .solar: "7.6 GB"
             case .mythoMax: "10.6 GB"
             case .whisper: "1.1 GB"
+            case .zephyr3b: "2.3 GB"
             }
         }
 
@@ -190,8 +72,12 @@ struct Asset: RawRepresentable, Codable, Identifiable {
                 "MythoMax is a model designed to be both imaginative and useful for creativity and writing."
             case .solar:
                 "One of the highest performing models for chat. A great starting point."
+            case .shiningValiant:
+                "A large-size model focused on knowledge, enthusiasm, and structured reasoning."
             case .whisper:
                 "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
+            case .zephyr3b:
+                "Compact version of the very powerful Zephyr model, great for systems with constrained storage or processing requirements."
             }
         }
 
@@ -201,6 +87,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 1024
             case .mythoMax: 1024
             case .solar: 1024
+            case .shiningValiant: 1024
+            case .zephyr3b: 1024
             case .whisper: 0
             }
         }
@@ -211,6 +99,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 49
             case .mythoMax: 49
             case .solar: 49
+            case .shiningValiant: 49
+            case .zephyr3b: 49
             case .whisper: 0
             }
         }
@@ -221,6 +111,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 0.14
             case .mythoMax: 0.14
             case .solar: 0.14
+            case .shiningValiant: 0.14
+            case .zephyr3b: 0.14
             case .whisper: 0
             }
         }
@@ -231,6 +123,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 1.31
             case .mythoMax: 1.31
             case .solar: 1.31
+            case .shiningValiant: 0.7
+            case .zephyr3b: 0.7
             case .whisper: 0
             }
         }
@@ -241,6 +135,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 1.17
             case .mythoMax: 1.17
             case .solar: 1.17
+            case .shiningValiant: 1.1
+            case .zephyr3b: 1.1
             case .whisper: 0
             }
         }
@@ -251,6 +147,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 0.1
             case .mythoMax: 0.1
             case .solar: 0.1
+            case .shiningValiant: 0.1
+            case .zephyr3b: 0.1
             case .whisper: 0
             }
         }
@@ -261,6 +159,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .dolphinMixtral: 1.1
             case .mythoMax: 1.1
             case .solar: 1.1
+            case .shiningValiant: 1.1
+            case .zephyr3b: 1.1
             case .whisper: 0
             }
         }
@@ -277,6 +177,10 @@ struct Asset: RawRepresentable, Codable, Identifiable {
                 "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin"
             case .solar:
                 "https://huggingface.co/jan-hq/Solar-10.7B-SLERP-GGUF/resolve/main/solar-10.7b-slerp.Q5_K_M.gguf"
+            case .shiningValiant:
+                "https://huggingface.co/TheBloke/ShiningValiant-1.3-GGUF/resolve/main/shiningvaliant-1.2.Q5_K_M.gguf"
+            case .zephyr3b:
+                "https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF/resolve/main/stablelm-zephyr-3b.Q6_K.gguf"
             }
             return URL(string: uri)!
         }
@@ -288,6 +192,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Large v3"
             case .solar: "Pandora Solar"
+            case .shiningValiant: "Shining Valiant"
+            case .zephyr3b: "Zephyr 3B"
             }
         }
 
@@ -298,6 +204,8 @@ struct Asset: RawRepresentable, Codable, Identifiable {
             case .mythoMax: "AA4B3287-CA79-466F-8F84-87486D701256"
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .solar: "FB42FD61-E06E-4AA9-9EFA-DAAC98427904"
+            case .shiningValiant: "25C3A6DB-A824-4011-9E8F-330D3B6310C7"
+            case .zephyr3b: "CC1BB904-0DE1-4B28-8DC7-2DA94B1491EC"
             }
         }
 
