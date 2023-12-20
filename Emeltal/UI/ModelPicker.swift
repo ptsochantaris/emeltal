@@ -126,6 +126,7 @@ struct ModelPicker: View {
                         selection()
                     }
                 }
+                .buttonStyle(.borderedProminent)
                 .padding([.leading, .trailing], selectedAsset.category.useGpuOnThisSystem ? 0 : 16)
                 .padding([.top, .bottom], 8)
                 .background(selectedAsset.category.useGpuOnThisSystem ? .clear : .accent)
