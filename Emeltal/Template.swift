@@ -66,9 +66,9 @@ struct Template {
         case .llamaInst:
             switch step {
             case .initial:
-                "[INST] << SYS >>"
+                "[INST] <<SYS>>\n"
             case let .turn(_, index):
-                index == 0 ? "" : "[INST]"
+                index == 0 ? "" : "<s>[INST] "
             }
         case .userAssistant:
             switch step {
@@ -107,9 +107,9 @@ struct Template {
         case .llamaInst:
             switch step {
             case .initial:
-                "<< /SYS >>"
+                "\n<</SYS>>\n"
             case .turn:
-                "[/INST]"
+                " [/INST] "
             }
         case .instruct:
             switch step {
