@@ -11,7 +11,7 @@ extension Asset {
             case .deepSeekCoder: .instruct
             case .dolphinMixtral: .chatml
             case .mythoMax: .instruct
-            case .solar: .userAssistant
+            case .solar: .instruct
             case .whisper: .instruct
             case .zephyr3b: .zephyr
             }

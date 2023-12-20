@@ -279,6 +279,7 @@ final actor LlamaContext {
             logits = currentTurn.appendAndPredict(token: new_token_id, in: context, pos: allTokensCount)
 
             if let new_token_str = Self.text(from: new_token_id, in: model) {
+                // log("Fragment: \(new_token_id) - '\(new_token_str)'")
                 continuation.yield(new_token_str)
             } else {
                 log("Warning, wordbuffer was invalid - token ID was \(new_token_id)")
