@@ -1,5 +1,4 @@
 import Foundation
-import OSLog
 import SwiftUI
 
 extension String: Error {}
@@ -36,12 +35,6 @@ let sizeFormatter: ByteCountFormatter = {
     b.formattingContext = .standalone
     return b
 }()
-
-func log(_ message: @autoclosure () -> String) {
-    #if DEBUG
-        os_log("%{public}@", message())
-    #endif
-}
 
 extension Binding {
     // thanks to https://stackoverflow.com/questions/65736518/how-do-i-create-a-slider-in-swiftui-for-an-int-type-property

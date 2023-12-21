@@ -8,7 +8,7 @@ final actor LlamaContext {
     private var turns: [Turn]
     private let eosTokenId: Int32
 
-    let n_ctx: Int32
+    let n_ctx: UInt32
     let bosToken: String
     let manager: AssetManager
 

@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import Network
 import SwiftUI
 
 @MainActor
@@ -147,6 +148,10 @@ final class AppState: Identifiable {
     private let mic = Mic()
     private var micObservation: Cancellable?
 
+    #if DEBUG
+        private let remote = EmeltalConnector()
+    #endif
+
     private func processFloatingMode(fromBoot: Bool) {
         if floatingMode {
             textOnly = false
@@ -248,6 +253,15 @@ final class AppState: Identifiable {
         statusMessage = "Warming up AI…"
 
         try await chatInit()
+
+        #if DEBUG
+            Task {
+                for await transmission in remote.setupNetworkAdvertiser() {
+                    log("From client: \(transmission)")
+                }
+                log("Stream done")
+            }
+        #endif
     }
 
     private func chatInit() async throws {
@@ -255,67 +269,6 @@ final class AppState: Identifiable {
         shouldWaitOrListen()
         statusMessage = nil
     }
-
-    /*
-     private func buildTemplate() {
-         /* OpenChat 3.5 */
-         /*
-          template = LlamaContext.Template(initial: "",
-          turn: "<s>GPT4 Correct User: {text}<|end_of_turn|>GPT4 Correct Assistant:")
-          */
-
-         /*
-          template = LlamaContext.Template(initial: "<s>GPT4 Correct User: Hello<|end_of_turn|>GPT4 Correct Assistant: Hi<|end_of_turn|></s>",
-          turn: "<s>GPT4 Correct User: {text}<|end_of_turn|>GPT4 Correct Assistant: ")
-          */
-
-         /* Zephyr */
-         /*
-          template = LlamaContext.Template(initial: "<|system|>\nYou are a polite and intelligent assistant.</s>",
-          turn: "\n<|user|>\n{text}</s>\n<|assistant|>\n",
-          first: first)
-          */
-
-         /* Llama 2 / SunsetBoulevard / Mixtral */
-         /*
-          template = LlamaContext.Template(initial: "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
-          turn: "\n[INST] {text} [/INST]\n",
-          first: first)
-          */
-
-         /* Synthia-MixtralInst */
-         /*
-          template = LlamaContext.Template(initial: "",
-          turn: "[INST] {text} [/INST] ",
-          first: first)
-          */
-         /*
-         template = LlamaContext.Template(format: .userAssistant,
-                                          system: "You are an intelligent and cheerful chatbot.",
-                                          bosToken: llamaContext!.bosToken)
-          */
-         /* Samantha 13B */
-         /*
-          template = LlamaContext.Template(initial: "\(bos)You are a caring and empathetic sentient AI companion named Samantha.\(nl)",
-          turn: "\(nl)USER: {text}\(nl)ASSISTANT: ",
-          first: first)
-          */
-
-         /* Mistral 7B */
-         /*
-          template = LlamaContext.Template(initial: "",
-          turn: "\(bos)[INST]{text}[/INST]",
-          first: first)
-          */
-
-         /* go-bruins */
-         /*
-          template = LlamaContext.Template(initial: "\(bos)You are a friendly, funny, and concise chatbot.\n\n",
-          turn: "### Instruction:\n{text}\n\n### Response:\n",
-          first: first)
-          */
-     }
-      */
 
     private func shouldWaitOrListen() {
         Task {
@@ -472,29 +425,33 @@ final class AppState: Identifiable {
             }
 
             messageLog += fragment // .replacingOccurrences(of: "\n", with: "<br>")
-
-            if !(textOnly || inQuote) {
-                sentenceBuffer += fragment
-                if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;]\ /#).first {
-                    var sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
-                    sentence = sentence.replacingOccurrences(of: "...", with: "…").replacingOccurrences(of: "'s", with: "ߴs")
-                    await speaker?.add(text: sentence)
-                    sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
-                }
+            sentenceBuffer += fragment
+            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;]\ /#).first {
+                let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
+                await handleText(sentence, inQuote: inQuote)
+                sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
             }
         }
 
         if !sentenceBuffer.isEmpty {
-            if !textOnly {
-                sentenceBuffer = sentenceBuffer.replacingOccurrences(of: "...", with: "…").replacingOccurrences(of: "'s", with: "ߴs")
-                await speaker?.add(text: sentenceBuffer)
-            }
+            await handleText(sentenceBuffer, inQuote: inQuote)
         }
         messageLog += "\n"
 
         try? await save()
         await speaker?.waitForCompletion()
         shouldWaitOrListen()
+    }
+
+    private func handleText(_ text: String, inQuote: Bool) async {
+        let sentence = text.replacingOccurrences(of: "...", with: "…").replacingOccurrences(of: "'s", with: "ߴs")
+        if !(textOnly || inQuote) {
+            await speaker?.add(text: sentence)
+        }
+
+        #if DEBUG
+            remote.sendUtterance(sentence)
+        #endif
     }
 
     private var statePath: URL {

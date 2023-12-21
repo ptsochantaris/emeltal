@@ -39,6 +39,15 @@
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
+		16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmeltermApp.swift */; };
+		16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDE2B34701200006CC2 /* ContentView.swift */; };
+		16C58DEB2B349B2200006CC2 /* EmeltalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */; };
+		16C58DEC2B349B2400006CC2 /* EmeltalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */; };
+		16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
+		16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
+		16C58DF22B34E4B700006CC2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* Log.swift */; };
+		16C58DF32B34E4B700006CC2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* Log.swift */; };
+		16C58DF42B34E97900006CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
 		16C7C21D2B2A0A6700755BC4 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C7C21C2B2A0A6700755BC4 /* llama.metallib */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 /* End PBXBuildFile section */
@@ -93,6 +102,14 @@
 		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
+		16C58DDA2B34701200006CC2 /* Emelterm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emelterm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		16C58DDC2B34701200006CC2 /* EmeltermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltermApp.swift; sourceTree = "<group>"; };
+		16C58DDE2B34701200006CC2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		16C58DE22B34701300006CC2 /* Emelterm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emelterm.entitlements; sourceTree = "<group>"; };
+		16C58DE92B3470D000006CC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalLink.swift; sourceTree = "<group>"; };
+		16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalConnector.swift; sourceTree = "<group>"; };
+		16C58DF12B34E4B700006CC2 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16C7C21C2B2A0A6700755BC4 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
@@ -108,6 +125,13 @@
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
 				1608DB952B151C4B00FFFB09 /* Accelerate.framework in Frameworks */,
 				160199BE2B1E9C3400696377 /* libwhisper.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16C58DD72B34701200006CC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				1608DB6A2B151B4F00FFFB09 /* Emeltal */,
+				16C58DDB2B34701200006CC2 /* Emelterm */,
 				1608DB692B151B4F00FFFB09 /* Products */,
 				1608DB912B151C4600FFFB09 /* Frameworks */,
 			);
@@ -139,6 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				1608DB682B151B4F00FFFB09 /* Emeltal.app */,
+				16C58DDA2B34701200006CC2 /* Emelterm.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,6 +172,7 @@
 		1608DB6A2B151B4F00FFFB09 /* Emeltal */ = {
 			isa = PBXGroup;
 			children = (
+				16C58DED2B34C0DE00006CC2 /* Common */,
 				168F56042B331BD8007CADC1 /* Assets */,
 				163EF0512B31B6B400565F49 /* UI */,
 				16578A312B18CA5A0038A680 /* AppState.swift */,
@@ -205,6 +232,27 @@
 			path = Assets;
 			sourceTree = "<group>";
 		};
+		16C58DDB2B34701200006CC2 /* Emelterm */ = {
+			isa = PBXGroup;
+			children = (
+				16C58DE92B3470D000006CC2 /* Info.plist */,
+				16C58DDC2B34701200006CC2 /* EmeltermApp.swift */,
+				16C58DDE2B34701200006CC2 /* ContentView.swift */,
+				16C58DE22B34701300006CC2 /* Emelterm.entitlements */,
+			);
+			path = Emelterm;
+			sourceTree = "<group>";
+		};
+		16C58DED2B34C0DE00006CC2 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */,
+				16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */,
+				16C58DF12B34E4B700006CC2 /* Log.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		16C7943F2B2F3DEF0052B707 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
@@ -238,6 +286,23 @@
 			productReference = 1608DB682B151B4F00FFFB09 /* Emeltal.app */;
 			productType = "com.apple.product-type.application";
 		};
+		16C58DD92B34701200006CC2 /* Emelterm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emelterm" */;
+			buildPhases = (
+				16C58DD62B34701200006CC2 /* Sources */,
+				16C58DD72B34701200006CC2 /* Frameworks */,
+				16C58DD82B34701200006CC2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Emelterm;
+			productName = Emelterm;
+			productReference = 16C58DDA2B34701200006CC2 /* Emelterm.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -245,12 +310,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1510;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
 						LastSwiftMigration = 1500;
+					};
+					16C58DD92B34701200006CC2 = {
+						CreatedOnToolsVersion = 15.1;
 					};
 				};
 			};
@@ -271,6 +339,7 @@
 			projectRoot = "";
 			targets = (
 				1608DB672B151B4F00FFFB09 /* Emeltal */,
+				16C58DD92B34701200006CC2 /* Emelterm */,
 			);
 		};
 /* End PBXProject section */
@@ -288,6 +357,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		16C58DD82B34701200006CC2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16C58DF42B34E97900006CC2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -302,7 +379,9 @@
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
 				163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */,
+				16C58DF22B34E4B700006CC2 /* Log.swift in Sources */,
 				16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */,
+				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
 				168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */,
 				168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */,
@@ -311,12 +390,25 @@
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
+				16C58DEB2B349B2200006CC2 /* EmeltalLink.swift in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
 				16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */,
 				1608DB982B151DF000FFFB09 /* LlamaContext.swift in Sources */,
 				163EF05C2B31B7D400565F49 /* Genie.swift in Sources */,
 				16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16C58DD62B34701200006CC2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
+				16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */,
+				16C58DF32B34E4B700006CC2 /* Log.swift in Sources */,
+				16C58DEC2B349B2400006CC2 /* EmeltalLink.swift in Sources */,
+				16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,7 +419,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -391,7 +485,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -450,20 +546,17 @@
 		1608DB782B151B5000FFFB09 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Emeltal/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To be able to use your voice to talk to the app";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -500,20 +593,17 @@
 		1608DB792B151B5000FFFB09 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Emeltal/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To be able to use your voice to talk to the app";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -546,6 +636,84 @@
 			};
 			name = Release;
 		};
+		16C58DE62B34701300006CC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Emelterm/Emelterm.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X727JSJUGJ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Emelterm/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelterm;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		16C58DE72B34701300006CC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Emelterm/Emelterm.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X727JSJUGJ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Emelterm/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelterm;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -563,6 +731,15 @@
 			buildConfigurations = (
 				1608DB782B151B5000FFFB09 /* Debug */,
 				1608DB792B151B5000FFFB09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emelterm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16C58DE62B34701300006CC2 /* Debug */,
+				16C58DE72B34701300006CC2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
