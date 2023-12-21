@@ -51,6 +51,7 @@ struct Asset: RawRepresentable, Codable, Identifiable {
         id = category.id
         self.category = category
         params = category.defaultParams
+        updateInstalledStatus()
     }
 
     init(from decoder: Decoder) throws {
@@ -58,6 +59,7 @@ struct Asset: RawRepresentable, Codable, Identifiable {
         id = try container.decode(String.self, forKey: .id)
         category = try container.decode(Category.self, forKey: .category)
         params = try container.decode(Params.self, forKey: .params)
+        updateInstalledStatus()
     }
 
     init?(rawValue: String) {
@@ -72,14 +74,17 @@ struct Asset: RawRepresentable, Codable, Identifiable {
         return String(data: data, encoding: .utf8) ?? ""
     }
 
-    var isInstalled: Bool {
-        FileManager.default.fileExists(atPath: localModelPath.path)
+    var isInstalled = false
+
+    private mutating func updateInstalledStatus() {
+        isInstalled = FileManager.default.fileExists(atPath: localModelPath.path)
     }
 
     mutating func unInstall() {
         let fm = FileManager.default
         try? fm.removeItem(at: localModelPath)
         try? fm.removeItem(at: localStatePath)
+        updateInstalledStatus()
     }
 
     var localModelPath: URL {

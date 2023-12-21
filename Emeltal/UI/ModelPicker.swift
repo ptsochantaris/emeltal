@@ -111,8 +111,7 @@ struct ModelPicker: View {
                     }
                     Button(showOverrides ? "Use Defaults" : "Customize…") {
                         if showOverrides {
-                            let currentCategory = selectedAsset.category
-                            selectedAsset = Asset(defaultFor: currentCategory)
+                            selectedAsset.params = selectedAsset.category.defaultParams
                         } else {
                             showOverrides = true
                         }
