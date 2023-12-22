@@ -67,6 +67,13 @@ final class AppState: Identifiable {
 
     init(asset: Asset) {
         self.asset = asset
+
+        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak speaker] state in
+            guard let speaker else { return }
+            Task {
+                await speaker.setMute(state.isConnectionActive)
+            }
+        }
     }
 
     private var llamaContext: LlamaContext?
@@ -78,6 +85,7 @@ final class AppState: Identifiable {
 
     #if DEBUG
         private let remote = EmeltalConnector()
+        private var connectionStateObservation: Cancellable!
     #endif
 
     private func processFloatingMode(fromBoot: Bool) {
@@ -199,6 +207,12 @@ final class AppState: Identifiable {
                     case .recordedSpeechLast:
                         // TODO:
                         break
+
+                    case .buttonDown:
+                        pushButtonDown()
+
+                    case .buttonUp:
+                        pushButtonUp()
 
                     case .toggleListeningMode:
                         if listenState == .voiceActivated {

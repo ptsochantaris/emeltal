@@ -13,7 +13,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode, buttonDown, buttonUp
     }
 
     nonisolated init() {}
@@ -52,6 +52,15 @@ final class EmeltalConnector {
     enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
 
+        var isConnectionActive: Bool {
+            switch self {
+            case .boot, .error, .unConnected:
+                false
+            case .connected, .connecting, .searching:
+                true
+            }
+        }
+
         var label: String {
             switch self {
             case .boot, .unConnected: "Starting"
@@ -81,7 +90,7 @@ final class EmeltalConnector {
         }
     }
 
-    var statePublisher = CurrentValueSubject<State, Never>(State.boot)
+    let statePublisher = CurrentValueSubject<State, Never>(State.boot)
 
     private func update(from browser: NWBrowser, connection: NWConnection, connectionState: NWConnection.State) {
         switch connectionState {

@@ -5,11 +5,11 @@ import AVFoundation
 import Foundation
 
 final actor Speaker {
-    private let synth = AVSpeechSynthesizer()
-
     var havePreferredVoice = false
 
     private let voice: AVSpeechSynthesisVoice
+    private let synth = AVSpeechSynthesizer()
+    private var muted = false
 
     private static func pickFavourite(from voices: [AVSpeechSynthesisVoice]) -> AVSpeechSynthesisVoice? {
         if let premiumFemale = voices.filter({ $0.quality == .premium && $0.gender == .female }).first {
@@ -28,6 +28,13 @@ final actor Speaker {
             return female
         }
         return voices.first
+    }
+
+    func setMute(_ mute: Bool) {
+        muted = mute
+        if mute {
+            cancelIfNeeded()
+        }
     }
 
     init() throws {
@@ -64,6 +71,7 @@ final actor Speaker {
     }
 
     func add(text: String) {
+        if muted { return }
         let textToPlay = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let utterance = AVSpeechUtterance(string: textToPlay)
         utterance.voice = voice
@@ -73,17 +81,30 @@ final actor Speaker {
         synth.speak(utterance)
     }
 
-    #if canImport(AppKit)
-        let startEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStart", withExtension: "caf")!, byReference: true)!
-        let endEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStop", withExtension: "caf")!, byReference: true)!
+    enum Effect {
+        case startListening, endListening
+    }
 
-        func playEffect(_ sound: NSSound) {
+    #if canImport(AppKit)
+        private let startEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStart", withExtension: "caf")!, byReference: true)!
+        private let endEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStop", withExtension: "caf")!, byReference: true)!
+
+        func playEffect(_ effect: Effect) {
+            if muted { return }
+            let sound = switch effect {
+            case .startListening: startEffect
+            case .endListening: endEffect
+            }
             sound.currentTime = 0
             sound.volume = 0.2
             sound.play()
             DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
                 sound.stop()
             }
+        }
+    #else
+        func playEffect(_: Effect) {
+            // TODO:
         }
     #endif
 }

@@ -111,22 +111,20 @@ enum AppMode: Equatable {
         return data
     }
 
-    #if canImport(AppKit)
-        func audioFeedback(using speaker: Speaker) {
-            switch self {
-            case .listening:
-                Task {
-                    await speaker.playEffect(speaker.startEffect)
-                }
-            case .noting:
-                Task {
-                    await speaker.playEffect(speaker.endEffect)
-                }
-            case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
-                break
+    func audioFeedback(using speaker: Speaker) {
+        switch self {
+        case .listening:
+            Task {
+                await speaker.playEffect(.startListening)
             }
+        case .noting:
+            Task {
+                await speaker.playEffect(.endListening)
+            }
+        case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
+            break
         }
-    #endif
+    }
 
     var showGenie: Bool {
         switch self {

@@ -33,7 +33,7 @@ final class EmelTerm {
     }
 
     private func go() async {
-        connectionStateObservation = await remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
+        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
             self?.connectionState = state
         }
 
@@ -52,7 +52,7 @@ final class EmelTerm {
                     await speaker?.add(text: text)
                 }
 
-            case .recordedSpeech, .recordedSpeechLast, .toggleListeningMode:
+            case .buttonDown, .buttonUp, .recordedSpeech, .recordedSpeechLast, .toggleListeningMode:
                 break
 
             case .unknown:
