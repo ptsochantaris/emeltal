@@ -67,6 +67,19 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     private let processQueue = DispatchQueue(label: "build.bru.emeltal.mic")
     private let SampleRate = 16000
 
+    override init() {
+        super.init()
+        Task {
+            _ = try? await getSession()
+        }
+    }
+
+    private var remoteMode = false
+
+    func setRemoteMode(_ remote: Bool) {
+        remoteMode = remote
+    }
+
     private func getSession() async throws -> AVCaptureSession {
         if let _session {
             return _session
@@ -84,11 +97,20 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
         let audio = AVCaptureAudioDataOutput()
         audio.setSampleBufferDelegate(self, queue: processQueue)
-        audio.audioSettings = [
-            AVNumberOfChannelsKey: 1,
-            AVFormatIDKey: kAudioFormatLinearPCM,
-            AVSampleRateKey: SampleRate
-        ]
+        #if canImport(AppKit)
+            audio.audioSettings = [
+                AVNumberOfChannelsKey: 1,
+                AVFormatIDKey: kAudioFormatLinearPCM,
+                AVSampleRateKey: SampleRate
+            ]
+        #else
+            let av = AVAudioSession.sharedInstance()
+            try? av.setCategory(.playAndRecord)
+            try? av.setMode(.voiceChat)
+            try? av.setPreferredSampleRate(16000)
+            try? av.setPreferredInputNumberOfChannels(1)
+            try? av.setActive(true)
+        #endif
 
         let session = AVCaptureSession()
         session.addOutput(audio)
@@ -106,8 +128,13 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         }
         buffer.removeAll()
         state = .quiet(prefixBuffer: [])
-        session.startRunning()
-        log("Mic running")
+        if remoteMode {
+            // TODO:
+            log("Mic running (remote mode)")
+        } else {
+            session.startRunning()
+            log("Mic running")
+        }
     }
 
     nonisolated func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {

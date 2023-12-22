@@ -13,7 +13,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode, buttonDown, buttonUp
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode, buttonDown, buttonUp, appActivationState
     }
 
     nonisolated init() {}
@@ -51,6 +51,15 @@ final class EmeltalConnector {
 
     enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
+
+        var isConnected: Bool {
+            switch self {
+            case .boot, .connecting, .error, .searching, .unConnected:
+                false
+            case .connected:
+                true
+            }
+        }
 
         var isConnectionActive: Bool {
             switch self {

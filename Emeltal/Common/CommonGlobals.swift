@@ -6,6 +6,7 @@ import OSLog
 
 let assistantWidth: CGFloat = 140
 let assistantHeight: CGFloat = 380
+let emptyData = Data([0])
 
 extension String: Error {}
 

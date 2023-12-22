@@ -8,7 +8,7 @@ struct Assistant: View {
         ZStack {
             ModeView(mode: state.mode)
 
-            if state.mode != .loading(managers: []) {
+            if state.mode.pushButtonActive {
                 PushButton { down in
                     if down {
                         state.pushButtonDown()

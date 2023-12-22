@@ -12,6 +12,8 @@ final class EmelTerm {
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
 
+    var remoteActivationState = ActivationState.notListening
+
     var remoteAppMode = AppMode.booting {
         didSet {
             if let speaker, oldValue != remoteAppMode {
@@ -26,9 +28,21 @@ final class EmelTerm {
         }
     }
 
+    func buttonDown() {
+        Task {
+            await remote.send(.buttonDown, content: emptyData)
+        }
+    }
+
+    func buttonUp() {
+        Task {
+            await remote.send(.buttonUp, content: emptyData)
+        }
+    }
+
     func toggleListeningMode() {
         Task {
-            await remote.send(.toggleListeningMode, content: Data([0]))
+            await remote.send(.toggleListeningMode, content: emptyData)
         }
     }
 
@@ -42,13 +56,20 @@ final class EmelTerm {
             switch nibble.payload {
             case .appMode:
                 if let data = nibble.data, let mode = AppMode(data: data) {
-                    log("New app mode: \(mode)")
-                    remoteAppMode = mode
+                    withAnimation {
+                        remoteAppMode = mode
+                    }
+                }
+
+            case .appActivationState:
+                if let data = nibble.data, let state = ActivationState(data: data) {
+                    withAnimation {
+                        remoteActivationState = state
+                    }
                 }
 
             case .generatedSentence:
                 if let data = nibble.data, let text = String(data: data, encoding: .utf8) {
-                    log("Generated sentence: \(text)")
                     await speaker?.add(text: text)
                 }
 
@@ -69,45 +90,60 @@ struct ContentView: View {
         VStack {
             let connectionState = state.connectionState
             let mode = state.remoteAppMode
+            let activation = state.remoteActivationState
 
-            Group {
-                Text(connectionState.label.uppercased())
-                    .padding(8)
-                    .background {
-                        Capsule(style: .continuous)
-                            .foregroundStyle(connectionState.color)
-                    }
-
-                if mode.showAlwaysOn {
-                    let on = if case .listening = mode {
-                        true
-                    } else {
-                        false
-                    }
-
-                    let title = on ? "Always On" : "Push To Speak"
-                    Text(title.uppercased())
+            HStack {
+                if !connectionState.isConnected {
+                    Text(connectionState.label.uppercased())
                         .padding(8)
+                        .padding([.leading, .trailing], 2)
                         .background {
                             Capsule(style: .continuous)
-                                .foregroundStyle(on ? .accent : .secondary)
+                                .foregroundStyle(connectionState.color)
+                        }
+                }
+
+                if mode.showAlwaysOn {
+                    let on = activation == .voiceActivated
+                    Text("Always On".uppercased())
+                        .padding(8)
+                        .padding([.leading, .trailing], 2)
+                        .background {
+                            Capsule(style: .continuous)
+                                .stroke(style: StrokeStyle())
                         }
                         .onTapGesture {
                             state.toggleListeningMode()
                         }
+                        .foregroundStyle(on ? .accent : .secondary)
                 }
             }
             .font(.caption.bold())
+            .foregroundStyle(.black)
 
             if mode.showGenie {
                 Genie(show: mode.showGenie)
             } else {
                 Spacer()
+                    .frame(maxHeight: .infinity)
             }
 
-            ModeView(mode: state.remoteAppMode)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: assistantWidth)
+            ZStack {
+                ModeView(mode: state.remoteAppMode)
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: assistantWidth)
+                    .layoutPriority(2)
+
+                if state.remoteAppMode.pushButtonActive {
+                    PushButton { down in
+                        if down {
+                            state.buttonDown()
+                        } else {
+                            state.buttonUp()
+                        }
+                    }
+                }
+            }
         }
         .padding()
     }
@@ -119,10 +155,10 @@ struct EmeltermApp: App {
     private let state = EmelTerm()
 
     var body: some Scene {
-        Window("Emelterm", id: "Emelterm") {
+        WindowGroup(id: "Emelterm") {
             ContentView(state: state)
                 .frame(maxWidth: .infinity)
-                .background(Image(.canvas).resizable())
+                .background(Image(.canvas).resizable().ignoresSafeArea())
                 .preferredColorScheme(.dark)
         }
     }

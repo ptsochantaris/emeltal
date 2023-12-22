@@ -16,11 +16,19 @@ final class AppState: Identifiable {
                 if let speaker {
                     mode.audioFeedback(using: speaker)
                 }
-                #if DEBUG
-                    Task {
-                        await remote.send(.appMode, content: mode.data)
-                    }
-                #endif
+                Task {
+                    await remote.send(.appMode, content: mode.data)
+                }
+            }
+        }
+    }
+
+    var activationState = ActivationState.notListening {
+        didSet {
+            if oldValue != activationState {
+                Task {
+                    await remote.send(.appActivationState, content: activationState.data)
+                }
             }
         }
     }
@@ -34,15 +42,9 @@ final class AppState: Identifiable {
         }
     }
 
-    enum ListenState {
-        case notListening, pushButton, voiceActivated
-    }
-
     var displayName: String {
         asset.category.displayName
     }
-
-    var listenState = ListenState.notListening
 
     var statusMessage: String? = "Starting…"
 
@@ -68,10 +70,12 @@ final class AppState: Identifiable {
     init(asset: Asset) {
         self.asset = asset
 
-        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak speaker] state in
-            guard let speaker else { return }
+        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak speaker, weak mic] state in
+            guard let speaker, let mic else { return }
+            let active = state.isConnectionActive
             Task {
-                await speaker.setMute(state.isConnectionActive)
+                await mic.setRemoteMode(active)
+                await speaker.setMute(active)
             }
         }
     }
@@ -83,10 +87,8 @@ final class AppState: Identifiable {
     private let mic = Mic()
     private var micObservation: Cancellable?
 
-    #if DEBUG
-        private let remote = EmeltalConnector()
-        private var connectionStateObservation: Cancellable!
-    #endif
+    private let remote = EmeltalConnector()
+    private var connectionStateObservation: Cancellable!
 
     private func processFloatingMode(fromBoot: Bool) {
         if floatingMode {
@@ -165,7 +167,7 @@ final class AppState: Identifiable {
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
             if case let .listening(myState) = mode, newState != myState {
-                if newState == .quiet(prefixBuffer: []), listenState == .voiceActivated {
+                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
                     Task {
                         await self.endMic(processOutput: true)
                     }
@@ -190,42 +192,43 @@ final class AppState: Identifiable {
 
         try await chatInit()
 
-        #if DEBUG
-            Task {
-                let stream = await remote.startServer()
-                for await nibble in stream {
-                    log("From client: \(nibble)")
-                    switch nibble.payload {
-                    case .appMode, .generatedSentence, .unknown:
-                        // TODO:
-                        break
+        Task {
+            await startServer()
+        }
+    }
 
-                    case .recordedSpeech:
-                        // TODO:
-                        break
+    private func startServer() async {
+        let stream = await remote.startServer()
+        for await nibble in stream {
+            log("From client: \(nibble)")
+            switch nibble.payload {
+            case .appActivationState, .appMode, .generatedSentence, .unknown:
+                break
 
-                    case .recordedSpeechLast:
-                        // TODO:
-                        break
+            case .recordedSpeech:
+                // TODO:
+                break
 
-                    case .buttonDown:
-                        pushButtonDown()
+            case .recordedSpeechLast:
+                // TODO:
+                break
 
-                    case .buttonUp:
-                        pushButtonUp()
+            case .buttonDown:
+                pushButtonDown()
 
-                    case .toggleListeningMode:
-                        if listenState == .voiceActivated {
-                            listenState = .notListening
-                            await endMic(processOutput: false)
-                        } else {
-                            listenState = .voiceActivated
-                            await startMic()
-                        }
-                    }
+            case .buttonUp:
+                pushButtonUp()
+
+            case .toggleListeningMode:
+                if activationState == .voiceActivated {
+                    activationState = .notListening
+                    await endMic(processOutput: false)
+                } else {
+                    activationState = .voiceActivated
+                    await startMic()
                 }
             }
-        #endif
+        }
     }
 
     private func chatInit() async throws {
@@ -236,7 +239,7 @@ final class AppState: Identifiable {
 
     private func shouldWaitOrListen() {
         Task {
-            if listenState == .voiceActivated {
+            if activationState == .voiceActivated {
                 await startMic()
             } else {
                 withAnimation {
@@ -247,8 +250,8 @@ final class AppState: Identifiable {
     }
 
     func switchToPushButton() {
-        if listenState == .voiceActivated {
-            listenState = .notListening
+        if activationState == .voiceActivated {
+            activationState = .notListening
             Task {
                 await endMic(processOutput: false)
             }
@@ -256,10 +259,10 @@ final class AppState: Identifiable {
     }
 
     func switchToVoiceActivated() {
-        if listenState == .pushButton {
+        if activationState == .pushButton {
             return
         }
-        listenState = .voiceActivated
+        activationState = .voiceActivated
         Task {
             await startMic()
         }
@@ -328,19 +331,19 @@ final class AppState: Identifiable {
     }
 
     func pushButtonUp() {
-        guard case .pushButton = listenState else {
+        guard case .pushButton = activationState else {
             return
         }
-        listenState = .notListening
+        activationState = .notListening
         Task {
             await endMic(processOutput: true)
         }
     }
 
     func pushButtonDown() {
-        switch listenState {
+        switch activationState {
         case .notListening:
-            listenState = .pushButton
+            activationState = .pushButton
             Task {
                 await startMic()
             }

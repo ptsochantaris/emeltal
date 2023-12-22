@@ -32,7 +32,7 @@ struct SideBar: View {
                     })
 
             } else {
-                let va = state.listenState == .voiceActivated
+                let va = state.activationState == .voiceActivated
                 if state.mode.showAlwaysOn {
                     Button("ALWAYS ON") {
                         if va {

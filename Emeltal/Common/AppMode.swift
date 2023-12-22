@@ -1,5 +1,37 @@
 import Foundation
 
+enum ActivationState {
+    case notListening, pushButton, voiceActivated
+
+    init?(data: Data) {
+        let primary: UInt8 = data[0]
+        switch primary {
+        case 1:
+            self = .notListening
+        case 2:
+            self = .pushButton
+        case 3:
+            self = .voiceActivated
+        default:
+            return nil
+        }
+    }
+
+    var data: Data {
+        var data = Data(repeating: 0, count: 1)
+
+        switch self {
+        case .notListening:
+            data[0] = 1
+        case .pushButton:
+            data[0] = 2
+        case .voiceActivated:
+            data[0] = 3
+        }
+        return data
+    }
+}
+
 enum AppMode: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         switch lhs {
@@ -141,6 +173,15 @@ enum AppMode: Equatable {
             false
         case .listening, .waiting:
             true
+        }
+    }
+
+    var pushButtonActive: Bool {
+        switch self {
+        case .replying, .waiting:
+            true
+        case .booting, .listening, .loading, .noting, .startup, .thinking, .warmup:
+            false
         }
     }
 }
