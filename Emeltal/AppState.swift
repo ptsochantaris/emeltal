@@ -187,8 +187,29 @@ final class AppState: Identifiable {
                 let stream = await remote.startServer()
                 for await nibble in stream {
                     log("From client: \(nibble)")
+                    switch nibble.payload {
+                    case .appMode, .generatedSentence, .unknown:
+                        // TODO:
+                        break
+
+                    case .recordedSpeech:
+                        // TODO:
+                        break
+
+                    case .recordedSpeechLast:
+                        // TODO:
+                        break
+
+                    case .toggleListeningMode:
+                        if listenState == .voiceActivated {
+                            listenState = .notListening
+                            await endMic(processOutput: false)
+                        } else {
+                            listenState = .voiceActivated
+                            await startMic()
+                        }
+                    }
                 }
-                log("Stream done")
             }
         #endif
     }

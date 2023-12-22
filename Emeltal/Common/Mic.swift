@@ -4,7 +4,32 @@ import Combine
 import Foundation
 
 final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
-    var state = MicState.quiet(prefixBuffer: []) {
+    enum State: Equatable {
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            switch lhs {
+            case .quiet:
+                if case .quiet = rhs {
+                    return true
+                }
+            case .listening:
+                if case .listening = rhs {
+                    return true
+                }
+            }
+            return false
+        }
+
+        case quiet(prefixBuffer: [Float]), listening(quietPeriods: Int)
+
+        var isQuiet: Bool {
+            if case .quiet = self {
+                return true
+            }
+            return false
+        }
+    }
+
+    var state = State.quiet(prefixBuffer: []) {
         didSet {
             switch oldValue {
             case .quiet:
@@ -34,7 +59,7 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         }
     }
 
-    let statePublisher = CurrentValueSubject<MicState, Never>(.quiet(prefixBuffer: []))
+    let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
 
     private var _session: AVCaptureSession?
     private let audio = AVCaptureAudioDataOutput()

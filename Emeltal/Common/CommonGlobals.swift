@@ -4,6 +4,9 @@ import OSLog
     import AppKit
 #endif
 
+let assistantWidth: CGFloat = 140
+let assistantHeight: CGFloat = 380
+
 extension String: Error {}
 
 #if canImport(AppKit)

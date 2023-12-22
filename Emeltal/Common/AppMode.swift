@@ -43,7 +43,7 @@ enum AppMode: Equatable {
         return false
     }
 
-    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: MicState), noting, thinking, replying
+    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
 
     init?(data: Data) {
         let primary: UInt8 = data[0]

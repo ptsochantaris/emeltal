@@ -3,9 +3,6 @@ import SwiftUI
 
 let appDocumentsUrl: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
-let assistantWidth: CGFloat = 140
-let assistantHeight: CGFloat = 380
-
 let performanceCpuCount = {
     var performanceCpuCount = Int32()
     var size = MemoryLayout.size(ofValue: performanceCpuCount)

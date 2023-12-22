@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import Network
+import SwiftUI
 
 @globalActor
 actor NetworkActor {
@@ -12,7 +13,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode
     }
 
     nonisolated init() {}
@@ -50,6 +51,26 @@ final class EmeltalConnector {
 
     enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
+
+        var label: String {
+            switch self {
+            case .boot, .unConnected: "Starting"
+            case .connecting: "Connecting"
+            case .connected: "Connected"
+            case .error: "Error"
+            case .searching: "Searching"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .boot, .unConnected: .gray
+            case .connecting: .yellow
+            case .connected: .green
+            case .error: .red
+            case .searching: .yellow
+            }
+        }
     }
 
     private let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)

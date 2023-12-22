@@ -6,10 +6,11 @@ import SwiftUI
 @Observable
 final class EmelTerm {
     private let remote = EmeltalConnector()
+    private let speaker = try? Speaker()
+    private let mic = Mic()
 
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
-    private let speaker = try? Speaker()
 
     var remoteAppMode = AppMode.booting {
         didSet {
@@ -22,6 +23,12 @@ final class EmelTerm {
     init() {
         Task {
             await go()
+        }
+    }
+
+    func toggleListeningMode() {
+        Task {
+            await remote.send(.toggleListeningMode, content: Data([0]))
         }
     }
 
@@ -45,7 +52,7 @@ final class EmelTerm {
                     await speaker?.add(text: text)
                 }
 
-            case .recordedSpeech, .recordedSpeechLast:
+            case .recordedSpeech, .recordedSpeechLast, .toggleListeningMode:
                 break
 
             case .unknown:
@@ -60,25 +67,47 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            switch state.connectionState {
-            case .boot, .searching, .unConnected:
-                Text("Searching")
-            case .connected:
-                Text("Connected")
-            case .connecting:
-                Text("Connecting")
-            case let .error(error):
-                Text("Error: \(error.localizedDescription)")
-            }
-
+            let connectionState = state.connectionState
             let mode = state.remoteAppMode
-            if mode.showAlwaysOn {
-                Text("Always On")
+
+            Group {
+                Text(connectionState.label.uppercased())
+                    .padding(8)
+                    .background {
+                        Capsule(style: .continuous)
+                            .foregroundStyle(connectionState.color)
+                    }
+
+                if mode.showAlwaysOn {
+                    let on = if case .listening = mode {
+                        true
+                    } else {
+                        false
+                    }
+
+                    let title = on ? "Always On" : "Push To Speak"
+                    Text(title.uppercased())
+                        .padding(8)
+                        .background {
+                            Capsule(style: .continuous)
+                                .foregroundStyle(on ? .accent : .secondary)
+                        }
+                        .onTapGesture {
+                            state.toggleListeningMode()
+                        }
+                }
             }
+            .font(.caption.bold())
 
             if mode.showGenie {
-                Text("Genie")
+                Genie(show: mode.showGenie)
+            } else {
+                Spacer()
             }
+
+            ModeView(mode: state.remoteAppMode)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: assistantWidth)
         }
         .padding()
     }
@@ -87,11 +116,14 @@ struct ContentView: View {
 @main
 @MainActor
 struct EmeltermApp: App {
-    let state = EmelTerm()
+    private let state = EmelTerm()
 
     var body: some Scene {
-        WindowGroup {
+        Window("Emelterm", id: "Emelterm") {
             ContentView(state: state)
+                .frame(maxWidth: .infinity)
+                .background(Image(.canvas).resizable())
+                .preferredColorScheme(.dark)
         }
     }
 }

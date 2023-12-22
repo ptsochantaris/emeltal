@@ -22,7 +22,7 @@ struct SideBar: View {
             .buttonStyle(.borderless)
 
             if state.mode.showGenie {
-                Genie(state: state)
+                Genie(show: state.mode.showGenie)
                     .padding(.top, -4)
                     .padding(.bottom, -1)
                     .gesture(DragGesture().onChanged { value in
