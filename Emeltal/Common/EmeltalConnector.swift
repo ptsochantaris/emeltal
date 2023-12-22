@@ -1,12 +1,22 @@
 import Foundation
 import Network
 
-final class EmeltalConnector {
-    struct Transmission {
-        enum Payload: UInt64 {
-            case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast
-        }
+@globalActor
+actor NetworkActor {
+    static let shared = NetworkActor()
+}
 
+@NetworkActor
+final class EmeltalConnector {
+    private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
+
+    enum Payload: UInt64 {
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast
+    }
+
+    nonisolated init() {}
+
+    struct Header {
         let payload: Payload
         let length: UInt64
 
@@ -20,9 +30,9 @@ final class EmeltalConnector {
                 + Data(bytes: &length, count: Self.uint64size)
         }
 
-        init(payload: Payload, length: UInt64) {
+        init(payload: Payload, length: Int) {
             self.payload = payload
-            self.length = length
+            self.length = UInt64(length)
         }
 
         init(_ buffer: UnsafeMutableRawBufferPointer) {
@@ -32,11 +42,16 @@ final class EmeltalConnector {
         }
     }
 
+    struct Nibble {
+        let payload: Payload
+        let data: Data?
+    }
+
     enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
     }
 
-    private let (inputStream, continuation) = AsyncStream.makeStream(of: (Transmission.Payload, Data?).self, bufferingPolicy: .unbounded)
+    private let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
 
     var state = State.boot {
         didSet {
@@ -44,35 +59,81 @@ final class EmeltalConnector {
         }
     }
 
-    func setupNetworkAdvertiser() -> AsyncStream<(Transmission.Payload, Data?)> {
+    private func update(from browser: NWBrowser, connection: NWConnection, connectionState: NWConnection.State) {
+        switch connectionState {
+        case .preparing, .setup:
+            break
+
+        case .cancelled:
+            state = .searching
+            browser.start(queue: Self.networkQueue)
+
+        case .ready:
+            connectionEstablished(connection)
+
+        case let .waiting(error):
+            state = .error(error)
+
+        case let .failed(error):
+            state = .error(error)
+            state = .searching
+            browser.start(queue: Self.networkQueue)
+
+        @unknown default:
+            break
+        }
+    }
+
+    private func update(from browser: NWBrowser, results: Set<NWBrowser.Result>) {
+        guard case .searching = state, let result = results.first else {
+            return
+        }
+
+        state = .connecting
+        browser.cancel()
+
+        let connection = NWConnection(to: result.endpoint, using: LinkProtocol.params)
+        connection.stateUpdateHandler = { [weak self] newState in
+            Task { [weak self] in
+                guard let self else { return }
+                await update(from: browser, connection: connection, connectionState: newState)
+            }
+        }
+        connection.start(queue: Self.networkQueue)
+    }
+
+    private func update(from connection: NWConnection, to update: NWConnection.State) {
+        switch update {
+        case .cancelled:
+            state = .unConnected
+
+        case .ready:
+            connectionEstablished(connection)
+
+        case .preparing, .setup:
+            break
+
+        case let .failed(error), let .waiting(error):
+            state = .error(error)
+
+        @unknown default:
+            break
+        }
+    }
+
+    func startServer() -> AsyncStream<Nibble> {
         let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
-        let listener = try! NWListener(service: service, using: EmeltalLink.params)
+        let listener = try! NWListener(service: service, using: LinkProtocol.params)
         listener.newConnectionHandler = { connection in
-            connection.stateUpdateHandler = { update in
-                Task { @MainActor [weak self] in
+            connection.stateUpdateHandler = { [weak self] change in
+                Task { [weak self] in
                     guard let self else { return }
-
-                    switch update {
-                    case .cancelled:
-                        state = .unConnected
-
-                    case .ready:
-                        connectionEstablished(connection)
-
-                    case .preparing, .setup:
-                        break
-
-                    case let .failed(error), let .waiting(error):
-                        state = .error(error)
-
-                    @unknown default:
-                        break
-                    }
+                    await update(from: connection, to: change)
                 }
             }
-            connection.start(queue: .main)
+            connection.start(queue: Self.networkQueue)
         }
-        listener.start(queue: .main)
+        listener.start(queue: Self.networkQueue)
         return inputStream
     }
 
@@ -81,52 +142,18 @@ final class EmeltalConnector {
         receive(connection: connection)
     }
 
-    func setupNetworkListener() -> AsyncStream<(Transmission.Payload, Data?)> {
+    func startClient() -> AsyncStream<Nibble> {
         state = .searching
         let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
-        let browser = NWBrowser(for: emeltalTcp, using: EmeltalLink.params)
+        let browser = NWBrowser(for: emeltalTcp, using: LinkProtocol.params)
         browser.browseResultsChangedHandler = { [weak self] results, _ in
-            if let self, case .searching = state, let result = results.first {
-                state = .connecting
-                foundServer(on: browser, result: result)
-                browser.cancel()
-            }
-        }
-        browser.start(queue: .main)
-        return inputStream
-    }
-
-    private func foundServer(on browser: NWBrowser, result: NWBrowser.Result) {
-        let connection = NWConnection(to: result.endpoint, using: EmeltalLink.params)
-        connection.stateUpdateHandler = { connectionState in
-            Task { @MainActor [weak self] in
+            Task { [weak self] in
                 guard let self else { return }
-
-                switch connectionState {
-                case .preparing, .setup:
-                    break
-
-                case .cancelled:
-                    state = .searching
-                    browser.start(queue: .main)
-
-                case .ready:
-                    connectionEstablished(connection)
-
-                case let .waiting(error):
-                    state = .error(error)
-
-                case let .failed(error):
-                    state = .error(error)
-                    state = .searching
-                    browser.start(queue: .main)
-
-                @unknown default:
-                    break
-                }
+                await update(from: browser, results: results)
             }
         }
-        connection.start(queue: .main)
+        browser.start(queue: Self.networkQueue)
+        return inputStream
     }
 
     private func receive(connection: NWConnection) {
@@ -141,28 +168,78 @@ final class EmeltalConnector {
 
             if isComplete,
                let content,
-               let msg = contentContext?.protocolMetadata(definition: EmeltalLink.definition) as? NWProtocolFramer.Message,
-               let payload = msg.transmission?.payload {
-                continuation.yield((payload, content))
+               let msg = contentContext?.protocolMetadata(definition: LinkProtocol.definition) as? NWProtocolFramer.Message,
+               let header = msg["EmeltalHeader"] as? EmeltalConnector.Header {
+                continuation.yield(Nibble(payload: header.payload, data: content))
             }
-            receive(connection: connection)
+            Task { [weak self] in
+                guard let self else { return }
+                await receive(connection: connection)
+            }
         }
     }
 
-    func send(_ payload: Transmission.Payload, content: Data?) {
+    func send(_ payload: Payload, content: Data?) {
         guard case let .connected(nWConnection) = state else {
             return
         }
 
-        let transmission = Transmission(payload: payload, length: UInt64(content?.count ?? 0))
+        let message = NWProtocolFramer.Message(definition: LinkProtocol.definition)
+        message["EmeltalHeader"] = Header(payload: payload, length: content?.count ?? 0)
 
-        let context = NWConnection.ContentContext(identifier: "Emeltal", metadata: [
-            NWProtocolFramer.Message(transmission: transmission)
-        ])
+        let context = NWConnection.ContentContext(identifier: "Emeltal", metadata: [message])
+        nWConnection.send(content: content, contentContext: context, isComplete: true, completion: .idempotent)
+    }
 
-        nWConnection.send(content: content,
-                          contentContext: context,
-                          isComplete: true,
-                          completion: .idempotent)
+    private final class LinkProtocol: NWProtocolFramerImplementation {
+        static var params: NWParameters {
+            let options = NWProtocolFramer.Options(definition: definition)
+            let parameters = NWParameters.applicationService
+            parameters.defaultProtocolStack.applicationProtocols.insert(options, at: 0)
+            return parameters
+        }
+
+        static let label = "Emeltal Link"
+        static let definition = NWProtocolFramer.Definition(implementation: LinkProtocol.self)
+
+        init(framer _: NWProtocolFramer.Instance) {}
+        func wakeup(framer _: NWProtocolFramer.Instance) {}
+        func stop(framer _: NWProtocolFramer.Instance) -> Bool { true }
+        func cleanup(framer _: NWProtocolFramer.Instance) {}
+        func start(framer _: NWProtocolFramer.Instance) -> NWProtocolFramer.StartResult { .ready }
+
+        func handleInput(framer: NWProtocolFramer.Instance) -> Int {
+            while true {
+                var header: EmeltalConnector.Header?
+                let dataSize = EmeltalConnector.Header.dataSize
+                let parsed = framer.parseInput(minimumIncompleteLength: dataSize, maximumLength: dataSize) { buffer, _ in
+                    guard let buffer, buffer.count >= dataSize else { return 0 }
+                    header = EmeltalConnector.Header(buffer)
+                    return dataSize
+                }
+
+                guard parsed, let header else {
+                    return dataSize
+                }
+
+                let message = NWProtocolFramer.Message(definition: Self.definition)
+                message["EmeltalHeader"] = header
+                if !framer.deliverInputNoCopy(length: Int(header.length), message: message, isComplete: true) {
+                    return 0
+                }
+            }
+        }
+
+        func handleOutput(framer: NWProtocolFramer.Instance, message: NWProtocolFramer.Message, messageLength: Int, isComplete _: Bool) {
+            guard let header = message["EmeltalHeader"] as? EmeltalConnector.Header else {
+                return
+            }
+            framer.writeOutput(data: header.data)
+            do {
+                try framer.writeOutputNoCopy(length: messageLength)
+            } catch {
+                log("Error writing network message: \(error.localizedDescription)")
+            }
+        }
     }
 }

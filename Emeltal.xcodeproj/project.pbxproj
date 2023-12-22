@@ -41,12 +41,10 @@
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmeltermApp.swift */; };
 		16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDE2B34701200006CC2 /* ContentView.swift */; };
-		16C58DEB2B349B2200006CC2 /* EmeltalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */; };
-		16C58DEC2B349B2400006CC2 /* EmeltalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */; };
 		16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
 		16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
-		16C58DF22B34E4B700006CC2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* Log.swift */; };
-		16C58DF32B34E4B700006CC2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* Log.swift */; };
+		16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */; };
+		16C58DF32B34E4B700006CC2 /* CommonGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */; };
 		16C58DF42B34E97900006CC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
 		16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16C58DFB2B351BC700006CC2 /* MicState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFA2B351BC700006CC2 /* MicState.swift */; };
@@ -113,9 +111,8 @@
 		16C58DDE2B34701200006CC2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		16C58DE22B34701300006CC2 /* Emelterm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emelterm.entitlements; sourceTree = "<group>"; };
 		16C58DE92B3470D000006CC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalLink.swift; sourceTree = "<group>"; };
 		16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalConnector.swift; sourceTree = "<group>"; };
-		16C58DF12B34E4B700006CC2 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGlobals.swift; sourceTree = "<group>"; };
 		16C58DFA2B351BC700006CC2 /* MicState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicState.swift; sourceTree = "<group>"; };
 		16C58DFD2B351C6E00006CC2 /* AppMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMode.swift; sourceTree = "<group>"; };
 		16C58E002B351D0900006CC2 /* AssetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
@@ -256,8 +253,7 @@
 			isa = PBXGroup;
 			children = (
 				16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */,
-				16C58DEA2B349B2200006CC2 /* EmeltalLink.swift */,
-				16C58DF12B34E4B700006CC2 /* Log.swift */,
+				16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */,
 				16578A332B18CA820038A680 /* Speaker.swift */,
 				16C58DFA2B351BC700006CC2 /* MicState.swift */,
 				16C58DFD2B351C6E00006CC2 /* AppMode.swift */,
@@ -392,7 +388,7 @@
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
 				163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */,
-				16C58DF22B34E4B700006CC2 /* Log.swift in Sources */,
+				16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
 				16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
@@ -403,7 +399,6 @@
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
-				16C58DEB2B349B2200006CC2 /* EmeltalLink.swift in Sources */,
 				16C58DFB2B351BC700006CC2 /* MicState.swift in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
@@ -420,9 +415,8 @@
 			files = (
 				16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */,
-				16C58DF32B34E4B700006CC2 /* Log.swift in Sources */,
+				16C58DF32B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
 				16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */,
-				16C58DEC2B349B2400006CC2 /* EmeltalLink.swift in Sources */,
 				16C58DFC2B351BC700006CC2 /* MicState.swift in Sources */,
 				16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16C58E022B351D0900006CC2 /* AssetManager.swift in Sources */,

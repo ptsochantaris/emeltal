@@ -8,15 +8,16 @@ final class EmelTerm {
 
     init() {
         Task {
-            for await (payload, data) in remote.setupNetworkListener() {
-                switch payload {
+            let stream = await remote.startClient()
+            for await nibble in stream {
+                switch nibble.payload {
                 case .appMode:
-                    if let data, let mode = AppMode(data: data) {
+                    if let data = nibble.data, let mode = AppMode(data: data) {
                         log("New app mode: \(mode)")
                     }
 
                 case .generatedSentence:
-                    if let data, let text = String(data: data, encoding: .utf8) {
+                    if let data = nibble.data, let text = String(data: data, encoding: .utf8) {
                         log("Generated sentence: \(text)")
                     }
 

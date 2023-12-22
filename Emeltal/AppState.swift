@@ -17,7 +17,9 @@ final class AppState: Identifiable {
                     mode.audioFeedback(using: speaker)
                 }
                 #if DEBUG
-                    remote.send(.appMode, content: mode.data)
+                    Task {
+                        await remote.send(.appMode, content: mode.data)
+                    }
                 #endif
             }
         }
@@ -182,8 +184,9 @@ final class AppState: Identifiable {
 
         #if DEBUG
             Task {
-                for await transmission in remote.setupNetworkAdvertiser() {
-                    log("From client: \(transmission)")
+                let stream = await remote.startServer()
+                for await nibble in stream {
+                    log("From client: \(nibble)")
                 }
                 log("Stream done")
             }
@@ -377,7 +380,7 @@ final class AppState: Identifiable {
 
         #if DEBUG
             if let data = sentence.data(using: .utf8) {
-                remote.send(.generatedSentence, content: data)
+                await remote.send(.generatedSentence, content: data)
             }
         #endif
     }
