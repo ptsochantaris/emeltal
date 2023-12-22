@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import Network
 
@@ -53,11 +54,13 @@ final class EmeltalConnector {
 
     private let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
 
-    var state = State.boot {
+    private var state = State.boot {
         didSet {
-            log("New network state: \(state)")
+            statePublisher.send(state)
         }
     }
+
+    var statePublisher = CurrentValueSubject<State, Never>(State.boot)
 
     private func update(from browser: NWBrowser, connection: NWConnection, connectionState: NWConnection.State) {
         switch connectionState {
@@ -139,6 +142,9 @@ final class EmeltalConnector {
 
     private func connectionEstablished(_ connection: NWConnection) {
         state = .connected(connection)
+        if let cachedAppModeData {
+            send(.appMode, content: cachedAppModeData)
+        }
         receive(connection: connection)
     }
 
@@ -179,7 +185,13 @@ final class EmeltalConnector {
         }
     }
 
+    private var cachedAppModeData: Data?
+
     func send(_ payload: Payload, content: Data?) {
+        if case .appMode = payload {
+            cachedAppModeData = content
+        }
+
         guard case let .connected(nWConnection) = state else {
             return
         }

@@ -40,7 +40,6 @@
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmeltermApp.swift */; };
-		16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDE2B34701200006CC2 /* ContentView.swift */; };
 		16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
 		16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
 		16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */; };
@@ -52,6 +51,8 @@
 		16C58DFE2B351C6E00006CC2 /* AppMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFD2B351C6E00006CC2 /* AppMode.swift */; };
 		16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFD2B351C6E00006CC2 /* AppMode.swift */; };
 		16C58E022B351D0900006CC2 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58E002B351D0900006CC2 /* AssetManager.swift */; };
+		16C58E052B35BB8D00006CC2 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
+		16C58E062B35BB8D00006CC2 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C7C21D2B2A0A6700755BC4 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C7C21C2B2A0A6700755BC4 /* llama.metallib */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 /* End PBXBuildFile section */
@@ -108,7 +109,6 @@
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
 		16C58DDA2B34701200006CC2 /* Emelterm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emelterm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C58DDC2B34701200006CC2 /* EmeltermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltermApp.swift; sourceTree = "<group>"; };
-		16C58DDE2B34701200006CC2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		16C58DE22B34701300006CC2 /* Emelterm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emelterm.entitlements; sourceTree = "<group>"; };
 		16C58DE92B3470D000006CC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalConnector.swift; sourceTree = "<group>"; };
@@ -242,7 +242,6 @@
 			children = (
 				16C58DE92B3470D000006CC2 /* Info.plist */,
 				16C58DDC2B34701200006CC2 /* EmeltermApp.swift */,
-				16C58DDE2B34701200006CC2 /* ContentView.swift */,
 				16C58DE22B34701300006CC2 /* Emelterm.entitlements */,
 				16C58E002B351D0900006CC2 /* AssetManager.swift */,
 			);
@@ -370,6 +369,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				16C58DF42B34E97900006CC2 /* Assets.xcassets in Resources */,
+				16C58E052B35BB8D00006CC2 /* MicStart.caf in Resources */,
+				16C58E062B35BB8D00006CC2 /* MicStop.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,7 +415,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
-				16C58DDF2B34701200006CC2 /* ContentView.swift in Sources */,
 				16C58DF32B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
 				16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */,
 				16C58DFC2B351BC700006CC2 /* MicState.swift in Sources */,

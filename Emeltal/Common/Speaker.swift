@@ -30,7 +30,7 @@ final actor Speaker {
         return voices.first
     }
 
-    init() async throws {
+    init() throws {
         if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
             havePreferredVoice = true
             voice = preferred
@@ -48,7 +48,9 @@ final actor Speaker {
             }
         }
 
-        add(text: "")
+        Task {
+            await add(text: "")
+        }
     }
 
     func cancelIfNeeded() {
