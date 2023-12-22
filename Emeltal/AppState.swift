@@ -10,10 +10,15 @@ final class AppState: Identifiable {
 
     var multiLineText = ""
     var messageLog = ""
-    var mode: Mode = .startup {
+    var mode: AppMode = .startup {
         didSet {
-            if oldValue != mode, let speaker {
-                mode.audioFeedback(using: speaker)
+            if oldValue != mode {
+                if let speaker {
+                    mode.audioFeedback(using: speaker)
+                }
+                #if DEBUG
+                    remote.send(.appMode, content: mode.data)
+                #endif
             }
         }
     }
@@ -46,85 +51,6 @@ final class AppState: Identifiable {
             }
             Persisted._floatingMode = floatingMode
             processFloatingMode(fromBoot: false)
-        }
-    }
-
-    enum Mode: Equatable {
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            switch lhs {
-            case .startup:
-                if case .startup = rhs {
-                    return true
-                }
-            case .booting:
-                if case .booting = rhs {
-                    return true
-                }
-            case .warmup:
-                if case .warmup = rhs {
-                    return true
-                }
-            case .listening:
-                if case .listening = rhs {
-                    return true
-                }
-            case .loading:
-                if case .loading = rhs {
-                    return true
-                }
-            case .noting:
-                if case .noting = rhs {
-                    return true
-                }
-            case .replying:
-                if case .replying = rhs {
-                    return true
-                }
-            case .thinking:
-                if case .thinking = rhs {
-                    return true
-                }
-            case .waiting:
-                if case .waiting = rhs {
-                    return true
-                }
-            }
-            return false
-        }
-
-        case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
-
-        func audioFeedback(using speaker: Speaker) {
-            switch self {
-            case .listening:
-                Task {
-                    await speaker.playEffect(speaker.startEffect)
-                }
-            case .noting:
-                Task {
-                    await speaker.playEffect(speaker.endEffect)
-                }
-            case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
-                break
-            }
-        }
-
-        var showGenie: Bool {
-            switch self {
-            case .noting, .replying, .thinking:
-                true
-            case .booting, .listening, .loading, .startup, .waiting, .warmup:
-                false
-            }
-        }
-
-        var showAlwaysOn: Bool {
-            switch self {
-            case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
-                false
-            case .listening, .waiting:
-                true
-            }
         }
     }
 
@@ -450,7 +376,9 @@ final class AppState: Identifiable {
         }
 
         #if DEBUG
-            remote.sendUtterance(sentence)
+            if let data = sentence.data(using: .utf8) {
+                remote.send(.generatedSentence, content: data)
+            }
         #endif
     }
 

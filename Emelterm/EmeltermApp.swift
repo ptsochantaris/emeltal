@@ -8,8 +8,24 @@ final class EmelTerm {
 
     init() {
         Task {
-            for await transmission in remote.setupNetworkListener() {
-                log("From server: \(transmission)")
+            for await (payload, data) in remote.setupNetworkListener() {
+                switch payload {
+                case .appMode:
+                    if let data, let mode = AppMode(data: data) {
+                        log("New app mode: \(mode)")
+                    }
+
+                case .generatedSentence:
+                    if let data, let text = String(data: data, encoding: .utf8) {
+                        log("Generated sentence: \(text)")
+                    }
+
+                case .recordedSpeech, .recordedSpeechLast:
+                    break
+
+                case .unknown:
+                    log("Warning: Unknown message from server")
+                }
             }
         }
     }

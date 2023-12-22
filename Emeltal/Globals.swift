@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 
-extension String: Error {}
-
 let appDocumentsUrl: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
 let assistantWidth: CGFloat = 140
@@ -26,8 +24,6 @@ enum Persisted {
         return Asset.assetList.first(where: { $0.id == aid })!
     }
 }
-
-extension NSSound: @unchecked Sendable {}
 
 let sizeFormatter: ByteCountFormatter = {
     let b = ByteCountFormatter()

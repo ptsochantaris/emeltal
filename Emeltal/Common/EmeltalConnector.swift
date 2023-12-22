@@ -2,16 +2,41 @@ import Foundation
 import Network
 
 final class EmeltalConnector {
-    enum Transmission {
-        case speak(String)
-        case hear(Data, Bool)
+    struct Transmission {
+        enum Payload: UInt64 {
+            case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast
+        }
+
+        let payload: Payload
+        let length: UInt64
+
+        static let uint64size = MemoryLayout<UInt64>.size
+        static let dataSize = uint64size * 2
+
+        var data: Data {
+            var payload = payload.rawValue
+            var length = length
+            return Data(bytes: &payload, count: Self.uint64size)
+                + Data(bytes: &length, count: Self.uint64size)
+        }
+
+        init(payload: Payload, length: UInt64) {
+            self.payload = payload
+            self.length = length
+        }
+
+        init(_ buffer: UnsafeMutableRawBufferPointer) {
+            let tempPayload = buffer.load(as: UInt64.self)
+            payload = Payload(rawValue: tempPayload) ?? .unknown
+            length = buffer.load(fromByteOffset: Self.uint64size, as: UInt64.self)
+        }
     }
 
     enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
     }
 
-    private let (inputStream, continuation) = AsyncStream.makeStream(of: Transmission.self, bufferingPolicy: .unbounded)
+    private let (inputStream, continuation) = AsyncStream.makeStream(of: (Transmission.Payload, Data?).self, bufferingPolicy: .unbounded)
 
     var state = State.boot {
         didSet {
@@ -19,7 +44,7 @@ final class EmeltalConnector {
         }
     }
 
-    func setupNetworkAdvertiser() -> AsyncStream<Transmission> {
+    func setupNetworkAdvertiser() -> AsyncStream<(Transmission.Payload, Data?)> {
         let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
         let listener = try! NWListener(service: service, using: EmeltalLink.params)
         listener.newConnectionHandler = { connection in
@@ -56,7 +81,7 @@ final class EmeltalConnector {
         receive(connection: connection)
     }
 
-    func setupNetworkListener() -> AsyncStream<Transmission> {
+    func setupNetworkListener() -> AsyncStream<(Transmission.Payload, Data?)> {
         state = .searching
         let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
         let browser = NWBrowser(for: emeltalTcp, using: EmeltalLink.params)
@@ -114,34 +139,28 @@ final class EmeltalConnector {
                 return
             }
 
-            if isComplete, let content, let msg = contentContext?.protocolMetadata(definition: EmeltalLink.definition) as? NWProtocolFramer.Message {
-                switch msg.command {
-                case .none, .unknown:
-                    break
-                case .audioBlock:
-                    continuation.yield(.hear(content, false))
-                case .audioBlockLast:
-                    continuation.yield(.hear(content, true))
-                case .utterance:
-                    if let text = String(data: content, encoding: .utf8) {
-                        continuation.yield(.speak(text))
-                    }
-                }
+            if isComplete,
+               let content,
+               let msg = contentContext?.protocolMetadata(definition: EmeltalLink.definition) as? NWProtocolFramer.Message,
+               let payload = msg.transmission?.payload {
+                continuation.yield((payload, content))
             }
             receive(connection: connection)
         }
     }
 
-    func sendUtterance(_ sentence: String) {
+    func send(_ payload: Transmission.Payload, content: Data?) {
         guard case let .connected(nWConnection) = state else {
             return
         }
 
-        let context = NWConnection.ContentContext(identifier: "utterance", metadata: [
-            NWProtocolFramer.Message(command: .utterance)
+        let transmission = Transmission(payload: payload, length: UInt64(content?.count ?? 0))
+
+        let context = NWConnection.ContentContext(identifier: "Emeltal", metadata: [
+            NWProtocolFramer.Message(transmission: transmission)
         ])
 
-        nWConnection.send(content: sentence.data(using: .utf8),
+        nWConnection.send(content: content,
                           contentContext: context,
                           isComplete: true,
                           completion: .idempotent)

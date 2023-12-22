@@ -1,4 +1,6 @@
-import AppKit
+#if canImport(AppKit)
+    import AppKit
+#endif
 import AVFoundation
 import Foundation
 
@@ -69,15 +71,17 @@ final actor Speaker {
         synth.speak(utterance)
     }
 
-    let startEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStart", withExtension: "caf")!, byReference: true)!
-    let endEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStop", withExtension: "caf")!, byReference: true)!
+    #if canImport(AppKit)
+        let startEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStart", withExtension: "caf")!, byReference: true)!
+        let endEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStop", withExtension: "caf")!, byReference: true)!
 
-    func playEffect(_ sound: NSSound) {
-        sound.currentTime = 0
-        sound.volume = 0.2
-        sound.play()
-        DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
-            sound.stop()
+        func playEffect(_ sound: NSSound) {
+            sound.currentTime = 0
+            sound.volume = 0.2
+            sound.play()
+            DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
+                sound.stop()
+            }
         }
-    }
+    #endif
 }
