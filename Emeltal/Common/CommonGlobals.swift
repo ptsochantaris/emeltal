@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 import OSLog
 #if canImport(AppKit)
@@ -18,4 +19,8 @@ func log(_ message: @autoclosure () -> String) {
     #if DEBUG
         os_log("%{public}@", message())
     #endif
+}
+
+var canUseMic: Bool {
+    AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
 }
