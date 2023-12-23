@@ -16,12 +16,24 @@ final class EmelTerm {
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
 
+    private var micObservation: Cancellable!
+
     var remoteActivationState = ActivationState.notListening
 
     var remoteAppMode = AppMode.booting {
         didSet {
-            if let speaker, oldValue != remoteAppMode {
-                remoteAppMode.audioFeedback(using: speaker)
+            if oldValue != remoteAppMode {
+                log("New remote state: \(remoteAppMode)")
+                if let speaker {
+                    remoteAppMode.audioFeedback(using: speaker)
+                }
+                Task {
+                    if case .alwaysOn = remoteAppMode {
+                        await self.startMic()
+                    } else if case .waiting = remoteAppMode, case .alwaysOn = oldValue {
+                        await self.endMic(processResult: false)
+                    }
+                }
             }
         }
     }
@@ -50,20 +62,32 @@ final class EmelTerm {
 
     func buttonDown() {
         Task {
-            await speaker?.cancelIfNeeded()
+            await startMic()
             await remote.send(.buttonDown, content: emptyData)
-            try? await mic.start()
         }
     }
 
-    func buttonUp() {
-        Task {
+    private func startMic() async {
+        await speaker?.cancelIfNeeded()
+        try? await mic.start()
+    }
+
+    private func endMic(processResult: Bool) async {
+        if processResult {
             if let floats = try? await mic.stop(), floats.count > 100 {
                 let speech = floats.withUnsafeBytes { floatPointer in
                     Data(bytes: floatPointer.baseAddress!, count: floatPointer.count)
                 }
                 await remote.send(.recordedSpeech, content: speech)
             }
+        } else {
+            _ = try? await mic.stop()
+        }
+    }
+
+    func buttonUp() {
+        Task {
+            await endMic(processResult: true)
             await remote.send(.buttonUp, content: emptyData)
         }
     }
@@ -75,6 +99,15 @@ final class EmelTerm {
     }
 
     private func go() async {
+        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
+            guard let self else { return }
+            if remoteActivationState == .voiceActivated, case let .alwaysOn(myState) = remoteAppMode, newState != myState, case .quiet = newState {
+                Task {
+                    await self.endMic(processResult: true)
+                }
+            }
+        }
+
         connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
             self?.connectionState = state
         }

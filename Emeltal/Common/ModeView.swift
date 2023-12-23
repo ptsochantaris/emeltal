@@ -20,7 +20,7 @@ struct ModeView: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
 
-            case let .listening(state):
+            case let .alwaysOn(state):
                 switch state {
                 case .listening:
                     Image(systemName: "waveform.circle")

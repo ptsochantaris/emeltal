@@ -171,13 +171,13 @@ final class AppState: Identifiable {
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            if case let .listening(myState) = mode, newState != myState {
+            if case let .alwaysOn(myState) = mode, newState != myState {
                 if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
                     Task {
                         await self.endMic(processOutput: true)
                     }
                 }
-                mode = .listening(state: newState)
+                mode = .alwaysOn(state: newState)
             }
         }
 
@@ -276,7 +276,7 @@ final class AppState: Identifiable {
     func send() {
         let text = multiLineText.trimmingCharacters(in: .whitespacesAndNewlines)
         switch mode {
-        case .booting, .listening, .loading, .replying, .startup, .thinking, .warmup:
+        case .alwaysOn, .booting, .loading, .replying, .startup, .thinking, .warmup:
             return
 
         case .noting, .waiting:
@@ -304,7 +304,7 @@ final class AppState: Identifiable {
         try? await mic.start()
         let micState = await mic.state
         withAnimation {
-            mode = .listening(state: micState)
+            mode = .alwaysOn(state: micState)
         }
     }
 

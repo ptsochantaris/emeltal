@@ -47,8 +47,8 @@ enum AppMode: Equatable {
             if case .warmup = rhs {
                 return true
             }
-        case .listening:
-            if case .listening = rhs {
+        case .alwaysOn:
+            if case .alwaysOn = rhs {
                 return true
             }
         case .loading:
@@ -75,7 +75,7 @@ enum AppMode: Equatable {
         return false
     }
 
-    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
+    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, alwaysOn(state: Mic.State), noting, thinking, replying
 
     init?(data: Data) {
         let primary: UInt8 = data[0]
@@ -86,9 +86,9 @@ enum AppMode: Equatable {
         case 2:
             switch secondary {
             case 1:
-                self = .listening(state: .listening(quietPeriods: 0))
+                self = .alwaysOn(state: .listening(quietPeriods: 0))
             case 2:
-                self = .listening(state: .quiet(prefixBuffer: []))
+                self = .alwaysOn(state: .quiet(prefixBuffer: []))
             default:
                 return nil
             }
@@ -117,7 +117,7 @@ enum AppMode: Equatable {
         switch self {
         case .booting:
             data[0] = 1
-        case let .listening(state):
+        case let .alwaysOn(state):
             data[0] = 2
             switch state {
             case .listening:
@@ -145,7 +145,7 @@ enum AppMode: Equatable {
 
     func audioFeedback(using speaker: Speaker) {
         switch self {
-        case .listening:
+        case .alwaysOn:
             Task {
                 await speaker.playEffect(.startListening)
             }
@@ -162,7 +162,7 @@ enum AppMode: Equatable {
         switch self {
         case .noting, .replying, .thinking:
             true
-        case .booting, .listening, .loading, .startup, .waiting, .warmup:
+        case .alwaysOn, .booting, .loading, .startup, .waiting, .warmup:
             false
         }
     }
@@ -171,14 +171,14 @@ enum AppMode: Equatable {
         switch self {
         case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
             false
-        case .listening, .waiting:
+        case .alwaysOn, .waiting:
             canUseMic
         }
     }
 
     var pushButtonActive: Bool {
         switch self {
-        case .listening, .replying, .waiting:
+        case .alwaysOn, .replying, .waiting:
             canUseMic
         case .booting, .loading, .noting, .startup, .thinking, .warmup:
             false

@@ -45,7 +45,7 @@ final actor Mic: NSObject {
             case let .listening(quietPeriods1):
                 switch state {
                 case .quiet:
-                    log("Stopped listening")
+                    log("Finished speaking")
                     statePublisher.send(.quiet(prefixBuffer: []))
 
                 case let .listening(quietPeriods2):
