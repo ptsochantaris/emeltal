@@ -57,6 +57,8 @@
 		16C58E0B2B35DA1300006CC2 /* Genie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05B2B31B7D400565F49 /* Genie.swift */; };
 		16C58E0C2B36473900006CC2 /* PushButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0562B31B78300565F49 /* PushButton.swift */; };
 		16C58E0D2B3655D300006CC2 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
+		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
+		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
 		16C7C21D2B2A0A6700755BC4 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C7C21C2B2A0A6700755BC4 /* llama.metallib */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 /* End PBXBuildFile section */
@@ -130,6 +132,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16C58E102B37688000006CC2 /* PopTimer in Frameworks */,
 				1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */,
 				160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
@@ -142,6 +145,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16C58E122B37688D00006CC2 /* PopTimer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,6 +296,7 @@
 			name = Emeltal;
 			packageProductDependencies = (
 				1601898C2B1A51860012B315 /* MarkdownUI */,
+				16C58E0F2B37688000006CC2 /* PopTimer */,
 			);
 			productName = Safespace;
 			productReference = 1608DB682B151B4F00FFFB09 /* Emeltal.app */;
@@ -310,6 +315,9 @@
 			dependencies = (
 			);
 			name = Emelterm;
+			packageProductDependencies = (
+				16C58E112B37688D00006CC2 /* PopTimer */,
+			);
 			productName = Emelterm;
 			productReference = 16C58DDA2B34701200006CC2 /* Emelterm.app */;
 			productType = "com.apple.product-type.application";
@@ -344,6 +352,7 @@
 			mainGroup = 1608DB5F2B151B4F00FFFB09;
 			packageReferences = (
 				1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */,
 			);
 			productRefGroup = 1608DB692B151B4F00FFFB09 /* Products */;
 			projectDirPath = "";
@@ -674,10 +683,11 @@
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -713,10 +723,11 @@
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -773,6 +784,14 @@
 				minimumVersion = 2.2.0;
 			};
 		};
+		16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ptsochantaris/pop-timer";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -780,6 +799,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
+		};
+		16C58E0F2B37688000006CC2 /* PopTimer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
+			productName = PopTimer;
+		};
+		16C58E112B37688D00006CC2 /* PopTimer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
+			productName = PopTimer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

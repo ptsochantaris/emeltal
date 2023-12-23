@@ -31,8 +31,16 @@ final class EmelTerm {
             try? av.setPreferredInputNumberOfChannels(1)
             try? av.setActive(true)
         #endif
+    }
 
-        Task {
+    func invalidateConnection() {
+        Task { @NetworkActor in
+            remote.invalidate()
+        }
+    }
+
+    func restoreConnectionIfNeeded() {
+        Task { @NetworkActor in
             await go()
         }
     }
@@ -89,13 +97,14 @@ final class EmelTerm {
                     await speaker?.add(text: text)
                 }
 
-            case .buttonDown, .buttonUp, .recordedSpeech, .toggleListeningMode:
+            case .buttonDown, .buttonUp, .heartbeat, .recordedSpeech, .toggleListeningMode:
                 break
 
             case .unknown:
                 log("Warning: Unknown message from server")
             }
         }
+        log("[Connector] Incoming stream done")
     }
 }
 
@@ -168,12 +177,21 @@ struct ContentView: View {
 struct EmeltermApp: App {
     private let state = EmelTerm()
 
+    @Environment(\.scenePhase) var scenePhase
+
     var body: some Scene {
         WindowGroup(id: "Emelterm") {
             ContentView(state: state)
                 .frame(maxWidth: .infinity)
                 .background(Image(.canvas).resizable().ignoresSafeArea())
                 .preferredColorScheme(.dark)
+                .onChange(of: scenePhase) { _, newValue in
+                    if newValue == .background {
+                        state.invalidateConnection()
+                    } else if newValue == .active {
+                        state.restoreConnectionIfNeeded()
+                    }
+                }
         }
     }
 }

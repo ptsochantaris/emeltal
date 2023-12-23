@@ -210,7 +210,7 @@ final class AppState: Identifiable {
             log("From client: \(nibble)")
 
             switch nibble.payload {
-            case .appActivationState, .appMode, .generatedSentence, .unknown:
+            case .appActivationState, .appMode, .generatedSentence, .heartbeat, .unknown:
                 break
 
             case .recordedSpeech:

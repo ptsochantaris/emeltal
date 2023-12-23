@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import Network
+import PopTimer
 import SwiftUI
 
 @globalActor
@@ -13,7 +14,14 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, toggleListeningMode, buttonDown, buttonUp, appActivationState
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, toggleListeningMode, buttonDown, buttonUp, appActivationState, heartbeat
+    }
+
+    private lazy var popTimer = PopTimer(timeInterval: 4) { [weak self] in
+        Task { @NetworkActor [weak self] in
+            guard let self else { return }
+            send(.heartbeat, content: emptyData)
+        }
     }
 
     nonisolated init() {}
@@ -103,6 +111,10 @@ final class EmeltalConnector {
     private var state = State.boot {
         didSet {
             statePublisher.send(state)
+            log("[Connector] State: \(state)")
+            if case .connected = state {
+                popTimer.push()
+            }
         }
     }
 
@@ -133,6 +145,12 @@ final class EmeltalConnector {
         }
     }
 
+    func invalidate() {
+        if case let .connected(nWConnection) = state {
+            nWConnection.cancel()
+        }
+    }
+
     private func update(from browser: NWBrowser, results: Set<NWBrowser.Result>) {
         guard case .searching = state, let result = results.first else {
             return
@@ -143,9 +161,9 @@ final class EmeltalConnector {
 
         let connection = NWConnection(to: result.endpoint, using: LinkProtocol.params)
         connection.stateUpdateHandler = { [weak self] newState in
-            Task { [weak self] in
+            Task { @NetworkActor [weak self] in
                 guard let self else { return }
-                await update(from: browser, connection: connection, connectionState: newState)
+                update(from: browser, connection: connection, connectionState: newState)
             }
         }
         connection.start(queue: Self.networkQueue)
@@ -163,6 +181,9 @@ final class EmeltalConnector {
             break
 
         case let .failed(error), let .waiting(error):
+            if case let .connected(nWConnection) = state, connection !== nWConnection {
+                break
+            }
             state = .error(error)
 
         @unknown default:
@@ -175,9 +196,9 @@ final class EmeltalConnector {
         let listener = try! NWListener(service: service, using: LinkProtocol.params)
         listener.newConnectionHandler = { connection in
             connection.stateUpdateHandler = { [weak self] change in
-                Task { [weak self] in
+                Task { @NetworkActor [weak self] in
                     guard let self else { return }
-                    await update(from: connection, to: change)
+                    update(from: connection, to: change)
                 }
             }
             connection.start(queue: Self.networkQueue)
@@ -199,9 +220,9 @@ final class EmeltalConnector {
         let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
         let browser = NWBrowser(for: emeltalTcp, using: LinkProtocol.params)
         browser.browseResultsChangedHandler = { [weak self] results, _ in
-            Task { [weak self] in
+            Task { @NetworkActor [weak self] in
                 guard let self else { return }
-                await update(from: browser, results: results)
+                update(from: browser, results: results)
             }
         }
         browser.start(queue: Self.networkQueue)
@@ -212,9 +233,18 @@ final class EmeltalConnector {
         connection.receiveMessage { [weak self] content, contentContext, isComplete, error in
             guard let self else { return }
 
+            Task { @NetworkActor [weak self] in
+                guard let self else { return }
+                popTimer.push()
+            }
+
             if let error {
-                connection.cancel()
-                log("[Connector] Receiving error: \(error.localizedDescription)")
+                if case .cancelled = connection.state {
+                    continuation.finish()
+                } else {
+                    connection.cancel()
+                    log("[Connector] Receiving error: \(error.localizedDescription)")
+                }
                 return
             }
 
@@ -224,9 +254,10 @@ final class EmeltalConnector {
                let header = msg["EmeltalHeader"] as? EmeltalConnector.Header {
                 continuation.yield(Nibble(payload: header.payload, data: content))
             }
-            Task { [weak self] in
+
+            Task { @NetworkActor [weak self] in
                 guard let self else { return }
-                await receive(connection: connection)
+                receive(connection: connection)
             }
         }
     }
@@ -249,6 +280,7 @@ final class EmeltalConnector {
         nWConnection.send(content: content, contentContext: context, isComplete: true, completion: .idempotent)
 
         log("[Connector] Did send \(payload) - \(content?.count ?? 0) bytes")
+        popTimer.push()
     }
 
     private final class LinkProtocol: NWProtocolFramerImplementation {

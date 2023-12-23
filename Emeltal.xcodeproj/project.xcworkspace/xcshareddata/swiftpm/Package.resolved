@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "pop-timer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ptsochantaris/pop-timer",
+      "state" : {
+        "revision" : "866789ba524adc477ad3eb0ad41c929f7092dac7",
+        "version" : "1.0.1"
+      }
+    },
+    {
       "identity" : "swift-markdown-ui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
