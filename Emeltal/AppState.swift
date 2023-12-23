@@ -48,6 +48,15 @@ final class AppState: Identifiable {
 
     var statusMessage: String? = "Starting…"
 
+    var isRemoteConnected = false {
+        didSet {
+            Task {
+                await mic.setRemoteMode(isRemoteConnected)
+                await speaker?.setMute(isRemoteConnected)
+            }
+        }
+    }
+
     var floatingMode: Bool = Persisted._floatingMode {
         didSet {
             if oldValue == floatingMode {
@@ -70,13 +79,9 @@ final class AppState: Identifiable {
     init(asset: Asset) {
         self.asset = asset
 
-        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak speaker, weak mic] state in
-            guard let speaker, let mic else { return }
-            let active = state.isConnectionActive
-            Task {
-                await mic.setRemoteMode(active)
-                await speaker.setMute(active)
-            }
+        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
+            guard let self else { return }
+            isRemoteConnected = state.isConnectionActive
         }
     }
 

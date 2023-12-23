@@ -4,7 +4,7 @@ import SwiftUI
 @main
 @MainActor
 struct EmeltalApp: App {
-    @State private var state: AppState? = nil // TODO: AppState(asset: Persisted.selectedAsset) - for when we have the option to select in menu
+    @State private var state: AppState? = nil
     @State private var asset = Persisted.selectedAsset
 
     var body: some Scene {

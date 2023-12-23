@@ -85,26 +85,26 @@ final actor Speaker {
         case startListening, endListening
     }
 
+    private static let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
+    private static let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
     #if canImport(AppKit)
-        private let startEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStart", withExtension: "caf")!, byReference: true)!
-        private let endEffect = NSSound(contentsOf: Bundle.main.url(forResource: "MicStop", withExtension: "caf")!, byReference: true)!
-
-        func playEffect(_ effect: Effect) {
-            if muted { return }
-            let sound = switch effect {
-            case .startListening: startEffect
-            case .endListening: endEffect
-            }
-            sound.currentTime = 0
-            sound.volume = 0.2
-            sound.play()
-            DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
-                sound.stop()
-            }
-        }
+        private static let startEffect = NSSound(contentsOf: startCaf, byReference: true)!
+        private static let endEffect = NSSound(contentsOf: endCaf, byReference: true)!
     #else
-        func playEffect(_: Effect) {
-            // TODO:
-        }
+        private static let startEffect = try! AVAudioPlayer(contentsOf: startCaf)
+        private static let endEffect = try! AVAudioPlayer(contentsOf: endCaf)
     #endif
+    func playEffect(_ effect: Effect) {
+        if muted { return }
+        let sound = switch effect {
+        case .startListening: Self.startEffect
+        case .endListening: Self.endEffect
+        }
+        sound.currentTime = 0
+        sound.volume = 0.2
+        sound.play()
+        DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
+            sound.stop()
+        }
+    }
 }

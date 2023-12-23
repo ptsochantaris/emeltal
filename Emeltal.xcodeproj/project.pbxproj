@@ -182,20 +182,20 @@
 		1608DB6A2B151B4F00FFFB09 /* Emeltal */ = {
 			isa = PBXGroup;
 			children = (
-				16C58DED2B34C0DE00006CC2 /* Common */,
-				168F56042B331BD8007CADC1 /* Assets */,
-				163EF0512B31B6B400565F49 /* UI */,
-				16578A312B18CA5A0038A680 /* AppState.swift */,
-				1608DB6F2B151B5000FFFB09 /* Assets.xcassets */,
-				16C7943F2B2F3DEF0052B707 /* Audio */,
-				1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */,
 				1608DB712B151B5000FFFB09 /* Emeltal.entitlements */,
-				16905E4D2B2E2DED006B4EC8 /* Globals.swift */,
+				1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */,
 				16C794402B2F43D60052B707 /* Info.plist */,
-				16053F7B2B1CCB13009E07DA /* llama-cpp */,
+				16578A312B18CA5A0038A680 /* AppState.swift */,
+				16905E4D2B2E2DED006B4EC8 /* Globals.swift */,
 				1608DB972B151DF000FFFB09 /* LlamaContext.swift */,
 				16905E4F2B2E5190006B4EC8 /* Template.swift */,
 				16578A382B1924B80038A680 /* WhisperContext.swift */,
+				1608DB6F2B151B5000FFFB09 /* Assets.xcassets */,
+				168F56042B331BD8007CADC1 /* Assets */,
+				16C7943F2B2F3DEF0052B707 /* Audio */,
+				16C58DED2B34C0DE00006CC2 /* Common */,
+				16053F7B2B1CCB13009E07DA /* llama-cpp */,
+				163EF0512B31B6B400565F49 /* UI */,
 			);
 			path = Emeltal;
 			sourceTree = "<group>";

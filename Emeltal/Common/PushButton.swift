@@ -84,10 +84,11 @@ import SwiftUI
         final class MouseTracker: UIView {
             var handler: (Bool) -> Void
 
-            private var pushed = false {
+            private var pushed: UITouch? {
                 didSet {
                     if pushed != oldValue {
-                        handler(pushed)
+                        let p = pushed != nil
+                        handler(p)
                     }
                 }
             }
@@ -102,16 +103,23 @@ import SwiftUI
                 fatalError()
             }
 
-            override func touchesBegan(_: Set<UITouch>, with _: UIEvent?) {
-                pushed = true
+            override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+                super.touchesBegan(touches, with: event)
+                pushed = touches.first
             }
 
-            override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
-                pushed = false
+            override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+                super.touchesEnded(touches, with: event)
+                if let p = pushed, touches.contains(p) {
+                    pushed = nil
+                }
             }
 
-            override func touchesCancelled(_: Set<UITouch>, with _: UIEvent?) {
-                pushed = false
+            override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+                super.touchesCancelled(touches, with: event)
+                if let p = pushed, touches.contains(p) {
+                    pushed = nil
+                }
             }
         }
     }

@@ -178,9 +178,9 @@ enum AppMode: Equatable {
 
     var pushButtonActive: Bool {
         switch self {
-        case .replying, .waiting:
+        case .listening, .replying, .waiting:
             true
-        case .booting, .listening, .loading, .noting, .startup, .thinking, .warmup:
+        case .booting, .loading, .noting, .startup, .thinking, .warmup:
             false
         }
     }

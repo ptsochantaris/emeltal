@@ -101,9 +101,7 @@ struct ContentView: View {
                             Capsule(style: .continuous)
                                 .foregroundStyle(connectionState.color)
                         }
-                }
-
-                if mode.showAlwaysOn {
+                } else if mode.showAlwaysOn {
                     let on = activation == .voiceActivated
                     Text("Always On".uppercased())
                         .padding(8)
