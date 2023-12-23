@@ -1,3 +1,4 @@
+import AVFoundation
 import Combine
 import Network
 import SwiftUI
@@ -23,6 +24,14 @@ final class EmelTerm {
     }
 
     init() {
+        #if os(iOS)
+            let av = AVAudioSession.sharedInstance()
+            try? av.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker])
+            try? av.overrideOutputAudioPort(.speaker)
+            try? av.setPreferredInputNumberOfChannels(1)
+            try? av.setActive(true)
+        #endif
+
         Task {
             await go()
         }
@@ -31,11 +40,18 @@ final class EmelTerm {
     func buttonDown() {
         Task {
             await remote.send(.buttonDown, content: emptyData)
+            try? await mic.start()
         }
     }
 
     func buttonUp() {
         Task {
+            if let floats = try? await mic.stop(), floats.count > 100 {
+                let speech = floats.withUnsafeBytes { floatPointer in
+                    Data(bytes: floatPointer.baseAddress!, count: floatPointer.count)
+                }
+                await remote.send(.recordedSpeech, content: speech)
+            }
             await remote.send(.buttonUp, content: emptyData)
         }
     }
@@ -73,7 +89,7 @@ final class EmelTerm {
                     await speaker?.add(text: text)
                 }
 
-            case .buttonDown, .buttonUp, .recordedSpeech, .recordedSpeechLast, .toggleListeningMode:
+            case .buttonDown, .buttonUp, .recordedSpeech, .toggleListeningMode:
                 break
 
             case .unknown:

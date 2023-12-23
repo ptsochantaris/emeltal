@@ -57,6 +57,10 @@ final actor Speaker {
 
         Task {
             await add(text: "")
+            #if os(iOS)
+                // needs warmup
+                await playEffect(.startListening)
+            #endif
         }
     }
 
@@ -88,9 +92,11 @@ final actor Speaker {
     private static let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
     private static let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
     #if canImport(AppKit)
+        private static let soundEffectVolume: Float = 0.2
         private static let startEffect = NSSound(contentsOf: startCaf, byReference: true)!
         private static let endEffect = NSSound(contentsOf: endCaf, byReference: true)!
     #else
+        private static let soundEffectVolume: Float = 0.8
         private static let startEffect = try! AVAudioPlayer(contentsOf: startCaf)
         private static let endEffect = try! AVAudioPlayer(contentsOf: endCaf)
     #endif
@@ -100,8 +106,11 @@ final actor Speaker {
         case .startListening: Self.startEffect
         case .endListening: Self.endEffect
         }
+        #if os(iOS)
+            sound.prepareToPlay()
+        #endif
         sound.currentTime = 0
-        sound.volume = 0.2
+        sound.volume = Self.soundEffectVolume
         sound.play()
         DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
             sound.stop()

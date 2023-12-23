@@ -13,7 +13,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechLast, toggleListeningMode, buttonDown, buttonUp, appActivationState
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, toggleListeningMode, buttonDown, buttonUp, appActivationState
     }
 
     nonisolated init() {}
@@ -38,9 +38,16 @@ final class EmeltalConnector {
         }
 
         init(_ buffer: UnsafeMutableRawBufferPointer) {
-            let tempPayload = buffer.load(as: UInt64.self)
+            var tempPayload: UInt64 = 0
+            var tempLength: UInt64 = 0
+            withUnsafeMutableBytes(of: &tempPayload) {
+                $0.copyMemory(from: UnsafeRawBufferPointer(start: buffer.baseAddress!, count: Self.uint64size))
+            }
+            withUnsafeMutableBytes(of: &tempLength) {
+                $0.copyMemory(from: UnsafeRawBufferPointer(start: buffer.baseAddress!.advanced(by: Self.uint64size), count: Self.uint64size))
+            }
             payload = Payload(rawValue: tempPayload) ?? .unknown
-            length = buffer.load(fromByteOffset: Self.uint64size, as: UInt64.self)
+            length = tempLength
         }
     }
 
@@ -207,7 +214,7 @@ final class EmeltalConnector {
 
             if let error {
                 connection.cancel()
-                log("Receiving error: \(error.localizedDescription)")
+                log("[Connector] Receiving error: \(error.localizedDescription)")
                 return
             }
 
@@ -240,12 +247,18 @@ final class EmeltalConnector {
 
         let context = NWConnection.ContentContext(identifier: "Emeltal", metadata: [message])
         nWConnection.send(content: content, contentContext: context, isComplete: true, completion: .idempotent)
+
+        log("[Connector] Did send \(payload) - \(content?.count ?? 0) bytes")
     }
 
     private final class LinkProtocol: NWProtocolFramerImplementation {
         static var params: NWParameters {
             let options = NWProtocolFramer.Options(definition: definition)
-            let parameters = NWParameters.applicationService
+            let tcpOptions = NWProtocolTCP.Options()
+            tcpOptions.keepaliveCount = 1
+            tcpOptions.keepaliveInterval = 1
+            tcpOptions.keepaliveIdle = 1
+            let parameters = NWParameters(tls: nil, tcp: tcpOptions)
             parameters.defaultProtocolStack.applicationProtocols.insert(options, at: 0)
             return parameters
         }
@@ -289,7 +302,7 @@ final class EmeltalConnector {
             do {
                 try framer.writeOutputNoCopy(length: messageLength)
             } catch {
-                log("Error writing network message: \(error.localizedDescription)")
+                log("[Connector] Error writing network message: \(error.localizedDescription)")
             }
         }
     }

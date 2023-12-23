@@ -203,20 +203,20 @@ final class AppState: Identifiable {
     }
 
     private func startServer() async {
+        try? await Task.sleep(for: .seconds(1))
+        log("Listening for remote connections")
         let stream = await remote.startServer()
         for await nibble in stream {
             log("From client: \(nibble)")
+
             switch nibble.payload {
             case .appActivationState, .appMode, .generatedSentence, .unknown:
                 break
 
             case .recordedSpeech:
-                // TODO:
-                break
-
-            case .recordedSpeechLast:
-                // TODO:
-                break
+                if let speech = nibble.data {
+                    await mic.addToBuffer(speech)
+                }
 
             case .buttonDown:
                 pushButtonDown()

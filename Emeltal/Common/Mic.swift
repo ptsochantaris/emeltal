@@ -3,7 +3,7 @@ import AVFoundation
 import Combine
 import Foundation
 
-final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
+final actor Mic: NSObject {
     enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
@@ -61,16 +61,58 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
     let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
 
-    private var runningSsession: AVCaptureSession?
-    private let audio = AVCaptureAudioDataOutput()
+    private let audioEngine = AVAudioEngine()
     private var buffer = [Float]()
-    private let processQueue = DispatchQueue(label: "build.bru.emeltal.mic")
     private let SampleRate = 16000
 
     override init() {
         super.init()
+
+        let input = audioEngine.inputNode
+
+        let inputFormat = input.outputFormat(forBus: 0)
+        let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
+
+        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(SampleRate), channels: 1, interleaved: true)!
+        let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
+
+        let converter = AVAudioConverter(from: inputFormat, to: outputFormat)!
+
+        input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] incomingBuffer, _ in
+            guard let self else { return }
+
+            let inNumberFrames = incomingBuffer.frameLength
+            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * inNumberFrames / incomingSampleRate)!
+
+            var error: NSError?
+            var reported = AVAudioConverterInputStatus.haveData
+            let status = converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
+                outStatus.pointee = reported
+                reported = .noDataNow
+                return incomingBuffer
+            }
+            assert(status != .error)
+
+            let numSamples = Int(convertedBuffer.frameLength)
+            let segmentCopy = [Float](unsafeUninitializedCapacity: numSamples) { buffer, initializedCount in
+                _ = memcpy(buffer.baseAddress!, convertedBuffer.floatChannelData![0], numSamples * MemoryLayout<Float>.size)
+                initializedCount = numSamples
+            }
+
+            var avgValue: Float32 = 0
+            vDSP_meamgv(incomingBuffer.floatChannelData![0], 1, &avgValue, vDSP_Length(inNumberFrames))
+            let v: Float = if avgValue == 0 {
+                -100
+            } else {
+                20.0 * log10f(avgValue)
+            }
+            Task {
+                await self.append(segment: segmentCopy, energyV: v)
+            }
+        }
+
         Task {
-            _ = try? await buildSession() // mic permission
+            await AVCaptureDevice.requestAccess(for: .audio)
         }
     }
 
@@ -78,40 +120,6 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
     func setRemoteMode(_ remote: Bool) {
         remoteMode = remote
-    }
-
-    private func buildSession() async throws -> AVCaptureSession {
-        guard await AVCaptureDevice.requestAccess(for: .audio),
-              let mic = AVCaptureDevice.default(.microphone, for: .audio, position: .unspecified)
-        else {
-            throw "Capture device not accessible"
-        }
-
-        log("Using mic: \(mic.description)")
-
-        let input = try AVCaptureDeviceInput(device: mic)
-
-        let audio = AVCaptureAudioDataOutput()
-        audio.setSampleBufferDelegate(self, queue: processQueue)
-        #if canImport(AppKit)
-            audio.audioSettings = [
-                AVNumberOfChannelsKey: 1,
-                AVFormatIDKey: kAudioFormatLinearPCM,
-                AVSampleRateKey: SampleRate
-            ]
-        #else
-            let av = AVAudioSession.sharedInstance()
-            try? av.setCategory(.playAndRecord)
-            try? av.setMode(.voiceChat)
-            try? av.setPreferredSampleRate(16000)
-            try? av.setPreferredInputNumberOfChannels(1)
-            try? av.setActive(true)
-        #endif
-
-        let session = AVCaptureSession()
-        session.addOutput(audio)
-        session.addInput(input)
-        return session
     }
 
     // TODO: detect and advise to turn on voice isolation
@@ -128,42 +136,39 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         if remoteMode {
             log("Mic running (remote mode)")
         } else {
-            let session = try await buildSession()
-            runningSsession = session
-            session.startRunning()
+            try audioEngine.start()
             log("Mic running")
         }
     }
 
-    nonisolated func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        let numberOfSamples = sampleBuffer.numSamples
-        if numberOfSamples < 1 {
-            return
+    func addToBuffer(_ data: Data) {
+        let floatSize = MemoryLayout<Float>.size
+        let floatCount = data.count / floatSize
+        log("Received \(floatCount) samples from external source")
+        let floats = [Float](unsafeUninitializedCapacity: floatCount) { floatBuffer, initializedCount in
+            _ = data.copyBytes(to: floatBuffer)
+            initializedCount = floatCount
         }
-        try? sampleBuffer.withAudioBufferList { listPointer, _ in
-            guard let channel = connection.audioChannels.first, let dataPointer = listPointer.unsafePointer.pointee.mBuffers.mData else {
-                return
-            }
-            let segmentCopy = [Float](unsafeUninitializedCapacity: numberOfSamples) { buffer, initializedCount in
-                _ = memcpy(buffer.baseAddress!, dataPointer, numberOfSamples)
-                initializedCount = numberOfSamples
-            }
-            let energy = channel.peakHoldLevel
-            Task {
-                await append(segment: segmentCopy, energy: energy)
-            }
-        }
+        buffer.append(contentsOf: floats)
     }
 
     private var lastEnergy: Float = 1000
-    private let voiceSensitivity: Float = 20
-    private func append(segment: [Float], energy: Float) {
+    #if os(macOS)
+        private let voiceSensitivity: Float = 50
+    #else
+        private let voiceSensitivity: Float = 30
+    #endif
+    private func append(segment: [Float], energyV: Float) {
+        let energy = (0.3 * energyV) + ((1 - 0.3) * lastEnergy)
+        print(energy, energyV)
+
         switch state {
         case let .quiet(prefixBuffer):
             var newBuffer = prefixBuffer + segment
-            if newBuffer.count > 16000 {
+            if newBuffer.count > SampleRate {
                 newBuffer.removeFirst(1000)
             }
+            // log("Sample energy: \(energy)")
             if lastEnergy < -voiceSensitivity, energy > -voiceSensitivity {
                 state = .listening(quietPeriods: 0)
                 buffer.append(contentsOf: newBuffer)
@@ -188,16 +193,15 @@ final actor Mic: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     }
 
     func stop() async throws -> [Float] {
-        if let c = runningSsession {
-            c.stopRunning()
-            runningSsession = nil
+        if audioEngine.isRunning {
+            audioEngine.stop()
         }
 
         micRunning = false
 
         let ret = buffer
         buffer.removeAll()
-        log("Mic stopped")
+        log("Mic stopped, have \(ret.count) samples")
         return ret
     }
 }
