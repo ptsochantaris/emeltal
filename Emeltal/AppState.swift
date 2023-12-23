@@ -278,9 +278,11 @@ final class AppState: Identifiable {
         switch mode {
         case .booting, .listening, .loading, .replying, .startup, .thinking, .warmup:
             return
+
         case .noting, .waiting:
             break
         }
+
         if text.isEmpty {
             shouldWaitOrListen()
             return

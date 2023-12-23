@@ -47,6 +47,7 @@ final class EmelTerm {
 
     func buttonDown() {
         Task {
+            await speaker?.cancelIfNeeded()
             await remote.send(.buttonDown, content: emptyData)
             try? await mic.start()
         }
@@ -80,6 +81,7 @@ final class EmelTerm {
             switch nibble.payload {
             case .appMode:
                 if let data = nibble.data, let mode = AppMode(data: data) {
+                    await speaker?.waitForCompletion()
                     withAnimation {
                         remoteAppMode = mode
                     }
