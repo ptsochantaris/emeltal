@@ -3,6 +3,9 @@ import Combine
 import Network
 import SwiftUI
 
+// Stub
+final class AssetManager {}
+
 @MainActor
 @Observable
 final class EmelTerm {

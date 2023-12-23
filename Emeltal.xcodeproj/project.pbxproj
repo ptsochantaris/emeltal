@@ -39,7 +39,7 @@
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
-		16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmeltermApp.swift */; };
+		16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmellinkApp.swift */; };
 		16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
 		16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
 		16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */; };
@@ -48,7 +48,6 @@
 		16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16C58DFE2B351C6E00006CC2 /* AppMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFD2B351C6E00006CC2 /* AppMode.swift */; };
 		16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFD2B351C6E00006CC2 /* AppMode.swift */; };
-		16C58E022B351D0900006CC2 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58E002B351D0900006CC2 /* AssetManager.swift */; };
 		16C58E052B35BB8D00006CC2 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C58E062B35BB8D00006CC2 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58E072B35D50200006CC2 /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
@@ -113,14 +112,13 @@
 		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
-		16C58DDA2B34701200006CC2 /* Emelterm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emelterm.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		16C58DDC2B34701200006CC2 /* EmeltermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltermApp.swift; sourceTree = "<group>"; };
-		16C58DE22B34701300006CC2 /* Emelterm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emelterm.entitlements; sourceTree = "<group>"; };
+		16C58DDA2B34701200006CC2 /* Emellink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emellink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		16C58DDC2B34701200006CC2 /* EmellinkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmellinkApp.swift; sourceTree = "<group>"; };
+		16C58DE22B34701300006CC2 /* Emellink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emellink.entitlements; sourceTree = "<group>"; };
 		16C58DE92B3470D000006CC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalConnector.swift; sourceTree = "<group>"; };
 		16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGlobals.swift; sourceTree = "<group>"; };
 		16C58DFD2B351C6E00006CC2 /* AppMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMode.swift; sourceTree = "<group>"; };
-		16C58E002B351D0900006CC2 /* AssetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		16C58E082B35D72500006CC2 /* ModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeView.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16C7C21C2B2A0A6700755BC4 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
@@ -168,7 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				1608DB6A2B151B4F00FFFB09 /* Emeltal */,
-				16C58DDB2B34701200006CC2 /* Emelterm */,
+				16C58DDB2B34701200006CC2 /* Emellink */,
 				1608DB692B151B4F00FFFB09 /* Products */,
 				1608DB912B151C4600FFFB09 /* Frameworks */,
 			);
@@ -178,7 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				1608DB682B151B4F00FFFB09 /* Emeltal.app */,
-				16C58DDA2B34701200006CC2 /* Emelterm.app */,
+				16C58DDA2B34701200006CC2 /* Emellink.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -241,15 +239,14 @@
 			path = Assets;
 			sourceTree = "<group>";
 		};
-		16C58DDB2B34701200006CC2 /* Emelterm */ = {
+		16C58DDB2B34701200006CC2 /* Emellink */ = {
 			isa = PBXGroup;
 			children = (
 				16C58DE92B3470D000006CC2 /* Info.plist */,
-				16C58DDC2B34701200006CC2 /* EmeltermApp.swift */,
-				16C58DE22B34701300006CC2 /* Emelterm.entitlements */,
-				16C58E002B351D0900006CC2 /* AssetManager.swift */,
+				16C58DDC2B34701200006CC2 /* EmellinkApp.swift */,
+				16C58DE22B34701300006CC2 /* Emellink.entitlements */,
 			);
-			path = Emelterm;
+			path = Emellink;
 			sourceTree = "<group>";
 		};
 		16C58DED2B34C0DE00006CC2 /* Common */ = {
@@ -302,9 +299,9 @@
 			productReference = 1608DB682B151B4F00FFFB09 /* Emeltal.app */;
 			productType = "com.apple.product-type.application";
 		};
-		16C58DD92B34701200006CC2 /* Emelterm */ = {
+		16C58DD92B34701200006CC2 /* Emellink */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emelterm" */;
+			buildConfigurationList = 16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emellink" */;
 			buildPhases = (
 				16C58DD62B34701200006CC2 /* Sources */,
 				16C58DD72B34701200006CC2 /* Frameworks */,
@@ -314,12 +311,12 @@
 			);
 			dependencies = (
 			);
-			name = Emelterm;
+			name = Emellink;
 			packageProductDependencies = (
 				16C58E112B37688D00006CC2 /* PopTimer */,
 			);
 			productName = Emelterm;
-			productReference = 16C58DDA2B34701200006CC2 /* Emelterm.app */;
+			productReference = 16C58DDA2B34701200006CC2 /* Emellink.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -359,7 +356,7 @@
 			projectRoot = "";
 			targets = (
 				1608DB672B151B4F00FFFB09 /* Emeltal */,
-				16C58DD92B34701200006CC2 /* Emelterm */,
+				16C58DD92B34701200006CC2 /* Emellink */,
 			);
 		};
 /* End PBXProject section */
@@ -435,9 +432,8 @@
 				16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */,
 				16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16C58E072B35D50200006CC2 /* Mic.swift in Sources */,
-				16C58E022B351D0900006CC2 /* AssetManager.swift in Sources */,
 				16C58E0B2B35DA1300006CC2 /* Genie.swift in Sources */,
-				16C58DDD2B34701200006CC2 /* EmeltermApp.swift in Sources */,
+				16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -666,7 +662,7 @@
 		16C58DE62B34701300006CC2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Emelterm/Emelterm.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -674,7 +670,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Emelterm/Info.plist;
+				INFOPLIST_FILE = Emellink/Info.plist;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -706,7 +702,7 @@
 		16C58DE72B34701300006CC2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Emelterm/Emelterm.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -714,7 +710,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Emelterm/Info.plist;
+				INFOPLIST_FILE = Emellink/Info.plist;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Detecting Emeltal instances on this network";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -764,7 +760,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emelterm" */ = {
+		16C58DE82B34701300006CC2 /* Build configuration list for PBXNativeTarget "Emellink" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				16C58DE62B34701300006CC2 /* Debug */,
