@@ -14,7 +14,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, toggleListeningMode, buttonDown, buttonUp, appActivationState, heartbeat
+        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechDone, toggleListeningMode, buttonDown, appActivationState, heartbeat
     }
 
     private lazy var popTimer = PopTimer(timeInterval: 4) { [weak self] in
@@ -127,7 +127,8 @@ final class EmeltalConnector {
 
         case .cancelled:
             state = .searching
-            browser.start(queue: Self.networkQueue)
+            browser.cancel()
+            _ = startClient()
 
         case .ready:
             connectionEstablished(connection)
@@ -138,7 +139,8 @@ final class EmeltalConnector {
         case let .failed(error):
             state = .error(error)
             state = .searching
-            browser.start(queue: Self.networkQueue)
+            browser.cancel()
+            _ = startClient()
 
         @unknown default:
             break

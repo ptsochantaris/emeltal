@@ -218,11 +218,11 @@ final class AppState: Identifiable {
                     await mic.addToBuffer(speech)
                 }
 
+            case .recordedSpeechDone:
+                await endMic(processOutput: true)
+
             case .buttonDown:
                 pushButtonDown()
-
-            case .buttonUp:
-                pushButtonUp()
 
             case .toggleListeningMode:
                 if activationState == .voiceActivated {
@@ -339,7 +339,7 @@ final class AppState: Identifiable {
     }
 
     func pushButtonUp() {
-        guard case .button = activationState else {
+        if case .voiceActivated = activationState {
             return
         }
         Task {
@@ -350,7 +350,7 @@ final class AppState: Identifiable {
     func pushButtonDown() {
         Task {
             await speaker?.cancelIfNeeded()
-            guard case .button = activationState else {
+            if case .voiceActivated = activationState {
                 return
             }
             await startMic()
@@ -394,7 +394,7 @@ final class AppState: Identifiable {
 
             messageLog += fragment // .replacingOccurrences(of: "\n", with: "<br>")
             sentenceBuffer += fragment
-            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;]\ /#).first {
+            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\ /#).first {
                 let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
                 await handleText(sentence, inQuote: inQuote)
                 sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])

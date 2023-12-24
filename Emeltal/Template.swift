@@ -61,7 +61,7 @@ struct Template {
             case .initial:
                 ""
             case .turn:
-                "<|user|>\n"
+                "<s><|user|>\n"
             }
         case .instruct:
             switch step {

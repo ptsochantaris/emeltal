@@ -72,6 +72,7 @@ final actor Speaker {
         while synth.isSpeaking {
             try? await Task.sleep(for: .seconds(0.1))
         }
+        try? await Task.sleep(for: .seconds(0.2))
     }
 
     func add(text: String) {

@@ -164,7 +164,7 @@ final actor Mic: NSObject {
             energy = instantEnergy
         }
         lastEnergy = energy
-        print("Sample energy:", energy, instantEnergy)
+        // print("Sample energy:", energy, instantEnergy)
 
         let voiceSensitivity: Float = 30
 

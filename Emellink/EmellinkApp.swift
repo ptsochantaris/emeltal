@@ -16,6 +16,7 @@ final class EmelTerm {
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
 
+    private var currentMicState: Mic.State = .quiet(prefixBuffer: [])
     private var micObservation: Cancellable!
 
     var remoteActivationState = ActivationState.button
@@ -32,6 +33,8 @@ final class EmelTerm {
                         await self.startMic()
                     } else if case .waiting = remoteAppMode, case .listening = oldValue {
                         await self.endMic(sendData: false)
+                    } else if case .booting = remoteAppMode {
+                        await endMic(sendData: false)
                     }
                 }
             }
@@ -59,8 +62,10 @@ final class EmelTerm {
 
     func buttonUp() {
         Task {
-            await endMic(sendData: remoteActivationState.isManual)
-            await remote.send(.buttonUp, content: emptyData)
+            if case .voiceActivated = remoteActivationState {
+                return
+            }
+            await endMic(sendData: true)
         }
     }
 
@@ -84,6 +89,7 @@ final class EmelTerm {
                 }
                 await remote.send(.recordedSpeech, content: speech)
             }
+            await remote.send(.recordedSpeechDone, content: emptyData)
         } else {
             _ = try? await mic.stop()
         }
@@ -98,11 +104,12 @@ final class EmelTerm {
     private func go() async {
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            if remoteActivationState == .voiceActivated, case let .listening(myState) = remoteAppMode, newState != myState, case .quiet = newState {
+            if newState != currentMicState, remoteActivationState == .voiceActivated, case .quiet = newState {
                 Task {
                     await self.endMic(sendData: true)
                 }
             }
+            currentMicState = newState
         }
 
         connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
@@ -138,7 +145,7 @@ final class EmelTerm {
                     await speaker?.add(text: text)
                 }
 
-            case .buttonDown, .buttonUp, .heartbeat, .recordedSpeech, .toggleListeningMode:
+            case .buttonDown, .heartbeat, .recordedSpeech, .recordedSpeechDone, .toggleListeningMode:
                 break
 
             case .unknown:
