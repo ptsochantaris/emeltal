@@ -106,8 +106,14 @@ struct Asset: RawRepresentable, Codable, Identifiable {
     }
 
     func mlTemplate(in context: LlamaContext) -> Template? {
-        Template(format: category.format,
-                 system: params.systemPrompt,
-                 bosToken: context.bosToken)
+        if category.format.allowsSystemPrompt {
+            Template(format: category.format,
+                     system: params.systemPrompt,
+                     bosToken: context.bosToken)
+        } else {
+            Template(format: category.format,
+                     system: "",
+                     bosToken: context.bosToken)
+        }
     }
 }

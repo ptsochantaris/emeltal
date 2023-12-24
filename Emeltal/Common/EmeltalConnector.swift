@@ -209,6 +209,9 @@ final class EmeltalConnector {
 
     private func connectionEstablished(_ connection: NWConnection) {
         state = .connected(connection)
+        if let cachedActivationData {
+            send(.appActivationState, content: cachedActivationData)
+        }
         if let cachedAppModeData {
             send(.appMode, content: cachedAppModeData)
         }
@@ -264,9 +267,15 @@ final class EmeltalConnector {
 
     private var cachedAppModeData: Data?
 
+    private var cachedActivationData: Data?
+
     func send(_ payload: Payload, content: Data?) {
         if case .appMode = payload {
             cachedAppModeData = content
+        }
+
+        if case .appActivationState = payload {
+            cachedActivationData = content
         }
 
         guard case let .connected(nWConnection) = state else {

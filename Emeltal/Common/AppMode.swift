@@ -1,16 +1,14 @@
 import Foundation
 
 enum ActivationState {
-    case notListening, pushButton, voiceActivated
+    case button, voiceActivated
 
     init?(data: Data) {
         let primary: UInt8 = data[0]
         switch primary {
         case 1:
-            self = .notListening
+            self = .button
         case 2:
-            self = .pushButton
-        case 3:
             self = .voiceActivated
         default:
             return nil
@@ -21,14 +19,21 @@ enum ActivationState {
         var data = Data(repeating: 0, count: 1)
 
         switch self {
-        case .notListening:
+        case .button:
             data[0] = 1
-        case .pushButton:
-            data[0] = 2
         case .voiceActivated:
-            data[0] = 3
+            data[0] = 2
         }
         return data
+    }
+
+    var isManual: Bool {
+        switch self {
+        case .button:
+            true
+        case .voiceActivated:
+            false
+        }
     }
 }
 
@@ -47,8 +52,8 @@ enum AppMode: Equatable {
             if case .warmup = rhs {
                 return true
             }
-        case .alwaysOn:
-            if case .alwaysOn = rhs {
+        case .listening:
+            if case .listening = rhs {
                 return true
             }
         case .loading:
@@ -75,7 +80,7 @@ enum AppMode: Equatable {
         return false
     }
 
-    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, alwaysOn(state: Mic.State), noting, thinking, replying
+    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
 
     init?(data: Data) {
         let primary: UInt8 = data[0]
@@ -86,9 +91,9 @@ enum AppMode: Equatable {
         case 2:
             switch secondary {
             case 1:
-                self = .alwaysOn(state: .listening(quietPeriods: 0))
+                self = .listening(state: .talking(quietPeriods: 0))
             case 2:
-                self = .alwaysOn(state: .quiet(prefixBuffer: []))
+                self = .listening(state: .quiet(prefixBuffer: []))
             default:
                 return nil
             }
@@ -117,10 +122,10 @@ enum AppMode: Equatable {
         switch self {
         case .booting:
             data[0] = 1
-        case let .alwaysOn(state):
+        case let .listening(state):
             data[0] = 2
             switch state {
-            case .listening:
+            case .talking:
                 data[1] = 1
             case .quiet:
                 data[1] = 2
@@ -145,7 +150,7 @@ enum AppMode: Equatable {
 
     func audioFeedback(using speaker: Speaker) {
         switch self {
-        case .alwaysOn:
+        case .listening:
             Task {
                 await speaker.playEffect(.startListening)
             }
@@ -162,7 +167,7 @@ enum AppMode: Equatable {
         switch self {
         case .noting, .replying, .thinking:
             true
-        case .alwaysOn, .booting, .loading, .startup, .waiting, .warmup:
+        case .booting, .listening, .loading, .startup, .waiting, .warmup:
             false
         }
     }
@@ -171,14 +176,14 @@ enum AppMode: Equatable {
         switch self {
         case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
             false
-        case .alwaysOn, .waiting:
+        case .listening, .waiting:
             canUseMic
         }
     }
 
     var pushButtonActive: Bool {
         switch self {
-        case .alwaysOn, .replying, .waiting:
+        case .listening, .replying, .waiting:
             canUseMic
         case .booting, .loading, .noting, .startup, .thinking, .warmup:
             false

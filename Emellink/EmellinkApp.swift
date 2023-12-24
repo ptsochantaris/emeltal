@@ -18,7 +18,7 @@ final class EmelTerm {
 
     private var micObservation: Cancellable!
 
-    var remoteActivationState = ActivationState.notListening
+    var remoteActivationState = ActivationState.button
 
     var remoteAppMode = AppMode.booting {
         didSet {
@@ -28,24 +28,14 @@ final class EmelTerm {
                     remoteAppMode.audioFeedback(using: speaker)
                 }
                 Task {
-                    if case .alwaysOn = remoteAppMode {
+                    if case .listening = remoteAppMode {
                         await self.startMic()
-                    } else if case .waiting = remoteAppMode, case .alwaysOn = oldValue {
-                        await self.endMic(processResult: false)
+                    } else if case .waiting = remoteAppMode, case .listening = oldValue {
+                        await self.endMic(sendData: false)
                     }
                 }
             }
         }
-    }
-
-    init() {
-        #if os(iOS)
-            let av = AVAudioSession.sharedInstance()
-            try? av.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker])
-            try? av.overrideOutputAudioPort(.speaker)
-            try? av.setPreferredInputNumberOfChannels(1)
-            try? av.setActive(true)
-        #endif
     }
 
     func invalidateConnection() {
@@ -55,14 +45,28 @@ final class EmelTerm {
     }
 
     func restoreConnectionIfNeeded() {
+        #if os(iOS)
+            let av = AVAudioSession.sharedInstance()
+            try? av.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker])
+            try? av.overrideOutputAudioPort(.speaker)
+            try? av.setPreferredInputNumberOfChannels(1)
+            try? av.setActive(true)
+        #endif
         Task { @NetworkActor in
             await go()
         }
     }
 
+    func buttonUp() {
+        Task {
+            await endMic(sendData: remoteActivationState.isManual)
+            await remote.send(.buttonUp, content: emptyData)
+        }
+    }
+
     func buttonDown() {
         Task {
-            await startMic()
+            await speaker?.cancelIfNeeded()
             await remote.send(.buttonDown, content: emptyData)
         }
     }
@@ -72,8 +76,8 @@ final class EmelTerm {
         try? await mic.start()
     }
 
-    private func endMic(processResult: Bool) async {
-        if processResult {
+    private func endMic(sendData: Bool) async {
+        if sendData {
             if let floats = try? await mic.stop(), floats.count > 100 {
                 let speech = floats.withUnsafeBytes { floatPointer in
                     Data(bytes: floatPointer.baseAddress!, count: floatPointer.count)
@@ -82,13 +86,6 @@ final class EmelTerm {
             }
         } else {
             _ = try? await mic.stop()
-        }
-    }
-
-    func buttonUp() {
-        Task {
-            await endMic(processResult: true)
-            await remote.send(.buttonUp, content: emptyData)
         }
     }
 
@@ -101,15 +98,21 @@ final class EmelTerm {
     private func go() async {
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            if remoteActivationState == .voiceActivated, case let .alwaysOn(myState) = remoteAppMode, newState != myState, case .quiet = newState {
+            if remoteActivationState == .voiceActivated, case let .listening(myState) = remoteAppMode, newState != myState, case .quiet = newState {
                 Task {
-                    await self.endMic(processResult: true)
+                    await self.endMic(sendData: true)
                 }
             }
         }
 
         connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
-            self?.connectionState = state
+            guard let self else { return }
+            connectionState = state
+            if case .connected = state {
+                // all good
+            } else {
+                remoteAppMode = .booting
+            }
         }
 
         let stream = await remote.startClient()

@@ -7,6 +7,13 @@ struct Template {
 
     enum Format {
         case instruct, chatml, userAssistant, llamaInst, zephyr
+
+        var allowsSystemPrompt: Bool {
+            switch self {
+            case .zephyr: false
+            case .chatml, .instruct, .llamaInst, .userAssistant: true
+            }
+        }
     }
 
     init(format: Format, system: String, bosToken: String) {
@@ -52,7 +59,7 @@ struct Template {
         case .zephyr:
             switch step {
             case .initial:
-                "<|system|>\n"
+                ""
             case .turn:
                 "<|user|>\n"
             }
@@ -85,7 +92,7 @@ struct Template {
         case .zephyr:
             switch step {
             case .initial:
-                "<|endoftext|>\n"
+                ""
             case .turn:
                 "<|endoftext|>\n<|assistant|>\n"
             }

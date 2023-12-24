@@ -24,7 +24,7 @@ extension Asset {
             case .dolphinMixtral: "You are an intelligent and cheerful chatbot."
             case .mythoMax: "You are an intelligent and helpful writing assistant."
             case .shiningValiant: "You are an intelligent, helpful AI assistant."
-            case .zephyr3b: "You are an intelligent, helpful AI assistant."
+            case .zephyr3b: "(System prompt not used for this model)"
             case .whisper: ""
             }
         }

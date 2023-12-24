@@ -20,9 +20,9 @@ struct ModeView: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
 
-            case let .alwaysOn(state):
+            case let .listening(state):
                 switch state {
-                case .listening:
+                case .talking:
                     Image(systemName: "waveform.circle")
                         .resizable()
                         .aspectRatio(contentMode: .fit)

@@ -11,15 +11,15 @@ final actor Mic: NSObject {
                 if case .quiet = rhs {
                     return true
                 }
-            case .listening:
-                if case .listening = rhs {
+            case .talking:
+                if case .talking = rhs {
                     return true
                 }
             }
             return false
         }
 
-        case quiet(prefixBuffer: [Float]), listening(quietPeriods: Int)
+        case quiet(prefixBuffer: [Float]), talking(quietPeriods: Int)
 
         var isQuiet: Bool {
             if case .quiet = self {
@@ -37,18 +37,18 @@ final actor Mic: NSObject {
                 case .quiet:
                     break
 
-                case .listening:
+                case .talking:
                     log("Starting to listen")
-                    statePublisher.send(.listening(quietPeriods: 0))
+                    statePublisher.send(.talking(quietPeriods: 0))
                 }
 
-            case let .listening(quietPeriods1):
+            case let .talking(quietPeriods1):
                 switch state {
                 case .quiet:
                     log("Finished speaking")
                     statePublisher.send(.quiet(prefixBuffer: []))
 
-                case let .listening(quietPeriods2):
+                case let .talking(quietPeriods2):
                     if quietPeriods1 == 0, quietPeriods2 != 0 {
                         log("Stopped or paused?")
                     } else if quietPeriods1 != 0, quietPeriods2 == 0 {
@@ -107,7 +107,7 @@ final actor Mic: NSObject {
                 20.0 * log10f(avgValue)
             }
             Task {
-                await self.append(segment: segmentCopy, energyV: v)
+                await self.append(segment: segmentCopy, instantEnergy: v)
             }
         }
 
@@ -152,15 +152,21 @@ final actor Mic: NSObject {
         buffer.append(contentsOf: floats)
     }
 
-    private var lastEnergy: Float = 1000
-    #if os(macOS)
-        private let voiceSensitivity: Float = 50
-    #else
-        private let voiceSensitivity: Float = 30
-    #endif
-    private func append(segment: [Float], energyV: Float) {
-        let energy = (0.3 * energyV) + ((1 - 0.3) * lastEnergy)
-        print(energy, energyV)
+    private var lastEnergy: Float?
+    private func append(segment: [Float], instantEnergy: Float) {
+        let energy: Float
+        let reference: Float
+        if let lastEnergy {
+            reference = lastEnergy
+            energy = (0.5 * instantEnergy) + (0.5 * lastEnergy)
+        } else {
+            reference = instantEnergy
+            energy = instantEnergy
+        }
+        lastEnergy = energy
+        print("Sample energy:", energy, instantEnergy)
+
+        let voiceSensitivity: Float = 30
 
         switch state {
         case let .quiet(prefixBuffer):
@@ -168,33 +174,35 @@ final actor Mic: NSObject {
             if newBuffer.count > SampleRate {
                 newBuffer.removeFirst(1000)
             }
-            // log("Sample energy: \(energy)")
-            if lastEnergy < -voiceSensitivity, energy > -voiceSensitivity {
-                state = .listening(quietPeriods: 0)
+            if reference < -voiceSensitivity, energy > -voiceSensitivity {
+                state = .talking(quietPeriods: 0)
                 buffer.append(contentsOf: newBuffer)
             } else {
                 state = .quiet(prefixBuffer: newBuffer)
             }
-        case let .listening(quietPeriods):
+        case let .talking(quietPeriods):
             if energy < -voiceSensitivity {
                 let count = quietPeriods + segment.count
                 if count > SampleRate * 2 {
                     state = .quiet(prefixBuffer: [])
                 } else {
-                    state = .listening(quietPeriods: count)
+                    state = .talking(quietPeriods: count)
                     buffer.append(contentsOf: segment)
                 }
             } else {
-                state = .listening(quietPeriods: 0)
+                state = .talking(quietPeriods: 0)
                 buffer.append(contentsOf: segment)
             }
         }
-        lastEnergy = energy
     }
 
     func stop() async throws -> [Float] {
         if audioEngine.isRunning {
             audioEngine.stop()
+        }
+
+        guard micRunning else {
+            return []
         }
 
         micRunning = false

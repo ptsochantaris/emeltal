@@ -23,7 +23,7 @@ final class AppState: Identifiable {
         }
     }
 
-    var activationState = ActivationState.notListening {
+    var activationState = ActivationState.button {
         didSet {
             if oldValue != activationState {
                 Task {
@@ -171,13 +171,13 @@ final class AppState: Identifiable {
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            if case let .alwaysOn(myState) = mode, newState != myState {
+            if case let .listening(micState) = mode, newState != micState {
                 if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
                     Task {
                         await self.endMic(processOutput: true)
                     }
                 }
-                mode = .alwaysOn(state: newState)
+                mode = .listening(state: newState)
             }
         }
 
@@ -226,7 +226,7 @@ final class AppState: Identifiable {
 
             case .toggleListeningMode:
                 if activationState == .voiceActivated {
-                    activationState = .notListening
+                    activationState = .button
                     await endMic(processOutput: false)
                 } else {
                     activationState = .voiceActivated
@@ -255,16 +255,17 @@ final class AppState: Identifiable {
     }
 
     func switchToPushButton() {
-        if activationState == .voiceActivated {
-            activationState = .notListening
-            Task {
-                await endMic(processOutput: false)
-            }
+        guard activationState == .voiceActivated else {
+            return
+        }
+        activationState = .button
+        Task {
+            await endMic(processOutput: false)
         }
     }
 
     func switchToVoiceActivated() {
-        if activationState == .pushButton {
+        guard activationState == .button else {
             return
         }
         activationState = .voiceActivated
@@ -276,7 +277,7 @@ final class AppState: Identifiable {
     func send() {
         let text = multiLineText.trimmingCharacters(in: .whitespacesAndNewlines)
         switch mode {
-        case .alwaysOn, .booting, .loading, .replying, .startup, .thinking, .warmup:
+        case .booting, .listening, .loading, .replying, .startup, .thinking, .warmup:
             return
 
         case .noting, .waiting:
@@ -304,7 +305,7 @@ final class AppState: Identifiable {
         try? await mic.start()
         let micState = await mic.state
         withAnimation {
-            mode = .alwaysOn(state: micState)
+            mode = .listening(state: micState)
         }
     }
 
@@ -338,28 +339,21 @@ final class AppState: Identifiable {
     }
 
     func pushButtonUp() {
-        guard case .pushButton = activationState else {
+        guard case .button = activationState else {
             return
         }
-        activationState = .notListening
         Task {
             await endMic(processOutput: true)
         }
     }
 
     func pushButtonDown() {
-        switch activationState {
-        case .notListening:
-            activationState = .pushButton
-            Task {
-                await startMic()
+        Task {
+            await speaker?.cancelIfNeeded()
+            guard case .button = activationState else {
+                return
             }
-        case .pushButton:
-            return
-        case .voiceActivated:
-            Task {
-                await speaker?.cancelIfNeeded()
-            }
+            await startMic()
         }
     }
 
@@ -418,16 +412,16 @@ final class AppState: Identifiable {
     }
 
     private func handleText(_ text: String, inQuote: Bool) async {
-        let sentence = text.replacingOccurrences(of: "...", with: "…").replacingOccurrences(of: "'s", with: "ߴs")
+        let spoken = text.replacingOccurrences(of: "...", with: "…")
         if !(textOnly || inQuote) {
-            await speaker?.add(text: sentence)
+            await speaker?.add(text: spoken)
         }
 
-        #if DEBUG
-            if let data = sentence.data(using: .utf8) {
+        if !inQuote {
+            if let data = spoken.data(using: .utf8) {
                 await remote.send(.generatedSentence, content: data)
             }
-        #endif
+        }
     }
 
     private var statePath: URL {
@@ -439,8 +433,7 @@ final class AppState: Identifiable {
     }
 
     var hasSavedState: Bool {
-        let fm = FileManager.default
-        return fm.fileExists(atPath: textPath.path)
+        FileManager.default.fileExists(atPath: textPath.path)
     }
 
     func save() async throws {
