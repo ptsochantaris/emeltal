@@ -21,7 +21,7 @@ extension Asset {
             switch self {
             case .deepSeekCoder: "You are an intelligent and helpful coding assistant."
             case .solar: "You are an intelligent and cheerful chatbot."
-            case .dolphinMixtral: "You are an intelligent and cheerful chatbot."
+            case .dolphinMixtral: "You are Dolphin, a helpful, informative and friendly AI assistant."
             case .mythoMax: "You are an intelligent and helpful writing assistant."
             case .shiningValiant: "You are an intelligent, helpful AI assistant."
             case .zephyr3b: "(System prompt not used for this model)"
@@ -136,7 +136,7 @@ extension Asset {
         var fetchUrl: URL {
             let uri = switch self {
             case .dolphinMixtral:
-                "https://huggingface.co/TheBloke/dolphin-2.5-mixtral-8x7b-GGUF/resolve/main/dolphin-2.5-mixtral-8x7b.Q5_K_M.gguf"
+                "https://huggingface.co/TheBloke/dolphin-2.6-mixtral-8x7b-GGUF/resolve/main/dolphin-2.6-mixtral-8x7b.Q5_K_M.gguf"
             case .deepSeekCoder:
                 "https://huggingface.co/TheBloke/deepseek-coder-33B-instruct-GGUF/resolve/main/deepseek-coder-33b-instruct.Q8_0.gguf"
             case .mythoMax:
@@ -155,7 +155,7 @@ extension Asset {
 
         var displayName: String {
             switch self {
-            case .dolphinMixtral: "Dolphin 2.5 (on Mixtral 7b)"
+            case .dolphinMixtral: "Dolphin 2.6 (on Mixtral 7b)"
             case .deepSeekCoder: "DeepSeek Coder"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Large v3"
