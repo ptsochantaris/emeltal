@@ -5,7 +5,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class AppState: Identifiable {
+final class AppState: Identifiable, ModeProvider {
     nonisolated var id: String { asset.id }
 
     var multiLineText = ""

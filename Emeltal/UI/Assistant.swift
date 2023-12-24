@@ -6,7 +6,7 @@ struct Assistant: View {
 
     var body: some View {
         ZStack {
-            ModeView(mode: state.mode)
+            ModeView(modeProvider: state)
 
             if state.mode.pushButtonActive {
                 PushButton { down in

@@ -8,7 +8,7 @@ final class AssetManager {}
 
 @MainActor
 @Observable
-final class EmelTerm {
+final class EmelTerm: ModeProvider {
     private let remote = EmeltalConnector()
     private let speaker = try? Speaker()
     private let mic = Mic()
@@ -16,10 +16,11 @@ final class EmelTerm {
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
 
-    private var currentMicState: Mic.State = .quiet(prefixBuffer: [])
     private var micObservation: Cancellable!
 
     var remoteActivationState = ActivationState.button
+
+    var mode: AppMode { remoteAppMode }
 
     var remoteAppMode = AppMode.booting {
         didSet {
@@ -104,12 +105,17 @@ final class EmelTerm {
     private func go() async {
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            if newState != currentMicState, remoteActivationState == .voiceActivated, case .quiet = newState {
-                Task {
-                    await self.endMic(sendData: true)
+            if case let .listening(micState) = remoteAppMode {
+                if newState != micState {
+                    log("New mic state: \(newState)")
+                    remoteAppMode = .listening(state: newState)
+                    if case .quiet = newState, remoteActivationState == .voiceActivated {
+                        Task {
+                            await self.endMic(sendData: true)
+                        }
+                    }
                 }
             }
-            currentMicState = newState
         }
 
         connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
@@ -200,7 +206,7 @@ struct ContentView: View {
             }
 
             ZStack {
-                ModeView(mode: state.remoteAppMode)
+                ModeView(modeProvider: state)
                     .foregroundStyle(.primary)
                     .frame(maxWidth: assistantWidth)
                     .layoutPriority(2)

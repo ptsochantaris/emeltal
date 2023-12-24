@@ -69,10 +69,16 @@ final actor Speaker {
     }
 
     func waitForCompletion() async {
-        while synth.isSpeaking {
+        var count = 0
+        while count < 4 {
             try? await Task.sleep(for: .seconds(0.1))
+            if synth.isSpeaking {
+                count = 0
+            } else {
+                count += 1
+            }
         }
-        try? await Task.sleep(for: .seconds(0.2))
+        log("Speaker stopped speaking")
     }
 
     func add(text: String) {

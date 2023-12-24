@@ -1,12 +1,21 @@
 import Foundation
 import SwiftUI
 
+@MainActor
+protocol ModeProvider {
+    var mode: AppMode { get }
+}
+
 struct ModeView: View {
-    let mode: AppMode
+    let modeProvider: any ModeProvider
+
+    init(modeProvider: any ModeProvider) {
+        self.modeProvider = modeProvider
+    }
 
     var body: some View {
         ZStack {
-            switch mode {
+            switch modeProvider.mode {
             case .booting, .loading, .startup, .warmup:
                 ProgressView()
                     .colorScheme(.dark)
