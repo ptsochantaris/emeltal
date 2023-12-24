@@ -166,7 +166,7 @@ final actor Mic: NSObject {
         lastEnergy = energy
         // print("Sample energy:", energy, instantEnergy)
 
-        let voiceSensitivity: Float = 30
+        let voiceSensitivity: Float = 35
 
         switch state {
         case let .quiet(prefixBuffer):
