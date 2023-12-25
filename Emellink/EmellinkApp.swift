@@ -8,7 +8,7 @@ final class AssetManager {}
 
 @MainActor
 @Observable
-final class EmelTerm: ModeProvider {
+final class Emellink: ModeProvider {
     private let remote = EmeltalConnector()
     private let speaker = try? Speaker()
     private let mic = Mic()
@@ -18,7 +18,13 @@ final class EmelTerm: ModeProvider {
 
     private var micObservation: Cancellable!
 
-    var remoteActivationState = ActivationState.button
+    var remoteActivationState = ActivationState.button {
+        didSet {
+            if oldValue != remoteActivationState {
+                log("New remote activation state: \(remoteActivationState)")
+            }
+        }
+    }
 
     var mode: AppMode { remoteAppMode }
 
@@ -42,22 +48,19 @@ final class EmelTerm: ModeProvider {
         }
     }
 
-    func invalidateConnection() {
-        Task { @NetworkActor in
-            remote.invalidate()
+    func invalidateConnectionIfNotNeeded() async {
+        if await mic.isRecording {
+            return
         }
+        await remote.invalidate()
     }
 
-    func restoreConnectionIfNeeded() {
-        #if os(iOS)
-            let av = AVAudioSession.sharedInstance()
-            try? av.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker])
-            try? av.overrideOutputAudioPort(.speaker)
-            try? av.setPreferredInputNumberOfChannels(1)
-            try? av.setActive(true)
-        #endif
+    func restoreConnectionIfNeeded() async {
+        if await mic.isRecording {
+            return
+        }
         Task { @NetworkActor in
-            await go()
+            await connectionLoop()
         }
     }
 
@@ -102,7 +105,16 @@ final class EmelTerm: ModeProvider {
         }
     }
 
-    private func go() async {
+    private func connectionLoop() async {
+        log("Starting main connection loop")
+
+        #if os(iOS)
+            let av = AVAudioSession.sharedInstance()
+            try? av.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker])
+            try? av.setPreferredInputNumberOfChannels(1)
+            try? av.setActive(true)
+        #endif
+
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
             if case let .listening(micState) = remoteAppMode {
@@ -118,18 +130,22 @@ final class EmelTerm: ModeProvider {
             }
         }
 
-        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
+        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
-            connectionState = state
-            if case .connected = state {
+            if case .connected = newState {
                 // all good
-            } else {
+            } else if case .connected = connectionState {
+                micObservation = nil
+                connectionStateObservation = nil
                 remoteAppMode = .booting
             }
+            connectionState = newState
         }
 
         let stream = await remote.startClient()
         for await nibble in stream {
+            log("From server: \(nibble.payload)")
+
             switch nibble.payload {
             case .appMode:
                 if let data = nibble.data, let mode = AppMode(data: data) {
@@ -158,12 +174,12 @@ final class EmelTerm: ModeProvider {
                 log("Warning: Unknown message from server")
             }
         }
-        log("[Connector] Incoming stream done")
+        log("Incoming stream done")
     }
 }
 
 struct ContentView: View {
-    let state: EmelTerm
+    let state: Emellink
 
     var body: some View {
         VStack {
@@ -229,7 +245,7 @@ struct ContentView: View {
 @main
 @MainActor
 struct EmeltermApp: App {
-    private let state = EmelTerm()
+    private let state = Emellink()
 
     @Environment(\.scenePhase) var scenePhase
 
@@ -240,10 +256,12 @@ struct EmeltermApp: App {
                 .background(Image(.canvas).resizable().ignoresSafeArea())
                 .preferredColorScheme(.dark)
                 .onChange(of: scenePhase) { _, newValue in
-                    if newValue == .background {
-                        state.invalidateConnection()
-                    } else if newValue == .active {
-                        state.restoreConnectionIfNeeded()
+                    Task {
+                        if newValue == .background {
+                            await state.invalidateConnectionIfNotNeeded()
+                        } else if newValue == .active {
+                            await state.restoreConnectionIfNeeded()
+                        }
                     }
                 }
         }

@@ -226,11 +226,9 @@ final class AppState: Identifiable, ModeProvider {
 
             case .toggleListeningMode:
                 if activationState == .voiceActivated {
-                    activationState = .button
-                    await endMic(processOutput: false)
+                    switchToPushButton()
                 } else {
-                    activationState = .voiceActivated
-                    await startMic()
+                    switchToVoiceActivated()
                 }
             }
         }
@@ -255,7 +253,7 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     func switchToPushButton() {
-        guard activationState == .voiceActivated else {
+        if activationState == .button {
             return
         }
         activationState = .button
@@ -265,7 +263,7 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     func switchToVoiceActivated() {
-        guard activationState == .button else {
+        if activationState == .voiceActivated {
             return
         }
         activationState = .voiceActivated

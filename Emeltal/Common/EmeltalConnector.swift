@@ -106,8 +106,6 @@ final class EmeltalConnector {
         }
     }
 
-    private let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
-
     private var state = State.boot {
         didSet {
             statePublisher.send(state)
@@ -120,87 +118,41 @@ final class EmeltalConnector {
 
     let statePublisher = CurrentValueSubject<State, Never>(State.boot)
 
-    private func update(from browser: NWBrowser, connection: NWConnection, connectionState: NWConnection.State) {
-        switch connectionState {
-        case .preparing, .setup:
-            break
-
-        case .cancelled:
-            state = .searching
-            browser.cancel()
-            _ = startClient()
-
-        case .ready:
-            connectionEstablished(connection)
-
-        case let .waiting(error):
-            state = .error(error)
-
-        case let .failed(error):
-            state = .error(error)
-            state = .searching
-            browser.cancel()
-            _ = startClient()
-
-        @unknown default:
-            break
-        }
-    }
-
     func invalidate() {
         if case let .connected(nWConnection) = state {
             nWConnection.cancel()
         }
     }
 
-    private func update(from browser: NWBrowser, results: Set<NWBrowser.Result>) {
-        guard case .searching = state, let result = results.first else {
-            return
-        }
-
-        state = .connecting
-        browser.cancel()
-
-        let connection = NWConnection(to: result.endpoint, using: LinkProtocol.params)
-        connection.stateUpdateHandler = { [weak self] newState in
-            Task { @NetworkActor [weak self] in
-                guard let self else { return }
-                update(from: browser, connection: connection, connectionState: newState)
-            }
-        }
-        connection.start(queue: Self.networkQueue)
-    }
-
-    private func update(from connection: NWConnection, to update: NWConnection.State) {
-        switch update {
-        case .cancelled:
-            state = .unConnected
-
-        case .ready:
-            connectionEstablished(connection)
-
-        case .preparing, .setup:
-            break
-
-        case let .failed(error), let .waiting(error):
-            if case let .connected(nWConnection) = state, connection !== nWConnection {
-                break
-            }
-            state = .error(error)
-
-        @unknown default:
-            break
-        }
-    }
-
     func startServer() -> AsyncStream<Nibble> {
+        let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
+
         let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
         let listener = try! NWListener(service: service, using: LinkProtocol.params)
         listener.newConnectionHandler = { connection in
             connection.stateUpdateHandler = { [weak self] change in
                 Task { @NetworkActor [weak self] in
                     guard let self else { return }
-                    update(from: connection, to: change)
+
+                    switch change {
+                    case .cancelled:
+                        state = .unConnected
+
+                    case .ready:
+                        connectionEstablished(connection, continuation: continuation)
+
+                    case .preparing, .setup:
+                        break
+
+                    case let .failed(error), let .waiting(error):
+                        if case let .connected(nWConnection) = state, connection !== nWConnection {
+                            break
+                        }
+                        state = .error(error)
+
+                    @unknown default:
+                        break
+                    }
                 }
             }
             connection.start(queue: Self.networkQueue)
@@ -209,7 +161,7 @@ final class EmeltalConnector {
         return inputStream
     }
 
-    private func connectionEstablished(_ connection: NWConnection) {
+    private func connectionEstablished(_ connection: NWConnection, continuation: AsyncStream<Nibble>.Continuation) {
         state = .connected(connection)
         if let cachedActivationData {
             send(.appActivationState, content: cachedActivationData)
@@ -217,24 +169,58 @@ final class EmeltalConnector {
         if let cachedAppModeData {
             send(.appMode, content: cachedAppModeData)
         }
-        receive(connection: connection)
+        receive(connection: connection, continuation: continuation)
     }
 
     func startClient() -> AsyncStream<Nibble> {
+        let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
+
         state = .searching
         let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
         let browser = NWBrowser(for: emeltalTcp, using: LinkProtocol.params)
         browser.browseResultsChangedHandler = { [weak self] results, _ in
             Task { @NetworkActor [weak self] in
-                guard let self else { return }
-                update(from: browser, results: results)
+                guard let self, case .searching = state, let result = results.first else { return }
+
+                state = .connecting
+                browser.cancel()
+
+                let connection = NWConnection(to: result.endpoint, using: LinkProtocol.params)
+                connection.stateUpdateHandler = { [weak self] newState in
+                    Task { @NetworkActor [weak self] in
+                        guard let self else { return }
+
+                        switch newState {
+                        case .preparing, .setup:
+                            break
+
+                        case .cancelled:
+                            state = .searching
+
+                        case .ready:
+                            connectionEstablished(connection, continuation: continuation)
+
+                        case let .waiting(error):
+                            state = .error(error)
+
+                        case let .failed(error):
+                            state = .error(error)
+                            state = .searching
+                            _ = startClient()
+
+                        @unknown default:
+                            break
+                        }
+                    }
+                }
+                connection.start(queue: Self.networkQueue)
             }
         }
         browser.start(queue: Self.networkQueue)
         return inputStream
     }
 
-    private func receive(connection: NWConnection) {
+    private func receive(connection: NWConnection, continuation: AsyncStream<Nibble>.Continuation) {
         connection.receiveMessage { [weak self] content, contentContext, isComplete, error in
             guard let self else { return }
 
@@ -262,7 +248,7 @@ final class EmeltalConnector {
 
             Task { @NetworkActor [weak self] in
                 guard let self else { return }
-                receive(connection: connection)
+                receive(connection: connection, continuation: continuation)
             }
         }
     }

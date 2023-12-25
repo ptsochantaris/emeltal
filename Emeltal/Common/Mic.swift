@@ -3,6 +3,8 @@ import AVFoundation
 import Combine
 import Foundation
 
+// TODO: handle engine start in background
+
 final actor Mic: NSObject {
     enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
@@ -124,13 +126,13 @@ final actor Mic: NSObject {
 
     // TODO: detect and advise to turn on voice isolation
 
-    private var micRunning = false
+    var isRecording = false
 
     func start() async throws {
-        if micRunning {
+        if isRecording {
             return
         }
-        micRunning = true
+        isRecording = true
         buffer.removeAll()
         state = .quiet(prefixBuffer: [])
         if remoteMode {
@@ -201,11 +203,11 @@ final actor Mic: NSObject {
             audioEngine.stop()
         }
 
-        guard micRunning else {
+        guard isRecording else {
             return []
         }
 
-        micRunning = false
+        isRecording = false
 
         let ret = buffer
         buffer.removeAll()
