@@ -3,8 +3,6 @@ import AVFoundation
 import Combine
 import Foundation
 
-// TODO: handle engine start in background
-
 final actor Mic: NSObject {
     enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
@@ -70,6 +68,12 @@ final actor Mic: NSObject {
     override init() {
         super.init()
 
+        Task {
+            await AVCaptureDevice.requestAccess(for: .audio)
+        }
+    }
+
+    private func addTap() {
         let input = audioEngine.inputNode
 
         let inputFormat = input.outputFormat(forBus: 0)
@@ -112,10 +116,6 @@ final actor Mic: NSObject {
                 await self.append(segment: segmentCopy, instantEnergy: v)
             }
         }
-
-        Task {
-            await AVCaptureDevice.requestAccess(for: .audio)
-        }
     }
 
     private var remoteMode = false
@@ -126,21 +126,30 @@ final actor Mic: NSObject {
 
     // TODO: detect and advise to turn on voice isolation
 
-    var isRecording = false
+    private enum RunState {
+        case stopped, paused, recording
+    }
+
+    private var runState = RunState.stopped
 
     func start() async throws {
-        if isRecording {
+        if runState == .recording {
             return
         }
-        isRecording = true
+        runState = .recording
         buffer.removeAll()
         state = .quiet(prefixBuffer: [])
+
         if remoteMode {
             log("Mic running (remote mode)")
-        } else {
-            try audioEngine.start()
-            log("Mic running")
+            return
         }
+
+        addTap()
+        if !audioEngine.isRunning {
+            try audioEngine.start()
+        }
+        log("Mic running")
     }
 
     func addToBuffer(_ data: Data) {
@@ -198,20 +207,33 @@ final actor Mic: NSObject {
         }
     }
 
-    func stop() async throws -> [Float] {
-        if audioEngine.isRunning {
-            audioEngine.stop()
-        }
-
-        guard isRecording else {
+    func stop(temporary: Bool) async throws -> [Float] {
+        switch runState {
+        case .stopped:
             return []
+
+        case .paused:
+            if temporary {
+                return []
+            }
+
+        case .recording:
+            break
         }
 
-        isRecording = false
+        if temporary {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            runState = .paused
+        } else {
+            if audioEngine.isRunning {
+                audioEngine.stop()
+            }
+            runState = .stopped
+        }
 
         let ret = buffer
         buffer.removeAll()
-        log("Mic stopped, have \(ret.count) samples")
+        log("Mic stopped, have \(ret.count) samples, temporary: \(temporary)")
         return ret
     }
 }

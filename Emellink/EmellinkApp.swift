@@ -49,14 +49,14 @@ final class Emellink: ModeProvider {
     }
 
     func invalidateConnectionIfNotNeeded() async {
-        if await mic.isRecording {
+        if case .voiceActivated = remoteActivationState {
             return
         }
         await remote.invalidate()
     }
 
     func restoreConnectionIfNeeded() async {
-        if await mic.isRecording {
+        if case .connected = connectionState {
             return
         }
         Task { @NetworkActor in
@@ -87,7 +87,7 @@ final class Emellink: ModeProvider {
 
     private func endMic(sendData: Bool) async {
         if sendData {
-            if let floats = try? await mic.stop(), floats.count > 100 {
+            if let floats = try? await mic.stop(temporary: remoteActivationState == .voiceActivated), floats.count > 100 {
                 let speech = floats.withUnsafeBytes { floatPointer in
                     Data(bytes: floatPointer.baseAddress!, count: floatPointer.count)
                 }
@@ -95,7 +95,7 @@ final class Emellink: ModeProvider {
             }
             await remote.send(.recordedSpeechDone, content: emptyData)
         } else {
-            _ = try? await mic.stop()
+            _ = try? await mic.stop(temporary: remoteActivationState == .voiceActivated)
         }
     }
 

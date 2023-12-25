@@ -308,7 +308,7 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     private func endMic(processOutput: Bool) async {
-        guard let whisperContext, let samples = try? await mic.stop() else {
+        guard let whisperContext, let samples = try? await mic.stop(temporary: false) else {
             return
         }
 
