@@ -38,6 +38,7 @@ final actor Speaker {
     }
 
     init() throws {
+        synth.usesApplicationAudioSession = true
         if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
             havePreferredVoice = true
             voice = preferred
@@ -54,14 +55,6 @@ final actor Speaker {
                 throw "Could not find any TTS voices in the system"
             }
         }
-
-        Task {
-            await add(text: "")
-            #if os(iOS)
-                // needs warmup
-                await playEffect(.startListening)
-            #endif
-        }
     }
 
     func cancelIfNeeded() {
@@ -69,8 +62,8 @@ final actor Speaker {
     }
 
     func waitForCompletion() async {
-        var count = 0
-        while count < 4 {
+        var count = 2
+        while count < 3 {
             try? await Task.sleep(for: .seconds(0.1))
             if synth.isSpeaking {
                 count = 0
@@ -103,7 +96,7 @@ final actor Speaker {
         private static let startEffect = NSSound(contentsOf: startCaf, byReference: true)!
         private static let endEffect = NSSound(contentsOf: endCaf, byReference: true)!
     #else
-        private static let soundEffectVolume: Float = 0.8
+        private static let soundEffectVolume: Float = 0.4
         private static let startEffect = try! AVAudioPlayer(contentsOf: startCaf)
         private static let endEffect = try! AVAudioPlayer(contentsOf: endCaf)
     #endif

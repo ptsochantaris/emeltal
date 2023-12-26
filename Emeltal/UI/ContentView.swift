@@ -69,7 +69,7 @@ struct ContentView: View {
 
                         Button {
                             Task {
-                                if state.mode == .waiting {
+                                if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) {
                                     try? await state.reset()
                                 }
                             }

@@ -73,8 +73,13 @@ final actor Mic: NSObject {
         }
     }
 
-    private func addTap() {
+    private func addTap() throws {
         let input = audioEngine.inputNode
+
+        input.isVoiceProcessingAGCEnabled = true
+        input.isVoiceProcessingBypassed = false
+        input.isVoiceProcessingInputMuted = false
+        try input.setVoiceProcessingEnabled(true)
 
         let inputFormat = input.outputFormat(forBus: 0)
         let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
@@ -145,7 +150,7 @@ final actor Mic: NSObject {
             return
         }
 
-        addTap()
+        try addTap()
         if !audioEngine.isRunning {
             try audioEngine.start()
         }

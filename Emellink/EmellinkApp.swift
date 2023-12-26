@@ -34,6 +34,11 @@ final class Emellink: ModeProvider {
                 log("New remote state: \(remoteAppMode)")
                 if let speaker {
                     remoteAppMode.audioFeedback(using: speaker)
+                    if remoteAppMode == .waiting, oldValue != .waiting {
+                        Task {
+                            await speaker.playEffect(.startListening)
+                        }
+                    }
                 }
                 Task {
                     if case .listening = remoteAppMode {
