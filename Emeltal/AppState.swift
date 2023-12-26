@@ -46,7 +46,7 @@ final class AppState: Identifiable, ModeProvider {
         asset.category.displayName
     }
 
-    var statusMessage: String? = "Starting…"
+    var statusMessage: String? = "Starting"
 
     var isRemoteConnected = false {
         didSet {
@@ -181,19 +181,19 @@ final class AppState: Identifiable, ModeProvider {
             }
         }
 
-        statusMessage = "Loading TTS…"
+        statusMessage = "Loading TTS"
         speaker = try await s.value
 
-        statusMessage = "Loading ASR…"
+        statusMessage = "Loading ASR"
         whisperContext = try await w.value
 
-        statusMessage = "Loading LLM…"
+        statusMessage = "Loading LLM"
         llamaContext = try await l.value
 
         template = llm.asset.mlTemplate(in: llamaContext!)
 
         mode = .warmup
-        statusMessage = "Warming up AI…"
+        statusMessage = "Warming Up"
 
         try await chatInit()
 

@@ -28,15 +28,6 @@ struct ContentView: View {
                                     ManagerRow(manager: $0)
                                 }
                             }
-                        } else if let message = state.statusMessage {
-                            Text(message)
-                                .foregroundStyle(.black)
-                                .font(.headline)
-                                .padding()
-                                .background {
-                                    Capsule(style: .continuous)
-                                        .foregroundStyle(.accent)
-                                }
                         }
 
                         ScrollViewReader { proxy in
