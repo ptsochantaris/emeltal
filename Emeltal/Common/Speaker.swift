@@ -38,7 +38,9 @@ final actor Speaker {
     }
 
     init() throws {
+        #if os(iOS)
         synth.usesApplicationAudioSession = true
+        #endif
         if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
             havePreferredVoice = true
             voice = preferred
@@ -76,13 +78,32 @@ final actor Speaker {
 
     func add(text: String) {
         if muted { return }
+        let utterance = utterance(for: text)
+        synth.speak(utterance)
+    }
+
+    func render(text: String) async -> Data? {
+        let utterance = utterance(for: text)
+        return await withCheckedContinuation { continuation in
+            synth.write(utterance) { audioBuffer in
+                if let buf = audioBuffer as? AVAudioPCMBuffer, let speech = buf.floatChannelData?[0] {
+                    let data = Data(bytes: speech, count: Int(buf.frameLength))
+                    continuation.resume(returning: data)
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
+    private func utterance(for text: String) -> AVSpeechUtterance {
         let textToPlay = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let utterance = AVSpeechUtterance(string: textToPlay)
         utterance.voice = voice
-        if textToPlay.hasSuffix(".") || textToPlay.hasSuffix("!") || textToPlay.hasSuffix("?") {
+        if textToPlay.hasSuffix(".") || textToPlay.hasSuffix("!") || textToPlay.hasSuffix("?") || textToPlay.hasSuffix(":") || textToPlay.hasSuffix("\n") {
             utterance.postUtteranceDelay = 0.2
         }
-        synth.speak(utterance)
+        return utterance
     }
 
     enum Effect {
