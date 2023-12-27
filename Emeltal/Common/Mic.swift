@@ -73,13 +73,28 @@ final actor Mic: NSObject {
         }
     }
 
+    private var addedTap = false
+
+    private func removeTap() {
+        guard addedTap else { return }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        addedTap = false
+    }
+
     private func addTap() throws {
+        if addedTap {
+            return
+        }
+        addedTap = true
+
         let input = audioEngine.inputNode
 
         input.isVoiceProcessingAGCEnabled = true
         input.isVoiceProcessingBypassed = false
         input.isVoiceProcessingInputMuted = false
-        try input.setVoiceProcessingEnabled(true)
+        #if os(macOS)
+            try? input.setVoiceProcessingEnabled(true)
+        #endif
 
         let inputFormat = input.outputFormat(forBus: 0)
         let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
@@ -227,7 +242,7 @@ final actor Mic: NSObject {
         }
 
         if temporary {
-            audioEngine.inputNode.removeTap(onBus: 0)
+            removeTap()
             runState = .paused
         } else {
             if audioEngine.isRunning {

@@ -10,7 +10,7 @@ final class AssetManager {}
 @Observable
 final class Emellink: ModeProvider {
     private let remote = EmeltalConnector()
-    private let speaker = try? Speaker()
+    private let speaker = try! Speaker()
     private let mic = Mic()
 
     var connectionState = EmeltalConnector.State.boot
@@ -32,12 +32,10 @@ final class Emellink: ModeProvider {
         didSet {
             if oldValue != remoteAppMode {
                 log("New remote state: \(remoteAppMode)")
-                if let speaker {
-                    remoteAppMode.audioFeedback(using: speaker)
-                    if remoteAppMode == .waiting, oldValue != .waiting {
-                        Task {
-                            await speaker.playEffect(.startListening)
-                        }
+                remoteAppMode.audioFeedback(using: speaker)
+                if remoteAppMode == .waiting, oldValue != .waiting {
+                    Task {
+                        await speaker.playEffect(.startListening)
                     }
                 }
                 Task {
@@ -50,6 +48,12 @@ final class Emellink: ModeProvider {
                     }
                 }
             }
+        }
+    }
+
+    init() {
+        Task {
+            await speaker.warmup()
         }
     }
 
@@ -80,13 +84,13 @@ final class Emellink: ModeProvider {
 
     func buttonDown() {
         Task {
-            await speaker?.cancelIfNeeded()
+            await speaker.cancelIfNeeded()
             await remote.send(.buttonDown, content: emptyData)
         }
     }
 
     private func startMic() async {
-        await speaker?.cancelIfNeeded()
+        await speaker.cancelIfNeeded()
         try? await mic.start()
     }
 
@@ -154,7 +158,7 @@ final class Emellink: ModeProvider {
             switch nibble.payload {
             case .appMode:
                 if let data = nibble.data, let mode = AppMode(data: data) {
-                    await speaker?.waitForCompletion()
+                    await speaker.waitForCompletion()
                     withAnimation {
                         remoteAppMode = mode
                     }
@@ -169,7 +173,7 @@ final class Emellink: ModeProvider {
 
             case .generatedSentence:
                 if let data = nibble.data, let text = String(data: data, encoding: .utf8) {
-                    await speaker?.add(text: text)
+                    await speaker.add(text: text)
                 }
 
             case .buttonDown, .heartbeat, .recordedSpeech, .recordedSpeechDone, .toggleListeningMode:

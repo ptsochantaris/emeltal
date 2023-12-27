@@ -39,7 +39,7 @@ final actor Speaker {
 
     init() throws {
         #if os(iOS)
-        synth.usesApplicationAudioSession = true
+            synth.usesApplicationAudioSession = true
         #endif
         if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
             havePreferredVoice = true
@@ -57,6 +57,11 @@ final actor Speaker {
                 throw "Could not find any TTS voices in the system"
             }
         }
+    }
+
+    func warmup() {
+        synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
+        log("Speech warmup complete")
     }
 
     func cancelIfNeeded() {

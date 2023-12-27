@@ -167,7 +167,7 @@ final class AppState: Identifiable, ModeProvider {
 
         let l = Task.detached { try await LlamaContext(manager: llm) }
         let w = Task.detached { let W = try await WhisperContext(manager: whisper); _ = await W.warmup(); return W }
-        let s = Task.detached { try Speaker() }
+        let s = Task.detached { let S = try Speaker(); await S.warmup(); return S }
 
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
