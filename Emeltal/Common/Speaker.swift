@@ -2,6 +2,7 @@
     import AppKit
 #endif
 import AVFoundation
+import Combine
 import Foundation
 
 final actor Speaker {
@@ -10,6 +11,7 @@ final actor Speaker {
     private let voice: AVSpeechSynthesisVoice
     private let synth = AVSpeechSynthesizer()
     private var muted = false
+    private let watcher = UtteranceWatcher()
 
     private static func pickFavourite(from voices: [AVSpeechSynthesisVoice]) -> AVSpeechSynthesisVoice? {
         if let premiumFemale = voices.filter({ $0.quality == .premium && $0.gender == .female }).first {
@@ -37,10 +39,56 @@ final actor Speaker {
         }
     }
 
+    @MainActor
+    private final class UtteranceWatcher: NSObject, AVSpeechSynthesizerDelegate {
+        @objc private dynamic var utterances = Set<AVSpeechUtterance>()
+
+        private func remove(utterance: AVSpeechUtterance) { utterances.remove(utterance) }
+
+        override nonisolated init() {}
+
+        func add(utterance: AVSpeechUtterance) { utterances.insert(utterance) }
+
+        func reset() { utterances.removeAll() }
+
+        nonisolated func speechSynthesizer(_: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+            Task { @MainActor in
+                remove(utterance: utterance)
+            }
+        }
+
+        nonisolated func speechSynthesizer(_: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+            Task { @MainActor in
+                remove(utterance: utterance)
+            }
+        }
+
+        func waitForZero() async {
+            var observation: Cancellable?
+            var pending = true
+            await withCheckedContinuation { [weak self] (continuation: CheckedContinuation<Void, Never>) in
+                if let self {
+                    observation = publisher(for: \.utterances).filter(\.isEmpty).sink { _ in
+                        if pending {
+                            pending = false
+                            continuation.resume()
+                        }
+                    }
+                } else {
+                    continuation.resume()
+                }
+            }
+            withExtendedLifetime(observation) {
+                log("Speaker stopped speaking")
+            }
+        }
+    }
+
     init() throws {
         #if os(iOS)
             synth.usesApplicationAudioSession = true
         #endif
+        synth.delegate = watcher
         if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
             havePreferredVoice = true
             voice = preferred
@@ -66,24 +114,19 @@ final actor Speaker {
 
     func cancelIfNeeded() {
         synth.stopSpeaking(at: .immediate)
+        Task {
+            await watcher.reset()
+        }
     }
 
     func waitForCompletion() async {
-        var count = 2
-        while count < 3 {
-            try? await Task.sleep(for: .seconds(0.1))
-            if synth.isSpeaking {
-                count = 0
-            } else {
-                count += 1
-            }
-        }
-        log("Speaker stopped speaking")
+        await watcher.waitForZero()
     }
 
-    func add(text: String) {
+    func add(text: String) async {
         if muted { return }
         let utterance = utterance(for: text)
+        await watcher.add(utterance: utterance)
         synth.speak(utterance)
     }
 

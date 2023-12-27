@@ -169,6 +169,9 @@ final class AppState: Identifiable, ModeProvider {
         let w = Task.detached { let W = try await WhisperContext(manager: whisper); _ = await W.warmup(); return W }
         let s = Task.detached { let S = try Speaker(); await S.warmup(); return S }
 
+        statusMessage = "Mic Setup"
+        await mic.warmup()
+
         micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
             guard let self else { return }
             if case let .listening(micState) = mode, newState != micState {
@@ -348,10 +351,9 @@ final class AppState: Identifiable, ModeProvider {
     func pushButtonDown() {
         Task {
             await speaker?.cancelIfNeeded()
-            if case .voiceActivated = activationState {
-                return
+            if case .waiting = mode {
+                await startMic()
             }
-            await startMic()
         }
     }
 

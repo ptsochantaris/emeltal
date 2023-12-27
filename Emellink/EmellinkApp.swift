@@ -51,12 +51,6 @@ final class Emellink: ModeProvider {
         }
     }
 
-    init() {
-        Task {
-            await speaker.warmup()
-        }
-    }
-
     func invalidateConnectionIfNotNeeded() async {
         if case .voiceActivated = remoteActivationState {
             return
@@ -64,7 +58,20 @@ final class Emellink: ModeProvider {
         await remote.invalidate()
     }
 
+    private var booted = false
     func restoreConnectionIfNeeded() async {
+        if !booted {
+            log("First boot")
+            booted = true
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask { [weak self] in
+                    await self?.mic.warmup()
+                }
+                group.addTask { [weak self] in
+                    await self?.speaker.warmup()
+                }
+            }
+        }
         if case .connected = connectionState {
             return
         }

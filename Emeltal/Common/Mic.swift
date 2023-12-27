@@ -4,6 +4,8 @@ import Combine
 import Foundation
 
 final actor Mic: NSObject {
+    var havePermission = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+
     enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
@@ -65,12 +67,11 @@ final actor Mic: NSObject {
     private var buffer = [Float]()
     private let SampleRate = 16000
 
-    override init() {
-        super.init()
-
-        Task {
-            await AVCaptureDevice.requestAccess(for: .audio)
-        }
+    func warmup() async {
+        await AVCaptureDevice.requestAccess(for: .audio)
+        try? await start()
+        _ = try? await stop(temporary: false)
+        log("Mic warmup done")
     }
 
     private var addedTap = false

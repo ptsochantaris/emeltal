@@ -82,7 +82,7 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder, .dolphinMixtral, .mythoMax, .solar, .shiningValiant, .dolphinPhi2: 1024
+            case .deepSeekCoder, .dolphinMixtral, .dolphinPhi2, .mythoMax, .shiningValiant, .solar: 1024
             case .whisper: 0
             }
         }
