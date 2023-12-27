@@ -6,11 +6,10 @@ struct Template {
     }
 
     enum Format {
-        case instruct, chatml, userAssistant, llamaInst, zephyr
+        case instruct, chatml, userAssistant, llamaInst
 
         var allowsSystemPrompt: Bool {
             switch self {
-            case .zephyr: false
             case .chatml, .instruct, .llamaInst, .userAssistant: true
             }
         }
@@ -56,13 +55,6 @@ struct Template {
             case .turn:
                 "\n<|im_start|>user\n"
             }
-        case .zephyr:
-            switch step {
-            case .initial:
-                ""
-            case .turn:
-                "<s><|user|>\n"
-            }
         case .instruct:
             switch step {
             case .initial:
@@ -89,14 +81,6 @@ struct Template {
 
     private func suffix(for step: Step) -> String {
         switch format {
-        case .zephyr:
-            switch step {
-            case .initial:
-                ""
-            case .turn:
-                "<|endoftext|>\n<|assistant|>\n"
-            }
-
         case .userAssistant:
             switch step {
             case .initial:

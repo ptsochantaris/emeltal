@@ -3,7 +3,7 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, solar, shiningValiant, zephyr3b, whisper
+        case dolphinMixtral, deepSeekCoder, mythoMax, solar, shiningValiant, dolphinPhi2, whisper
 
         var format: Template.Format {
             switch self {
@@ -13,7 +13,7 @@ extension Asset {
             case .mythoMax: .instruct
             case .solar: .instruct
             case .whisper: .instruct
-            case .zephyr3b: .zephyr
+            case .dolphinPhi2: .chatml
             }
         }
 
@@ -21,10 +21,9 @@ extension Asset {
             switch self {
             case .deepSeekCoder: "You are an intelligent and helpful coding assistant."
             case .solar: "You are an intelligent and cheerful chatbot."
-            case .dolphinMixtral: "You are Dolphin, a helpful, informative and friendly AI assistant."
+            case .dolphinMixtral, .dolphinPhi2: "You are Dolphin, a helpful, informative and friendly AI assistant."
             case .mythoMax: "You are an intelligent and helpful writing assistant."
             case .shiningValiant: "You are an intelligent, helpful AI assistant."
-            case .zephyr3b: "(System prompt not used for this model)"
             case .whisper: ""
             }
         }
@@ -43,7 +42,7 @@ extension Asset {
             case .dolphinMixtral: 34
             case .deepSeekCoder: 37
             case .solar: 9
-            case .zephyr3b: 5
+            case .dolphinPhi2: 5
             case .mythoMax: 12
             case .whisper: 2
             case .shiningValiant: 60
@@ -58,7 +57,7 @@ extension Asset {
             case .solar: "7.6 GB"
             case .mythoMax: "10.6 GB"
             case .whisper: "1.1 GB"
-            case .zephyr3b: "2.3 GB"
+            case .dolphinPhi2: "2.3 GB"
             }
         }
 
@@ -76,19 +75,14 @@ extension Asset {
                 "A large-size model focused on knowledge, enthusiasm, and structured reasoning."
             case .whisper:
                 "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
-            case .zephyr3b:
-                "Compact version of the very powerful Zephyr model, great for systems with constrained storage or processing requirements."
+            case .dolphinPhi2:
+                "The Doplhin chatbot running on Microsoft's compact Phi-2 model, great for systems with constrained storage or processing requirements."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder: 1024
-            case .dolphinMixtral: 1024
-            case .mythoMax: 1024
-            case .solar: 1024
-            case .shiningValiant: 1024
-            case .zephyr3b: 1024
+            case .deepSeekCoder, .dolphinMixtral, .mythoMax, .solar, .shiningValiant, .dolphinPhi2: 1024
             case .whisper: 0
             }
         }
@@ -112,7 +106,7 @@ extension Asset {
             case .mythoMax: 1.17
             case .solar: 1.17
             case .shiningValiant: 1.17
-            case .zephyr3b: 1.17
+            case .dolphinPhi2: 1.17
             case .whisper: 0
             }
         }
@@ -124,7 +118,7 @@ extension Asset {
             case .mythoMax: 0.1
             case .solar: 0.1
             case .shiningValiant: 0.1
-            case .zephyr3b: 0.1
+            case .dolphinPhi2: 0.1
             case .whisper: 0
             }
         }
@@ -147,8 +141,8 @@ extension Asset {
                 "https://huggingface.co/jan-hq/Solar-10.7B-SLERP-GGUF/resolve/main/solar-10.7b-slerp.Q5_K_M.gguf"
             case .shiningValiant:
                 "https://huggingface.co/TheBloke/ShiningValiant-1.3-GGUF/resolve/main/shiningvaliant-1.2.Q5_K_M.gguf"
-            case .zephyr3b:
-                "https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF/resolve/main/stablelm-zephyr-3b.Q6_K.gguf"
+            case .dolphinPhi2:
+                "https://huggingface.co/TheBloke/dolphin-2_6-phi-2-GGUF/resolve/main/dolphin-2_6-phi-2.Q6_K.gguf"
             }
             return URL(string: uri)!
         }
@@ -161,7 +155,7 @@ extension Asset {
             case .whisper: "Whisper Large v3"
             case .solar: "Pandora Solar"
             case .shiningValiant: "Shining Valiant"
-            case .zephyr3b: "Zephyr 3B"
+            case .dolphinPhi2: "Dolphin 2.6 (on Phi-2)"
             }
         }
 
@@ -173,7 +167,7 @@ extension Asset {
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .solar: "FB42FD61-E06E-4AA9-9EFA-DAAC98427904"
             case .shiningValiant: "25C3A6DB-A824-4011-9E8F-330D3B6310C7"
-            case .zephyr3b: "CC1BB904-0DE1-4B28-8DC7-2DA94B1491EC"
+            case .dolphinPhi2: "72ACC367-207D-4BCA-83F0-2767827D8F64"
             }
         }
 
