@@ -82,7 +82,7 @@ final actor Mic: NSObject {
 
     nonisolated private func voiceFilter(_ buffer: UnsafeMutablePointer<Float>, len: Int) -> [Float] {
         // b0 b1 b2 a1 a2
-        var r = vDSP.Biquad(coefficients: [1, -1.803489100193746, 0.8338480792148565, -1.8186685897043013, 0.9093342948521507],
+        var r = vDSP.Biquad(coefficients: [1, -1.8769581297076159, 0.8827620567886247, -1.8798600932481204, 0.9399300466240602],
                             channelCount: 1,
                             sectionCount: 1,
                             ofType: Float.self)!
@@ -203,7 +203,7 @@ final actor Mic: NSObject {
                 newBuffer.removeFirst(1000)
             }
             #if os(macOS)
-            let startDiff: Float = 8
+            let startDiff: Float = 6
             #else
             let startDiff: Float = 10
             #endif

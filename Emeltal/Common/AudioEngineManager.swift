@@ -8,13 +8,6 @@ final actor AudioEngineManager {
 
     private var count = 0
 
-    init() {
-        let input = engine.inputNode
-        input.isVoiceProcessingAGCEnabled = false
-        input.isVoiceProcessingBypassed = false
-        input.isVoiceProcessingInputMuted = false
-    }
-
     func config(block: (AVAudioEngine) throws -> Void) throws {
         if engine.isRunning {
             engine.stop()
