@@ -171,6 +171,7 @@
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF232B3D589E00AD56CC /* Emelwatch-Watch-App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Emelwatch-Watch-App-Info.plist"; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
+		64407BC22B3E1AEA001201DF /* EmeltalDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EmeltalDebug.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +244,7 @@
 		1608DB6A2B151B4F00FFFB09 /* Emeltal */ = {
 			isa = PBXGroup;
 			children = (
+				64407BC22B3E1AEA001201DF /* EmeltalDebug.entitlements */,
 				1608DB712B151B5000FFFB09 /* Emeltal.entitlements */,
 				1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */,
 				16C794402B2F43D60052B707 /* Info.plist */,
@@ -735,7 +737,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Emeltal/EmeltalDebug.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X727JSJUGJ;
@@ -782,6 +785,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X727JSJUGJ;
