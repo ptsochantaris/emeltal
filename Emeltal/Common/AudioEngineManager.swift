@@ -10,7 +10,7 @@ final actor AudioEngineManager {
 
     init() {
         let input = engine.inputNode
-        input.isVoiceProcessingAGCEnabled = true
+        input.isVoiceProcessingAGCEnabled = false
         input.isVoiceProcessingBypassed = false
         input.isVoiceProcessingInputMuted = false
     }
@@ -31,6 +31,7 @@ final actor AudioEngineManager {
             log("Audio engine already running")
         } else {
             log("Starting audio engine")
+            engine.prepare()
             try engine.start()
         }
         count += 1

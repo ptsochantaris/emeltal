@@ -176,20 +176,18 @@ final actor Mic: NSObject {
     }
 
     private var lastEnergy: Float?
+    private var voiceLevel: Float = 0
     private func append(segment: [Float], instantEnergy: Float) {
         let energy: Float
         let reference: Float
         if let lastEnergy {
             reference = lastEnergy
-            energy = (0.5 * instantEnergy) + (0.5 * lastEnergy)
+            energy = (0.2 * instantEnergy) + (0.8 * lastEnergy)
         } else {
             reference = instantEnergy
             energy = instantEnergy
         }
         lastEnergy = energy
-        // print("Sample energy:", energy, instantEnergy)
-
-        let voiceSensitivity: Float = 35
 
         switch state {
         case let .quiet(prefixBuffer):
@@ -197,14 +195,19 @@ final actor Mic: NSObject {
             if newBuffer.count > SampleRate {
                 newBuffer.removeFirst(1000)
             }
-            if reference < -voiceSensitivity, energy > -voiceSensitivity {
+            let startDiff: Float = 12
+            let diff = max(0, instantEnergy - energy)
+            // print("Scanning for spike over \(startDiff.rounded()): \((diff).rounded()) - slow level: \(energy.rounded())")
+            if diff > startDiff {
+                voiceLevel = (reference * 0.7) + (instantEnergy * 0.3)
                 state = .talking(quietPeriods: 0)
                 buffer.append(contentsOf: newBuffer)
             } else {
                 state = .quiet(prefixBuffer: newBuffer)
             }
         case let .talking(quietPeriods):
-            if energy < -voiceSensitivity {
+            // print("Scanning for quiet below \(voiceLevel.rounded()) - slow level: \(energy.rounded())")
+            if energy < voiceLevel {
                 let count = quietPeriods + segment.count
                 if count > SampleRate * 2 {
                     state = .quiet(prefixBuffer: [])
