@@ -22,5 +22,9 @@ func log(_ message: @autoclosure () -> String) {
 }
 
 var canUseMic: Bool {
-    AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    #if canImport(AppKit)
+        AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    #else
+        AVAudioApplication.shared.recordPermission == .granted
+    #endif
 }

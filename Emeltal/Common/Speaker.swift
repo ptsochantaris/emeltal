@@ -12,6 +12,7 @@ final actor Speaker {
     private let synth = AVSpeechSynthesizer()
     private var muted = false
     private let watcher = UtteranceWatcher()
+    private let effectPlayer = AVAudioPlayerNode()
 
     private static func pickFavourite(from voices: [AVSpeechSynthesisVoice]) -> AVSpeechSynthesisVoice? {
         if let premiumFemale = voices.filter({ $0.quality == .premium && $0.gender == .female }).first {
@@ -107,7 +108,12 @@ final actor Speaker {
         }
     }
 
-    func warmup() {
+    func warmup() async throws {
+        try await AudioEngineManager.shared.config { engine in
+            effectPlayer.volume = 0.1
+            engine.attach(effectPlayer)
+            engine.connect(effectPlayer, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
+        }
         synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
         log("Speech warmup complete")
     }
@@ -158,31 +164,29 @@ final actor Speaker {
         case startListening, endListening
     }
 
-    private static let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
-    private static let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
-    #if canImport(AppKit)
-        private static let soundEffectVolume: Float = 0.2
-        private static let startEffect = NSSound(contentsOf: startCaf, byReference: true)!
-        private static let endEffect = NSSound(contentsOf: endCaf, byReference: true)!
-    #else
-        private static let soundEffectVolume: Float = 0.4
-        private static let startEffect = try! AVAudioPlayer(contentsOf: startCaf)
-        private static let endEffect = try! AVAudioPlayer(contentsOf: endCaf)
-    #endif
-    func playEffect(_ effect: Effect) {
+    private let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
+    private let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
+
+    func playEffect(_ effect: Effect) async {
         if muted { return }
-        let sound = switch effect {
-        case .startListening: Self.startEffect
-        case .endListening: Self.endEffect
+
+        let sound: AVAudioFile = switch effect {
+        case .startListening:
+            try! AVAudioFile(forReading: startCaf)
+
+        case .endListening:
+            try! AVAudioFile(forReading: endCaf)
         }
-        #if os(iOS)
-            sound.prepareToPlay()
-        #endif
-        sound.currentTime = 0
-        sound.volume = Self.soundEffectVolume
-        sound.play()
-        DispatchQueue.main.asyncAfter(deadline: .now() + sound.duration + 0.1) {
-            sound.stop()
+
+        try? await AudioEngineManager.shared.willUseEngine()
+        let t = Task {
+            await effectPlayer.scheduleFile(sound, at: nil)
+            await AudioEngineManager.shared.doneUsingEngine()
         }
+        effectPlayer.play()
+        let msec = sound.processingFormat.sampleRate * 1000 / Double(sound.length)
+        try? await Task.sleep(nanoseconds: UInt64(msec + 100) * NSEC_PER_MSEC)
+        effectPlayer.stop()
+        await t.value
     }
 }

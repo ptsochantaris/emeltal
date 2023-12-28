@@ -1,3 +1,4 @@
+import AVFoundation
 import Combine
 import Foundation
 import Network
@@ -166,23 +167,20 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         let l = Task.detached { try await LlamaContext(manager: llm) }
+
         let w = Task.detached { let W = try await WhisperContext(manager: whisper); _ = await W.warmup(); return W }
-        let s = Task.detached { let S = try Speaker(); await S.warmup(); return S }
+
+        let s = Task.detached { let S = try Speaker(); try await S.warmup(); return S }
+
+        let m = Task.detached { [weak self] in
+            guard let self else { return }
+            await AVCaptureDevice.requestAccess(for: .audio)
+            await mic.warmup()
+            await setupMicObservation()
+        }
 
         statusMessage = "Mic Setup"
-        await mic.warmup()
-
-        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
-            guard let self else { return }
-            if case let .listening(micState) = mode, newState != micState {
-                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
-                    Task {
-                        await self.endMic(processOutput: true)
-                    }
-                }
-                mode = .listening(state: newState)
-            }
-        }
+        _ = await m.value
 
         statusMessage = "Loading TTS"
         speaker = try await s.value
@@ -202,6 +200,20 @@ final class AppState: Identifiable, ModeProvider {
 
         Task {
             await startServer()
+        }
+    }
+
+    private func setupMicObservation() {
+        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
+            guard let self else { return }
+            if case let .listening(micState) = mode, newState != micState {
+                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
+                    Task {
+                        await self.endMic(processOutput: true)
+                    }
+                }
+                mode = .listening(state: newState)
+            }
         }
     }
 

@@ -4,8 +4,6 @@ import Combine
 import Foundation
 
 final actor Mic: NSObject {
-    var havePermission = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
-
     enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
@@ -63,21 +61,21 @@ final actor Mic: NSObject {
 
     let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
 
-    private let audioEngine = AVAudioEngine()
     private var buffer = [Float]()
     private let SampleRate = 16000
 
     func warmup() async {
-        await AVCaptureDevice.requestAccess(for: .audio)
         try? await start()
         _ = try? await stop(temporary: false)
         log("Mic warmup done")
     }
 
     private var addedTap = false
+    private var usingEngine = false
 
-    private func removeTap() {
+    private func removeTap() async {
         guard addedTap else { return }
+        let audioEngine = AudioEngineManager.shared.engine
         audioEngine.inputNode.removeTap(onBus: 0)
         addedTap = false
     }
@@ -88,14 +86,8 @@ final actor Mic: NSObject {
         }
         addedTap = true
 
+        let audioEngine = AudioEngineManager.shared.engine
         let input = audioEngine.inputNode
-
-        input.isVoiceProcessingAGCEnabled = true
-        input.isVoiceProcessingBypassed = false
-        input.isVoiceProcessingInputMuted = false
-        #if os(macOS)
-            try? input.setVoiceProcessingEnabled(true)
-        #endif
 
         let inputFormat = input.outputFormat(forBus: 0)
         let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
@@ -145,8 +137,6 @@ final actor Mic: NSObject {
         remoteMode = remote
     }
 
-    // TODO: detect and advise to turn on voice isolation
-
     private enum RunState {
         case stopped, paused, recording
     }
@@ -167,8 +157,9 @@ final actor Mic: NSObject {
         }
 
         try addTap()
-        if !audioEngine.isRunning {
-            try audioEngine.start()
+        if !usingEngine {
+            usingEngine = true
+            try await AudioEngineManager.shared.willUseEngine()
         }
         log("Mic running")
     }
@@ -243,11 +234,12 @@ final actor Mic: NSObject {
         }
 
         if temporary {
-            removeTap()
+            await removeTap()
             runState = .paused
         } else {
-            if audioEngine.isRunning {
-                audioEngine.stop()
+            if usingEngine {
+                usingEngine = false
+                await AudioEngineManager.shared.doneUsingEngine()
             }
             runState = .stopped
         }
