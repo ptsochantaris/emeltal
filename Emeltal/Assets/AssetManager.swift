@@ -63,6 +63,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         phase = .error(error: error)
         urlSession.invalidateAndCancel()
         builderDone?(phase)
+        builderDone = nil
     }
 
     nonisolated func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -87,6 +88,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
                 phase = .done
                 urlSession.invalidateAndCancel()
                 builderDone?(phase)
+                builderDone = nil
             }
         }
     }
@@ -99,6 +101,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
             phase = .done
             urlSession.invalidateAndCancel()
             builderDone?(phase)
+            builderDone = nil
             return
         }
 

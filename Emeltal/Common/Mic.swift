@@ -233,8 +233,8 @@ final actor Mic: NSObject {
             break
         }
 
+        await removeTap()
         if temporary {
-            await removeTap()
             runState = .paused
         } else {
             if usingEngine {
