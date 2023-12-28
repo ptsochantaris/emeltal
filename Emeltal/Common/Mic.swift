@@ -80,6 +80,17 @@ final actor Mic: NSObject {
         addedTap = false
     }
 
+    nonisolated private func voiceFilter(_ buffer: UnsafeMutablePointer<Float>, len: Int) -> [Float] {
+        // b0 b1 b2 a1 a2
+        var r = vDSP.Biquad(coefficients: [1, -1.803489100193746, 0.8338480792148565, -1.8186685897043013, 0.9093342948521507],
+                            channelCount: 1,
+                            sectionCount: 1,
+                            ofType: Float.self)!
+
+        let buffer = UnsafeMutableBufferPointer(start: buffer, count: len)
+        return r.apply(input: buffer)
+    }
+
     private func addTap() throws {
         if addedTap {
             return
@@ -113,20 +124,16 @@ final actor Mic: NSObject {
             assert(status != .error)
 
             let numSamples = Int(convertedBuffer.frameLength)
-            let segmentCopy = [Float](unsafeUninitializedCapacity: numSamples) { buffer, initializedCount in
-                _ = memcpy(buffer.baseAddress!, convertedBuffer.floatChannelData![0], numSamples * MemoryLayout<Float>.size)
-                initializedCount = numSamples
-            }
-
-            var avgValue: Float32 = 0
-            vDSP_meamgv(incomingBuffer.floatChannelData![0], 1, &avgValue, vDSP_Length(inNumberFrames))
+            let convertedData = convertedBuffer.floatChannelData![0]
+            let filteredCopy = voiceFilter(convertedData, len: numSamples)
+            let avgValue = vDSP.meanMagnitude(filteredCopy)
             let v: Float = if avgValue == 0 {
                 -100
             } else {
                 20.0 * log10f(avgValue)
             }
             Task {
-                await self.append(segment: segmentCopy, instantEnergy: v)
+                await self.append(segment: filteredCopy, instantEnergy: v)
             }
         }
     }
@@ -182,7 +189,7 @@ final actor Mic: NSObject {
         let reference: Float
         if let lastEnergy {
             reference = lastEnergy
-            energy = (0.2 * instantEnergy) + (0.8 * lastEnergy)
+            energy = (0.5 * instantEnergy) + (0.5 * lastEnergy)
         } else {
             reference = instantEnergy
             energy = instantEnergy
@@ -195,9 +202,13 @@ final actor Mic: NSObject {
             if newBuffer.count > SampleRate {
                 newBuffer.removeFirst(1000)
             }
-            let startDiff: Float = 12
-            let diff = max(0, instantEnergy - energy)
-            // print("Scanning for spike over \(startDiff.rounded()): \((diff).rounded()) - slow level: \(energy.rounded())")
+            #if os(macOS)
+            let startDiff: Float = 8
+            #else
+            let startDiff: Float = 10
+            #endif
+            let diff = max(0, energy - reference)
+            log("Scanning for spike over \(startDiff.rounded()): \((diff).rounded()) - slow level: \(energy.rounded()) - ref: \(reference.rounded())")
             if diff > startDiff {
                 voiceLevel = (reference * 0.7) + (instantEnergy * 0.3)
                 state = .talking(quietPeriods: 0)
@@ -206,7 +217,7 @@ final actor Mic: NSObject {
                 state = .quiet(prefixBuffer: newBuffer)
             }
         case let .talking(quietPeriods):
-            // print("Scanning for quiet below \(voiceLevel.rounded()) - slow level: \(energy.rounded())")
+            log("Scanning for quiet below \(voiceLevel.rounded()) - slow level: \(energy.rounded())")
             if energy < voiceLevel {
                 let count = quietPeriods + segment.count
                 if count > SampleRate * 2 {
