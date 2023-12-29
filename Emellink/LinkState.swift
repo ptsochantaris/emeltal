@@ -61,7 +61,6 @@ final class LinkState: ModeProvider {
 
     private func boot() async {
         log("First boot")
-        booted = true
 
         #if canImport(AppKit)
             await AVCaptureDevice.requestAccess(for: .audio)
@@ -95,6 +94,7 @@ final class LinkState: ModeProvider {
     private var booted = false
     func restoreConnectionIfNeeded() async {
         if !booted {
+            booted = true
             await boot()
         }
 
@@ -125,7 +125,7 @@ final class LinkState: ModeProvider {
 
     private func startMic() async {
         await speaker.cancelIfNeeded()
-        try? await mic.start()
+        try? await mic.start(detectVoice: remoteActivationState == .voiceActivated)
     }
 
     private func endMic(sendData: Bool) async {

@@ -315,7 +315,7 @@ final class AppState: Identifiable, ModeProvider {
         await speaker?.cancelIfNeeded()
 
         guard whisperContext != nil else { return }
-        try? await mic.start()
+        try? await mic.start(detectVoice: activationState == .voiceActivated)
         let micState = await mic.state
         withAnimation {
             mode = .listening(state: micState)

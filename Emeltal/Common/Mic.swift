@@ -1,4 +1,3 @@
-import Accelerate
 import AVFoundation
 import Combine
 import Foundation
@@ -62,57 +61,87 @@ final actor Mic: NSObject {
     let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
 
     private var buffer = [Float]()
-    private let SampleRate = 16000
+    static let SampleRate = 16000
 
     func warmup() async {
-        try? await start()
+        try? await start(detectVoice: false)
         _ = try? await stop(temporary: false)
         log("Mic warmup done")
     }
 
-    private var addedTap = false
+    enum TapState {
+        case none, added(usingVoiceDetection: Bool)
+    }
+
+    private var tapState = TapState.none
     private var usingEngine = false
 
-    private func removeTap() async {
-        guard addedTap else { return }
+    private func removeTap() {
+        switch tapState {
+        case .none:
+            return
+        case .added:
+            break
+        }
+
         let audioEngine = AudioEngineManager.shared.engine
         audioEngine.inputNode.removeTap(onBus: 0)
-        addedTap = false
+        tapState = .none
     }
 
-    private nonisolated func voiceFilter(_ buffer: UnsafeMutablePointer<Float>, len: Int) -> [Float] {
-        // b0 b1 b2 a1 a2
-        var r = vDSP.Biquad(coefficients: [1, -1.8769581297076159, 0.8827620567886247, -1.8798600932481204, 0.9399300466240602],
-                            channelCount: 1,
-                            sectionCount: 1,
-                            ofType: Float.self)!
+    private func addTap(useVoiceDetection: Bool) throws {
+        switch tapState {
+        case .none:
+            break
 
-        let buffer = UnsafeMutableBufferPointer(start: buffer, count: len)
-        return r.apply(input: buffer)
-    }
-
-    private func addTap() throws {
-        if addedTap {
-            return
+        case let .added(usingVoiceDetection):
+            if useVoiceDetection == usingVoiceDetection {
+                return
+            }
+            removeTap()
         }
-        addedTap = true
+
+        tapState = .added(usingVoiceDetection: useVoiceDetection)
+
+        let bufferSize: UInt32 = 4096
+        let fft = FFT(bufferSize: Int(bufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: Self.SampleRate)
+        var currentMicLevel: Float = 0
+        var lastMicLevel: Float?
+        var voiceDetected = !useVoiceDetection
 
         let audioEngine = AudioEngineManager.shared.engine
         let input = audioEngine.inputNode
 
-        let inputFormat = input.outputFormat(forBus: 0)
+        let inputFormat = input.inputFormat(forBus: 0)
         let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
-
-        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(SampleRate), channels: 1, interleaved: true)!
+        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(Self.SampleRate), channels: 1, interleaved: true)!
         let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
 
         let converter = AVAudioConverter(from: inputFormat, to: outputFormat)!
 
-        input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] incomingBuffer, _ in
+        input.installTap(onBus: 0, bufferSize: bufferSize, format: inputFormat) { [weak self] incomingBuffer, _ in
             guard let self else { return }
 
-            let inNumberFrames = incomingBuffer.frameLength
-            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * inNumberFrames / incomingSampleRate)!
+            if useVoiceDetection {
+                let power = fft.fftForwardSingleBandMagnitude(incomingBuffer.floatChannelData![0])
+                if let lastMicLevel {
+                    currentMicLevel = lastMicLevel * 0.4 + power * 0.6
+                    let currentLevelRoc = abs(currentMicLevel - lastMicLevel)
+                    if voiceDetected {
+                        if currentLevelRoc < 0.1 {
+                            voiceDetected = false
+                        }
+                    } else if currentLevelRoc > 70 {
+                        voiceDetected = true
+                    }
+                    // print(currentMicLevel, abs(currentLevelRoc))
+                } else {
+                    currentMicLevel = power
+                }
+                lastMicLevel = currentMicLevel
+            }
+
+            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * bufferSize / incomingSampleRate)!
 
             var error: NSError?
             var reported = AVAudioConverterInputStatus.haveData
@@ -124,16 +153,12 @@ final actor Mic: NSObject {
             assert(status != .error)
 
             let numSamples = Int(convertedBuffer.frameLength)
-            let convertedData = convertedBuffer.floatChannelData![0]
-            let filteredCopy = voiceFilter(convertedData, len: numSamples)
-            let avgValue = vDSP.meanMagnitude(filteredCopy)
-            let v: Float = if avgValue == 0 {
-                -100
-            } else {
-                20.0 * log10f(avgValue)
+            let segment = [Float](unsafeUninitializedCapacity: numSamples) { buffer, initializedCount in
+                memcpy(buffer.baseAddress, convertedBuffer.floatChannelData![0], numSamples * MemoryLayout<Float>.size)
+                initializedCount = numSamples
             }
-            Task {
-                await self.append(segment: filteredCopy, instantEnergy: v)
+            Task { [voiceDetected] in
+                await self.append(segment: segment, voiceDetected: voiceDetected)
             }
         }
     }
@@ -150,7 +175,7 @@ final actor Mic: NSObject {
 
     private var runState = RunState.stopped
 
-    func start() async throws {
+    func start(detectVoice: Bool) async throws {
         if runState == .recording {
             return
         }
@@ -163,7 +188,7 @@ final actor Mic: NSObject {
             return
         }
 
-        try addTap()
+        try addTap(useVoiceDetection: detectVoice)
         if !usingEngine {
             usingEngine = true
             try await AudioEngineManager.shared.willUseEngine()
@@ -182,53 +207,30 @@ final actor Mic: NSObject {
         buffer.append(contentsOf: floats)
     }
 
-    private var lastEnergy: Float?
-    private var voiceLevel: Float = 0
-    private func append(segment: [Float], instantEnergy: Float) {
-        let energy: Float
-        let reference: Float
-        if let lastEnergy {
-            reference = lastEnergy
-            energy = (0.5 * instantEnergy) + (0.5 * lastEnergy)
-        } else {
-            reference = instantEnergy
-            energy = instantEnergy
-        }
-        lastEnergy = energy
-
+    private func append(segment: [Float], voiceDetected: Bool) {
         switch state {
         case let .quiet(prefixBuffer):
             var newBuffer = prefixBuffer + segment
-            if newBuffer.count > SampleRate {
+            if newBuffer.count > Self.SampleRate {
                 newBuffer.removeFirst(1000)
             }
-            #if os(macOS)
-                let startDiff: Float = 6
-            #else
-                let startDiff: Float = 10
-            #endif
-            let diff = max(0, energy - reference)
-            log("Scanning for spike over \(startDiff.rounded()): \(diff.rounded()) - slow level: \(energy.rounded()) - ref: \(reference.rounded())")
-            if diff > startDiff {
-                voiceLevel = (reference * 0.7) + (instantEnergy * 0.3)
+            if voiceDetected {
                 state = .talking(quietPeriods: 0)
                 buffer.append(contentsOf: newBuffer)
             } else {
                 state = .quiet(prefixBuffer: newBuffer)
             }
         case let .talking(quietPeriods):
-            log("Scanning for quiet below \(voiceLevel.rounded()) - slow level: \(energy.rounded())")
-            if energy < voiceLevel {
-                let count = quietPeriods + segment.count
-                if count > SampleRate * 2 {
+            buffer.append(contentsOf: segment)
+            if voiceDetected {
+                state = .talking(quietPeriods: 0)
+            } else {
+                let newCount = quietPeriods + 1
+                if newCount > 10 {
                     state = .quiet(prefixBuffer: [])
                 } else {
-                    state = .talking(quietPeriods: count)
-                    buffer.append(contentsOf: segment)
+                    state = .talking(quietPeriods: newCount)
                 }
-            } else {
-                state = .talking(quietPeriods: 0)
-                buffer.append(contentsOf: segment)
             }
         }
     }
@@ -247,7 +249,7 @@ final actor Mic: NSObject {
             break
         }
 
-        await removeTap()
+        removeTap()
         if temporary {
             runState = .paused
         } else {

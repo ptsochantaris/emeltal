@@ -27,6 +27,8 @@
 		163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05D2B31B80800565F49 /* ManagerRow.swift */; };
 		163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */; };
 		163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0612B31D0CD00565F49 /* SideBar.swift */; };
+		1654854C2B3EE80200DB2B3A /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1654854B2B3EE80200DB2B3A /* FFT.swift */; };
+		1654854D2B3EE80200DB2B3A /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1654854B2B3EE80200DB2B3A /* FFT.swift */; };
 		16578A322B18CA5A0038A680 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* AppState.swift */; };
 		16578A342B18CA820038A680 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16578A392B1924B80038A680 /* WhisperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A382B1924B80038A680 /* WhisperContext.swift */; };
@@ -103,6 +105,7 @@
 		163EF05D2B31B80800565F49 /* ManagerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerRow.swift; sourceTree = "<group>"; };
 		163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalApp.swift; sourceTree = "<group>"; };
 		163EF0612B31D0CD00565F49 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
+		1654854B2B3EE80200DB2B3A /* FFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FFT.swift; sourceTree = "<group>"; };
 		16578A312B18CA5A0038A680 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		16578A382B1924B80038A680 /* WhisperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhisperContext.swift; sourceTree = "<group>"; };
@@ -271,6 +274,7 @@
 				16C58E082B35D72500006CC2 /* ModeView.swift */,
 				163EF0562B31B78300565F49 /* PushButton.swift */,
 				16578A332B18CA820038A680 /* Speaker.swift */,
+				1654854B2B3EE80200DB2B3A /* FFT.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -406,6 +410,7 @@
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
 				16C58DFE2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16578A392B1924B80038A680 /* WhisperContext.swift in Sources */,
+				1654854C2B3EE80200DB2B3A /* FFT.swift in Sources */,
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
@@ -446,6 +451,7 @@
 				16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */,
 				16C58E072B35D50200006CC2 /* Mic.swift in Sources */,
+				1654854D2B3EE80200DB2B3A /* FFT.swift in Sources */,
 				16C58E0B2B35DA1300006CC2 /* Genie.swift in Sources */,
 				16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */,
 			);
