@@ -61,36 +61,10 @@
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
 		16C7C21D2B2A0A6700755BC4 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C7C21C2B2A0A6700755BC4 /* llama.metallib */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
-		16F9EF012B3D528300AD56CC /* Emelwatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 16F9EF002B3D528300AD56CC /* Emelwatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		16F9EF062B3D528300AD56CC /* EmelwatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF052B3D528300AD56CC /* EmelwatchApp.swift */; };
-		16F9EF152B3D53D400AD56CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
-		16F9EF162B3D553800AD56CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
-		16F9EF192B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
-		16F9EF1A2B3D56EA00AD56CC /* PushButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0562B31B78300565F49 /* PushButton.swift */; };
-		16F9EF1B2B3D56EA00AD56CC /* ModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58E082B35D72500006CC2 /* ModeView.swift */; };
-		16F9EF1C2B3D56FB00AD56CC /* CommonGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */; };
-		16F9EF1D2B3D571F00AD56CC /* AppMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DFD2B351C6E00006CC2 /* AppMode.swift */; };
-		16F9EF1F2B3D57C900AD56CC /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
-		16F9EF202B3D580800AD56CC /* EmeltalConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */; };
-		16F9EF222B3D582700AD56CC /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16F9EF212B3D582700AD56CC /* PopTimer */; };
-		16F9EF242B3D59B400AD56CC /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
-		16F9EF252B3D60A400AD56CC /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
-		16F9EF262B3D60A400AD56CC /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
-		16F9EF2A2B3D67FC00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		16F9EF022B3D528300AD56CC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1608DB602B151B4F00FFFB09 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 16F9EEFF2B3D528300AD56CC;
-			remoteInfo = "Emelwatch Watch App";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		1601999F2B1E937E00696377 /* CopyFiles */ = {
@@ -102,17 +76,6 @@
 				160199C12B1E9C5A00696377 /* libllama.dylib in CopyFiles */,
 				160199C22B1E9C5A00696377 /* libwhisper.dylib in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		16F9EF102B3D528400AD56CC /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				16F9EF012B3D528300AD56CC /* Emelwatch Watch App.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -165,11 +128,7 @@
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16C7C21C2B2A0A6700755BC4 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
-		16F9EEFB2B3D528300AD56CC /* Emelwatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emelwatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		16F9EF002B3D528300AD56CC /* Emelwatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Emelwatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		16F9EF052B3D528300AD56CC /* EmelwatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmelwatchApp.swift; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
-		16F9EF232B3D589E00AD56CC /* Emelwatch-Watch-App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Emelwatch-Watch-App-Info.plist"; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -195,14 +154,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		16F9EEFD2B3D528300AD56CC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				16F9EF222B3D582700AD56CC /* PopTimer in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -223,7 +174,6 @@
 			children = (
 				1608DB6A2B151B4F00FFFB09 /* Emeltal */,
 				16C58DDB2B34701200006CC2 /* Emellink */,
-				16F9EF042B3D528300AD56CC /* Emelwatch */,
 				1608DB692B151B4F00FFFB09 /* Products */,
 				1608DB912B151C4600FFFB09 /* Frameworks */,
 			);
@@ -234,8 +184,6 @@
 			children = (
 				1608DB682B151B4F00FFFB09 /* Emeltal.app */,
 				16C58DDA2B34701200006CC2 /* Emellink.app */,
-				16F9EEFB2B3D528300AD56CC /* Emelwatch.app */,
-				16F9EF002B3D528300AD56CC /* Emelwatch Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -336,15 +284,6 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
-		16F9EF042B3D528300AD56CC /* Emelwatch */ = {
-			isa = PBXGroup;
-			children = (
-				16F9EF232B3D589E00AD56CC /* Emelwatch-Watch-App-Info.plist */,
-				16F9EF052B3D528300AD56CC /* EmelwatchApp.swift */,
-			);
-			path = Emelwatch;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -390,43 +329,6 @@
 			productReference = 16C58DDA2B34701200006CC2 /* Emellink.app */;
 			productType = "com.apple.product-type.application";
 		};
-		16F9EEFA2B3D528300AD56CC /* Emelwatch */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 16F9EF142B3D528400AD56CC /* Build configuration list for PBXNativeTarget "Emelwatch" */;
-			buildPhases = (
-				16F9EEF92B3D528300AD56CC /* Resources */,
-				16F9EF102B3D528400AD56CC /* Embed Watch Content */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				16F9EF032B3D528300AD56CC /* PBXTargetDependency */,
-			);
-			name = Emelwatch;
-			productName = Emelwatch;
-			productReference = 16F9EEFB2B3D528300AD56CC /* Emelwatch.app */;
-			productType = "com.apple.product-type.application.watchapp2-container";
-		};
-		16F9EEFF2B3D528300AD56CC /* Emelwatch Watch App */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 16F9EF132B3D528400AD56CC /* Build configuration list for PBXNativeTarget "Emelwatch Watch App" */;
-			buildPhases = (
-				16F9EEFC2B3D528300AD56CC /* Sources */,
-				16F9EEFD2B3D528300AD56CC /* Frameworks */,
-				16F9EEFE2B3D528300AD56CC /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Emelwatch Watch App";
-			packageProductDependencies = (
-				16F9EF212B3D582700AD56CC /* PopTimer */,
-			);
-			productName = "Emelwatch Watch App";
-			productReference = 16F9EF002B3D528300AD56CC /* Emelwatch Watch App.app */;
-			productType = "com.apple.product-type.application";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -442,12 +344,6 @@
 						LastSwiftMigration = 1500;
 					};
 					16C58DD92B34701200006CC2 = {
-						CreatedOnToolsVersion = 15.1;
-					};
-					16F9EEFA2B3D528300AD56CC = {
-						CreatedOnToolsVersion = 15.1;
-					};
-					16F9EEFF2B3D528300AD56CC = {
 						CreatedOnToolsVersion = 15.1;
 					};
 				};
@@ -471,8 +367,6 @@
 			targets = (
 				1608DB672B151B4F00FFFB09 /* Emeltal */,
 				16C58DD92B34701200006CC2 /* Emellink */,
-				16F9EEFA2B3D528300AD56CC /* Emelwatch */,
-				16F9EEFF2B3D528300AD56CC /* Emelwatch Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -498,24 +392,6 @@
 				16C58E052B35BB8D00006CC2 /* MicStart.caf in Resources */,
 				16C58E062B35BB8D00006CC2 /* MicStop.caf in Resources */,
 				165A71E92B37AC9500810837 /* Launch.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		16F9EEF92B3D528300AD56CC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				16F9EF162B3D553800AD56CC /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		16F9EEFE2B3D528300AD56CC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				16F9EF152B3D53D400AD56CC /* Assets.xcassets in Resources */,
-				16F9EF252B3D60A400AD56CC /* MicStart.caf in Resources */,
-				16F9EF262B3D60A400AD56CC /* MicStop.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -575,32 +451,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		16F9EEFC2B3D528300AD56CC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				16F9EF242B3D59B400AD56CC /* Mic.swift in Sources */,
-				16F9EF062B3D528300AD56CC /* EmelwatchApp.swift in Sources */,
-				16F9EF1B2B3D56EA00AD56CC /* ModeView.swift in Sources */,
-				16F9EF1D2B3D571F00AD56CC /* AppMode.swift in Sources */,
-				16F9EF1F2B3D57C900AD56CC /* Speaker.swift in Sources */,
-				16F9EF202B3D580800AD56CC /* EmeltalConnector.swift in Sources */,
-				16F9EF192B3D55C600AD56CC /* LinkState.swift in Sources */,
-				16F9EF1A2B3D56EA00AD56CC /* PushButton.swift in Sources */,
-				16F9EF2A2B3D67FC00AD56CC /* AudioEngineManager.swift in Sources */,
-				16F9EF1C2B3D56FB00AD56CC /* CommonGlobals.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		16F9EF032B3D528300AD56CC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 16F9EEFF2B3D528300AD56CC /* Emelwatch Watch App */;
-			targetProxy = 16F9EF022B3D528300AD56CC /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1608DB752B151B5000FFFB09 /* Debug */ = {
@@ -904,108 +755,6 @@
 			};
 			name = Release;
 		};
-		16F9EF0E2B3D528400AD56CC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Emelwatch;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelwatch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		16F9EF0F2B3D528400AD56CC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Emelwatch;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelwatch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		16F9EF112B3D528400AD56CC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
-				ENABLE_PREVIEWS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Emelwatch/Emelwatch-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Emelwatch;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelwatch.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.2;
-			};
-			name = Debug;
-		};
-		16F9EF122B3D528400AD56CC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
-				ENABLE_PREVIEWS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Emelwatch/Emelwatch-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Emelwatch;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To be able to use your voice to talk to the app";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emelwatch.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 10.2;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1032,24 +781,6 @@
 			buildConfigurations = (
 				16C58DE62B34701300006CC2 /* Debug */,
 				16C58DE72B34701300006CC2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		16F9EF132B3D528400AD56CC /* Build configuration list for PBXNativeTarget "Emelwatch Watch App" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				16F9EF112B3D528400AD56CC /* Debug */,
-				16F9EF122B3D528400AD56CC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		16F9EF142B3D528400AD56CC /* Build configuration list for PBXNativeTarget "Emelwatch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				16F9EF0E2B3D528400AD56CC /* Debug */,
-				16F9EF0F2B3D528400AD56CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1087,11 +818,6 @@
 			productName = PopTimer;
 		};
 		16C58E112B37688D00006CC2 /* PopTimer */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
-			productName = PopTimer;
-		};
-		16F9EF212B3D582700AD56CC /* PopTimer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
 			productName = PopTimer;

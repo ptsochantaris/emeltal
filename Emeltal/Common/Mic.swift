@@ -80,7 +80,7 @@ final actor Mic: NSObject {
         addedTap = false
     }
 
-    nonisolated private func voiceFilter(_ buffer: UnsafeMutablePointer<Float>, len: Int) -> [Float] {
+    private nonisolated func voiceFilter(_ buffer: UnsafeMutablePointer<Float>, len: Int) -> [Float] {
         // b0 b1 b2 a1 a2
         var r = vDSP.Biquad(coefficients: [1, -1.8769581297076159, 0.8827620567886247, -1.8798600932481204, 0.9399300466240602],
                             channelCount: 1,
@@ -203,12 +203,12 @@ final actor Mic: NSObject {
                 newBuffer.removeFirst(1000)
             }
             #if os(macOS)
-            let startDiff: Float = 6
+                let startDiff: Float = 6
             #else
-            let startDiff: Float = 10
+                let startDiff: Float = 10
             #endif
             let diff = max(0, energy - reference)
-            log("Scanning for spike over \(startDiff.rounded()): \((diff).rounded()) - slow level: \(energy.rounded()) - ref: \(reference.rounded())")
+            log("Scanning for spike over \(startDiff.rounded()): \(diff.rounded()) - slow level: \(energy.rounded()) - ref: \(reference.rounded())")
             if diff > startDiff {
                 voiceLevel = (reference * 0.7) + (instantEnergy * 0.3)
                 state = .talking(quietPeriods: 0)

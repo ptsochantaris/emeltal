@@ -66,18 +66,6 @@ import SwiftUI
         }
     }
 
-#elseif canImport(WatchKit)
-
-    struct PushButton: View {
-        var body: some View {
-            Color.clear
-        }
-
-        init(handler _: @escaping (Bool) -> Void) {
-            // TODO:
-        }
-    }
-
 #elseif canImport(UIKit)
 
     struct PushButton: UIViewRepresentable {

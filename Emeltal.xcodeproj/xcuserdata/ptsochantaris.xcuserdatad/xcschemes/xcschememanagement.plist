@@ -14,11 +14,6 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>Emelwatch.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>3</integer>
-		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -28,6 +23,16 @@
 			<true/>
 		</dict>
 		<key>16C58DD92B34701200006CC2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>16F9EEFA2B3D528300AD56CC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>16F9EEFF2B3D528300AD56CC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
