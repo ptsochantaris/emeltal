@@ -110,12 +110,14 @@ final actor Speaker {
 
     func warmup() async throws {
         try await AudioEngineManager.shared.config { engine in
-            effectPlayer.volume = 0.1
             engine.attach(effectPlayer)
             engine.connect(effectPlayer, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
         }
         synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
         log("Speech warmup complete")
+        Task {
+            await effectPlayerLoop()
+        }
     }
 
     func cancelIfNeeded() {
@@ -161,32 +163,54 @@ final actor Speaker {
     }
 
     enum Effect {
+        private static let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
+        private static let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
+
         case startListening, endListening
+
+        var audioFile: AVAudioFile {
+            switch self {
+            case .startListening:
+                try! AVAudioFile(forReading: Self.startCaf)
+
+            case .endListening:
+                try! AVAudioFile(forReading: Self.endCaf)
+            }
+        }
+
+        var preferredVolume: Float {
+            switch self {
+            case .startListening: 0.1
+            case .endListening: 0.4
+            }
+        }
     }
 
-    private let startCaf = Bundle.main.url(forResource: "MicStart", withExtension: "caf")!
-    private let endCaf = Bundle.main.url(forResource: "MicStop", withExtension: "caf")!
+    deinit {
+        effectQueue.continuation.finish()
+    }
 
-    func playEffect(_ effect: Effect) async {
-        if muted { return }
+    private let effectQueue = AsyncStream.makeStream(of: Effect.self, bufferingPolicy: .unbounded)
 
-        let sound: AVAudioFile = switch effect {
-        case .startListening:
-            try! AVAudioFile(forReading: startCaf)
+    func play(effect: Effect) {
+        effectQueue.continuation.yield(effect)
+    }
 
-        case .endListening:
-            try! AVAudioFile(forReading: endCaf)
-        }
+    private func effectPlayerLoop() async {
+        for await effect in effectQueue.stream {
+            if muted { continue }
 
-        try? await AudioEngineManager.shared.willUseEngine()
-        let t = Task {
+            try? await AudioEngineManager.shared.willUseEngine()
+            let sound = effect.audioFile
+            effectPlayer.volume = effect.preferredVolume
+            effectPlayer.play()
+            let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
             await effectPlayer.scheduleFile(sound, at: nil)
+            // log("Playing effect \(effect); duration: \(msec) ms; volume: \(effectPlayer.volume)")
+            try? await Task.sleep(nanoseconds: (msec + 100) * NSEC_PER_MSEC)
+            // log("Stopping player")
+            effectPlayer.stop()
             await AudioEngineManager.shared.doneUsingEngine()
         }
-        effectPlayer.play()
-        let msec = sound.processingFormat.sampleRate * 1000 / Double(sound.length)
-        try? await Task.sleep(nanoseconds: UInt64(msec + 100) * NSEC_PER_MSEC)
-        effectPlayer.stop()
-        await t.value
     }
 }

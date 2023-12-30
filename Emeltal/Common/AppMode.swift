@@ -152,11 +152,11 @@ enum AppMode: Equatable {
         switch self {
         case .listening:
             Task {
-                await speaker.playEffect(.startListening)
+                await speaker.play(effect: .startListening)
             }
         case .noting:
             Task {
-                await speaker.playEffect(.endListening)
+                await speaker.play(effect: .endListening)
             }
         case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
             break

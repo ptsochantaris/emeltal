@@ -1,3 +1,4 @@
+import Accelerate
 import AVFoundation
 import Combine
 import Foundation
@@ -89,6 +90,13 @@ final actor Mic: NSObject {
         tapState = .none
     }
 
+    private static var voiceFilter = vDSP.Biquad(
+        coefficients: [0.7781271848311052, -1.5562543696622104, 0.7781271848311052, -1.494679407120035, 0.6178293322043856],
+        channelCount: 1,
+        sectionCount: 1,
+        ofType: Float.self
+    )!
+
     private func addTap(useVoiceDetection: Bool) throws {
         switch tapState {
         case .none:
@@ -128,10 +136,10 @@ final actor Mic: NSObject {
                     currentMicLevel = lastMicLevel * 0.4 + power * 0.6
                     let currentLevelRoc = abs(currentMicLevel - lastMicLevel)
                     if voiceDetected {
-                        if currentLevelRoc < 0.1 {
+                        if currentLevelRoc < 0.08 {
                             voiceDetected = false
                         }
-                    } else if currentLevelRoc > 70 {
+                    } else if currentLevelRoc > 80 {
                         voiceDetected = true
                     }
                     // print(currentMicLevel, abs(currentLevelRoc))
@@ -153,10 +161,14 @@ final actor Mic: NSObject {
             assert(status != .error)
 
             let numSamples = Int(convertedBuffer.frameLength)
+            var buffer = UnsafeMutableBufferPointer(start: convertedBuffer.floatChannelData![0], count: numSamples)
+            Self.voiceFilter.apply(input: buffer, output: &buffer)
+
             let segment = [Float](unsafeUninitializedCapacity: numSamples) { buffer, initializedCount in
                 memcpy(buffer.baseAddress, convertedBuffer.floatChannelData![0], numSamples * MemoryLayout<Float>.size)
                 initializedCount = numSamples
             }
+
             Task { [voiceDetected] in
                 await self.append(segment: segment, voiceDetected: voiceDetected)
             }
