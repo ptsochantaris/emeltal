@@ -69,6 +69,7 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     func reset() async throws {
+        await llamaContext?.cancelIfNeeded()
         messageLog = ""
         await llamaContext?.reset()
         try await save()
@@ -365,6 +366,8 @@ final class AppState: Identifiable, ModeProvider {
             await speaker?.cancelIfNeeded()
             if case .waiting = mode {
                 await startMic()
+            } else {
+                await llamaContext?.cancelIfNeeded()
             }
         }
     }
@@ -378,7 +381,7 @@ final class AppState: Identifiable, ModeProvider {
         messageLog += "\n#### \(sanitisedText)\n"
 
         let index = await max(0, llamaContext.turnCount - 1)
-        let stream = llamaContext.process(text: sanitisedText, template: template, turnIndex: index)
+        let stream = await llamaContext.process(text: sanitisedText, template: template, turnIndex: index)
 
         var sentenceBuffer = ""
         var inQuote = false

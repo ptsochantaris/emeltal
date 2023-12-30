@@ -122,13 +122,21 @@ final actor LlamaContext {
         llama_backend_free()
     }
 
-    nonisolated func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<String> {
+    private var predictionRunning = false
+
+    func cancelIfNeeded() {
+        predictionRunning = false
+    }
+
+    func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<String> {
+        predictionRunning = true
         let promptText = template.text(for: .turn(text: text, index: turnIndex))
         log("Prompt: \(promptText)\n")
 
         return AsyncStream<String> { continuation in
             Task {
-                await process(initialText: promptText, to: continuation)
+                await process(initialText: promptText, to: continuation, template: template)
+                predictionRunning = false
             }
         }
     }
@@ -229,9 +237,10 @@ final actor LlamaContext {
     }
 
     private func tokenize(text: String) -> [llama_token] {
-        let maxTokens = text.utf8.count
-        var newTokens = [llama_token](repeating: 0, count: maxTokens)
-        let tokenisedCount = llama_tokenize(model, text, Int32(maxTokens), &newTokens, Int32(maxTokens), false, true)
+        let textLen = Int32(text.utf8.count)
+        let maxTokens = max(128, textLen)
+        var newTokens = [llama_token](repeating: 0, count: Int(maxTokens))
+        let tokenisedCount = llama_tokenize(model, text, textLen, &newTokens, maxTokens, false, true)
         let newTokenLimit = Int(min(manager.asset.category.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
     }
@@ -240,7 +249,7 @@ final actor LlamaContext {
         turns.count
     }
 
-    private func process(initialText: String, to continuation: AsyncStream<String>.Continuation) {
+    private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let newTokens = tokenize(text: initialText)
 
         ensureCacheSpace(toFit: newTokens.count)
@@ -250,7 +259,7 @@ final actor LlamaContext {
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 
-        while allTokensCount <= n_ctx {
+        while allTokensCount <= n_ctx, predictionRunning {
             if logits == nil {
                 fatalError()
             }
@@ -284,9 +293,18 @@ final actor LlamaContext {
             } else {
                 log("Warning, wordbuffer was invalid - token ID was \(new_token_id)")
             }
+
+            await Task.yield()
         }
 
         log("Turn was \(currentTurn.length) tokens long")
+
+        if !predictionRunning {
+            log("Prediction was cancelled, ensuring prediction text is capped gracefully")
+            let newTokens = tokenize(text: template.text(for: .cancel))
+            ensureCacheSpace(toFit: newTokens.count)
+            _ = currentTurn.append(tokens: newTokens, in: context, andPredict: false, offset: allTokensCount)
+        }
 
         continuation.finish()
     }

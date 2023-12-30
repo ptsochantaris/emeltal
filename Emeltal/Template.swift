@@ -2,7 +2,7 @@ import Foundation
 
 struct Template {
     enum Step {
-        case initial, turn(text: String, index: Int)
+        case initial, turn(text: String, index: Int), cancel
     }
 
     enum Format {
@@ -39,6 +39,8 @@ struct Template {
             }
         case let .turn(text, _):
             "\(prefix)\(text)\(suffix)"
+        case .cancel:
+            suffix
         }
     }
 
@@ -54,6 +56,8 @@ struct Template {
                 "<|im_start|>system\n"
             case .turn:
                 "\n<|im_start|>user\n"
+            case .cancel:
+                ""
             }
         case .instruct:
             switch step {
@@ -61,6 +65,8 @@ struct Template {
                 ""
             case .turn:
                 "\n\n### Instruction:\n\n"
+            case .cancel:
+                ""
             }
         case .llamaInst:
             switch step {
@@ -68,6 +74,8 @@ struct Template {
                 " [INST] <<SYS>>\n"
             case let .turn(_, index):
                 index == 0 ? "" : "<s> [INST] "
+            case .cancel:
+                ""
             }
         case .userAssistant:
             switch step {
@@ -75,6 +83,8 @@ struct Template {
                 " ### System:\n"
             case .turn:
                 "<s> ### User:\n"
+            case .cancel:
+                ""
             }
         }
     }
@@ -87,6 +97,8 @@ struct Template {
                 "</s>\n\n"
             case .turn:
                 "\n\n### Assistant:\n"
+            case .cancel:
+                "\n\n"
             }
         case .chatml:
             switch step {
@@ -94,6 +106,8 @@ struct Template {
                 "<|im_end|>"
             case .turn:
                 "<|im_end|>\n<|im_start|>assistant\n"
+            case .cancel:
+                "<|im_end|>"
             }
         case .llamaInst:
             switch step {
@@ -101,6 +115,8 @@ struct Template {
                 "\n<</SYS>>\n"
             case .turn:
                 " [/INST] "
+            case .cancel:
+                "\n"
             }
         case .instruct:
             switch step {
@@ -108,6 +124,8 @@ struct Template {
                 ""
             case .turn:
                 "\n\n### Response:\n\n"
+            case .cancel:
+                "\n\n"
             }
         }
     }
