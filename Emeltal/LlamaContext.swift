@@ -122,23 +122,25 @@ final actor LlamaContext {
         llama_backend_free()
     }
 
-    private var predictionRunning = false
+    private var predictionTask: Task<Void, Never>?
 
-    func cancelIfNeeded() {
-        predictionRunning = false
+    func cancelIfNeeded() async {
+        if let predictionTask {
+            predictionTask.cancel()
+            await predictionTask.value
+        }
     }
 
     func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<String> {
-        predictionRunning = true
         let promptText = template.text(for: .turn(text: text, index: turnIndex))
         log("Prompt: \(promptText)\n")
 
-        return AsyncStream<String> { continuation in
-            Task {
-                await process(initialText: promptText, to: continuation, template: template)
-                predictionRunning = false
-            }
+        let prediction = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
+        predictionTask = Task {
+            await process(initialText: promptText, to: prediction.continuation, template: template)
+            predictionTask = nil
         }
+        return prediction.stream
     }
 
     private final class Turn: Codable {
@@ -259,7 +261,7 @@ final actor LlamaContext {
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 
-        while allTokensCount <= n_ctx, predictionRunning {
+        while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
             }
@@ -299,7 +301,7 @@ final actor LlamaContext {
 
         log("Turn was \(currentTurn.length) tokens long")
 
-        if !predictionRunning {
+        if Task.isCancelled {
             log("Prediction was cancelled, ensuring prediction text is capped gracefully")
             let newTokens = tokenize(text: template.text(for: .cancel))
             ensureCacheSpace(toFit: newTokens.count)

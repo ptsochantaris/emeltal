@@ -68,12 +68,17 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
+    private var resetting = false
+
     func reset() async throws {
+        resetting = true
         await llamaContext?.cancelIfNeeded()
-        messageLog = ""
+        await speaker?.cancelIfNeeded()
         await llamaContext?.reset()
+        messageLog = ""
         try await save()
         try await chatInit()
+        resetting = false
     }
 
     let asset: Asset
@@ -409,33 +414,35 @@ final class AppState: Identifiable, ModeProvider {
 
             messageLog += fragment // .replacingOccurrences(of: "\n", with: "<br>")
             sentenceBuffer += fragment
-            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\ /#).first {
+            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, !resetting {
                 let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
                 await handleText(sentence, inQuote: inQuote)
                 sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
             }
         }
 
-        if !sentenceBuffer.isEmpty {
-            await handleText(sentenceBuffer, inQuote: inQuote)
-        }
-        messageLog += "\n"
+        if !resetting {
+            if !sentenceBuffer.isEmpty {
+                await handleText(sentenceBuffer, inQuote: inQuote)
+            }
+            messageLog += "\n"
 
-        try? await save()
-        await speaker?.waitForCompletion()
-        shouldWaitOrListen()
+            try? await save()
+            await speaker?.waitForCompletion()
+            shouldWaitOrListen()
+        }
     }
 
     private func handleText(_ text: String, inQuote: Bool) async {
-        let spoken = text.replacingOccurrences(of: "...", with: "…")
+        let finalText = text.replacingOccurrences(of: "...", with: "…").trimmingCharacters(in: .whitespacesAndNewlines)
+        log("Handling generated sentence: \(finalText)")
+
         if !(textOnly || inQuote) {
-            await speaker?.add(text: spoken)
+            await speaker?.add(text: finalText)
         }
 
-        if !inQuote {
-            if let data = spoken.data(using: .utf8) {
-                await remote.send(.generatedSentence, content: data)
-            }
+        if !inQuote, let data = finalText.data(using: .utf8) {
+            await remote.send(.generatedSentence, content: data)
         }
     }
 
