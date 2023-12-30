@@ -36,7 +36,7 @@ final class LinkState: ModeProvider {
                 remoteAppMode.audioFeedback(using: speaker)
                 if remoteAppMode == .waiting, oldValue != .waiting {
                     Task {
-                        await speaker.playEffect(.startListening)
+                        await speaker.play(effect: .startListening)
                     }
                 }
                 Task {
