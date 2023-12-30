@@ -109,15 +109,12 @@ final actor Speaker {
     }
 
     func warmup() async throws {
-        try await AudioEngineManager.shared.config { engine in
-            engine.attach(effectPlayer)
-            engine.connect(effectPlayer, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
+        Task {
+            try await effectPlayerLoop()
         }
+        log("Sound effect loop running")
         synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
         log("Speech warmup complete")
-        Task {
-            await effectPlayerLoop()
-        }
     }
 
     func cancelIfNeeded() {
@@ -196,21 +193,27 @@ final actor Speaker {
         effectQueue.continuation.yield(effect)
     }
 
-    private func effectPlayerLoop() async {
+    private func effectPlayerLoop() async throws {
+        let manager = AudioEngineManager.shared
         for await effect in effectQueue.stream {
             if muted { continue }
 
-            try? await AudioEngineManager.shared.willUseEngine()
+            try? await manager.willUseEngine()
+
             let sound = effect.audioFile
+            let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
+
+            let effectPlayer = await manager.getEffectPlayer()
             effectPlayer.volume = effect.preferredVolume
             effectPlayer.play()
-            let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
             await effectPlayer.scheduleFile(sound, at: nil)
+
             // log("Playing effect \(effect); duration: \(msec) ms; volume: \(effectPlayer.volume)")
             try? await Task.sleep(nanoseconds: (msec + 100) * NSEC_PER_MSEC)
             // log("Stopping player")
+
             effectPlayer.stop()
-            await AudioEngineManager.shared.doneUsingEngine()
+            await manager.doneUsingEngine()
         }
     }
 }

@@ -75,18 +75,23 @@ final actor Mic: NSObject {
     }
 
     private var tapState = TapState.none
-    private var usingEngine = false
-
-    private func removeTap() {
-        switch tapState {
-        case .none:
-            return
-        case .added:
-            break
+    private var engineInUse = false
+    private func isUsingEngine(_ using: Bool) async throws {
+        let oldState = engineInUse
+        engineInUse = using
+        // state updated, can go async from here
+        if !oldState, using {
+            try await AudioEngineManager.shared.willUseEngine()
+        } else if oldState, !using {
+            await AudioEngineManager.shared.doneUsingEngine()
         }
+    }
 
-        let audioEngine = AudioEngineManager.shared.engine
-        audioEngine.inputNode.removeTap(onBus: 0)
+    private func removeTap() async {
+        guard case .added = tapState else {
+            return
+        }
+        await AudioEngineManager.shared.getEngine().inputNode.removeTap(onBus: 0)
         tapState = .none
     }
 
@@ -97,7 +102,7 @@ final actor Mic: NSObject {
         ofType: Float.self
     )!
 
-    private func addTap(useVoiceDetection: Bool) throws {
+    private func addTap(useVoiceDetection: Bool) async throws {
         switch tapState {
         case .none:
             break
@@ -106,7 +111,7 @@ final actor Mic: NSObject {
             if useVoiceDetection == usingVoiceDetection {
                 return
             }
-            removeTap()
+            await removeTap()
         }
 
         tapState = .added(usingVoiceDetection: useVoiceDetection)
@@ -117,17 +122,15 @@ final actor Mic: NSObject {
         var lastMicLevel: Float?
         var voiceDetected = !useVoiceDetection
 
-        let audioEngine = AudioEngineManager.shared.engine
+        let audioEngine = await AudioEngineManager.shared.getEngine()
         let input = audioEngine.inputNode
 
-        let inputFormat = input.inputFormat(forBus: 0)
-        let incomingSampleRate = AVAudioFrameCount(inputFormat.sampleRate)
         let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(Self.SampleRate), channels: 1, interleaved: true)!
         let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
 
-        let converter = AVAudioConverter(from: inputFormat, to: outputFormat)!
+        var cachedConverter: AVAudioConverter?
 
-        input.installTap(onBus: 0, bufferSize: bufferSize, format: inputFormat) { [weak self] incomingBuffer, _ in
+        input.installTap(onBus: 0, bufferSize: bufferSize, format: nil) { [weak self] incomingBuffer, _ in
             guard let self else { return }
 
             if useVoiceDetection {
@@ -149,16 +152,26 @@ final actor Mic: NSObject {
                 lastMicLevel = currentMicLevel
             }
 
-            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * bufferSize / incomingSampleRate)!
+            let inputFormat = incomingBuffer.format
+            let converter: AVAudioConverter
+            let sampleRate = inputFormat.sampleRate
+            if let c = cachedConverter, c.inputFormat.sampleRate == sampleRate {
+                converter = c
+            } else {
+                log("Creating a sample rate converter for incoming mic")
+                converter = AVAudioConverter(from: inputFormat, to: outputFormat)!
+                cachedConverter = converter
+            }
 
             var error: NSError?
             var reported = AVAudioConverterInputStatus.haveData
-            let status = converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
+            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * bufferSize / AVAudioFrameCount(sampleRate))!
+            converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
                 outStatus.pointee = reported
                 reported = .noDataNow
                 return incomingBuffer
             }
-            assert(status != .error)
+            assert(error == nil)
 
             let numSamples = Int(convertedBuffer.frameLength)
             var buffer = UnsafeMutableBufferPointer(start: convertedBuffer.floatChannelData![0], count: numSamples)
@@ -200,11 +213,8 @@ final actor Mic: NSObject {
             return
         }
 
-        try addTap(useVoiceDetection: detectVoice)
-        if !usingEngine {
-            usingEngine = true
-            try await AudioEngineManager.shared.willUseEngine()
-        }
+        try await isUsingEngine(true)
+        try await addTap(useVoiceDetection: detectVoice)
         log("Mic running")
     }
 
@@ -261,15 +271,12 @@ final actor Mic: NSObject {
             break
         }
 
-        removeTap()
+        await removeTap()
         if temporary {
             runState = .paused
         } else {
-            if usingEngine {
-                usingEngine = false
-                await AudioEngineManager.shared.doneUsingEngine()
-            }
             runState = .stopped
+            try await isUsingEngine(false)
         }
 
         let ret = buffer

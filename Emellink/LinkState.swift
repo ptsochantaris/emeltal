@@ -32,20 +32,20 @@ final class LinkState: ModeProvider {
     var remoteAppMode = AppMode.booting {
         didSet {
             if oldValue != remoteAppMode {
-                log("New remote state: \(remoteAppMode)")
-                remoteAppMode.audioFeedback(using: speaker)
-                if remoteAppMode == .waiting, oldValue != .waiting {
-                    Task {
-                        await speaker.play(effect: .startListening)
-                    }
-                }
                 Task {
+                    log("New remote state: \(remoteAppMode)")
                     if case .listening = remoteAppMode {
                         await self.startMic()
                     } else if case .waiting = remoteAppMode, case .listening = oldValue {
                         await self.endMic(sendData: false)
                     } else if case .booting = remoteAppMode {
                         await endMic(sendData: false)
+                    }
+                    remoteAppMode.audioFeedback(using: speaker)
+                    if remoteAppMode == .waiting, oldValue != .waiting {
+                        Task {
+                            await speaker.play(effect: .startListening)
+                        }
                     }
                 }
             }
