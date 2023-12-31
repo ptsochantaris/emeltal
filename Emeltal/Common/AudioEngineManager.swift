@@ -28,7 +28,7 @@ final actor AudioEngineManager {
     func willUseEngine() throws {
         engineShutdown.abort()
         if engine.isRunning {
-            log("Audio engine already running")
+            // log("Audio engine already running")
         } else {
             log("Starting audio engine")
             try engine.start()
@@ -43,7 +43,7 @@ final actor AudioEngineManager {
             engine.stop()
             engine.prepare()
         } else {
-            log("Audio engine already paused")
+            // log("Audio engine already paused")
         }
     }
 
@@ -53,7 +53,7 @@ final actor AudioEngineManager {
         if count == 0 {
             engineShutdown.push()
         } else {
-            log("Audio engine still in use, will keep running")
+            // log("Audio engine still in use, will keep running")
         }
     }
 }

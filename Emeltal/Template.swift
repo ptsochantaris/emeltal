@@ -6,11 +6,11 @@ struct Template {
     }
 
     enum Format {
-        case instruct, chatml, userAssistant, llamaInst
+        case alpaca, chatml, llama
 
         var allowsSystemPrompt: Bool {
             switch self {
-            case .chatml, .instruct, .llamaInst, .userAssistant: true
+            case .alpaca, .chatml, .llama: true
             }
         }
     }
@@ -59,7 +59,7 @@ struct Template {
             case .cancel:
                 ""
             }
-        case .instruct:
+        case .alpaca:
             switch step {
             case .initial:
                 ""
@@ -68,7 +68,7 @@ struct Template {
             case .cancel:
                 ""
             }
-        case .llamaInst:
+        case .llama:
             switch step {
             case .initial:
                 " [INST] <<SYS>>\n"
@@ -77,29 +77,11 @@ struct Template {
             case .cancel:
                 ""
             }
-        case .userAssistant:
-            switch step {
-            case .initial:
-                " ### System:\n"
-            case .turn:
-                "<s> ### User:\n"
-            case .cancel:
-                ""
-            }
         }
     }
 
     private func suffix(for step: Step) -> String {
         switch format {
-        case .userAssistant:
-            switch step {
-            case .initial:
-                "</s>\n\n"
-            case .turn:
-                "\n\n### Assistant:\n"
-            case .cancel:
-                "\n\n"
-            }
         case .chatml:
             switch step {
             case .initial:
@@ -109,7 +91,7 @@ struct Template {
             case .cancel:
                 "<|im_end|>"
             }
-        case .llamaInst:
+        case .llama:
             switch step {
             case .initial:
                 "\n<</SYS>>\n"
@@ -118,7 +100,7 @@ struct Template {
             case .cancel:
                 "\n"
             }
-        case .instruct:
+        case .alpaca:
             switch step {
             case .initial:
                 ""

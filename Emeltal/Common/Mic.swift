@@ -145,7 +145,7 @@ final actor Mic: NSObject {
                     } else if currentLevelRoc > 80 {
                         voiceDetected = true
                     }
-                    // print(currentMicLevel, abs(currentLevelRoc))
+                    print(currentMicLevel, abs(currentLevelRoc))
                 } else {
                     currentMicLevel = power
                 }

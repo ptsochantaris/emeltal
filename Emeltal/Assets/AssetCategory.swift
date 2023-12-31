@@ -7,12 +7,12 @@ extension Asset {
 
         var format: Template.Format {
             switch self {
-            case .shiningValiant: .llamaInst
-            case .deepSeekCoder: .instruct
+            case .shiningValiant: .llama
+            case .deepSeekCoder: .alpaca
             case .dolphinMixtral: .chatml
-            case .mythoMax: .instruct
-            case .solar: .instruct
-            case .whisper: .instruct
+            case .mythoMax: .alpaca
+            case .solar: .alpaca
+            case .whisper: .alpaca
             case .dolphinPhi2: .chatml
             }
         }
