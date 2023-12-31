@@ -62,7 +62,6 @@ final actor Mic: NSObject {
     let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
 
     private var buffer = [Float]()
-    static let SampleRate = 16000
 
     func warmup() async {
         try? await start(detectVoice: false)
@@ -95,6 +94,11 @@ final actor Mic: NSObject {
         tapState = .none
     }
 
+    private static let transcriptionSampleRate = 16000
+    private static let micBufferSize: UInt32 = 4096
+    private static let fft = FFT(bufferSize: Int(micBufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: transcriptionSampleRate)
+    private static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(transcriptionSampleRate), channels: 1, interleaved: true)!
+    private static let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
     private static var voiceFilter = vDSP.Biquad(
         coefficients: [0.7781271848311052, -1.5562543696622104, 0.7781271848311052, -1.494679407120035, 0.6178293322043856],
         channelCount: 1,
@@ -116,25 +120,27 @@ final actor Mic: NSObject {
 
         tapState = .added(usingVoiceDetection: useVoiceDetection)
 
-        let bufferSize: UInt32 = 4096
-        let fft = FFT(bufferSize: Int(bufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: Self.SampleRate)
+        let input = await AudioEngineManager.shared.getEngine().inputNode
+        let inputFormat = input.outputFormat(forBus: 0)
+        let sampleRate = AVAudioFrameCount(inputFormat.sampleRate)
+
+        let converter = AVAudioConverter(from: inputFormat, to: Self.outputFormat)!
+
+        let convertedBufferFrames = Int(Self.outputFrames * Self.micBufferSize / sampleRate)
+        let convertedBufferBytes = convertedBufferFrames * MemoryLayout<Float>.size
+        let convertedBuffer = AVAudioPCMBuffer(pcmFormat: Self.outputFormat, frameCapacity: AVAudioFrameCount(convertedBufferFrames))!
         var currentMicLevel: Float = 0
         var lastMicLevel: Float?
         var voiceDetected = !useVoiceDetection
 
-        let audioEngine = await AudioEngineManager.shared.getEngine()
-        let input = audioEngine.inputNode
+        let audioPointer = convertedBuffer.floatChannelData![0]
+        var audioProcessingBuffer = UnsafeMutableBufferPointer(start: audioPointer, count: convertedBufferFrames)
 
-        let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(Self.SampleRate), channels: 1, interleaved: true)!
-        let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
-
-        var cachedConverter: AVAudioConverter?
-
-        input.installTap(onBus: 0, bufferSize: bufferSize, format: nil) { [weak self] incomingBuffer, _ in
+        input.installTap(onBus: 0, bufferSize: Self.micBufferSize, format: inputFormat) { [weak self] incomingBuffer, _ in
             guard let self else { return }
 
             if useVoiceDetection {
-                let power = fft.fftForwardSingleBandMagnitude(incomingBuffer.floatChannelData![0])
+                let power = Self.fft.fftForwardSingleBandMagnitude(incomingBuffer.floatChannelData![0])
                 if let lastMicLevel {
                     currentMicLevel = lastMicLevel * 0.4 + power * 0.6
                     let currentLevelRoc = abs(currentMicLevel - lastMicLevel)
@@ -152,34 +158,20 @@ final actor Mic: NSObject {
                 lastMicLevel = currentMicLevel
             }
 
-            let inputFormat = incomingBuffer.format
-            let converter: AVAudioConverter
-            let sampleRate = inputFormat.sampleRate
-            if let c = cachedConverter, c.inputFormat.sampleRate == sampleRate {
-                converter = c
-            } else {
-                log("Creating a sample rate converter for incoming mic")
-                converter = AVAudioConverter(from: inputFormat, to: outputFormat)!
-                cachedConverter = converter
-            }
-
             var error: NSError?
             var reported = AVAudioConverterInputStatus.haveData
-            let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: outputFrames * bufferSize / AVAudioFrameCount(sampleRate))!
             converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
                 outStatus.pointee = reported
                 reported = .noDataNow
                 return incomingBuffer
             }
-            assert(error == nil)
+            if error != nil { return }
 
-            let numSamples = Int(convertedBuffer.frameLength)
-            var buffer = UnsafeMutableBufferPointer(start: convertedBuffer.floatChannelData![0], count: numSamples)
-            Self.voiceFilter.apply(input: buffer, output: &buffer)
+            Self.voiceFilter.apply(input: audioProcessingBuffer, output: &audioProcessingBuffer)
 
-            let segment = [Float](unsafeUninitializedCapacity: numSamples) { buffer, initializedCount in
-                memcpy(buffer.baseAddress, convertedBuffer.floatChannelData![0], numSamples * MemoryLayout<Float>.size)
-                initializedCount = numSamples
+            let segment = [Float](unsafeUninitializedCapacity: convertedBufferFrames) { buffer, initializedCount in
+                memcpy(buffer.baseAddress, audioPointer, convertedBufferBytes)
+                initializedCount = convertedBufferFrames
             }
 
             Task { [voiceDetected] in
@@ -233,7 +225,7 @@ final actor Mic: NSObject {
         switch state {
         case let .quiet(prefixBuffer):
             var newBuffer = prefixBuffer + segment
-            if newBuffer.count > Self.SampleRate {
+            if newBuffer.count > Self.transcriptionSampleRate {
                 newBuffer.removeFirst(1000)
             }
             if voiceDetected {

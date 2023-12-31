@@ -19,6 +19,11 @@ final actor AudioEngineManager {
     init() {
         engine.attach(effectPlayer)
         engine.connect(effectPlayer, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
+
+        // Hack: Add and remove tap to enable mic input
+        engine.inputNode.installTap(onBus: 0, bufferSize: 4096, format: nil) { _, _ in }
+        engine.inputNode.removeTap(onBus: 0)
+
         engine.prepare()
         log("Audio engine instantiated")
     }

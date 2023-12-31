@@ -199,6 +199,10 @@ final actor Speaker {
             if muted { continue }
 
             try? await manager.willUseEngine()
+            guard await manager.getEngine().isRunning else {
+                // weird
+                continue
+            }
 
             let sound = effect.audioFile
             let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
