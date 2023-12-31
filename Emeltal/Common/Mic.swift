@@ -11,15 +11,15 @@ final actor Mic: NSObject {
                 if case .quiet = rhs {
                     return true
                 }
-            case .talking:
-                if case .talking = rhs {
-                    return true
+            case let .talking(voiceDetectedL, _):
+                if case let .talking(voiceDetectedR, _) = rhs {
+                    return voiceDetectedL == voiceDetectedR
                 }
             }
             return false
         }
 
-        case quiet(prefixBuffer: [Float]), talking(quietPeriods: Int)
+        case quiet(prefixBuffer: [Float]), talking(voiceDetected: Bool, quietCount: Int)
 
         var isQuiet: Bool {
             if case .quiet = self {
@@ -39,20 +39,22 @@ final actor Mic: NSObject {
 
                 case .talking:
                     log("Starting to listen")
-                    statePublisher.send(.talking(quietPeriods: 0))
+                    statePublisher.send(state)
                 }
 
-            case let .talking(quietPeriods1):
+            case let .talking(voiceDetectedCurrent, _):
                 switch state {
                 case .quiet:
                     log("Finished speaking")
                     statePublisher.send(.quiet(prefixBuffer: []))
 
-                case let .talking(quietPeriods2):
-                    if quietPeriods1 == 0, quietPeriods2 != 0 {
+                case let .talking(voiceDetectedNew, _):
+                    if voiceDetectedCurrent, !voiceDetectedNew {
                         log("Stopped or paused?")
-                    } else if quietPeriods1 != 0, quietPeriods2 == 0 {
+                        statePublisher.send(state)
+                    } else if !voiceDetectedCurrent, voiceDetectedNew {
                         log("Was a pause, still listening")
+                        statePublisher.send(state)
                     }
                 }
             }
@@ -145,13 +147,13 @@ final actor Mic: NSObject {
                     currentMicLevel = lastMicLevel * 0.4 + power * 0.6
                     let currentLevelRoc = abs(currentMicLevel - lastMicLevel)
                     if voiceDetected {
-                        if currentLevelRoc < 0.08 {
+                        if currentLevelRoc < 0.18 {
                             voiceDetected = false
                         }
-                    } else if currentLevelRoc > 80 {
+                    } else if currentLevelRoc > 70 {
                         voiceDetected = true
                     }
-                    print(currentMicLevel, abs(currentLevelRoc))
+                    // print(currentMicLevel, abs(currentLevelRoc))
                 } else {
                     currentMicLevel = power
                 }
@@ -175,7 +177,7 @@ final actor Mic: NSObject {
             }
 
             Task { [voiceDetected] in
-                await self.append(segment: segment, voiceDetected: voiceDetected)
+                await self.append(segment: segment, isVoiceHeard: voiceDetected)
             }
         }
     }
@@ -221,29 +223,28 @@ final actor Mic: NSObject {
         buffer.append(contentsOf: floats)
     }
 
-    private func append(segment: [Float], voiceDetected: Bool) {
+    private func append(segment: [Float], isVoiceHeard: Bool) {
         switch state {
         case let .quiet(prefixBuffer):
             var newBuffer = prefixBuffer + segment
             if newBuffer.count > Self.transcriptionSampleRate {
                 newBuffer.removeFirst(1000)
             }
-            if voiceDetected {
-                state = .talking(quietPeriods: 0)
+            if isVoiceHeard {
+                state = .talking(voiceDetected: true, quietCount: 0)
                 buffer.append(contentsOf: newBuffer)
             } else {
                 state = .quiet(prefixBuffer: newBuffer)
             }
-        case let .talking(quietPeriods):
+        case let .talking(_, currentQuietCount):
             buffer.append(contentsOf: segment)
-            if voiceDetected {
-                state = .talking(quietPeriods: 0)
+            if isVoiceHeard {
+                state = .talking(voiceDetected: true, quietCount: 0)
             } else {
-                let newCount = quietPeriods + 1
-                if newCount > 10 {
+                if currentQuietCount > 19 {
                     state = .quiet(prefixBuffer: [])
                 } else {
-                    state = .talking(quietPeriods: newCount)
+                    state = .talking(voiceDetected: false, quietCount: currentQuietCount + 1)
                 }
             }
         }

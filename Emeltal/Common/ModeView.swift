@@ -31,16 +31,17 @@ struct ModeView: View {
 
             case let .listening(state):
                 switch state {
-                case .talking:
+                case let .talking(voiceDetected, _):
                     Image(systemName: "waveform.circle")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .symbolEffect(.variableColor.iterative)
+                        .opacity(voiceDetected ? 1.0 : 0.6)
                 case .quiet:
                     Image(systemName: "waveform.circle")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .opacity(0.8)
+                        .opacity(0.4)
                 }
 
             case .thinking:

@@ -90,8 +90,10 @@ enum AppMode: Equatable {
             self = .booting
         case 2:
             switch secondary {
+            case 0:
+                self = .listening(state: .talking(voiceDetected: false, quietCount: 0))
             case 1:
-                self = .listening(state: .talking(quietPeriods: 0))
+                self = .listening(state: .talking(voiceDetected: true, quietCount: 0))
             case 2:
                 self = .listening(state: .quiet(prefixBuffer: []))
             default:
@@ -125,8 +127,8 @@ enum AppMode: Equatable {
         case let .listening(state):
             data[0] = 2
             switch state {
-            case .talking:
-                data[1] = 1
+            case let .talking(voiceDetected, _):
+                data[1] = voiceDetected ? 1 : 0
             case .quiet:
                 data[1] = 2
             }
