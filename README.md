@@ -11,9 +11,9 @@ This is a work in progress with frequent updates; [TestFlight builds are availab
 |---------|----|----|
 |<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot0.png" alt="Screenshot 0">|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot1.png" alt="Screenshot 1">|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot2.png" alt="Screenshot 2">|
 
-## Emellink
-
 <img src="https://ptsochantaris.github.io/trailer/EmellinkScreenshot.webp" alt="Logo" width=128 align="right">
+
+## Emellink
 
 A light helper app which can run on an iPhone or device with not enough processing power, which automatically detects and connects to Emeltal on the network and provides the same voice interface. [Testflight link for this app is here](https://testflight.apple.com/join/s0EYVO5P)
 
