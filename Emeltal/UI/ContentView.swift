@@ -31,7 +31,7 @@ struct ContentView: View {
                         }
 
                         if state.shouldPromptForIdealVoice {
-                            IdealVoicePrompt(state: state)
+                            IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
                         }
 
                         ScrollViewReader { proxy in

@@ -14,6 +14,8 @@ final class LinkState: ModeProvider {
     private let speaker = try! Speaker()
     private let mic = Mic()
 
+    var shouldPromptForIdealVoice = false
+
     var connectionState = EmeltalConnector.State.boot
     private var connectionStateObservation: Cancellable!
 
@@ -75,6 +77,8 @@ final class LinkState: ModeProvider {
             try? av.setActive(true)
             await AVAudioApplication.requestRecordPermission()
         #endif
+
+        shouldPromptForIdealVoice = await !speaker.havePreferredVoice
 
         setupMicObservation()
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    let state: LinkState
+    @Bindable var state: LinkState
 
     var body: some View {
         VStack {
@@ -38,6 +38,13 @@ struct ContentView: View {
 
             if mode.showGenie {
                 Genie(show: mode.showGenie)
+
+            } else if state.shouldPromptForIdealVoice {
+                ZStack {
+                    IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
+                }
+                .frame(maxHeight: .infinity)
+
             } else {
                 Spacer()
                     .frame(maxHeight: .infinity)

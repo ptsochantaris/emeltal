@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 struct IdealVoicePrompt: View {
-    let state: AppState
+    @Binding var shouldPromptForIdealVoice: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -13,7 +13,7 @@ struct IdealVoicePrompt: View {
 
                 Button {
                     withAnimation {
-                        state.shouldPromptForIdealVoice = false
+                        shouldPromptForIdealVoice = false
                     }
                 } label: {
                     Image(systemName: "xmark")
@@ -21,10 +21,17 @@ struct IdealVoicePrompt: View {
                 }
             }
 
-            Image(.voiceInstall)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .padding(6)
+            #if os(macOS)
+                Image(.voiceInstall)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(6)
+            #else
+                Image(.voiceInstall!)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(6)
+            #endif
         }
         .font(.body)
         .buttonStyle(.borderless)
