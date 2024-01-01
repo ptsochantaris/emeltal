@@ -36,7 +36,7 @@ final actor WhisperContext {
 
     private let params: whisper_full_params = {
         var params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY)
-        params.n_threads = Int32(performanceCpuCount)
+        params.n_threads = 1
         params.print_timestamps = false
         params.print_realtime = false
         params.print_progress = false
@@ -45,17 +45,16 @@ final actor WhisperContext {
         params.no_context = true
         params.suppress_blank = true
         params.suppress_non_speech_tokens = true
-        params.translate = false
         params.language = enCString
         params.single_segment = true
-        params.offset_ms = 0
+        params.temperature = 0.4
         return params
     }()
 
     func transcribe(samples: [Float]) -> String {
         samples.withUnsafeBufferPointer { floats in
-            log("About to run whisper_full")
-            whisper_reset_timings(context)
+            log("Transcribing audio")
+            // whisper_reset_timings(context)
             if whisper_full(context, params, floats.baseAddress, Int32(floats.count)) < 0 {
                 fatalError("Failed to run the whisper model")
             } else {

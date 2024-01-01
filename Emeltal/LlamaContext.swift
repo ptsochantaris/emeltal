@@ -66,11 +66,13 @@ final actor LlamaContext {
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
 
+        let threadCounts = useGpu ? 1 : UInt32(performanceCpuCount)
+
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = 0
         ctx_params.n_batch = asset.category.maxBatch
-        ctx_params.n_threads = UInt32(performanceCpuCount)
-        ctx_params.n_threads_batch = UInt32(performanceCpuCount)
+        ctx_params.n_threads = threadCounts
+        ctx_params.n_threads_batch = threadCounts
         ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         ctx_params.logits_all = true
         ctx_params.offload_kqv = true
