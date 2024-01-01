@@ -1,0 +1,16 @@
+{
+  "images" : [
+    {
+      "filename" : "voiceInstallIos.png",
+      "idiom" : "iphone"
+    },
+    {
+      "filename" : "voiceInstallMac.png",
+      "idiom" : "mac"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -30,6 +30,10 @@ struct ContentView: View {
                             }
                         }
 
+                        if state.shouldPromptForIdealVoice {
+                            IdealVoicePrompt(state: state)
+                        }
+
                         ScrollViewReader { proxy in
                             ScrollView {
                                 VStack(spacing: 0) {

@@ -68,6 +68,8 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
+    var shouldPromptForIdealVoice = false
+
     private var resetting = false
 
     func reset() async throws {
@@ -168,8 +170,6 @@ final class AppState: Identifiable, ModeProvider {
         if hasSavedState {
             messageLog = (try? String(contentsOf: textPath)) ?? ""
             messageLog += "\n"
-        } else if let speaker, await !speaker.havePreferredVoice {
-            messageLog = "**The ideal voice for this app is the premium variant of \"Zoe\", which does not seem to be installed on your system. You can install it from your system settings and restart this app for the best experience.**\n\n"
         }
 
         let l = Task.detached { try await LlamaContext(manager: llm) }
@@ -189,7 +189,9 @@ final class AppState: Identifiable, ModeProvider {
         _ = await m.value
 
         statusMessage = "Loading TTS"
-        speaker = try await s.value
+        let sp = try await s.value
+        speaker = sp
+        shouldPromptForIdealVoice = await !sp.havePreferredVoice
 
         statusMessage = "Loading ASR"
         whisperContext = try await w.value
@@ -202,9 +204,8 @@ final class AppState: Identifiable, ModeProvider {
         mode = .warmup
         statusMessage = "Warming Up"
 
-        try await chatInit()
-
         Task {
+            try await chatInit()
             await startServer()
         }
     }
