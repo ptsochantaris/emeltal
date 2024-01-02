@@ -21,17 +21,10 @@ struct IdealVoicePrompt: View {
                 }
             }
 
-            #if os(macOS)
-                Image(.voiceInstall)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding(6)
-            #else
-                Image(.voiceInstall!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding(6)
-            #endif
+            Image(.voiceInstall)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .padding(6)
         }
         .font(.body)
         .buttonStyle(.borderless)

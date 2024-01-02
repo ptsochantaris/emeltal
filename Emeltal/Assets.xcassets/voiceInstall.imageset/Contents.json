@@ -2,7 +2,7 @@
   "images" : [
     {
       "filename" : "voiceInstallIos.png",
-      "idiom" : "iphone"
+      "idiom" : "universal"
     },
     {
       "filename" : "voiceInstallMac.png",

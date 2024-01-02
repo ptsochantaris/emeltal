@@ -43,7 +43,7 @@ struct ContentView: View {
                 ZStack {
                     IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
                 }
-                .frame(maxHeight: .infinity)
+                .frame(maxWidth: 512, maxHeight: .infinity)
 
             } else {
                 Spacer()
