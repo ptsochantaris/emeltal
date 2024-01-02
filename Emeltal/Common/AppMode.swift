@@ -118,6 +118,16 @@ enum AppMode: Equatable {
         }
     }
 
+    var iconImageName: String {
+        switch self {
+        case .booting, .loading, .startup, .warmup: ""
+        case .noting, .waiting: "circle"
+        case .listening: "waveform.circle"
+        case .thinking: "ellipsis.circle"
+        case .replying: "waveform.circle.fill"
+        }
+    }
+
     var data: Data {
         var data = Data(repeating: 0, count: 2)
 

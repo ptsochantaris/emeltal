@@ -15,13 +15,14 @@ struct ModeView: View {
 
     var body: some View {
         ZStack {
-            switch modeProvider.mode {
+            let mode = modeProvider.mode
+            switch mode {
             case .booting, .loading, .startup, .warmup:
                 ProgressView()
                     .colorScheme(.dark)
 
             case .waiting:
-                Image(systemName: "circle")
+                Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
 
@@ -32,26 +33,26 @@ struct ModeView: View {
             case let .listening(state):
                 switch state {
                 case let .talking(voiceDetected, _):
-                    Image(systemName: "waveform.circle")
+                    Image(systemName: mode.iconImageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .symbolEffect(.variableColor.iterative)
                         .opacity(voiceDetected ? 1.0 : 0.6)
                 case .quiet:
-                    Image(systemName: "waveform.circle")
+                    Image(systemName: mode.iconImageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .opacity(0.4)
                 }
 
             case .thinking:
-                Image(systemName: "ellipsis.circle")
+                Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .symbolEffect(.variableColor)
 
             case .noting:
-                Image(systemName: "circle")
+                Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
 
@@ -59,7 +60,7 @@ struct ModeView: View {
                     .colorScheme(.dark)
 
             case .replying:
-                Image(systemName: "waveform.circle.fill")
+                Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .symbolEffect(.variableColor)

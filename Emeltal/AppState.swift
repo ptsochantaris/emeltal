@@ -10,7 +10,13 @@ final class AppState: Identifiable, ModeProvider {
     nonisolated var id: String { asset.id }
 
     var multiLineText = ""
-    var messageLog = ""
+
+    var messageLog = "" {
+        didSet {
+            sendMessageLog(originalCount: oldValue.count, newCount: messageLog.count, value: messageLog)
+        }
+    }
+
     var mode: AppMode = .startup {
         didSet {
             if oldValue != mode {
@@ -140,6 +146,26 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
+    private func sendMessageLog(originalCount: Int, newCount: Int, value: String) {
+        guard originalCount != newCount else { return }
+        Task {
+            if originalCount == 0 || newCount == 0 {
+                if let data = value.data(using: .utf8) {
+                    if data.isEmpty {
+                        await remote.send(.textInitial, content: emptyData)
+                    } else {
+                        await remote.send(.textInitial, content: data)
+                    }
+                }
+            } else if originalCount < newCount {
+                let sliceStart = value.index(value.startIndex, offsetBy: originalCount)
+                if let data = value[sliceStart...].data(using: .utf8) {
+                    await remote.send(.textDiff, content: data)
+                }
+            }
+        }
+    }
+
     func boot() async throws {
         guard mode == .startup else {
             return
@@ -228,12 +254,27 @@ final class AppState: Identifiable, ModeProvider {
         try? await Task.sleep(for: .seconds(1))
         log("Listening for remote connections")
         let stream = await remote.startServer()
+
         for await nibble in stream {
             log("From client: \(nibble)")
 
             switch nibble.payload {
-            case .appActivationState, .appMode, .generatedSentence, .heartbeat, .unknown:
+            case .appActivationState, .appMode, .heartbeat, .spokenSentence, .textDiff, .textInitial, .unknown:
                 break
+
+            case .hello:
+                await remote.send(.appActivationState, content: activationState.data)
+                await remote.send(.appMode, content: mode.data)
+                sendMessageLog(originalCount: 0, newCount: messageLog.count, value: messageLog)
+
+            case .requestReset:
+                try? await reset()
+
+            case .textInput:
+                if let textData = nibble.data, let text = String(data: textData, encoding: .utf8) {
+                    multiLineText = text
+                    send()
+                }
 
             case .recordedSpeech:
                 if let speech = nibble.data {
@@ -443,7 +484,7 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         if !inQuote, let data = finalText.data(using: .utf8) {
-            await remote.send(.generatedSentence, content: data)
+            await remote.send(.spokenSentence, content: data)
         }
     }
 

@@ -1,5 +1,4 @@
 import AVFoundation
-import MarkdownUI
 import SwiftUI
 
 @MainActor
@@ -7,12 +6,6 @@ struct ContentView: View {
     @Bindable var state: AppState
 
     @FocusState private var focusEntryField
-
-    private struct Identifier: Identifiable, Hashable {
-        let id: String
-    }
-
-    private let bottomId = Identifier(id: "bottomId")
 
     var body: some View {
         VStack(spacing: 16) {
@@ -34,21 +27,7 @@ struct ContentView: View {
                             IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
                         }
 
-                        ScrollViewReader { proxy in
-                            ScrollView {
-                                VStack(spacing: 0) {
-                                    Markdown(MarkdownContent(state.messageLog))
-                                        .textSelection(.enabled)
-                                        .markdownTheme(.docC)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                                    Spacer()
-                                        .id(bottomId)
-                                }
-                            }
-                            .onChange(of: state.messageLog) { _, _ in
-                                proxy.scrollTo(bottomId)
-                            }
-                        }
+                        MessageLog(messageLog: $state.messageLog, padding: false)
 
                         TextField("Hold \"↓\" to speak, or enter your message here", text: $state.multiLineText)
                             .textFieldStyle(.roundedBorder)

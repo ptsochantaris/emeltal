@@ -38,6 +38,11 @@
 		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
 		168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56002B331BA8007CADC1 /* AssetParams.swift */; };
 		168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56022B331BCC007CADC1 /* AssetCollection.swift */; };
+		168F57AD2B443063003A1190 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 168F57AC2B443063003A1190 /* MarkdownUI */; };
+		168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
+		168F57B02B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
+		168F57B22B44434F003A1190 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57B12B44434F003A1190 /* SideBar.swift */; };
+		168F57B42B444377003A1190 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57B32B444377003A1190 /* ContentView.swift */; };
 		16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */; };
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
@@ -115,6 +120,9 @@
 		168F55FE2B331B8B007CADC1 /* AssetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCategory.swift; sourceTree = "<group>"; };
 		168F56002B331BA8007CADC1 /* AssetParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetParams.swift; sourceTree = "<group>"; };
 		168F56022B331BCC007CADC1 /* AssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCollection.swift; sourceTree = "<group>"; };
+		168F57AE2B443EC6003A1190 /* MessageLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLog.swift; sourceTree = "<group>"; };
+		168F57B12B44434F003A1190 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
+		168F57B32B444377003A1190 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
@@ -155,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16C58E122B37688D00006CC2 /* PopTimer in Frameworks */,
+				168F57AD2B443063003A1190 /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +266,8 @@
 				16C58DE22B34701300006CC2 /* Emellink.entitlements */,
 				165A71E82B37AC9500810837 /* Launch.storyboard */,
 				16F9EF172B3D55C600AD56CC /* LinkState.swift */,
+				168F57B12B44434F003A1190 /* SideBar.swift */,
+				168F57B32B444377003A1190 /* ContentView.swift */,
 			);
 			path = Emellink;
 			sourceTree = "<group>";
@@ -276,6 +287,7 @@
 				16578A332B18CA820038A680 /* Speaker.swift */,
 				1654854B2B3EE80200DB2B3A /* FFT.swift */,
 				168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */,
+				168F57AE2B443EC6003A1190 /* MessageLog.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -329,6 +341,7 @@
 			name = Emellink;
 			packageProductDependencies = (
 				16C58E112B37688D00006CC2 /* PopTimer */,
+				168F57AC2B443063003A1190 /* MarkdownUI */,
 			);
 			productName = Emelterm;
 			productReference = 16C58DDA2B34701200006CC2 /* Emellink.app */;
@@ -428,6 +441,7 @@
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
+				168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
 				16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */,
@@ -444,11 +458,14 @@
 			files = (
 				168A96A82B42F99500BE67EF /* IdealVoicePrompt.swift in Sources */,
 				16C58DF02B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
+				168F57B22B44434F003A1190 /* SideBar.swift in Sources */,
 				16C58E0C2B36473900006CC2 /* PushButton.swift in Sources */,
 				16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */,
 				16C58E0A2B35D73A00006CC2 /* ModeView.swift in Sources */,
 				16C58DF32B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
+				168F57B42B444377003A1190 /* ContentView.swift in Sources */,
 				16C58E0D2B3655D300006CC2 /* Emeltal.metal in Sources */,
+				168F57B02B443EC6003A1190 /* MessageLog.swift in Sources */,
 				16C58DF92B351B3D00006CC2 /* Speaker.swift in Sources */,
 				16C58DFF2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */,
@@ -816,6 +833,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		1601898C2B1A51860012B315 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+		168F57AC2B443063003A1190 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;

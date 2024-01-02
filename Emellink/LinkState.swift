@@ -13,6 +13,7 @@ final class LinkState: ModeProvider {
     private let remote = EmeltalConnector()
     private let speaker = try! Speaker()
     private let mic = Mic()
+    var messageLog = ""
 
     var shouldPromptForIdealVoice = false
 
@@ -127,6 +128,12 @@ final class LinkState: ModeProvider {
         }
     }
 
+    func requestReset() {
+        Task {
+            await remote.send(.requestReset, content: emptyData)
+        }
+    }
+
     private func startMic() async {
         await speaker.cancelIfNeeded()
         try? await mic.start(detectVoice: remoteActivationState == .voiceActivated)
@@ -206,12 +213,24 @@ final class LinkState: ModeProvider {
                     }
                 }
 
-            case .generatedSentence:
+            case .spokenSentence:
                 if let data = nibble.data, let text = String(data: data, encoding: .utf8) {
                     await speaker.add(text: text)
                 }
 
-            case .buttonDown, .heartbeat, .recordedSpeech, .recordedSpeechDone, .toggleListeningMode:
+            case .textInitial:
+                if let textData = nibble.data, textData.count > 1, let text = String(data: textData, encoding: .utf8) {
+                    messageLog = text
+                } else {
+                    messageLog = ""
+                }
+
+            case .textDiff:
+                if let textData = nibble.data, let text = String(data: textData, encoding: .utf8) {
+                    messageLog += text
+                }
+
+            case .buttonDown, .heartbeat, .hello, .recordedSpeech, .recordedSpeechDone, .requestReset, .textInput, .toggleListeningMode:
                 break
 
             case .unknown:

@@ -14,7 +14,7 @@ final class EmeltalConnector {
     private static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, generatedSentence, appMode, recordedSpeech, recordedSpeechDone, toggleListeningMode, buttonDown, appActivationState, heartbeat
+        case unknown = 0, spokenSentence, appMode, recordedSpeech, recordedSpeechDone, toggleListeningMode, buttonDown, appActivationState, heartbeat, textInitial, textDiff, textInput, hello, requestReset
     }
 
     private lazy var popTimer = PopTimer(timeInterval: 4) { [weak self] in
@@ -163,12 +163,7 @@ final class EmeltalConnector {
 
     private func connectionEstablished(_ connection: NWConnection, continuation: AsyncStream<Nibble>.Continuation) {
         state = .connected(connection)
-        if let cachedActivationData {
-            send(.appActivationState, content: cachedActivationData)
-        }
-        if let cachedAppModeData {
-            send(.appMode, content: cachedAppModeData)
-        }
+        send(.hello, content: emptyData)
         receive(connection: connection, continuation: continuation)
     }
 
@@ -253,19 +248,7 @@ final class EmeltalConnector {
         }
     }
 
-    private var cachedAppModeData: Data?
-
-    private var cachedActivationData: Data?
-
     func send(_ payload: Payload, content: Data?) {
-        if case .appMode = payload {
-            cachedAppModeData = content
-        }
-
-        if case .appActivationState = payload {
-            cachedActivationData = content
-        }
-
         guard case let .connected(nWConnection) = state else {
             return
         }
