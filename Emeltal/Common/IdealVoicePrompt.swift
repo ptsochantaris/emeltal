@@ -17,7 +17,7 @@ struct IdealVoicePrompt: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .padding(6)
+                        .padding(8)
                 }
             }
 

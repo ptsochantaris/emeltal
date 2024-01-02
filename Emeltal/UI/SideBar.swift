@@ -35,6 +35,16 @@ struct SideBar: View {
                     }
             }
 
+            if state.isRemoteConnected {
+                Text("LINKED")
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 8)
+                    .foregroundStyle(.black)
+                    .font(.caption2.bold())
+                    .background(Capsule(style: .continuous).foregroundStyle(.widgetForeground))
+                    .padding(.bottom)
+            }
+
             if state.mode.showGenie {
                 Genie(show: state.mode.showGenie)
                     .padding(.top, -4)
@@ -65,6 +75,11 @@ struct SideBar: View {
                             .stroke(va ? .accent : .widgetForeground, lineWidth: 1)
                     }
                     .padding(1)
+                }
+
+                if state.mode.showAlwaysOn, state.isRemoteConnected {
+                    Spacer()
+                        .frame(height: 12)
                 }
 
                 Color(.clear)

@@ -200,7 +200,6 @@ final class EmeltalConnector {
 
                         case let .failed(error):
                             state = .error(error)
-                            state = .searching
                             _ = startClient()
 
                         @unknown default:

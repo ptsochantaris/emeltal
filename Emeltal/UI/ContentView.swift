@@ -68,9 +68,7 @@ struct ContentView: View {
                     }
                 }
 
-                if !state.isRemoteConnected {
-                    SideBar(state: state, focusEntryField: $focusEntryField)
-                }
+                SideBar(state: state, focusEntryField: $focusEntryField)
             }
         }
         .padding()

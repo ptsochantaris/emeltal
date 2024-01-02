@@ -14,6 +14,7 @@ final class LinkState: ModeProvider {
     private let speaker = try! Speaker()
     private let mic = Mic()
     var messageLog = ""
+    var multiLineText = ""
 
     var shouldPromptForIdealVoice = false
 
@@ -60,6 +61,13 @@ final class LinkState: ModeProvider {
             return
         }
         await remote.invalidate()
+    }
+
+    func send() async {
+        if let textData = multiLineText.data(using: .utf8), !textData.isEmpty {
+            await remote.send(.textInput, content: textData)
+        }
+        multiLineText = ""
     }
 
     private func boot() async {
@@ -178,12 +186,11 @@ final class LinkState: ModeProvider {
 
     private func setupConnectionObservation() {
         connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
+            log("Received a state update: \(newState)")
             guard let self else { return }
             if case .connected = newState {
                 // all good
             } else if case .connected = connectionState {
-                micObservation = nil
-                connectionStateObservation = nil
                 remoteAppMode = .booting
             }
             connectionState = newState
