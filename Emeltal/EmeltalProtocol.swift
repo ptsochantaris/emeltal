@@ -17,7 +17,7 @@ final class EmeltalProtocol: NWProtocolFramerImplementation {
 
         let tlsOptions = NWProtocolTLS.Options()
         sec_protocol_options_add_pre_shared_key(tlsOptions.securityProtocolOptions, authenticationDispatchData as __DispatchData, dispatchData as __DispatchData)
-        sec_protocol_options_append_tls_ciphersuite(tlsOptions.securityProtocolOptions, tls_ciphersuite_t(rawValue: TLS_PSK_WITH_AES_128_GCM_SHA256)!)
+        sec_protocol_options_append_tls_ciphersuite(tlsOptions.securityProtocolOptions, tls_ciphersuite_t(rawValue: UInt16(TLS_PSK_WITH_AES_128_GCM_SHA256))!)
 
         let parameters = NWParameters(tls: tlsOptions, tcp: tcpOptions)
         parameters.includePeerToPeer = true
