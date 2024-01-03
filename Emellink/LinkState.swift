@@ -10,7 +10,7 @@ final class AssetManager {}
 @MainActor
 @Observable
 final class LinkState: ModeProvider {
-    private let remote = EmeltalConnector()
+    private let remote = ClientConnector()
     private let speaker = try! Speaker()
     private let mic = Mic()
     var messageLog = ""

@@ -26,7 +26,7 @@ struct ModeView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
 
-                Text(canUseMic ? "Push to\nSpeak" : "Need Mic\nPermission")
+                Text(Mic.havePermission ? "Push to\nSpeak" : "Need Mic\nPermission")
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
 

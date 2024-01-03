@@ -107,7 +107,7 @@ final class AppState: Identifiable, ModeProvider {
     private let mic = Mic()
     private var micObservation: Cancellable?
 
-    private let remote = EmeltalConnector()
+    private let remote = ServerConnector()
     private var connectionStateObservation: Cancellable!
 
     private func processFloatingMode(fromBoot: Bool) {

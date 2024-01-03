@@ -29,6 +29,14 @@ final actor Mic: NSObject {
         }
     }
 
+    static var havePermission: Bool {
+        #if canImport(AppKit)
+            AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+        #else
+            AVAudioApplication.shared.recordPermission == .granted
+        #endif
+    }
+
     var state = State.quiet(prefixBuffer: []) {
         didSet {
             switch oldValue {

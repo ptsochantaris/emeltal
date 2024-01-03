@@ -189,14 +189,14 @@ enum AppMode: Equatable {
         case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
             false
         case .listening, .waiting:
-            canUseMic
+            Mic.havePermission
         }
     }
 
     var pushButtonActive: Bool {
         switch self {
         case .listening, .replying, .waiting:
-            canUseMic
+            Mic.havePermission
         case .booting, .loading, .noting, .startup, .thinking, .warmup:
             false
         }
