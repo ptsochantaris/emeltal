@@ -1,6 +1,36 @@
 import Foundation
 import SwiftUI
 
+private struct IntRow: View {
+    let title: String
+    let range: ClosedRange<Float>
+    @Binding var value: Int
+
+    var body: some View {
+        GridRow {
+            Text(title)
+                .gridColumnAlignment(.trailing)
+            Slider(value: .convert(from: $value), in: range)
+            Text(value, format: .number)
+        }
+    }
+}
+
+private struct FloatRow: View {
+    let title: String
+    let range: ClosedRange<Float>
+    @Binding var value: Float
+
+    var body: some View {
+        GridRow {
+            Text(title)
+                .gridColumnAlignment(.trailing)
+            Slider(value: .round(from: $value), in: range)
+            Text(value, format: .number)
+        }
+    }
+}
+
 struct ModelPicker: View {
     @Binding var selectedAsset: Asset
     let allowCancel: Bool
@@ -50,47 +80,12 @@ struct ModelPicker: View {
                                 .padding([.bottom], 4)
                         }
 
-                        GridRow {
-                            Text("Top K")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .convert(from: $selectedAsset.params.topK), in: 1 ... 100)
-                            Text(selectedAsset.params.topK, format: .number)
-                        }
-
-                        GridRow {
-                            Text("Top P")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .round(from: $selectedAsset.params.topP), in: 0 ... 1)
-                            Text(selectedAsset.params.topP, format: .number)
-                        }
-
-                        GridRow {
-                            Text("Temperature")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .round(from: $selectedAsset.params.temperature), in: 0 ... 2)
-                            Text(selectedAsset.params.temperature, format: .number)
-                        }
-
-                        GridRow {
-                            Text("Repeat Penalty")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .round(from: $selectedAsset.params.repeatPenatly), in: 0 ... 2)
-                            Text(selectedAsset.params.repeatPenatly, format: .number)
-                        }
-
-                        GridRow {
-                            Text("Frequency Penalty")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .round(from: $selectedAsset.params.frequencyPenatly), in: 0 ... 2)
-                            Text(selectedAsset.params.frequencyPenatly, format: .number)
-                        }
-
-                        GridRow {
-                            Text("Present Penalty")
-                                .gridColumnAlignment(.trailing)
-                            Slider(value: .round(from: $selectedAsset.params.presentPenatly), in: 0 ... 2)
-                            Text(selectedAsset.params.presentPenatly, format: .number)
-                        }
+                        IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)
+                        FloatRow(title: "Top P", range: 0 ... 1, value: $selectedAsset.params.topP)
+                        FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
+                        FloatRow(title: "Repeat Penalty", range: 0 ... 2, value: $selectedAsset.params.repeatPenatly)
+                        FloatRow(title: "Frequency Penalty", range: 0 ... 2, value: $selectedAsset.params.frequencyPenatly)
+                        FloatRow(title: "Presence Penalty", range: 0 ... 2, value: $selectedAsset.params.presentPenatly)
                     }
                     .font(.callout)
                     .padding([.top, .bottom], 16)

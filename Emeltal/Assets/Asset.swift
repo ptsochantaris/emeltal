@@ -1,8 +1,11 @@
 import Foundation
 
-struct Asset: RawRepresentable, Codable, Identifiable {
+@Observable
+final class Asset: Codable, Identifiable {
     let id: String
     let category: Category
+    var isInstalled = false
+
     var params: Params {
         didSet {
             Asset.assetList = Asset.assetList.map {
@@ -30,7 +33,7 @@ struct Asset: RawRepresentable, Codable, Identifiable {
         }
     }
 
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    static func == (lhs: Asset, rhs: Asset) -> Bool {
         lhs.id == rhs.id
     }
 
@@ -62,25 +65,11 @@ struct Asset: RawRepresentable, Codable, Identifiable {
         updateInstalledStatus()
     }
 
-    init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8), let instance = try? JSONDecoder().decode(Asset.self, from: data) else {
-            return nil
-        }
-        self = instance
-    }
-
-    var rawValue: String {
-        let data = (try? JSONEncoder().encode(self)) ?? Data()
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-
-    var isInstalled = false
-
-    private mutating func updateInstalledStatus() {
+    private func updateInstalledStatus() {
         isInstalled = FileManager.default.fileExists(atPath: localModelPath.path)
     }
 
-    mutating func unInstall() {
+    func unInstall() {
         let fm = FileManager.default
         try? fm.removeItem(at: localModelPath)
         try? fm.removeItem(at: localStatePath)
