@@ -160,7 +160,7 @@ extension Asset {
             case .sauerkrautSolar:
                 "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
             case .shiningValiant:
-                "shiningvaliant-1.2.Q5_K_M.gguf"
+                "shiningvaliant-1.2.Q5_K_M.gguf" // file misnamed in repo, actually 1.3
             case .dolphinPhi2:
                 "dolphin-2_6-phi-2.Q6_K.gguf"
             }
@@ -189,7 +189,7 @@ extension Asset {
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3"
             case .sauerkrautSolar: "on Solar 10.7b"
-            case .shiningValiant: "quantised v1.4"
+            case .shiningValiant: "quantised v1.3"
             case .dolphinPhi2: "v2.6, on Phi-2"
             }
         }
