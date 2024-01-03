@@ -49,7 +49,7 @@ struct ModelPicker: View {
                     .padding()
                     .padding([.leading, .trailing], 64)
 
-                let recommended = Asset.Category.solar
+                let recommended = Asset.Category.sauerkrautSolar
                 let item = GridItem(spacing: 14)
                 LazyVGrid(columns: [item, item], spacing: 14) {
                     ForEach(Asset.assetList) {
@@ -59,25 +59,27 @@ struct ModelPicker: View {
 
                 if showOverrides {
                     Grid(alignment: .leading) {
-                        GridRow {
-                            Text("System Prompt")
-                                .gridColumnAlignment(.trailing)
-                            TextField("System Prompt", text: $selectedAsset.params.systemPrompt)
-                                .textFieldStyle(PlainTextFieldStyle())
-                                .padding([.top, .bottom], 4)
-                                .padding([.leading, .trailing], 7)
-                                .background {
-                                    RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
-                                        .stroke(.secondary)
-                                }
-                        }
+                        if selectedAsset.category.format.acceptsSystemPrompt {
+                            GridRow {
+                                Text("System Prompt")
+                                    .gridColumnAlignment(.trailing)
+                                TextField("System Prompt", text: $selectedAsset.params.systemPrompt)
+                                    .textFieldStyle(PlainTextFieldStyle())
+                                    .padding([.top, .bottom], 4)
+                                    .padding([.leading, .trailing], 7)
+                                    .background {
+                                        RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
+                                            .stroke(.secondary)
+                                    }
+                            }
 
-                        GridRow {
-                            Spacer()
-                            Text("(applies when creating, or after resetting, a conversation)")
-                                .foregroundStyle(.secondary)
-                                .font(.caption2)
-                                .padding([.bottom], 4)
+                            GridRow {
+                                Spacer()
+                                Text("(applies when creating, or after resetting, a conversation)")
+                                    .foregroundStyle(.secondary)
+                                    .font(.caption2)
+                                    .padding([.bottom], 4)
+                            }
                         }
 
                         IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)

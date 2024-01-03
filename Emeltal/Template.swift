@@ -6,10 +6,11 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, llama
+        case alpaca, chatml, llama, userAssistant
 
-        var allowsSystemPrompt: Bool {
+        var acceptsSystemPrompt: Bool {
             switch self {
+            case .userAssistant: false
             case .alpaca, .chatml, .llama: true
             }
         }
@@ -77,6 +78,15 @@ struct Template {
             case .cancel:
                 ""
             }
+        case .userAssistant:
+            switch step {
+            case .initial:
+                "### User:\n"
+            case .turn:
+                "\n\n### User:\n"
+            case .cancel:
+                ""
+            }
         }
     }
 
@@ -108,6 +118,15 @@ struct Template {
                 "\n\n### Response:\n\n"
             case .cancel:
                 "\n\n"
+            }
+        case .userAssistant:
+            switch step {
+            case .initial:
+                ""
+            case .turn:
+                "\n\n### Assistant:\n"
+            case .cancel:
+                ""
             }
         }
     }

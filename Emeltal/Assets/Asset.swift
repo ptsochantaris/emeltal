@@ -20,7 +20,7 @@ final class Asset: Codable, Identifiable {
     static var assetList: [Asset] {
         get {
             let list = Persisted.assetList ?? [Asset]()
-            let categories: [Category] = [.solar, .dolphinMixtral, .mythoMax, .deepSeekCoder, .shiningValiant, .dolphinPhi2]
+            let categories: [Category] = [.sauerkrautSolar, .dolphinMixtral, .mythoMax, .deepSeekCoder, .shiningValiant, .dolphinPhi2]
             let newItems = categories
                 .map { Asset(defaultFor: $0) }
                 .filter { defaultAsset in
@@ -95,7 +95,7 @@ final class Asset: Codable, Identifiable {
     }
 
     func mlTemplate(in context: LlamaContext) -> Template? {
-        if category.format.allowsSystemPrompt {
+        if category.format.acceptsSystemPrompt {
             Template(format: category.format,
                      system: params.systemPrompt,
                      bosToken: context.bosToken)

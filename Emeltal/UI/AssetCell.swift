@@ -6,6 +6,8 @@ struct AssetCell: View {
     let recommended: Bool
     @Binding var selected: Asset
 
+    @Environment(\.openURL) var openUrl
+
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
@@ -17,9 +19,25 @@ struct AssetCell: View {
             }
 
             VStack(spacing: 8) {
-                Text(asset.category.displayName)
-                    .font(.title2)
-                    .lineLimit(1)
+                VStack(spacing: 2) {
+                    Text(asset.category.displayName)
+                        .font(.title2)
+                        .lineLimit(1)
+
+                    HStack(spacing: 4) {
+                        Text(asset.category.detail)
+                            .lineLimit(1)
+
+                        Button {
+                            openUrl(asset.category.repoUrl)
+                        } label: {
+                            Image(systemName: "questionmark.circle.fill")
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                }
 
                 Text(asset.category.aboutText)
 
