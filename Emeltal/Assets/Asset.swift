@@ -19,14 +19,21 @@ final class Asset: Codable, Identifiable {
 
     static var assetList: [Asset] {
         get {
-            let list = Persisted.assetList ?? [Asset]()
             let categories: [Category] = [.sauerkrautSolar, .dolphinMixtral, .mythoMax, .deepSeekCoder, .shiningValiant, .dolphinPhi2]
+
+            let peristsedList = (Persisted.assetList ?? [Asset]()).filter { category in
+                if !categories.contains(where: { $0.id == category.id }), !category.isInstalled {
+                    false
+                } else {
+                    true
+                }
+            }
             let newItems = categories
                 .map { Asset(defaultFor: $0) }
                 .filter { defaultAsset in
-                    !list.contains(where: { $0.id == defaultAsset.id })
+                    !peristsedList.contains(where: { $0.id == defaultAsset.id })
                 }
-            return list + newItems
+            return peristsedList + newItems
         }
         set {
             Persisted.assetList = newValue

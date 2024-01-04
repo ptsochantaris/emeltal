@@ -29,7 +29,7 @@ struct AssetCell: View {
                             .lineLimit(1)
 
                         Button {
-                            openUrl(asset.category.repoUrl)
+                            openUrl(asset.category.originalRepoUrl)
                         } label: {
                             Image(systemName: "questionmark.circle.fill")
                         }

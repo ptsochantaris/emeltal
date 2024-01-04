@@ -40,12 +40,12 @@ extension Asset {
         var vramRequiredToFitInGpu: Int {
             switch self {
             case .dolphinMixtral: 34
-            case .deepSeekCoder: 37
+            case .deepSeekCoder: 29
             case .sauerkrautSolar: 9
             case .dolphinPhi2: 5
             case .mythoMax: 12
             case .whisper: 2
-            case .shiningValiant: 60
+            case .shiningValiant: 58
             }
         }
 
@@ -53,9 +53,9 @@ extension Asset {
             switch self {
             case .shiningValiant: "48.8 GB"
             case .dolphinMixtral: "32.2 GB"
-            case .deepSeekCoder: "35.4 GB"
+            case .deepSeekCoder: "27.4 GB"
             case .sauerkrautSolar: "7.6 GB"
-            case .mythoMax: "10.6 GB"
+            case .mythoMax: "10.7 GB"
             case .whisper: "1.1 GB"
             case .dolphinPhi2: "2.3 GB"
             }
@@ -127,22 +127,26 @@ extension Asset {
             1
         }
 
-        var repoUrl: URL {
+        var emeltalRepo: URL {
+            URL(string: "https://huggingface.co/acertainbru/emeltal-collection")!
+        }
+
+        var originalRepoUrl: URL {
             let uri = switch self {
             case .dolphinMixtral:
-                "https://huggingface.co/TheBloke/dolphin-2.6-mixtral-8x7b-GGUF"
+                "https://huggingface.co/cognitivecomputations/dolphin-2.6-mixtral-8x7b"
             case .deepSeekCoder:
-                "https://huggingface.co/TheBloke/deepseek-coder-33B-instruct-GGUF"
+                "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
             case .mythoMax:
-                "https://huggingface.co/TheBloke/MythoMax-L2-13B-GGUF"
+                "https://huggingface.co/Gryphe/MythoMax-L2-13b"
             case .whisper:
                 "https://huggingface.co/ggerganov/whisper.cpp"
             case .sauerkrautSolar:
-                "https://huggingface.co/TheBloke/SauerkrautLM-SOLAR-Instruct-GGUF"
+                "https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct"
             case .shiningValiant:
-                "https://huggingface.co/TheBloke/ShiningValiant-1.3-GGUF"
+                "https://huggingface.co/ValiantLabs/ShiningValiant"
             case .dolphinPhi2:
-                "https://huggingface.co/TheBloke/dolphin-2_6-phi-2-GGUF"
+                "https://huggingface.co/cognitivecomputations/dolphin-2_6-phi-2"
             }
             return URL(string: uri)!
         }
@@ -152,19 +156,19 @@ extension Asset {
             case .dolphinMixtral:
                 "dolphin-2.6-mixtral-8x7b.Q5_K_M.gguf"
             case .deepSeekCoder:
-                "deepseek-coder-33b-instruct.Q8_0.gguf"
+                "deepseek-coder-33b-instruct.Q6_K.gguf"
             case .mythoMax:
-                "mythomax-l2-13b.Q8_0.gguf"
+                "mythomax-l2-13b.Q6_K.gguf"
             case .whisper:
                 "ggml-large-v3-q5_0.bin"
             case .sauerkrautSolar:
                 "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
             case .shiningValiant:
-                "shiningvaliant-1.2.Q5_K_M.gguf" // file misnamed in repo, actually 1.3
+                "shiningvaliant-1.4-GGUF-Q5_K_M.gguf"
             case .dolphinPhi2:
                 "dolphin-2_6-phi-2.Q6_K.gguf"
             }
-            return repoUrl
+            return emeltalRepo
                 .appendingPathComponent("resolve", conformingTo: .directory)
                 .appendingPathComponent("main", conformingTo: .directory)
                 .appendingPathComponent(fileName)
@@ -189,7 +193,7 @@ extension Asset {
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3"
             case .sauerkrautSolar: "on Solar 10.7b"
-            case .shiningValiant: "quantised v1.3"
+            case .shiningValiant: "quantised v1.4"
             case .dolphinPhi2: "v2.6, on Phi-2"
             }
         }
@@ -197,11 +201,11 @@ extension Asset {
         var id: String {
             switch self {
             case .dolphinMixtral: "43588C6F-FB70-4EDB-9C15-3B75E7C483FA"
-            case .deepSeekCoder: "A4A183C7-718C-4E47-B880-F437DAFA9D5C"
+            case .deepSeekCoder: "73FD5E35-94F3-4923-9E28-070564DF5B6E"
             case .mythoMax: "AA4B3287-CA79-466F-8F84-87486D701256"
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .sauerkrautSolar: "195B279E-3CAA-4E53-9CD3-59D5DE5B40A2"
-            case .shiningValiant: "25C3A6DB-A824-4011-9E8F-330D3B6310C7"
+            case .shiningValiant: "EC12A9D0-1F90-4712-95A3-587C163AB847"
             case .dolphinPhi2: "72ACC367-207D-4BCA-83F0-2767827D8F64"
             }
         }
