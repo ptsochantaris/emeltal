@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, llama, userAssistant
+        case alpaca, chatml, userAssistant
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .userAssistant: false
-            case .alpaca, .chatml, .llama: true
+            case .alpaca, .chatml: true
             }
         }
     }
@@ -27,16 +27,10 @@ struct Template {
         let suffix = suffix(for: step)
         return switch step {
         case .initial:
-            if bosToken.isEmpty {
-                if system.isEmpty {
-                    ""
-                } else {
-                    "\(prefix)\(system)\(suffix)"
-                }
-            } else if system.isEmpty {
-                "\(bosToken)"
-            } else {
+            if format.acceptsSystemPrompt, !system.isEmpty {
                 "\(bosToken)\(prefix)\(system)\(suffix)"
+            } else {
+                "\(bosToken)"
             }
         case let .turn(text, _):
             "\(prefix)\(text)\(suffix)"
@@ -64,17 +58,12 @@ struct Template {
             switch step {
             case .initial:
                 ""
-            case .turn:
-                "\n\n### Instruction:\n\n"
-            case .cancel:
-                ""
-            }
-        case .llama:
-            switch step {
-            case .initial:
-                " [INST] <<SYS>>\n"
             case let .turn(_, index):
-                index == 0 ? "" : "<s> [INST] "
+                if index == 0 {
+                    "\n\n### Instruction:\n\n"
+                } else {
+                    "<s>\n\n### Instruction:\n\n"
+                }
             case .cancel:
                 ""
             }
@@ -100,15 +89,6 @@ struct Template {
                 "<|im_end|>\n<|im_start|>assistant\n"
             case .cancel:
                 "<|im_end|>"
-            }
-        case .llama:
-            switch step {
-            case .initial:
-                "\n<</SYS>>\n"
-            case .turn:
-                " [/INST] "
-            case .cancel:
-                "\n"
             }
         case .alpaca:
             switch step {

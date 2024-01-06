@@ -304,10 +304,13 @@ final actor LlamaContext {
         log("Turn was \(currentTurn.length) tokens long")
 
         if Task.isCancelled {
-            log("Prediction was cancelled, ensuring prediction text is capped gracefully")
-            let newTokens = tokenize(text: template.text(for: .cancel))
-            ensureCacheSpace(toFit: newTokens.count)
-            _ = currentTurn.append(tokens: newTokens, in: context, andPredict: false, offset: allTokensCount)
+            let cancelText = template.text(for: .cancel)
+            if !cancelText.isEmpty {
+                log("Prediction was cancelled, ensuring prediction text is capped gracefully")
+                let newTokens = tokenize(text: cancelText)
+                ensureCacheSpace(toFit: newTokens.count)
+                _ = currentTurn.append(tokens: newTokens, in: context, andPredict: false, offset: allTokensCount)
+            }
         }
 
         continuation.finish()

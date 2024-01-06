@@ -30,7 +30,6 @@
 		163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05D2B31B80800565F49 /* ManagerRow.swift */; };
 		163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */; };
 		163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0612B31D0CD00565F49 /* SideBar.swift */; };
-		164737DC2B435D910063F10B /* ggml.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 164737DB2B435D910063F10B /* ggml.metallib */; };
 		1654854C2B3EE80200DB2B3A /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1654854B2B3EE80200DB2B3A /* FFT.swift */; };
 		1654854D2B3EE80200DB2B3A /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1654854B2B3EE80200DB2B3A /* FFT.swift */; };
 		16578A322B18CA5A0038A680 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* AppState.swift */; };
@@ -51,6 +50,10 @@
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
+		16C164EC2B49B17B00D29D75 /* libwhisper.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C164EA2B49B17B00D29D75 /* libwhisper.dylib */; };
+		16C164ED2B49B17B00D29D75 /* libllama.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C164EB2B49B17B00D29D75 /* libllama.dylib */; };
+		16C164F02B49B1AD00D29D75 /* whisper.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EE2B49B1AD00D29D75 /* whisper.metallib */; };
+		16C164F12B49B1AD00D29D75 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EF2B49B1AD00D29D75 /* llama.metallib */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmellinkApp.swift */; };
@@ -117,7 +120,6 @@
 		163EF05D2B31B80800565F49 /* ManagerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerRow.swift; sourceTree = "<group>"; };
 		163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalApp.swift; sourceTree = "<group>"; };
 		163EF0612B31D0CD00565F49 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
-		164737DB2B435D910063F10B /* ggml.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = ggml.metallib; sourceTree = "<group>"; };
 		1654854B2B3EE80200DB2B3A /* FFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FFT.swift; sourceTree = "<group>"; };
 		16578A312B18CA5A0038A680 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
@@ -135,6 +137,10 @@
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
 		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
+		16C164EA2B49B17B00D29D75 /* libwhisper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwhisper.dylib; sourceTree = "<group>"; };
+		16C164EB2B49B17B00D29D75 /* libllama.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libllama.dylib; sourceTree = "<group>"; };
+		16C164EE2B49B1AD00D29D75 /* whisper.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = whisper.metallib; sourceTree = "<group>"; };
+		16C164EF2B49B1AD00D29D75 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
 		16C58DDA2B34701200006CC2 /* Emellink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emellink.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -158,9 +164,11 @@
 			files = (
 				16C58E102B37688000006CC2 /* PopTimer in Frameworks */,
 				1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */,
+				16C164EC2B49B17B00D29D75 /* libwhisper.dylib in Frameworks */,
 				160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
 				1608DB952B151C4B00FFFB09 /* Accelerate.framework in Frameworks */,
+				16C164ED2B49B17B00D29D75 /* libllama.dylib in Frameworks */,
 				160199BE2B1E9C3400696377 /* libwhisper.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,9 +189,12 @@
 			isa = PBXGroup;
 			children = (
 				1608DB842B151B8C00FFFB09 /* ggml.h */,
-				164737DB2B435D910063F10B /* ggml.metallib */,
 				1608DB832B151B8C00FFFB09 /* llama.h */,
+				16C164EF2B49B1AD00D29D75 /* llama.metallib */,
+				16C164EB2B49B17B00D29D75 /* libllama.dylib */,
 				16B52E332B1B96A7004EE3E5 /* whisper.h */,
+				16C164EE2B49B1AD00D29D75 /* whisper.metallib */,
+				16C164EA2B49B17B00D29D75 /* libwhisper.dylib */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";
@@ -404,9 +415,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				164737DC2B435D910063F10B /* ggml.metallib in Resources */,
+				16C164F12B49B1AD00D29D75 /* llama.metallib in Resources */,
 				1608DB702B151B5000FFFB09 /* Assets.xcassets in Resources */,
 				16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */,
+				16C164F02B49B1AD00D29D75 /* whisper.metallib in Resources */,
 				16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -652,6 +664,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
+					"$(PROJECT_DIR)/Emeltal/llama-cpp",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -698,6 +711,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
+					"$(PROJECT_DIR)/Emeltal/llama-cpp",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;

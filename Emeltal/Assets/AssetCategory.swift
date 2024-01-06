@@ -7,7 +7,7 @@ extension Asset {
 
         var format: Template.Format {
             switch self {
-            case .shiningValiant: .llama
+            case .shiningValiant: .alpaca
             case .deepSeekCoder: .alpaca
             case .dolphinMixtral: .chatml
             case .mythoMax: .alpaca
@@ -18,14 +18,7 @@ extension Asset {
         }
 
         private var defaultPrompt: String {
-            switch self {
-            case .deepSeekCoder: "You are an intelligent and helpful coding assistant."
-            case .sauerkrautSolar: ""
-            case .dolphinMixtral, .dolphinPhi2: "You are Dolphin, a helpful, informative and friendly AI assistant."
-            case .mythoMax: "You are an intelligent and helpful writing assistant."
-            case .shiningValiant: "You are an intelligent, helpful AI assistant."
-            case .whisper: ""
-            }
+            "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
         }
 
         var useGpuOnThisSystem: Bool {
