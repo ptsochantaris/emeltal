@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		160189862B1A026B0012B315 /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
 		1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1601898C2B1A51860012B315 /* MarkdownUI */; };
-		160199BE2B1E9C3400696377 /* libwhisper.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 160199BD2B1E9C3400696377 /* libwhisper.dylib */; };
 		160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 160199BF2B1E9C4600696377 /* libllama.dylib */; };
 		160199C12B1E9C5A00696377 /* libllama.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 160199BF2B1E9C4600696377 /* libllama.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		160199C22B1E9C5A00696377 /* libwhisper.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 160199BD2B1E9C3400696377 /* libwhisper.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -51,7 +50,6 @@
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
 		16C164EC2B49B17B00D29D75 /* libwhisper.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C164EA2B49B17B00D29D75 /* libwhisper.dylib */; };
-		16C164ED2B49B17B00D29D75 /* libllama.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C164EB2B49B17B00D29D75 /* libllama.dylib */; };
 		16C164F02B49B1AD00D29D75 /* whisper.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EE2B49B1AD00D29D75 /* whisper.metallib */; };
 		16C164F12B49B1AD00D29D75 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EF2B49B1AD00D29D75 /* llama.metallib */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
@@ -168,8 +166,6 @@
 				160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
 				1608DB952B151C4B00FFFB09 /* Accelerate.framework in Frameworks */,
-				16C164ED2B49B17B00D29D75 /* libllama.dylib in Frameworks */,
-				160199BE2B1E9C3400696377 /* libwhisper.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,7 +372,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
