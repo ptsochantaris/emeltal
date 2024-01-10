@@ -12,7 +12,7 @@ final actor LlamaContext {
     let bosToken: String
     let manager: AssetManager
 
-    func reset() {
+    func clearAllTokens() {
         turns.removeAll()
         llama_kv_cache_clear(context)
     }
@@ -224,7 +224,7 @@ final actor LlamaContext {
 
             if evictedCount < count {
                 log("\nDropping all tokens from token window to fit new tokens")
-                reset()
+                clearAllTokens()
                 return
             }
 

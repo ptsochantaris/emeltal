@@ -82,7 +82,7 @@ final class AppState: Identifiable, ModeProvider {
         resetting = true
         await llamaContext?.cancelIfNeeded()
         await speaker?.cancelIfNeeded()
-        await llamaContext?.reset()
+        await llamaContext?.clearAllTokens()
         messageLog = ""
         try await save()
         try await chatInit()
