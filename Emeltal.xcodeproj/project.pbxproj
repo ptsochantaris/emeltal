@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		160189862B1A026B0012B315 /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
 		1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1601898C2B1A51860012B315 /* MarkdownUI */; };
-		160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 160199BF2B1E9C4600696377 /* libllama.dylib */; };
-		160199C12B1E9C5A00696377 /* libllama.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 160199BF2B1E9C4600696377 /* libllama.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		160199C22B1E9C5A00696377 /* libwhisper.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 160199BD2B1E9C3400696377 /* libwhisper.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1608DB6D2B151B4F00FFFB09 /* ContentView.swift */; };
 		1608DB702B151B5000FFFB09 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
 		1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1608DB922B151C4600FFFB09 /* Metal.framework */; };
@@ -49,9 +46,6 @@
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
-		16C164EC2B49B17B00D29D75 /* libwhisper.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C164EA2B49B17B00D29D75 /* libwhisper.dylib */; };
-		16C164F02B49B1AD00D29D75 /* whisper.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EE2B49B1AD00D29D75 /* whisper.metallib */; };
-		16C164F12B49B1AD00D29D75 /* llama.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 16C164EF2B49B1AD00D29D75 /* llama.metallib */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmellinkApp.swift */; };
@@ -74,6 +68,14 @@
 		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
+		16EEC2932B5098FD00541CB0 /* ggml-metal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2842B5098FD00541CB0 /* ggml-metal.metal */; };
+		16EEC2942B5098FD00541CB0 /* ggml-metal.m in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2852B5098FD00541CB0 /* ggml-metal.m */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC2952B5098FD00541CB0 /* ggml-alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2872B5098FD00541CB0 /* ggml-alloc.c */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC2962B5098FD00541CB0 /* ggml-backend.c in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2892B5098FD00541CB0 /* ggml-backend.c */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC2972B5098FD00541CB0 /* ggml.c in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC28A2B5098FD00541CB0 /* ggml.c */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC2982B5098FD00541CB0 /* ggml-quants.c in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC28D2B5098FD00541CB0 /* ggml-quants.c */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC2992B5098FD00541CB0 /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC28E2B5098FD00541CB0 /* whisper.cpp */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
+		16EEC29B2B50997600541CB0 /* llama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC29A2B50997600541CB0 /* llama.cpp */; settings = {COMPILER_FLAGS = "-DLLAMA_ACCELERATE=1 -DLLAMA_AVX=1 -DLLAMA_AVX2=1 -DLLAMA_AVX512=1 -DLLAMA_AVX512_VBMI=1 -DLLAMA_AVX512_VNNI=1 -DLLAMA_F16C=1 -DLLAMA_FMA=1 -DLLAMA_METAL=1 -DLLAMA_METAL_NDEBUG=1 -DWHISPER_METAL=1 -DWHISPER_METAL_NDEBUG=1 -DGGML_USE_METAL=1 -fno-objc-arc"; }; };
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
@@ -86,8 +88,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				160199C12B1E9C5A00696377 /* libllama.dylib in CopyFiles */,
-				160199C22B1E9C5A00696377 /* libwhisper.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,15 +95,11 @@
 
 /* Begin PBXFileReference section */
 		160189852B1A026B0012B315 /* Mic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mic.swift; sourceTree = "<group>"; };
-		160199BD2B1E9C3400696377 /* libwhisper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwhisper.dylib; path = "Emeltal/llama-cpp/libwhisper.dylib"; sourceTree = "<group>"; };
-		160199BF2B1E9C4600696377 /* libllama.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libllama.dylib; path = "Emeltal/llama-cpp/libllama.dylib"; sourceTree = "<group>"; };
 		1608DB682B151B4F00FFFB09 /* Emeltal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emeltal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1608DB6D2B151B4F00FFFB09 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1608DB6F2B151B5000FFFB09 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1608DB712B151B5000FFFB09 /* Emeltal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Emeltal.entitlements; sourceTree = "<group>"; };
 		1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Emeltal-Bridging-Header.h"; sourceTree = "<group>"; };
-		1608DB832B151B8C00FFFB09 /* llama.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llama.h; sourceTree = "<group>"; };
-		1608DB842B151B8C00FFFB09 /* ggml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ggml.h; sourceTree = "<group>"; };
 		1608DB922B151C4600FFFB09 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
 		1608DB942B151C4B00FFFB09 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = DEVELOPER_DIR; };
 		1608DB972B151DF000FFFB09 /* LlamaContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LlamaContext.swift; sourceTree = "<group>"; };
@@ -134,11 +130,6 @@
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
-		16B52E332B1B96A7004EE3E5 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
-		16C164EA2B49B17B00D29D75 /* libwhisper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwhisper.dylib; sourceTree = "<group>"; };
-		16C164EB2B49B17B00D29D75 /* libllama.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libllama.dylib; sourceTree = "<group>"; };
-		16C164EE2B49B1AD00D29D75 /* whisper.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = whisper.metallib; sourceTree = "<group>"; };
-		16C164EF2B49B1AD00D29D75 /* llama.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = llama.metallib; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
 		16C57E932B2D357000A6A6C5 /* MicStop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStop.caf; path = Emeltal/Audio/MicStop.caf; sourceTree = SOURCE_ROOT; };
 		16C58DDA2B34701200006CC2 /* Emellink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emellink.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -151,6 +142,24 @@
 		16C58E082B35D72500006CC2 /* ModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeView.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
+		16EEC2832B5098FD00541CB0 /* ggml-quants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-quants.h"; sourceTree = "<group>"; };
+		16EEC2842B5098FD00541CB0 /* ggml-metal.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = "ggml-metal.metal"; sourceTree = "<group>"; };
+		16EEC2852B5098FD00541CB0 /* ggml-metal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ggml-metal.m"; sourceTree = "<group>"; };
+		16EEC2862B5098FD00541CB0 /* ggml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ggml.h; sourceTree = "<group>"; };
+		16EEC2872B5098FD00541CB0 /* ggml-alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "ggml-alloc.c"; sourceTree = "<group>"; };
+		16EEC2882B5098FD00541CB0 /* ggml-metal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-metal.h"; sourceTree = "<group>"; };
+		16EEC2892B5098FD00541CB0 /* ggml-backend.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "ggml-backend.c"; sourceTree = "<group>"; };
+		16EEC28A2B5098FD00541CB0 /* ggml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
+		16EEC28B2B5098FD00541CB0 /* whisper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
+		16EEC28C2B5098FD00541CB0 /* llama.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llama.h; sourceTree = "<group>"; };
+		16EEC28D2B5098FD00541CB0 /* ggml-quants.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "ggml-quants.c"; sourceTree = "<group>"; };
+		16EEC28E2B5098FD00541CB0 /* whisper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = whisper.cpp; sourceTree = "<group>"; };
+		16EEC28F2B5098FD00541CB0 /* ggml-backend-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-backend-impl.h"; sourceTree = "<group>"; };
+		16EEC2902B5098FD00541CB0 /* ggml-backend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-backend.h"; sourceTree = "<group>"; };
+		16EEC2912B5098FD00541CB0 /* ggml-alloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-alloc.h"; sourceTree = "<group>"; };
+		16EEC2922B5098FD00541CB0 /* ggml-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-impl.h"; sourceTree = "<group>"; };
+		16EEC29A2B50997600541CB0 /* llama.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = llama.cpp; sourceTree = "<group>"; };
+		16EEC29C2B50999600541CB0 /* unicode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unicode.h; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -162,8 +171,6 @@
 			files = (
 				16C58E102B37688000006CC2 /* PopTimer in Frameworks */,
 				1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */,
-				16C164EC2B49B17B00D29D75 /* libwhisper.dylib in Frameworks */,
-				160199C02B1E9C4600696377 /* libllama.dylib in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
 				1608DB952B151C4B00FFFB09 /* Accelerate.framework in Frameworks */,
 			);
@@ -184,13 +191,24 @@
 		16053F7B2B1CCB13009E07DA /* llama-cpp */ = {
 			isa = PBXGroup;
 			children = (
-				1608DB842B151B8C00FFFB09 /* ggml.h */,
-				1608DB832B151B8C00FFFB09 /* llama.h */,
-				16C164EF2B49B1AD00D29D75 /* llama.metallib */,
-				16C164EB2B49B17B00D29D75 /* libllama.dylib */,
-				16B52E332B1B96A7004EE3E5 /* whisper.h */,
-				16C164EE2B49B1AD00D29D75 /* whisper.metallib */,
-				16C164EA2B49B17B00D29D75 /* libwhisper.dylib */,
+				16EEC2872B5098FD00541CB0 /* ggml-alloc.c */,
+				16EEC2912B5098FD00541CB0 /* ggml-alloc.h */,
+				16EEC28F2B5098FD00541CB0 /* ggml-backend-impl.h */,
+				16EEC2892B5098FD00541CB0 /* ggml-backend.c */,
+				16EEC2902B5098FD00541CB0 /* ggml-backend.h */,
+				16EEC2922B5098FD00541CB0 /* ggml-impl.h */,
+				16EEC2882B5098FD00541CB0 /* ggml-metal.h */,
+				16EEC2852B5098FD00541CB0 /* ggml-metal.m */,
+				16EEC2842B5098FD00541CB0 /* ggml-metal.metal */,
+				16EEC28D2B5098FD00541CB0 /* ggml-quants.c */,
+				16EEC2832B5098FD00541CB0 /* ggml-quants.h */,
+				16EEC28A2B5098FD00541CB0 /* ggml.c */,
+				16EEC2862B5098FD00541CB0 /* ggml.h */,
+				16EEC29A2B50997600541CB0 /* llama.cpp */,
+				16EEC28C2B5098FD00541CB0 /* llama.h */,
+				16EEC28E2B5098FD00541CB0 /* whisper.cpp */,
+				16EEC28B2B5098FD00541CB0 /* whisper.h */,
+				16EEC29C2B50999600541CB0 /* unicode.h */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";
@@ -240,8 +258,6 @@
 		1608DB912B151C4600FFFB09 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				160199BF2B1E9C4600696377 /* libllama.dylib */,
-				160199BD2B1E9C3400696377 /* libwhisper.dylib */,
 				1608DB942B151C4B00FFFB09 /* Accelerate.framework */,
 				1608DB922B151C4600FFFB09 /* Metal.framework */,
 			);
@@ -411,10 +427,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16C164F12B49B1AD00D29D75 /* llama.metallib in Resources */,
 				1608DB702B151B5000FFFB09 /* Assets.xcassets in Resources */,
 				16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */,
-				16C164F02B49B1AD00D29D75 /* whisper.metallib in Resources */,
 				16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,12 +453,14 @@
 			files = (
 				168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */,
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
+				16EEC2982B5098FD00541CB0 /* ggml-quants.c in Sources */,
 				16C58DFE2B351C6E00006CC2 /* AppMode.swift in Sources */,
 				16578A392B1924B80038A680 /* WhisperContext.swift in Sources */,
 				1654854C2B3EE80200DB2B3A /* FFT.swift in Sources */,
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
+				16EEC2942B5098FD00541CB0 /* ggml-metal.m in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
 				163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
@@ -452,11 +468,17 @@
 				16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
+				16EEC2952B5098FD00541CB0 /* ggml-alloc.c in Sources */,
+				16EEC2932B5098FD00541CB0 /* ggml-metal.metal in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
+				16EEC2962B5098FD00541CB0 /* ggml-backend.c in Sources */,
 				168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */,
 				168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */,
+				16EEC2992B5098FD00541CB0 /* whisper.cpp in Sources */,
 				16578A322B18CA5A0038A680 /* AppState.swift in Sources */,
+				16EEC29B2B50997600541CB0 /* llama.cpp in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
+				16EEC2972B5098FD00541CB0 /* ggml.c in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
@@ -541,13 +563,12 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				EXCLUDED_ARCHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -560,7 +581,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
+				MTL_FAST_MATH = NO;
+				MTL_OPTIMIZATION_LEVEL = "-O3";
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -622,7 +644,8 @@
 				LLVM_LTO = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
+				MTL_FAST_MATH = NO;
+				MTL_OPTIMIZATION_LEVEL = "-O3";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
