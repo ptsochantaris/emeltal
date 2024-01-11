@@ -3,17 +3,15 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, shiningValiant, dolphinPhi2, whisper
+        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, whisper
 
         var format: Template.Format {
             switch self {
-            case .shiningValiant: .alpaca
             case .deepSeekCoder: .alpaca
-            case .dolphinMixtral: .chatml
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: .chatml
             case .mythoMax: .alpaca
             case .sauerkrautSolar: .userAssistant
             case .whisper: .alpaca
-            case .dolphinPhi2: .chatml
             }
         }
 
@@ -38,13 +36,13 @@ extension Asset {
             case .dolphinPhi2: 5
             case .mythoMax: 12
             case .whisper: 2
-            case .shiningValiant: 58
+            case .dolphin70b: 90
             }
         }
 
         var sizeDescription: String {
             switch self {
-            case .shiningValiant: "48.8 GB"
+            case .dolphin70b: "48.8 GB"
             case .dolphinMixtral: "32.2 GB"
             case .deepSeekCoder: "27.4 GB"
             case .sauerkrautSolar: "7.6 GB"
@@ -64,8 +62,8 @@ extension Asset {
                 "MythoMax is a model designed to be both imaginative, and useful for creativity and writing."
             case .sauerkrautSolar:
                 "One of the highest performing models for chat. A great starting point."
-            case .shiningValiant:
-                "A large-size model focused on knowledge, enthusiasm, and personality."
+            case .dolphin70b:
+                "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper:
                 "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
             case .dolphinPhi2:
@@ -75,7 +73,7 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder, .dolphinMixtral, .dolphinPhi2, .mythoMax, .sauerkrautSolar, .shiningValiant: 1024
+            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .mythoMax, .sauerkrautSolar: 1024
             case .whisper: 0
             }
         }
@@ -95,11 +93,9 @@ extension Asset {
         private var defaultRepeatPenatly: Float {
             switch self {
             case .deepSeekCoder: 1
-            case .dolphinMixtral: 1.17
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 1.17
             case .mythoMax: 1.17
             case .sauerkrautSolar: 1.17
-            case .shiningValiant: 1.17
-            case .dolphinPhi2: 1.17
             case .whisper: 0
             }
         }
@@ -107,11 +103,9 @@ extension Asset {
         private var defaultFrequencyPenalty: Float {
             switch self {
             case .deepSeekCoder: 0
-            case .dolphinMixtral: 0.1
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.1
             case .mythoMax: 0.1
             case .sauerkrautSolar: 0.1
-            case .shiningValiant: 0.1
-            case .dolphinPhi2: 0.1
             case .whisper: 0
             }
         }
@@ -136,8 +130,8 @@ extension Asset {
                 "https://huggingface.co/ggerganov/whisper.cpp"
             case .sauerkrautSolar:
                 "https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct"
-            case .shiningValiant:
-                "https://huggingface.co/ValiantLabs/ShiningValiant"
+            case .dolphin70b:
+                "https://huggingface.co/cognitivecomputations/dolphin-2.2-70b"
             case .dolphinPhi2:
                 "https://huggingface.co/cognitivecomputations/dolphin-2_6-phi-2"
             }
@@ -156,8 +150,8 @@ extension Asset {
                 "ggml-large-v3-q5_0.bin"
             case .sauerkrautSolar:
                 "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
-            case .shiningValiant:
-                "shiningvaliant-1.4-GGUF-Q5_K_M.gguf"
+            case .dolphin70b:
+                "dolphin-2.2-70b.Q5_K_M.gguf"
             case .dolphinPhi2:
                 "dolphin-2_6-phi-2.Q6_K.gguf"
             }
@@ -169,12 +163,12 @@ extension Asset {
 
         var displayName: String {
             switch self {
-            case .dolphinMixtral: "Dolphin (Large)"
+            case .dolphinMixtral: "Dolphin"
             case .deepSeekCoder: "DeepSeek Coder"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper"
             case .sauerkrautSolar: "Sauerkraut"
-            case .shiningValiant: "Shining Valiant"
+            case .dolphin70b: "Dolphin (Large)"
             case .dolphinPhi2: "Dolphin (Compact)"
             }
         }
@@ -186,7 +180,7 @@ extension Asset {
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3"
             case .sauerkrautSolar: "on Solar 10.7b"
-            case .shiningValiant: "quantised v1.4"
+            case .dolphin70b: "on Llama 70b (x2)"
             case .dolphinPhi2: "v2.6, on Phi-2"
             }
         }
@@ -198,7 +192,7 @@ extension Asset {
             case .mythoMax: "AA4B3287-CA79-466F-8F84-87486D701256"
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .sauerkrautSolar: "195B279E-3CAA-4E53-9CD3-59D5DE5B40A2"
-            case .shiningValiant: "EC12A9D0-1F90-4712-95A3-587C163AB847"
+            case .dolphin70b: "0D70BC73-9559-4778-90A6-E5F2E4B71213"
             case .dolphinPhi2: "72ACC367-207D-4BCA-83F0-2767827D8F64"
             }
         }

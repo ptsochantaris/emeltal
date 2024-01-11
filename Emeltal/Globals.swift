@@ -17,8 +17,10 @@ enum Persisted {
     @AppStorage("_assetList") static var assetList: [Asset]?
 
     static var selectedAsset: Asset {
-        let aid = selectedAssetId ?? Asset.Category.sauerkrautSolar.id
-        return Asset.assetList.first(where: { $0.id == aid })!
+        if let selectedAssetId, let existingAsset = Asset.assetList.first(where: { $0.id == selectedAssetId }) {
+            return existingAsset
+        }
+        return Asset.assetList.first!
     }
 }
 
