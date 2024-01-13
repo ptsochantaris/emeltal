@@ -1,6 +1,7 @@
 import Foundation
 
-final actor LlamaContext {
+@GGMLActor
+final class LlamaContext {
     private let model: OpaquePointer
     private let n_vocab: Int32
     private let candidateBuffer: UnsafeMutableBufferPointer<llama_token_data>
