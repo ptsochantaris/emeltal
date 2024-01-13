@@ -30,13 +30,13 @@ extension Asset {
 
         var vramRequiredToFitInGpu: Int {
             switch self {
-            case .dolphinMixtral: 34
-            case .deepSeekCoder: 29
-            case .sauerkrautSolar: 9
+            case .dolphinMixtral: 41
+            case .deepSeekCoder: 36
+            case .sauerkrautSolar: 12
             case .dolphinPhi2: 5
-            case .mythoMax: 12
+            case .mythoMax: 16
             case .whisper: 2
-            case .dolphin70b: 90
+            case .dolphin70b: 51
             }
         }
 
