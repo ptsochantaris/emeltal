@@ -170,9 +170,6 @@ struct ggml_metal_context {
     id<MTLCommandQueue> queue;
     id<MTLLibrary>      library;
 
-    id<MTLCommandBuffer>         command_buffers [GGML_METAL_MAX_COMMAND_BUFFERS];
-    id<MTLComputeCommandEncoder> command_encoders[GGML_METAL_MAX_COMMAND_BUFFERS];
-
     dispatch_queue_t d_queue;
 
     int n_buffers;
@@ -283,7 +280,6 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         }
     }
 
-#if TARGET_OS_OSX
     // print MTL GPU family:
     GGML_METAL_LOG_INFO("%s: GPU name:   %s\n", __func__, [[ctx->device name] UTF8String]);
 
@@ -323,6 +319,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
     GGML_METAL_LOG_INFO("%s: simdgroup reduction support   = %s\n",       __func__, ctx->support_simdgroup_reduction ? "true" : "false");
     GGML_METAL_LOG_INFO("%s: simdgroup matrix mul. support = %s\n",       __func__, ctx->support_simdgroup_mm ? "true" : "false");
     GGML_METAL_LOG_INFO("%s: hasUnifiedMemory              = %s\n",       __func__, ctx->device.hasUnifiedMemory ? "true" : "false");
+#if TARGET_OS_OSX
     GGML_METAL_LOG_INFO("%s: recommendedMaxWorkingSetSize  = %8.2f MB\n", __func__, ctx->device.recommendedMaxWorkingSetSize / 1e6);
     if (ctx->device.maxTransferRate != 0) {
         GGML_METAL_LOG_INFO("%s: maxTransferRate               = %8.2f MB/s\n", __func__, ctx->device.maxTransferRate / 1e6);
@@ -647,41 +644,34 @@ static bool ggml_metal_graph_compute(
     @autoreleasepool {
 
     MTLComputePassDescriptor * edesc = MTLComputePassDescriptor.computePassDescriptor;
-
-    const int n_nodes  = gf->n_nodes;
     edesc.dispatchType = MTLDispatchTypeSerial;
 
     // create multiple command buffers and enqueue them
     // then, we encode the graph into the command buffers in parallel
 
+    const int n_nodes  = gf->n_nodes;
     const int n_cb = ctx->n_cb;
-
-    for (int i = 0; i < n_cb; ++i) {
-        ctx->command_buffers[i] = [ctx->queue commandBuffer];
-
-        // enqueue the command buffers in order to specify their execution order
-        [ctx->command_buffers[i] enqueue];
-
-        ctx->command_encoders[i] = [ctx->command_buffers[i] computeCommandEncoderWithDescriptor: edesc];
-    }
+    const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
+    id<MTLCommandBuffer> command_buffers[n_cb];
 
     for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
-        const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
+        id<MTLCommandBuffer> command_buffer  = [ctx->queue commandBufferWithUnretainedReferences];
+        command_buffers[cb_idx] = command_buffer;
+
+        // enqueue the command buffers in order to specify their execution order
+        [command_buffer enqueue];
 
         dispatch_async(ctx->d_queue, ^{
             size_t offs_src0 = 0;
             size_t offs_src1 = 0;
             size_t offs_dst  = 0;
 
-            id<MTLCommandBuffer> command_buffer  = ctx->command_buffers[cb_idx];
-            id<MTLComputeCommandEncoder> encoder = ctx->command_encoders[cb_idx];
+            id<MTLComputeCommandEncoder> encoder = [command_buffer computeCommandEncoderWithDescriptor: edesc];
 
             const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
             const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
 
-            for (int ind = node_start; ind < node_end; ++ind) {
-                const int i = ind;
-
+            for (int i = node_start; i < node_end; ++i) {
                 if (i == -1) {
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     continue;
@@ -2169,26 +2159,23 @@ static bool ggml_metal_graph_compute(
 #endif
             }
 
-            if (encoder != nil) {
-                [encoder endEncoding];
-                encoder = nil;
-            }
+            [encoder endEncoding];
 
             [command_buffer commit];
         });
     }
 
-    // wait for all threads to finish
+    // Wait for all command buffers to be committed
     dispatch_barrier_sync(ctx->d_queue, ^{});
 
-    // check status of command buffers
-    // needed to detect if the device ran out-of-memory for example (#1881)
-    for (int i = 0; i < n_cb; i++) {
-        [ctx->command_buffers[i] waitUntilCompleted];
+    // Wait for completion and check status of each command buffer
+    for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
+        id<MTLCommandBuffer> command_buffer = command_buffers[cb_idx];
+        [command_buffer waitUntilCompleted];
 
-        MTLCommandBufferStatus status = (MTLCommandBufferStatus) [ctx->command_buffers[i] status];
+        MTLCommandBufferStatus status = [command_buffer status];
         if (status != MTLCommandBufferStatusCompleted) {
-            GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
+            GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, cb_idx, status);
             return false;
         }
     }
