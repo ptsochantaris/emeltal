@@ -19,7 +19,7 @@ final class Asset: Codable, Identifiable {
 
     static var assetList: [Asset] {
         get {
-            let categories: [Category] = [.sauerkrautSolar, .dolphinMixtral, .mythoMax, .dolphinPhi2, .deepSeekCoder, .dolphin70b]
+            let categories: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder, .mythoMax, .tinyLlama]
 
             let peristsedList = (Persisted.assetList ?? [Asset]()).filter { category in
                 if !categories.contains(where: { $0.id == category.id }), !category.isInstalled {
@@ -28,12 +28,34 @@ final class Asset: Codable, Identifiable {
                     true
                 }
             }
+
             let newItems = categories
                 .map { Asset(defaultFor: $0) }
                 .filter { defaultAsset in
-                    !peristsedList.contains(where: { $0.id == defaultAsset.id })
+                    peristsedList.allSatisfy { $0.id != defaultAsset.id }
                 }
-            return peristsedList + newItems
+
+            let presentedItems = (peristsedList + newItems).sorted { $0.category.order < $1.category.order }
+
+            // Clean up deprecated model files
+            let potentialModelPaths = Set(presentedItems.map(\.localModelPath) + [Asset(defaultFor: .whisper).localModelPath])
+            let fm = FileManager.default
+            let onDiskModelPaths = Set((try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)) ?? []).filter { !$0.lastPathComponent.hasPrefix(".") }
+            let unusedFiles = onDiskModelPaths.subtracting(potentialModelPaths)
+            for file in unusedFiles {
+                log("Removing stale unused model file: \(file.path)")
+                try? fm.removeItem(at: file)
+            }
+
+            let potentialStatePaths = Set(presentedItems.map(\.localStatePath))
+            let onDiskStatePaths = Set((try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil))?.filter { $0.lastPathComponent.hasPrefix("states-") } ?? [])
+            let unusedStateDirs = onDiskStatePaths.subtracting(potentialStatePaths)
+            for file in unusedStateDirs {
+                log("Removing stale state dir: \(file.path)")
+                try? fm.removeItem(at: file)
+            }
+
+            return presentedItems
         }
         set {
             Persisted.assetList = newValue
@@ -83,8 +105,10 @@ final class Asset: Codable, Identifiable {
         updateInstalledStatus()
     }
 
+    static var modelsDir = appDocumentsUrl.appendingPathComponent("models", conformingTo: .directory)
+
     var localModelPath: URL {
-        let modelDir = appDocumentsUrl.appendingPathComponent("models", conformingTo: .directory)
+        let modelDir = Self.modelsDir
         let fm = FileManager.default
         if !fm.fileExists(atPath: modelDir.path) {
             try! fm.createDirectory(at: modelDir, withIntermediateDirectories: true)
@@ -102,14 +126,8 @@ final class Asset: Codable, Identifiable {
     }
 
     func mlTemplate(in context: LlamaContext) -> Template? {
-        if category.format.acceptsSystemPrompt {
-            Template(format: category.format,
-                     system: params.systemPrompt,
-                     bosToken: context.bosToken)
-        } else {
-            Template(format: category.format,
-                     system: "",
-                     bosToken: context.bosToken)
-        }
+        Template(format: category.format,
+                 system: params.systemPrompt,
+                 bosToken: context.bosToken)
     }
 }

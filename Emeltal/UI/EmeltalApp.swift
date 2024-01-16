@@ -16,7 +16,7 @@ struct EmeltalApp: App {
                     Persisted.selectedAssetId = asset.category.id
                     state = AppState(asset: asset)
                 }
-                .frame(width: 600)
+                .frame(width: 900)
                 .fixedSize()
             }
         }

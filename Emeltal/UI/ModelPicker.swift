@@ -51,9 +51,10 @@ struct ModelPicker: View {
 
                 let recommended = Asset.Category.sauerkrautSolar
                 let item = GridItem(spacing: 14)
-                LazyVGrid(columns: [item, item], spacing: 14) {
+                LazyVGrid(columns: [item, item, item], spacing: 14) {
                     ForEach(Asset.assetList) {
                         AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
+                            .aspectRatio(1.5, contentMode: .fit)
                     }
                 }
 

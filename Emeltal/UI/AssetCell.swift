@@ -16,6 +16,7 @@ struct AssetCell: View {
             if selected == asset {
                 RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
                     .stroke(style: StrokeStyle(lineWidth: 4))
+                    .foregroundStyle(.accent)
             }
 
             VStack(spacing: 8) {
