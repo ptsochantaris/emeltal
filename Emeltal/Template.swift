@@ -34,8 +34,8 @@ struct Template {
         let suffix = suffix(for: step)
         return switch step {
         case .initial:
-            if format.acceptsSystemPrompt, !system.isEmpty {
-                "\(bosToken)\(prefix)\(system)\(suffix)"
+            if let systemText {
+                "\(bosToken)\(prefix)\(systemText)\(suffix)"
             } else {
                 "\(bosToken)"
             }
@@ -43,6 +43,14 @@ struct Template {
             "\(prefix)\(text)\(suffix)"
         case .cancel:
             suffix
+        }
+    }
+
+    var systemText: String? {
+        if format.acceptsSystemPrompt, !system.isEmpty {
+            system
+        } else {
+            nil
         }
     }
 

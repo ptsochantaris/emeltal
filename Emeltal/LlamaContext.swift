@@ -196,6 +196,8 @@ final class LlamaContext {
         turns.count
     }
 
+    private static let wordBuffer = UnsafeMutablePointer<Int8>.allocate(capacity: 1024)
+
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let start = Date.now
 
@@ -227,20 +229,23 @@ final class LlamaContext {
                                               params.repeatPenatly, // repeat penalty
                                               params.frequencyPenatly, // freq penalty
                                               params.presentPenatly) // present penalty
-            let new_token_id = llama_sample_token(context, &candidates_p)
-            if new_token_id == eosTokenId {
+            let newTokenId = llama_sample_token(context, &candidates_p)
+            if newTokenId == eosTokenId {
                 break
             }
 
             ensureCacheSpace(toFit: 1)
 
-            logits = currentTurn.appendAndPredict(token: new_token_id, in: context, pos: allTokensCount)
+            logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
 
-            if let new_token_str = Self.text(from: new_token_id, in: model) {
+            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023))
+            if written > 0 {
+                Self.wordBuffer[written] = 0
+                let new_token_str = String(utf8String: Self.wordBuffer) ?? ""
                 // log("Fragment: \(new_token_id) - '\(new_token_str)'")
                 continuation.yield(new_token_str)
             } else {
-                log("Warning, wordbuffer was invalid - token ID was \(new_token_id)")
+                log("Warning, wordbuffer was invalid - token ID was \(newTokenId)")
             }
 
             await Task.yield()
@@ -259,17 +264,5 @@ final class LlamaContext {
         }
 
         continuation.finish()
-    }
-
-    private static let wordBuffer = UnsafeMutablePointer<Int8>.allocate(capacity: 256)
-
-    private static func text(from token: Int32, in model: OpaquePointer) -> String? {
-        let written = Int(llama_token_to_piece(model, token, wordBuffer, 255))
-        if written > 0 {
-            wordBuffer[written] = 0
-            return String(utf8String: wordBuffer)
-        } else {
-            return nil
-        }
     }
 }

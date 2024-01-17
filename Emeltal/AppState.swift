@@ -85,7 +85,7 @@ final class AppState: Identifiable, ModeProvider {
         await llamaContext?.clearAllTokens()
         messageLog = ""
         try await save()
-        try await chatInit()
+        try await chatInit(hasSavedState: false)
         resetting = false
     }
 
@@ -193,6 +193,7 @@ final class AppState: Identifiable, ModeProvider {
 
         processFloatingMode(fromBoot: true)
 
+        let hasSavedState = FileManager.default.fileExists(atPath: textPath.path)
         if hasSavedState {
             messageLog = (try? String(contentsOf: textPath)) ?? ""
             messageLog += "\n"
@@ -231,7 +232,7 @@ final class AppState: Identifiable, ModeProvider {
         statusMessage = "Warming Up"
 
         Task {
-            try await chatInit()
+            try await chatInit(hasSavedState: hasSavedState)
             await startServer()
         }
     }
@@ -297,7 +298,11 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
-    private func chatInit() async throws {
+    private func chatInit(hasSavedState: Bool) async throws {
+        if !hasSavedState, let systemText = template.systemText {
+            messageLog = "> *\"\(systemText)\"*\n"
+        }
+
         try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
         shouldWaitOrListen()
         statusMessage = nil
@@ -494,10 +499,6 @@ final class AppState: Identifiable, ModeProvider {
 
     private var textPath: URL {
         statePath.appendingPathComponent("text.txt")
-    }
-
-    var hasSavedState: Bool {
-        FileManager.default.fileExists(atPath: textPath.path)
     }
 
     func save() async throws {
