@@ -48,16 +48,19 @@ struct ContentView: View {
 
                         ToolbarItem {
                             Button {
+                                state.textOnly.toggle()
+                            } label: {
+                                Image(systemName: state.textOnly ? "text.bubble" : "speaker.wave.2.bubble")
+                            }
+                        }
+
+                        ToolbarItem {
+                            Button {
                                 if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) || state.mode == .replying {
                                     state.requestReset()
                                 }
                             } label: {
-                                HStack(spacing: 0) {
-                                    Image(systemName: "clear")
-                                    Text("Reset")
-                                        .padding([.leading, .trailing], 4)
-                                        .font(.caption)
-                                }
+                                Image(systemName: "clear")
                             }
                             .keyboardShortcut(KeyEquivalent("k"), modifiers: .command)
                         }

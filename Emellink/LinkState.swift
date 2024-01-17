@@ -13,15 +13,22 @@ final class LinkState: ModeProvider {
     private let remote = ClientConnector()
     private let speaker = try! Speaker()
     private let mic = Mic()
+
+    private var connectionStateObservation: Cancellable!
+    private var micObservation: Cancellable!
+
     var messageLog = ""
     var multiLineText = ""
-
     var shouldPromptForIdealVoice = false
-
     var connectionState = EmeltalConnector.State.boot
-    private var connectionStateObservation: Cancellable!
 
-    private var micObservation: Cancellable!
+    var textOnly = false {
+        didSet {
+            Task {
+                await speaker.setMute(textOnly)
+            }
+        }
+    }
 
     var remoteActivationState = ActivationState.button {
         didSet {
