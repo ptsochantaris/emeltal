@@ -229,14 +229,16 @@ static void * ggml_metal_host_malloc(size_t n) {
     return data;
 }
 
-struct ggml_metal_context *mtlContext = NULL;
+static int g_backend_shared_context_ref_count = 0;
+struct ggml_metal_context *g_backend_shared_context = NULL;
 
 static struct ggml_metal_context * ggml_metal_init(int n_cb) {
-    if(mtlContext) {
-        GGML_METAL_LOG_INFO("%s: reusing\n", __func__);
-        return mtlContext;
+    if(g_backend_shared_context) {
+        g_backend_shared_context_ref_count++;
+        GGML_METAL_LOG_INFO("%s: reusing existing context, now used by %d clients\n", __func__, g_backend_shared_context_ref_count);
+        return g_backend_shared_context;
     }
-    
+
     GGML_METAL_LOG_INFO("%s: allocating\n", __func__);
 
     id<MTLDevice> device;
@@ -481,12 +483,41 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SUM_ROWS,                  sum_rows,               true);
     }
 
-    mtlContext = ctx;
+    g_backend_shared_context_ref_count++;
+    g_backend_shared_context = ctx;
     return ctx;
 }
 
 static void ggml_metal_free(struct ggml_metal_context * ctx) {
-    abort(); // This should not be called in this app, as the context is shared
+    g_backend_shared_context_ref_count--;
+    if(g_backend_shared_context > 0) {
+        GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
+        return;
+    }
+
+    GGML_METAL_LOG_INFO("%s: deallocating\n", __func__);
+
+    for (int i = 0; i < ctx->n_buffers; ++i) {
+        [ctx->buffers[i].metal release];
+    }
+
+    for (int i = 0; i < GGML_METAL_MAX_KERNELS; ++i) {
+        if (ctx->kernels[i].pipeline) {
+            [ctx->kernels[i].pipeline release];
+        }
+
+        if (ctx->kernels[i].function) {
+            [ctx->kernels[i].function release];
+        }
+    }
+
+    [ctx->library release];
+    [ctx->queue release];
+    [ctx->device release];
+
+    dispatch_release(ctx->d_queue);
+
+    free(ctx);
 }
 
 // temporarily defined here for compatibility between ggml-backend and the old API
