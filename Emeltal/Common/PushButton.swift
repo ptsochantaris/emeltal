@@ -21,11 +21,12 @@ import SwiftUI
             var handler: (Bool) -> Void
 
             private var pushed = false
+            private var monitor: Any?
 
             init(handler: @escaping (Bool) -> Void, pressed _: Bool = false) {
                 self.handler = handler
                 super.init(frame: .zero)
-                NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp]) { [weak self] event in
+                monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp]) { [weak self] event in
                     guard event.keyCode == kVK_DownArrow, let self else { return event }
                     if event.isARepeat { return nil }
                     switch event.type {
@@ -38,6 +39,12 @@ import SwiftUI
                     default:
                         return event
                     }
+                }
+            }
+
+            deinit {
+                if let monitor {
+                    NSEvent.removeMonitor(monitor)
                 }
             }
 
