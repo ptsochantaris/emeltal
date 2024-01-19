@@ -77,6 +77,7 @@ struct ContentView: View {
             do {
                 try await state.boot()
             } catch {
+                log("Error booting: \(error.localizedDescription)")
                 fatalError(error.localizedDescription)
             }
         }

@@ -139,9 +139,9 @@ final actor Mic: NSObject {
         let convertedBufferFrames = Int(Self.outputFrames * Self.micBufferSize / sampleRate)
         let convertedBufferBytes = convertedBufferFrames * MemoryLayout<Float>.size
         let convertedBuffer = AVAudioPCMBuffer(pcmFormat: Self.outputFormat, frameCapacity: AVAudioFrameCount(convertedBufferFrames))!
-        var currentMicLevel: Float = 0
-        var lastMicLevel: Float?
         var voiceDetected = !useVoiceDetection
+        var micLevels = [Float]()
+        var startedLevel: Float = 0
 
         let audioPointer = convertedBuffer.floatChannelData![0]
         var audioProcessingBuffer = UnsafeMutableBufferPointer(start: audioPointer, count: convertedBufferFrames)
@@ -151,21 +151,33 @@ final actor Mic: NSObject {
 
             if useVoiceDetection {
                 let power = Self.fft.fftForwardSingleBandMagnitude(incomingBuffer.floatChannelData![0])
-                if let lastMicLevel {
-                    currentMicLevel = lastMicLevel * 0.4 + power * 0.6
-                    let currentLevelRoc = abs(currentMicLevel - lastMicLevel)
+                micLevels.append(power)
+                if micLevels.count > 8 {
+                    micLevels.remove(at: 0)
+                    let oldLevels = micLevels[0] + micLevels[1] + micLevels[2]
+                    let newLevels = micLevels[5] + micLevels[6] + micLevels[7]
                     if voiceDetected {
-                        if currentLevelRoc < 0.18 {
+                        if oldLevels > newLevels {
+                            let ratio = oldLevels / newLevels
+                            if ratio > 20 {
+                                log("Voice end (drop in power)")
+                                voiceDetected = false
+                            }
+                        } else if abs(startedLevel - newLevels) < 0.3 && abs(startedLevel - oldLevels) < 0.3 {
+                            log("Voice end (low volume - was: \(newLevels) vs started at \(oldLevels)")
                             voiceDetected = false
                         }
-                    } else if currentLevelRoc > 70 {
-                        voiceDetected = true
+                    } else {
+                        if newLevels > oldLevels {
+                            let ratio = newLevels / oldLevels
+                            if ratio > 10 {
+                                print("Voice start")
+                                startedLevel = oldLevels
+                                voiceDetected = true
+                            }
+                        }
                     }
-                    // print(currentMicLevel, abs(currentLevelRoc))
-                } else {
-                    currentMicLevel = power
                 }
-                lastMicLevel = currentMicLevel
             }
 
             var error: NSError?
