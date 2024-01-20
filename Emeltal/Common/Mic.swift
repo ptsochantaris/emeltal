@@ -163,7 +163,7 @@ final actor Mic: NSObject {
                                 log("Voice end (drop in power)")
                                 voiceDetected = false
                             }
-                        } else if abs(startedLevel - newLevels) < 0.3 && abs(startedLevel - oldLevels) < 0.3 {
+                        } else if abs(startedLevel - newLevels) < 0.3, abs(startedLevel - oldLevels) < 0.3 {
                             log("Voice end (low volume - was: \(newLevels) vs started at \(oldLevels)")
                             voiceDetected = false
                         }

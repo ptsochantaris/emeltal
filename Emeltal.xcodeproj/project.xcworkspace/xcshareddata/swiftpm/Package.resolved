@@ -1,12 +1,12 @@
 {
   "pins" : [
     {
-      "identity" : "networkimage",
+      "identity" : "ink",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "location" : "https://github.com/JohnSundell/Ink",
       "state" : {
-        "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
-        "version" : "6.0.0"
+        "revision" : "bcc9f219900a62c4210e6db726035d7f03ae757b",
+        "version" : "0.6.0"
       }
     },
     {
@@ -16,15 +16,6 @@
       "state" : {
         "revision" : "866789ba524adc477ad3eb0ad41c929f7092dac7",
         "version" : "1.0.1"
-      }
-    },
-    {
-      "identity" : "swift-markdown-ui",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
-      "state" : {
-        "revision" : "ae799d015a5374708f7b4c85f3294c05f2a564e2",
-        "version" : "2.3.0"
       }
     }
   ],

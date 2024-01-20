@@ -27,7 +27,7 @@ struct ContentView: View {
                             IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
                         }
 
-                        MessageLog(messageLog: $state.messageLog, padding: false)
+                        WebView(messageLog: state.messageLog)
 
                         TextField("Hold \"↓\" to speak, or enter your message here", text: $state.multiLineText)
                             .textFieldStyle(.roundedBorder)

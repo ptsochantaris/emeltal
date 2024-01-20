@@ -33,7 +33,7 @@ struct ContentView: View {
 
         } detail: {
             VStack(spacing: 0) {
-                MessageLog(messageLog: $state.messageLog, padding: true)
+                WebView(messageLog: state.messageLog)
                     .navigationBarBackButtonHidden()
                     .toolbar {
                         if horizontalSizeClass == .compact {

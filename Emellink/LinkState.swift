@@ -17,7 +17,7 @@ final class LinkState: ModeProvider {
     private var connectionStateObservation: Cancellable!
     private var micObservation: Cancellable!
 
-    var messageLog = ""
+    var messageLog = MessageLog(string: "")
     var multiLineText = ""
     var shouldPromptForIdealVoice = false
     var connectionState = EmeltalConnector.State.boot
@@ -234,14 +234,14 @@ final class LinkState: ModeProvider {
 
             case .textInitial:
                 if let textData = nibble.data, textData.count > 1, let text = String(data: textData, encoding: .utf8) {
-                    messageLog = text
+                    messageLog = MessageLog(string: text)
                 } else {
-                    messageLog = ""
+                    messageLog = MessageLog(string: "")
                 }
 
             case .textDiff:
                 if let textData = nibble.data, let text = String(data: textData, encoding: .utf8) {
-                    messageLog += text
+                    messageLog.appendText(text)
                 }
 
             case .buttonDown, .heartbeat, .hello, .recordedSpeech, .recordedSpeechDone, .requestReset, .textInput, .toggleListeningMode:

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		160189862B1A026B0012B315 /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
-		1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 1601898C2B1A51860012B315 /* MarkdownUI */; };
 		1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1608DB6D2B151B4F00FFFB09 /* ContentView.swift */; };
 		1608DB702B151B5000FFFB09 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1608DB6F2B151B5000FFFB09 /* Assets.xcassets */; };
 		1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1608DB922B151C4600FFFB09 /* Metal.framework */; };
@@ -39,7 +38,6 @@
 		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
 		168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56002B331BA8007CADC1 /* AssetParams.swift */; };
 		168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56022B331BCC007CADC1 /* AssetCollection.swift */; };
-		168F57AD2B443063003A1190 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 168F57AC2B443063003A1190 /* MarkdownUI */; };
 		168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B02B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B22B44434F003A1190 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57B12B44434F003A1190 /* SideBar.swift */; };
@@ -70,6 +68,8 @@
 		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
+		16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C992B5C1DDF0056E9FB /* Ink */; };
+		16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C9B2B5C1DE50056E9FB /* Ink */; };
 		16EEC2932B5098FD00541CB0 /* ggml-metal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2842B5098FD00541CB0 /* ggml-metal.metal */; };
 		16EEC2942B5098FD00541CB0 /* ggml-metal.m in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2852B5098FD00541CB0 /* ggml-metal.m */; settings = {COMPILER_FLAGS = "-DGGML_USE_ACCELERATE=1 -DGGML_USE_METAL=1 -DGGML_METAL_NDEBUG=1 -DNDEBUG=1 -fno-objc-arc -DACCELERATE_NEW_LAPACK=1 -DACCELERATE_LAPACK_ILP64=1"; }; };
 		16EEC2952B5098FD00541CB0 /* ggml-alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 16EEC2872B5098FD00541CB0 /* ggml-alloc.c */; settings = {COMPILER_FLAGS = "-DGGML_USE_ACCELERATE=1 -DGGML_USE_METAL=1 -DGGML_METAL_NDEBUG=1 -DNDEBUG=1 -fno-objc-arc -DACCELERATE_NEW_LAPACK=1 -DACCELERATE_LAPACK_ILP64=1"; }; };
@@ -174,7 +174,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16C58E102B37688000006CC2 /* PopTimer in Frameworks */,
-				1601898D2B1A51860012B315 /* MarkdownUI in Frameworks */,
+				16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
 				1608DB952B151C4B00FFFB09 /* Accelerate.framework in Frameworks */,
 			);
@@ -185,7 +185,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16C58E122B37688D00006CC2 /* PopTimer in Frameworks */,
-				168F57AD2B443063003A1190 /* MarkdownUI in Frameworks */,
+				16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,8 +358,8 @@
 			);
 			name = Emeltal;
 			packageProductDependencies = (
-				1601898C2B1A51860012B315 /* MarkdownUI */,
 				16C58E0F2B37688000006CC2 /* PopTimer */,
+				16DF6C992B5C1DDF0056E9FB /* Ink */,
 			);
 			productName = Safespace;
 			productReference = 1608DB682B151B4F00FFFB09 /* Emeltal.app */;
@@ -380,7 +380,7 @@
 			name = Emellink;
 			packageProductDependencies = (
 				16C58E112B37688D00006CC2 /* PopTimer */,
-				168F57AC2B443063003A1190 /* MarkdownUI */,
+				16DF6C9B2B5C1DE50056E9FB /* Ink */,
 			);
 			productName = Emelterm;
 			productReference = 16C58DDA2B34701200006CC2 /* Emellink.app */;
@@ -415,8 +415,8 @@
 			);
 			mainGroup = 1608DB5F2B151B4F00FFFB09;
 			packageReferences = (
-				1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */,
+				16DF6C982B5C1D7D0056E9FB /* XCRemoteSwiftPackageReference "Ink" */,
 			);
 			productRefGroup = 1608DB692B151B4F00FFFB09 /* Products */;
 			projectDirPath = "";
@@ -868,14 +868,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.2.0;
-			};
-		};
 		16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ptsochantaris/pop-timer";
@@ -884,19 +876,17 @@
 				minimumVersion = 1.0.1;
 			};
 		};
+		16DF6C982B5C1D7D0056E9FB /* XCRemoteSwiftPackageReference "Ink" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/JohnSundell/Ink";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1601898C2B1A51860012B315 /* MarkdownUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
-			productName = MarkdownUI;
-		};
-		168F57AC2B443063003A1190 /* MarkdownUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1601898B2B1A51860012B315 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
-			productName = MarkdownUI;
-		};
 		16C58E0F2B37688000006CC2 /* PopTimer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
@@ -906,6 +896,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;
 			productName = PopTimer;
+		};
+		16DF6C992B5C1DDF0056E9FB /* Ink */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16DF6C982B5C1D7D0056E9FB /* XCRemoteSwiftPackageReference "Ink" */;
+			productName = Ink;
+		};
+		16DF6C9B2B5C1DE50056E9FB /* Ink */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16DF6C982B5C1D7D0056E9FB /* XCRemoteSwiftPackageReference "Ink" */;
+			productName = Ink;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -11,11 +11,7 @@ final class AppState: Identifiable, ModeProvider {
 
     var multiLineText = ""
 
-    var messageLog = "" {
-        didSet {
-            sendMessageLog(originalCount: oldValue.count, newCount: messageLog.count, value: messageLog)
-        }
-    }
+    var messageLog = MessageLog(path: nil)
 
     var mode: AppMode = .startup {
         didSet {
@@ -83,7 +79,7 @@ final class AppState: Identifiable, ModeProvider {
         await llamaContext?.cancelIfNeeded()
         await speaker?.cancelIfNeeded()
         await llamaContext?.clearAllTokens()
-        messageLog = ""
+        messageLog.reset()
         try await save()
         try await chatInit(hasSavedState: false)
         resetting = false
@@ -166,6 +162,13 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
+    private func appendToMessageLog(_ text: String) {
+        let originalCount = messageLog.newText.count
+        messageLog.appendText(text)
+        let newCount = messageLog.newText.count
+        sendMessageLog(originalCount: originalCount, newCount: newCount, value: messageLog.newText)
+    }
+
     func boot() async throws {
         guard mode == .startup else {
             return
@@ -195,8 +198,7 @@ final class AppState: Identifiable, ModeProvider {
 
         let hasSavedState = FileManager.default.fileExists(atPath: textPath.path)
         if hasSavedState {
-            messageLog = (try? String(contentsOf: textPath)) ?? ""
-            messageLog += "\n"
+            messageLog = MessageLog(path: textPath)
         }
 
         let l = Task.detached { try await LlamaContext(manager: llm) }
@@ -266,7 +268,9 @@ final class AppState: Identifiable, ModeProvider {
             case .hello:
                 await remote.send(.appActivationState, content: activationState.data)
                 await remote.send(.appMode, content: mode.data)
-                sendMessageLog(originalCount: 0, newCount: messageLog.count, value: messageLog)
+
+                let allText = messageLog.history + messageLog.newText
+                sendMessageLog(originalCount: 0, newCount: allText.count, value: allText)
 
             case .requestReset:
                 try? await reset()
@@ -300,7 +304,7 @@ final class AppState: Identifiable, ModeProvider {
 
     private func chatInit(hasSavedState: Bool) async throws {
         if !hasSavedState, let systemText = template.systemText {
-            messageLog = "> *\"\(systemText)\"*\n"
+            messageLog = MessageLog(string: "> *\"\(systemText)\"*\n")
         }
 
         try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
@@ -430,7 +434,7 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         let sanitisedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        messageLog += "\n#### \(sanitisedText)\n"
+        appendToMessageLog("\n#### \(sanitisedText)\n")
 
         let index = await max(0, llamaContext.turnCount - 1)
         let stream = await llamaContext.process(text: sanitisedText, template: template, turnIndex: index)
@@ -459,7 +463,7 @@ final class AppState: Identifiable, ModeProvider {
                 }
             }
 
-            messageLog += fragment // .replacingOccurrences(of: "\n", with: "<br>")
+            appendToMessageLog(fragment) // .replacingOccurrences(of: "\n", with: "<br>")
             sentenceBuffer += fragment
             if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, !resetting {
                 let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
@@ -472,7 +476,7 @@ final class AppState: Identifiable, ModeProvider {
             if !sentenceBuffer.isEmpty {
                 await handleText(sentenceBuffer, inQuote: inQuote)
             }
-            messageLog += "\n"
+            appendToMessageLog("\n")
 
             try? await save()
             await speaker?.waitForCompletion()
@@ -511,7 +515,7 @@ final class AppState: Identifiable, ModeProvider {
             }
 
         } else {
-            try messageLog.write(toFile: textPath.path, atomically: true, encoding: .utf8)
+            try messageLog.save(to: textPath)
             try await llamaContext?.save(to: statePath)
             log("Saved state to \(statePath.path)")
         }
