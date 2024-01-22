@@ -3,7 +3,7 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral
+        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo
 
         var order: Int {
             switch self {
@@ -17,6 +17,7 @@ extension Asset {
             case .deepSeekCoder: 700
             case .mythoMax: 800
             case .tinyLlama: 900
+            case .fusionNetDpo: 950
             }
         }
 
@@ -30,6 +31,7 @@ extension Asset {
             case .tinyLlama: .zephyr
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
+            case .fusionNetDpo: .alpaca
             }
         }
 
@@ -58,6 +60,7 @@ extension Asset {
             case .tinyLlama: 3
             case .openChat: 7
             case .nousHermesMixtral: 41
+            case .fusionNetDpo: 11
             }
         }
 
@@ -73,6 +76,7 @@ extension Asset {
             case .tinyLlama: "0.9 GB"
             case .openChat: "5.2 GB"
             case .nousHermesMixtral: "33 GB"
+            case .fusionNetDpo: "8.9 GB"
             }
         }
 
@@ -88,12 +92,13 @@ extension Asset {
             case .tinyLlama: "Doesn't do conversation, but huge in terms of size-to-performance. Responds best to stand-alone instructions."
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
+            case .fusionNetDpo: "This is an experimental mixture-of-experts model which holds the top open-source LLM benchmark at the moment."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .tinyLlama: 256
             case .whisper: 0
             }
@@ -120,6 +125,7 @@ extension Asset {
             case .sauerkrautSolar: 1.17
             case .openChat: 1.17
             case .tinyLlama: 1.17
+            case .fusionNetDpo: 1.17
             case .whisper: 0
             }
         }
@@ -133,6 +139,7 @@ extension Asset {
             case .openChat: 0.1
             case .tinyLlama: 0.1
             case .nousHermesMixtral: 0.1
+            case .fusionNetDpo: 0.1
             case .whisper: 0
             }
         }
@@ -157,6 +164,7 @@ extension Asset {
             case .openChat: "https://huggingface.co/openchat/openchat-3.5-0106"
             case .tinyLlama: "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+            case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
             }
             return URL(string: uri)!
         }
@@ -173,6 +181,7 @@ extension Asset {
             case .openChat: "openchat-3.5-0106.Q5_K_M.gguf"
             case .tinyLlama: "tinyllama-1.1b-chat-v1.0.Q6_K.gguf"
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
+            case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
             }
 
             return emeltalRepo
@@ -193,6 +202,7 @@ extension Asset {
             case .openChat: "OpenChat"
             case .tinyLlama: "Tiny Llama"
             case .nousHermesMixtral: "Nous Hermes"
+            case .fusionNetDpo: "FusionNet"
             }
         }
 
@@ -208,6 +218,7 @@ extension Asset {
             case .openChat: "v3.5(0106)"
             case .tinyLlama: "v1.0 1.1B"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
+            case .fusionNetDpo: "DPO finetune"
             }
         }
 
@@ -223,6 +234,7 @@ extension Asset {
             case .openChat: "983CD5E9-F843-4D76-8D7B-2FB5A40841BE"
             case .tinyLlama: "547BE1E8-D26B-4286-B34F-C4FB83DFDE11"
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
+            case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
             }
         }
 

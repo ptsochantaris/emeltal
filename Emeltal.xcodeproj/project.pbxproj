@@ -21,7 +21,7 @@
 		163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0542B31B6EB00565F49 /* AssetCell.swift */; };
 		163EF0572B31B78300565F49 /* PushButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0562B31B78300565F49 /* PushButton.swift */; };
 		163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0592B31B7BD00565F49 /* Assistant.swift */; };
-		163EF05C2B31B7D400565F49 /* Genie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05B2B31B7D400565F49 /* Genie.swift */; };
+		163EF05C2B31B7D400565F49 /* Backgrounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05B2B31B7D400565F49 /* Backgrounds.swift */; };
 		163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05D2B31B80800565F49 /* ManagerRow.swift */; };
 		163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */; };
 		163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0612B31D0CD00565F49 /* SideBar.swift */; };
@@ -62,7 +62,7 @@
 		16C58E072B35D50200006CC2 /* Mic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160189852B1A026B0012B315 /* Mic.swift */; };
 		16C58E092B35D72500006CC2 /* ModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58E082B35D72500006CC2 /* ModeView.swift */; };
 		16C58E0A2B35D73A00006CC2 /* ModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58E082B35D72500006CC2 /* ModeView.swift */; };
-		16C58E0B2B35DA1300006CC2 /* Genie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05B2B31B7D400565F49 /* Genie.swift */; };
+		16C58E0B2B35DA1300006CC2 /* Backgrounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF05B2B31B7D400565F49 /* Backgrounds.swift */; };
 		16C58E0C2B36473900006CC2 /* PushButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0562B31B78300565F49 /* PushButton.swift */; };
 		16C58E0D2B3655D300006CC2 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
@@ -112,7 +112,7 @@
 		163EF0542B31B6EB00565F49 /* AssetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCell.swift; sourceTree = "<group>"; };
 		163EF0562B31B78300565F49 /* PushButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushButton.swift; sourceTree = "<group>"; };
 		163EF0592B31B7BD00565F49 /* Assistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assistant.swift; sourceTree = "<group>"; };
-		163EF05B2B31B7D400565F49 /* Genie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genie.swift; sourceTree = "<group>"; };
+		163EF05B2B31B7D400565F49 /* Backgrounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backgrounds.swift; sourceTree = "<group>"; };
 		163EF05D2B31B80800565F49 /* ManagerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerRow.swift; sourceTree = "<group>"; };
 		163EF05F2B31B8BF00565F49 /* EmeltalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalApp.swift; sourceTree = "<group>"; };
 		163EF0612B31D0CD00565F49 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
@@ -319,7 +319,7 @@
 				16C58DF12B34E4B700006CC2 /* CommonGlobals.swift */,
 				16D86BE72B20917C00DAE806 /* Emeltal.metal */,
 				16C58DEE2B34C11800006CC2 /* EmeltalConnector.swift */,
-				163EF05B2B31B7D400565F49 /* Genie.swift */,
+				163EF05B2B31B7D400565F49 /* Backgrounds.swift */,
 				160189852B1A026B0012B315 /* Mic.swift */,
 				16C58E082B35D72500006CC2 /* ModeView.swift */,
 				163EF0562B31B78300565F49 /* PushButton.swift */,
@@ -497,7 +497,7 @@
 				16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */,
 				16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */,
 				1608DB982B151DF000FFFB09 /* LlamaContext.swift in Sources */,
-				163EF05C2B31B7D400565F49 /* Genie.swift in Sources */,
+				163EF05C2B31B7D400565F49 /* Backgrounds.swift in Sources */,
 				16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -522,7 +522,7 @@
 				16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */,
 				16C58E072B35D50200006CC2 /* Mic.swift in Sources */,
 				1654854D2B3EE80200DB2B3A /* FFT.swift in Sources */,
-				16C58E0B2B35DA1300006CC2 /* Genie.swift in Sources */,
+				16C58E0B2B35DA1300006CC2 /* Backgrounds.swift in Sources */,
 				1626DBCA2B45E0EF002D0A91 /* ClientConnector.swift in Sources */,
 				16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */,
 			);

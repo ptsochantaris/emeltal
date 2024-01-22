@@ -23,3 +23,34 @@ using namespace metal;
 
     return half4(waveColor, color.a);
 }
+
+float2 GetGradient(float2 intPos, float t) {
+    float rand = fract(sin(dot(intPos, float2(12.9898, 78.233))) * 43758.5453);
+    float angle = 6.283185 * rand + 4.0 * t * rand;
+    return float2(cos(angle), sin(angle));
+}
+
+[[ stitchable ]] half4 modelBackground(float2 position, half4 color, float2 size, float time) {
+    float2 uv = position / size.y;
+    float3 pos = float3(uv * 2, time * 0.2);
+
+    float2 i = floor(pos.xy);
+    float2 f = pos.xy - i;
+    float2 blend = f * f * (3.0 - 2.0 * f);
+    float noiseVal =
+        mix(
+            mix(
+                dot(GetGradient(i + float2(0, 0), pos.z), f - float2(0, 0)),
+                dot(GetGradient(i + float2(1, 0), pos.z), f - float2(1, 0)),
+                blend.x),
+            mix(
+                dot(GetGradient(i + float2(0, 1), pos.z), f - float2(0, 1)),
+                dot(GetGradient(i + float2(1, 1), pos.z), f - float2(1, 1)),
+                blend.x),
+        blend.y
+    );
+
+    half wave = abs(sin(position.y));
+    half noise = noiseVal * wave * 0.4;
+    return half4(color.x - noise, color.y - noise, color.z - noise, color.a);
+}

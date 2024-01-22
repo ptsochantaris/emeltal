@@ -10,13 +10,13 @@ struct AssetCell: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
-                .foregroundStyle(.ultraThinMaterial)
+            PickerEntryBackground()
 
             if selected == asset {
                 RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
-                    .stroke(style: StrokeStyle(lineWidth: 4))
+                    .stroke(style: StrokeStyle(lineWidth: 3))
                     .foregroundStyle(.accent)
+                    .padding(1)
             }
 
             VStack(spacing: 8) {

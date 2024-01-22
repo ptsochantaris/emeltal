@@ -98,7 +98,14 @@ struct SideBar: View {
                 .frame(height: assistantWidth) // make it square
         }
         .foregroundColor(.widgetForeground)
-        .background(Image(.canvas).resizable().aspectRatio(contentMode: .fill))
+        .background {
+            switch state.mode {
+            case .booting, .loading, .startup, .warmup:
+                ShimmerBackground()
+            case .listening, .noting, .replying, .thinking, .waiting:
+                Image(.canvas).resizable().aspectRatio(contentMode: .fill)
+            }
+        }
         .contentShape(Rectangle())
         .frame(width: assistantWidth)
         .cornerRadius(44)

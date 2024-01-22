@@ -49,37 +49,45 @@ struct ModelPicker: View {
                     .padding()
                     .padding([.leading, .trailing], 64)
 
-                let recommended = Asset.Category.sauerkrautSolar
-                let item = GridItem(spacing: 14)
-                LazyVGrid(columns: [item, item, item], spacing: 14) {
-                    ForEach(Asset.assetList) {
-                        AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
-                            .aspectRatio(1.5, contentMode: .fit)
+                ScrollViewReader { scrollReader in
+                    ScrollView {
+                        let item = GridItem(spacing: 14)
+                        LazyVGrid(columns: [item, item, item], spacing: 14) {
+                            let recommended = Asset.Category.sauerkrautSolar
+                            ForEach(Asset.assetList) {
+                                AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
+                                    .aspectRatio(1.5, contentMode: .fit)
+                                    .id($0.id)
+                            }
+                        }
+                    }
+                    .frame(idealHeight: 480)
+                    .onAppear {
+                        scrollReader.scrollTo(selectedAsset.id)
                     }
                 }
 
                 if showOverrides {
                     Grid(alignment: .leading) {
                         if selectedAsset.category.format.acceptsSystemPrompt {
-                            GridRow {
+                            GridRow(alignment: .top) {
                                 Text("System Prompt")
-                                    .gridColumnAlignment(.trailing)
-                                TextField("System Prompt", text: $selectedAsset.params.systemPrompt)
-                                    .textFieldStyle(PlainTextFieldStyle())
-                                    .padding([.top, .bottom], 4)
-                                    .padding([.leading, .trailing], 7)
-                                    .background {
-                                        RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
-                                            .stroke(.secondary)
-                                    }
-                            }
+                                    .padding(.top, 3)
 
-                            GridRow {
-                                Spacer()
-                                Text("(applies when creating, or after resetting, a conversation)")
-                                    .foregroundStyle(.secondary)
-                                    .font(.caption2)
-                                    .padding([.bottom], 4)
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    TextField("System Prompt", text: $selectedAsset.params.systemPrompt, axis: .vertical)
+                                        .textFieldStyle(PlainTextFieldStyle())
+                                        .padding([.top, .bottom], 4)
+                                        .padding([.leading, .trailing], 7)
+                                        .background {
+                                            RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
+                                                .stroke(.secondary)
+                                        }
+                                    Text("(applies when creating, or after resetting, a conversation)")
+                                        .foregroundStyle(.secondary)
+                                        .font(.caption2)
+                                        .padding([.bottom], 4)
+                                }
                             }
                         }
 
@@ -132,7 +140,7 @@ struct ModelPicker: View {
             .padding([.leading, .trailing])
             .padding(.bottom, 10)
             .foregroundStyle(.white)
-            .background(Image(.canvas).resizable())
+            .background(ShimmerBackground())
             .navigationTitle("Select an ML model")
         }
     }

@@ -91,13 +91,15 @@ extension WebView {
                 border-bottom-style: solid;
                 display: block;
 
+                font-size: 110%;
+
                 padding: 0;
-                padding-bottom: 8pt;
+                padding-bottom: 7pt;
                 padding-left: 3pt;
                 padding-right: 3pt;
 
                 margin: 0;
-                margin-top: 32pt;
+                margin-top: 30pt;
                 margin-bottom: -4pt;
                 margin-left: -3pt;
                 margin-right: -3pt;

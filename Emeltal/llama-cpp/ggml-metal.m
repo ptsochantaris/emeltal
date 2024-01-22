@@ -253,8 +253,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
 
     // Pick and show default Metal device
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    NSString * s = [device name];
-    GGML_METAL_LOG_INFO("%s: picking default device: %s\n", __func__, [s UTF8String]);
+    GGML_METAL_LOG_INFO("%s: picking default device: %@\n", __func__, [device name]);
 
     // Configure context
     struct ggml_metal_context * ctx = malloc(sizeof(struct ggml_metal_context));
