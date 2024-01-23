@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="highlight.css">
+        <script src="highlight.js"></script>
+    </head>
+    <body>
+        <div id='__emeltal_internal_history'></div>
+        <div id='__emeltal_internal_new'></div>
+        <script>
+            historyElement = document.getElementById("__emeltal_internal_history");
+            newElement = document.getElementById("__emeltal_internal_new");
+            function scrollToBottom() {
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+            function setHTML(element, html) {
+                element.innerHTML = html;
+                element.querySelectorAll("pre code").forEach(function(e){
+                    hljs.highlightElement(e);
+                });
+            }
+        </script>
+    </body>
+</html>

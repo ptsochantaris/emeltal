@@ -19,7 +19,7 @@ final class Asset: Codable, Identifiable {
 
     static var assetList: [Asset] {
         get {
-            let categories: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder, .mythoMax, .tinyLlama, .fusionNetDpo]
+            let categories = Category.presentedModels
 
             let peristsedList = (Persisted.assetList ?? [Asset]()).filter { category in
                 if !categories.contains(where: { $0.id == category.id }), !category.isInstalled {

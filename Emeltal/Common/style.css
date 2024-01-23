@@ -1,0 +1,59 @@
+:root {
+    color-scheme: light dark;
+    color: CanvasText;
+    font-family: -apple-system;
+    background: transparent;
+}
+
+body {
+    margin: 3pt;
+}
+
+h4 {
+    border-color: gray;
+    border-width: 0.5pt;
+    border-bottom-style: solid;
+    display: block;
+
+    font-stretch: 50%;
+    font-size: 134%;
+
+    padding: 0;
+    padding-bottom: 9pt;
+    padding-left: 3pt;
+    padding-right: 3pt;
+
+    margin: 0;
+    margin-top: 30pt;
+    margin-bottom: -3pt;
+    margin-left: -3pt;
+    margin-right: -3pt;
+}
+
+blockquote {
+    font-size: small;
+    margin: 0;
+    background: Canvas;
+    padding-left: 12pt;
+    padding-right: 12pt;
+    padding-top: 2pt;
+    padding-bottom: 3pt;
+    border-radius: 16pt;
+}
+
+pre code {
+    font-size: 110%;
+    background: Canvas;
+    border-radius: 8pt;
+    display: block;
+}
+
+p > code,
+li > code,
+dd > code,
+td > code {
+    font-weight: bold;
+    font-size: large;
+    opacity: 70%;
+    baseline-shift: 0.1;
+}

@@ -3,7 +3,9 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo
+        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo
+
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
 
         var order: Int {
             switch self {
@@ -18,6 +20,7 @@ extension Asset {
             case .mythoMax: 800
             case .tinyLlama: 900
             case .fusionNetDpo: 950
+            case .momo: 1000
             }
         }
 
@@ -32,6 +35,7 @@ extension Asset {
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
+            case .momo: .chatml
             }
         }
 
@@ -56,11 +60,12 @@ extension Asset {
             case .dolphinPhi2: 5
             case .mythoMax: 16
             case .whisper: 2
-            case .dolphin70b: 51
+            case .dolphin70b: 52
             case .tinyLlama: 3
             case .openChat: 7
             case .nousHermesMixtral: 41
             case .fusionNetDpo: 11
+            case .momo: 52
             }
         }
 
@@ -77,6 +82,7 @@ extension Asset {
             case .openChat: "5.2 GB"
             case .nousHermesMixtral: "33 GB"
             case .fusionNetDpo: "8.9 GB"
+            case .momo: "49.9 GB"
             }
         }
 
@@ -92,13 +98,14 @@ extension Asset {
             case .tinyLlama: "Doesn't do conversation, but huge in terms of size-to-performance. Responds best to stand-alone instructions."
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
-            case .fusionNetDpo: "This is an experimental mixture-of-experts model which holds the top open-source LLM benchmark at the moment."
+            case .fusionNetDpo: "This is an experimental mixture-of-experts model with the top sentence completion performance."
+            case .momo: "Moreh's finetune of the Qwen 72B model. Currently the top overall model on the HuggingFace LLM leaderboard."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .tinyLlama: 256
             case .whisper: 0
             }
@@ -126,6 +133,7 @@ extension Asset {
             case .openChat: 1.17
             case .tinyLlama: 1.17
             case .fusionNetDpo: 1.17
+            case .momo: 1.17
             case .whisper: 0
             }
         }
@@ -140,6 +148,7 @@ extension Asset {
             case .tinyLlama: 0.1
             case .nousHermesMixtral: 0.1
             case .fusionNetDpo: 0.1
+            case .momo: 0.1
             case .whisper: 0
             }
         }
@@ -165,6 +174,7 @@ extension Asset {
             case .tinyLlama: "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
+            case .momo: "https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO"
             }
             return URL(string: uri)!
         }
@@ -182,6 +192,7 @@ extension Asset {
             case .tinyLlama: "tinyllama-1.1b-chat-v1.0.Q6_K.gguf"
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
+            case .momo: "MoMo-72B-lora-1.8.7-DPO-q5_k_s.gguf"
             }
 
             return emeltalRepo
@@ -203,6 +214,7 @@ extension Asset {
             case .tinyLlama: "Tiny Llama"
             case .nousHermesMixtral: "Nous Hermes"
             case .fusionNetDpo: "FusionNet"
+            case .momo: "MoMo"
             }
         }
 
@@ -216,9 +228,10 @@ extension Asset {
             case .dolphin70b: "on Llama 70b (x2)"
             case .dolphinPhi2: "v2.6, on Phi-2"
             case .openChat: "v3.5(0106)"
-            case .tinyLlama: "v1.0 1.1B"
+            case .tinyLlama: "v1.0 1.1b"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
+            case .momo: "DPO, on Qwen 72b"
             }
         }
 
@@ -235,6 +248,7 @@ extension Asset {
             case .tinyLlama: "547BE1E8-D26B-4286-B34F-C4FB83DFDE11"
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
+            case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"
             }
         }
 

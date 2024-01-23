@@ -10,7 +10,7 @@ private extension String {
         if isEmpty {
             return ""
         }
-        return parser.html(from: self).replacingOccurrences(of: "'", with: "\\'").replacingOccurrences(of: "\n", with: "\\n")
+        return parser.html(from: self).replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'").replacingOccurrences(of: "\n", with: "\\n")
     }
 }
 
@@ -33,7 +33,7 @@ private extension String {
 extension WebView {
     @MainActor
     final class Coordinator {
-        let webView = WKWebView()
+        let webView: WKWebView
         var displayedHistoryCount = 0
         var displayedBuildingCount = 0
 
@@ -45,98 +45,29 @@ extension WebView {
             let newHistoryCount = messageLog.history.count
             if displayedHistoryCount != newHistoryCount {
                 let html = messageLog.history.markdownToHtml
-                js += "document.getElementById('__emeltal_internal_history').innerHTML = '\(html)';"
+                js += "setHTML(historyElement, '\(html)');"
                 displayedHistoryCount = newHistoryCount
             }
 
             let newBuildingCount = messageLog.newText.count
             if displayedBuildingCount != newBuildingCount {
                 let html = messageLog.newText.markdownToHtml
-                js += "document.getElementById('__emeltal_internal_new').innerHTML = '\(html)';"
+                js += "setHTML(newElement, '\(html)');"
                 displayedBuildingCount = newBuildingCount
             }
 
             if !js.isEmpty {
+                js += "setTimeout(scrollToBottom, 1);"
                 queue.continuation.yield(js)
             }
         }
 
-        private func scrollToBottom() {
-            #if canImport(AppKit)
-                webView.scrollToEndOfDocument(nil)
-            #else
-                webView.scrollView.scrollRectToVisible(CGRect(x: 0, y: webView.scrollView.contentSize.height - 1, width: 1, height: 1), animated: false)
-            #endif
-        }
-
         init() {
-            webView.loadHTMLString("""
-            <!DOCTYPE html>
-            <html>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-            :root {
-                color-scheme: light dark;
-                color: CanvasText;
-                font-family: sans-serif;
-                background: transparent;
-            }
-            p code {
-                font-weight: bold;
-                font-size: large;
-            }
-            h4 {
-                border-color: gray;
-                border-width: 0.5pt;
-                border-bottom-style: solid;
-                display: block;
-
-                font-size: 110%;
-
-                padding: 0;
-                padding-bottom: 7pt;
-                padding-left: 3pt;
-                padding-right: 3pt;
-
-                margin: 0;
-                margin-top: 30pt;
-                margin-bottom: -4pt;
-                margin-left: -3pt;
-                margin-right: -3pt;
-            }
-            blockquote {
-                font-size: small;
-                margin: 0;
-                background: Canvas;
-                padding-left: 12pt;
-                padding-right: 12pt;
-                padding-top: 3pt;
-                padding-bottom: 3pt;
-                border-radius: 16pt;
-            }
-            pre code {
-                font-size: 110%;
-                font-weight: regular;
-                font-family: monospace;
-                background: Canvas;
-                padding: 12pt;
-                display: inline-block;
-                white-space: pre;
-                -webkit-overflow-scrolling: touch;
-                overflow-x: scroll;
-                max-width: 100%;
-                min-width: 100px;
-                border-radius: 16pt;
-                margin-left: -6pt;
-
-            }
-            </style>
-            <body>
-            <div id='__emeltal_internal_history'></div>
-            <div id='__emeltal_internal_new'></div>
-            </body>
-            </html>
-            """, baseURL: nil)
+            let logView = Bundle.main.url(forResource: "log", withExtension: "html")!
+            let config = WKWebViewConfiguration()
+            config.suppressesIncrementalRendering = true
+            webView = WKWebView(frame: .zero, configuration: config)
+            webView.loadFileURL(logView, allowingReadAccessTo: logView.deletingLastPathComponent())
 
             #if canImport(AppKit)
                 webView.setValue(false, forKey: "drawsBackground")
@@ -150,10 +81,12 @@ extension WebView {
                 while webView.isLoading {
                     await Task.yield()
                 }
-                scrollToBottom()
                 for await js in queue.stream {
-                    _ = try? await webView.evaluateJavaScript(js)
-                    scrollToBottom()
+                    do {
+                        _ = try await webView.evaluateJavaScript(js)
+                    } catch {
+                        log("Error evaluating JS: \(error)")
+                    }
                 }
             }
         }

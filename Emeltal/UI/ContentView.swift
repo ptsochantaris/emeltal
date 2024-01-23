@@ -37,6 +37,7 @@ struct ContentView: View {
                                     state.send()
                                 }
                             }
+                            .padding(.bottom)
                     }
                     .toolbar {
                         Button {
@@ -69,9 +70,10 @@ struct ContentView: View {
                 }
 
                 SideBar(state: state, focusEntryField: $focusEntryField)
+                    .padding([.top, .bottom])
             }
         }
-        .padding()
+        .padding([.leading, .trailing])
         .navigationTitle("Emeltal — \(state.displayName)")
         .task {
             do {
