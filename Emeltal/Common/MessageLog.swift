@@ -7,10 +7,11 @@ private let parser = MarkdownParser()
 
 private extension String {
     var markdownToHtml: String {
-        if isEmpty {
+        let source = trimmingCharacters(in: .whitespacesAndNewlines)
+        if source.isEmpty {
             return ""
         }
-        return parser.html(from: self).replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'").replacingOccurrences(of: "\n", with: "\\n")
+        return parser.html(from: source).replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'").replacingOccurrences(of: "\n", with: "\\n")
     }
 }
 
