@@ -44,25 +44,25 @@ extension WebView {
         private let queue = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
 
         func update(from messageLog: MessageLog) {
-            var js = ""
+            var html1: String?
+            var html2: String?
 
             let newHistoryCount = messageLog.history.count
             if displayedHistoryCount != newHistoryCount {
-                let html = messageLog.history.markdownToHtml
-                js += "setHTML(historyElement, '\(html)');"
+                html1 = messageLog.history.markdownToHtml
                 displayedHistoryCount = newHistoryCount
             }
 
             let newBuildingCount = messageLog.newText.count
             if displayedBuildingCount != newBuildingCount {
-                let html = messageLog.newText.markdownToHtml
-                js += "setHTML(newElement, '\(html)');"
+                html2 = messageLog.newText.markdownToHtml
                 displayedBuildingCount = newBuildingCount
             }
 
-            if !js.isEmpty {
-                js += "setTimeout(scrollToBottom, 1);"
-                queue.continuation.yield(js)
+            if html1 != nil || html2 != nil {
+                let h1 = if let html1 { "'\(html1)'" } else { "null" }
+                let h2 = if let html2 { "'\(html2)'" } else { "null" }
+                queue.continuation.yield("setHTML(\(h1),\(h2));")
             }
         }
 
@@ -87,7 +87,10 @@ extension WebView {
                 }
                 for await js in queue.stream {
                     do {
-                        _ = try await webView.evaluateJavaScript(js)
+                        let ret = try await webView.evaluateJavaScript(js)
+                        if ret as? Bool == true {
+                            log("Scrolled text view")
+                        }
                     } catch {
                         log("Error evaluating JS: \(error)")
                     }

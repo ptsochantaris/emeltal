@@ -10,16 +10,29 @@
         <div id='__emeltal_internal_history' style="margin-top: 15pt;"></div>
         <div id='__emeltal_internal_new'></div>
         <script>
-            historyElement = document.getElementById("__emeltal_internal_history");
-            newElement = document.getElementById("__emeltal_internal_new");
-            function scrollToBottom() {
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-            function setHTML(element, html) {
-                element.innerHTML = html;
-                element.querySelectorAll("pre code").forEach(function(e){
-                    hljs.highlightElement(e);
-                });
+            var historyElement = document.getElementById("__emeltal_internal_history");
+            var newElement = document.getElementById("__emeltal_internal_new");
+            var lastDocHeight = 0;
+            function setHTML(html1, html2) {
+                if(html1 != null) {
+                    historyElement.innerHTML = html1;
+                    historyElement.querySelectorAll("pre code").forEach(function(e){
+                        hljs.highlightElement(e);
+                    });
+                }
+                if(html2 != null) {
+                    newElement.innerHTML = html2;
+                    newElement.querySelectorAll("pre code").forEach(function(e){
+                        hljs.highlightElement(e);
+                    });
+                }
+                var newDocHeight = document.body.scrollHeight;
+                var shouldScroll = lastDocHeight < newDocHeight;
+                if (shouldScroll) {
+                    lastDocHeight = newDocHeight
+                    window.scrollTo(0, newDocHeight);
+                }
+                return shouldScroll;
             }
         </script>
     </body>
