@@ -157,6 +157,8 @@
 		16C58DFD2B351C6E00006CC2 /* AppMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMode.swift; sourceTree = "<group>"; };
 		16C58E082B35D72500006CC2 /* ModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeView.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		16D332342B6117C5009009A7 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
 		16EEC2832B5098FD00541CB0 /* ggml-quants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ggml-quants.h"; sourceTree = "<group>"; };
 		16EEC2842B5098FD00541CB0 /* ggml-metal.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = "ggml-metal.metal"; sourceTree = "<group>"; };
@@ -232,6 +234,8 @@
 		1608DB5F2B151B4F00FFFB09 = {
 			isa = PBXGroup;
 			children = (
+				16D332342B6117C5009009A7 /* LICENSE */,
+				16D332352B6117C5009009A7 /* README.md */,
 				1608DB6A2B151B4F00FFFB09 /* Emeltal */,
 				16C58DDB2B34701200006CC2 /* Emellink */,
 				1608DB692B151B4F00FFFB09 /* Products */,

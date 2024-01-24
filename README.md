@@ -18,8 +18,10 @@ This is a work in progress with frequent updates; [TestFlight builds are availab
 A light helper app which can run on an iPhone or device with not enough processing power, which automatically detects and connects to Emeltal on the network and provides the same voice interface. [Testflight link for this app is here](https://testflight.apple.com/join/s0EYVO5P)
 
 ## Packages
+
 - Emeltal heavily relies on the [llama.cpp](https://github.com/ggerganov/llama.cpp) and [whisper.cpp](https://github.com/ggerganov/whisper.cpp) libraries for LLM processing and voice recognition.
 - Text rendering uses [Ink](https://github.com/JohnSundell/Ink) to convert between Markdown and HTML.
+- Uses my [PopTimer](https://github.com/ptsochantaris/pop-timer) for debouncing things.
 
 ## License
 
@@ -29,4 +31,4 @@ All model data which is downloaded locally by the app comes from HuggingFace, an
 
 ## Copyright
 
-Copyright (c) 2023 Paul Tsochantaris
+Copyright (c) 2023-2024 Paul Tsochantaris

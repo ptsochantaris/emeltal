@@ -98,7 +98,7 @@ extension Asset {
             case .tinyLlama: "Doesn't do conversation, but huge in terms of size-to-performance. Responds best to stand-alone instructions."
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
-            case .fusionNetDpo: "This is an experimental mixture-of-experts model with the top sentence completion performance."
+            case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
             case .momo: "Moreh's finetune of the Qwen 72B model. Currently the top overall model on the HuggingFace LLM leaderboard."
             }
         }
@@ -231,7 +231,7 @@ extension Asset {
             case .tinyLlama: "v1.0 1.1b"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
-            case .momo: "DPO, on Qwen 72b"
+            case .momo: "v1.8.7-DPO, on Qwen 72b"
             }
         }
 
