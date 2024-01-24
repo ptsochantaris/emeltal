@@ -30,6 +30,16 @@ h4 {
     margin-right: -3pt;
 }
 
+@supports (-webkit-overflow-scrolling: touch) {
+    body {
+        margin-left: 10pt;
+        margin-right: 10pt;
+    }
+    h4 {
+        border-color: CanvasText;
+    }
+}
+
 blockquote {
     font-size: small;
     margin: 0;

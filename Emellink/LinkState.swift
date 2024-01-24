@@ -244,6 +244,9 @@ final class LinkState: ModeProvider {
                     messageLog.appendText(text)
                 }
 
+            case .responseDone:
+                messageLog.commitNewText()
+
             case .buttonDown, .heartbeat, .hello, .recordedSpeech, .recordedSpeechDone, .requestReset, .textInput, .toggleListeningMode:
                 break
 

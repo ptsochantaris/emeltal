@@ -14,7 +14,7 @@ class EmeltalConnector {
     static let networkQueue = DispatchQueue(label: "build.bru.emeltal.connector.network-queue")
 
     enum Payload: UInt64 {
-        case unknown = 0, spokenSentence, appMode, recordedSpeech, recordedSpeechDone, toggleListeningMode, buttonDown, appActivationState, heartbeat, textInitial, textDiff, textInput, hello, requestReset
+        case unknown = 0, spokenSentence, appMode, recordedSpeech, recordedSpeechDone, toggleListeningMode, buttonDown, appActivationState, heartbeat, textInitial, textDiff, textInput, hello, requestReset, responseDone
     }
 
     struct Nibble {

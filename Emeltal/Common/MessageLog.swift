@@ -132,9 +132,12 @@ final class MessageLog {
         newText = ""
     }
 
-    func save(to url: URL) throws {
+    func commitNewText() {
         history += newText
         newText = ""
+    }
+
+    func save(to url: URL) throws {
         try history.write(toFile: url.path, atomically: true, encoding: .utf8)
     }
 }

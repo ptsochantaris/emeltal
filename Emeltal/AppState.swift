@@ -142,31 +142,24 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
-    private func sendMessageLog(originalCount: Int, newCount: Int, value: String) {
-        guard originalCount != newCount else { return }
+    private func sendMessageLog(value: String, initial: Bool) {
+        guard let data = value.data(using: .utf8) else { return }
         Task {
-            if originalCount == 0 || newCount == 0 {
-                if let data = value.data(using: .utf8) {
-                    if data.isEmpty {
-                        await remote.send(.textInitial, content: emptyData)
-                    } else {
-                        await remote.send(.textInitial, content: data)
-                    }
+            if initial {
+                if data.isEmpty {
+                    await remote.send(.textInitial, content: emptyData)
+                } else {
+                    await remote.send(.textInitial, content: data)
                 }
-            } else if originalCount < newCount {
-                let sliceStart = value.index(value.startIndex, offsetBy: originalCount)
-                if let data = value[sliceStart...].data(using: .utf8) {
-                    await remote.send(.textDiff, content: data)
-                }
+            } else {
+                await remote.send(.textDiff, content: data)
             }
         }
     }
 
     private func appendToMessageLog(_ text: String) {
-        let originalCount = messageLog.newText.count
         messageLog.appendText(text)
-        let newCount = messageLog.newText.count
-        sendMessageLog(originalCount: originalCount, newCount: newCount, value: messageLog.newText)
+        sendMessageLog(value: text, initial: false)
     }
 
     func boot() async throws {
@@ -262,7 +255,7 @@ final class AppState: Identifiable, ModeProvider {
             log("From client: \(nibble)")
 
             switch nibble.payload {
-            case .appActivationState, .appMode, .heartbeat, .spokenSentence, .textDiff, .textInitial, .unknown:
+            case .appActivationState, .appMode, .heartbeat, .responseDone, .spokenSentence, .textDiff, .textInitial, .unknown:
                 break
 
             case .hello:
@@ -270,7 +263,7 @@ final class AppState: Identifiable, ModeProvider {
                 await remote.send(.appMode, content: mode.data)
 
                 let allText = messageLog.history + messageLog.newText
-                sendMessageLog(originalCount: 0, newCount: allText.count, value: allText)
+                sendMessageLog(value: allText, initial: true)
 
             case .requestReset:
                 try? await reset()
@@ -515,6 +508,8 @@ final class AppState: Identifiable, ModeProvider {
             }
 
         } else {
+            messageLog.commitNewText()
+            await remote.send(.responseDone, content: emptyData)
             try messageLog.save(to: textPath)
             try await llamaContext?.save(to: statePath)
             log("Saved state to \(statePath.path)")

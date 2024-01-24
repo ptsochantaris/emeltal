@@ -27,7 +27,7 @@
                     });
                 }
                 var newDocHeight = document.body.scrollHeight;
-                var shouldScroll = lastDocHeight < newDocHeight;
+                var shouldScroll = lastDocHeight != newDocHeight;
                 if (shouldScroll) {
                     lastDocHeight = newDocHeight
                     window.scrollTo(0, newDocHeight);
