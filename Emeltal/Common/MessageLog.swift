@@ -11,7 +11,10 @@ private extension String {
         if source.isEmpty {
             return ""
         }
-        return parser.html(from: source).replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'").replacingOccurrences(of: "\n", with: "\\n")
+        return parser.html(from: source)
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "'", with: "\\'")
+            .replacingOccurrences(of: "\n", with: "\\n")
     }
 }
 
