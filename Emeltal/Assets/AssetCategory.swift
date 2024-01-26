@@ -112,15 +112,45 @@ extension Asset {
         }
 
         private var defaultTopK: Int {
-            50
+            100 // i.e. disabled
         }
 
         private var defaultTopP: Float {
-            0.5
+            1.0 // i.e. disabled
         }
 
         private var defaultTemperature: Float {
-            0.7
+            switch self {
+            case .deepSeekCoder: 0
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.7
+            case .nousHermesMixtral: 0.7
+            case .mythoMax: 0.7
+            case .sauerkrautSolar: 0.7
+            case .openChat: 0.7
+            case .tinyLlama: 0.7
+            case .fusionNetDpo: 0.7
+            case .momo: 0.7
+            case .whisper: 0
+            }
+        }
+
+        private var defaultTemperatureRange: Float {
+            switch self {
+            case .deepSeekCoder: 0
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.2
+            case .nousHermesMixtral: 0.2
+            case .mythoMax: 0.2
+            case .sauerkrautSolar: 0.2
+            case .openChat: 0.2
+            case .tinyLlama: 0.2
+            case .fusionNetDpo: 0.2
+            case .momo: 0.2
+            case .whisper: 0
+            }
+        }
+
+        private var defaultTemperatureExponent: Float {
+            1.0
         }
 
         private var defaultRepeatPenatly: Float {
@@ -257,6 +287,8 @@ extension Asset {
                    topP: defaultTopP,
                    systemPrompt: defaultPrompt,
                    temperature: defaultTemperature,
+                   temperatureRange: defaultTemperatureRange,
+                   temperatureExponent: defaultTemperatureExponent,
                    repeatPenatly: defaultRepeatPenatly,
                    frequencyPenatly: defaultFrequencyPenalty,
                    presentPenatly: defaultPresentPenalty)

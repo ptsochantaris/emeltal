@@ -7,11 +7,14 @@ private struct IntRow: View {
     @Binding var value: Int
 
     var body: some View {
-        GridRow {
-            Text(title)
-                .gridColumnAlignment(.trailing)
+        VStack {
+            HStack {
+                Text(title)
+                Text(":")
+                Text(value, format: .number)
+                Spacer()
+            }
             Slider(value: .convert(from: $value), in: range)
-            Text(value, format: .number)
         }
     }
 }
@@ -22,11 +25,14 @@ private struct FloatRow: View {
     @Binding var value: Float
 
     var body: some View {
-        GridRow {
-            Text(title)
-                .gridColumnAlignment(.trailing)
+        VStack {
+            HStack {
+                Text(title)
+                Text(":")
+                Text(value, format: .number)
+                Spacer()
+            }
             Slider(value: .round(from: $value), in: range)
-            Text(value, format: .number)
         }
     }
 }
@@ -68,35 +74,58 @@ struct ModelPicker: View {
                 }
 
                 if showOverrides {
-                    Grid(alignment: .leading) {
+                    VStack(spacing: 24) {
                         if selectedAsset.category.format.acceptsSystemPrompt {
-                            GridRow(alignment: .top) {
-                                Text("System Prompt")
-                                    .padding(.top, 3)
+                            VStack {
+                                HStack(alignment: .bottom) {
+                                    Text("System Prompt")
+                                        .padding(.top, 3)
 
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    TextField("System Prompt", text: $selectedAsset.params.systemPrompt, axis: .vertical)
-                                        .textFieldStyle(PlainTextFieldStyle())
-                                        .padding([.top, .bottom], 4)
-                                        .padding([.leading, .trailing], 7)
-                                        .background {
-                                            RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
-                                                .stroke(.secondary)
-                                        }
+                                    Spacer()
+
                                     Text("(applies when creating, or after resetting, a conversation)")
                                         .foregroundStyle(.secondary)
                                         .font(.caption2)
-                                        .padding([.bottom], 4)
                                 }
+                                TextField("System Prompt", text: $selectedAsset.params.systemPrompt, axis: .vertical)
+                                    .textFieldStyle(PlainTextFieldStyle())
+                                    .padding([.top, .bottom], 4)
+                                    .padding([.leading, .trailing], 7)
+                                    .background {
+                                        RoundedRectangle(cornerSize: CGSize(width: 8, height: 8), style: .continuous)
+                                            .stroke(.secondary)
+                                    }
                             }
                         }
 
-                        IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)
-                        FloatRow(title: "Top P", range: 0 ... 1, value: $selectedAsset.params.topP)
-                        FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
-                        FloatRow(title: "Repeat Penalty", range: 0 ... 2, value: $selectedAsset.params.repeatPenatly)
-                        FloatRow(title: "Frequency Penalty", range: 0 ... 2, value: $selectedAsset.params.frequencyPenatly)
-                        FloatRow(title: "Presence Penalty", range: 0 ... 2, value: $selectedAsset.params.presentPenatly)
+                        HStack(alignment: .top, spacing: 30) {
+                            VStack(spacing: 10) {
+                                let samplingType = selectedAsset.params.samplingType
+
+                                HStack(spacing: 10) {
+                                    FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
+                                        .opacity(samplingType == .temperature || samplingType == .entropy ? 1.0 : 0.5)
+
+                                    FloatRow(title: "Range", range: 0 ... 1, value: $selectedAsset.params.temperatureRange)
+                                        .opacity(samplingType == .entropy ? 1.0 : 0.5)
+
+                                    FloatRow(title: "Exponent", range: 1 ... 2, value: $selectedAsset.params.temperatureExponent)
+                                        .opacity(samplingType == .entropy ? 1.0 : 0.5)
+                                }
+
+                                FloatRow(title: "Top P", range: 0 ... 1, value: $selectedAsset.params.topP)
+                                    .opacity(samplingType == .topP ? 1.0 : 0.5)
+
+                                IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)
+                                    .opacity(samplingType == .topK ? 1.0 : 0.5)
+                            }
+
+                            VStack(spacing: 10) {
+                                FloatRow(title: "Repeat Penalty", range: 0 ... 2, value: $selectedAsset.params.repeatPenatly)
+                                FloatRow(title: "Frequency Penalty", range: 0 ... 2, value: $selectedAsset.params.frequencyPenatly)
+                                FloatRow(title: "Presence Penalty", range: 0 ... 2, value: $selectedAsset.params.presentPenatly)
+                            }
+                        }
                     }
                     .font(.callout)
                     .padding([.top, .bottom], 16)

@@ -221,15 +221,39 @@ final class LlamaContext {
 
             var candidates_p = llama_token_data_array(data: candidateBuffer.baseAddress, size: candidateBuffer.count, sorted: false)
             let params = manager.asset.params
-            llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
-            llama_sample_top_p(context, &candidates_p, params.topP, 1)
-            llama_sample_temp(context, &candidates_p, params.temperature)
+
             llama_sample_repetition_penalties(context, &candidates_p, newTokens,
                                               newTokens.count, // previous token count
                                               params.repeatPenatly, // repeat penalty
                                               params.frequencyPenatly, // freq penalty
                                               params.presentPenatly) // present penalty
-            let newTokenId = llama_sample_token(context, &candidates_p)
+
+            let newTokenId: llama_token
+
+            switch params.samplingType {
+            case .entropy:
+                let minTemp = max(0, params.temperature - params.temperatureRange)
+                let maxTemp = params.temperature + params.temperatureRange
+                let exponentVal: Float = 1 // TODO?
+                llama_sample_entropy(context, &candidates_p, minTemp, maxTemp, exponentVal)
+                newTokenId = llama_sample_token(context, &candidates_p)
+
+            case .temperature:
+                llama_sample_temp(context, &candidates_p, params.temperature)
+                newTokenId = llama_sample_token(context, &candidates_p)
+
+            case .topK:
+                llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
+                newTokenId = llama_sample_token_greedy(context, &candidates_p)
+
+            case .topP:
+                llama_sample_top_p(context, &candidates_p, params.topP, 1)
+                newTokenId = llama_sample_token_greedy(context, &candidates_p)
+
+            case .greedy:
+                newTokenId = llama_sample_token_greedy(context, &candidates_p)
+            }
+
             if newTokenId == eosTokenId {
                 break
             }
