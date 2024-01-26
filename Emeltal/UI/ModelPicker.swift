@@ -103,7 +103,7 @@ struct ModelPicker: View {
                                 let samplingType = selectedAsset.params.samplingType
 
                                 HStack(spacing: 10) {
-                                    FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
+                                    FloatRow(title: "Temperature", range: 0 ... 1.2, value: $selectedAsset.params.temperature)
                                         .opacity(samplingType == .temperature || samplingType == .entropy ? 1.0 : 0.5)
 
                                     FloatRow(title: "Range", range: 0 ... 1, value: $selectedAsset.params.temperatureRange)
