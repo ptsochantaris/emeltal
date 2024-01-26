@@ -100,24 +100,25 @@ struct ModelPicker: View {
 
                         HStack(alignment: .top, spacing: 30) {
                             VStack(spacing: 10) {
-                                let samplingType = selectedAsset.params.samplingType
-
+                                let params = selectedAsset.params
                                 HStack(spacing: 10) {
-                                    FloatRow(title: "Temperature", range: 0 ... 1.2, value: $selectedAsset.params.temperature)
-                                        .opacity(samplingType == .temperature || samplingType == .entropy ? 1.0 : 0.5)
+                                    let hasTemp = params.temperature > 0
+                                    let hasRange = hasTemp && params.temperatureRange > 0
+                                    FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
+                                        .opacity(hasTemp ? 1.0 : 0.5)
 
                                     FloatRow(title: "Range", range: 0 ... 1, value: $selectedAsset.params.temperatureRange)
-                                        .opacity(samplingType == .entropy ? 1.0 : 0.5)
+                                        .opacity(hasRange ? 1.0 : 0.5)
 
                                     FloatRow(title: "Exponent", range: 1 ... 2, value: $selectedAsset.params.temperatureExponent)
-                                        .opacity(samplingType == .entropy ? 1.0 : 0.5)
+                                        .opacity(hasRange ? 1.0 : 0.5)
                                 }
 
                                 FloatRow(title: "Top P", range: 0 ... 1, value: $selectedAsset.params.topP)
-                                    .opacity(samplingType == .topP ? 1.0 : 0.5)
+                                    .opacity(params.topP < 1 ? 1.0 : 0.5)
 
                                 IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)
-                                    .opacity(samplingType == .topK ? 1.0 : 0.5)
+                                    .opacity(params.topK < 100 ? 1.0 : 0.5)
                             }
 
                             VStack(spacing: 10) {

@@ -112,41 +112,19 @@ extension Asset {
         }
 
         private var defaultTopK: Int {
-            100 // i.e. disabled
+            50
         }
 
         private var defaultTopP: Float {
-            1.0 // i.e. disabled
+            0.5
         }
 
         private var defaultTemperature: Float {
-            switch self {
-            case .deepSeekCoder: 0
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.7
-            case .nousHermesMixtral: 0.7
-            case .mythoMax: 0.7
-            case .sauerkrautSolar: 0.7
-            case .openChat: 0.7
-            case .tinyLlama: 0.7
-            case .fusionNetDpo: 0.7
-            case .momo: 0.7
-            case .whisper: 0
-            }
+            0.7
         }
 
         private var defaultTemperatureRange: Float {
-            switch self {
-            case .deepSeekCoder: 0
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.2
-            case .nousHermesMixtral: 0.2
-            case .mythoMax: 0.2
-            case .sauerkrautSolar: 0.2
-            case .openChat: 0.2
-            case .tinyLlama: 0.2
-            case .fusionNetDpo: 0.2
-            case .momo: 0.2
-            case .whisper: 0
-            }
+            0.2
         }
 
         private var defaultTemperatureExponent: Float {
@@ -154,33 +132,11 @@ extension Asset {
         }
 
         private var defaultRepeatPenatly: Float {
-            switch self {
-            case .deepSeekCoder: 1
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 1.17
-            case .nousHermesMixtral: 1.17
-            case .mythoMax: 1.17
-            case .sauerkrautSolar: 1.17
-            case .openChat: 1.17
-            case .tinyLlama: 1.17
-            case .fusionNetDpo: 1.17
-            case .momo: 1.17
-            case .whisper: 0
-            }
+            1.17
         }
 
         private var defaultFrequencyPenalty: Float {
-            switch self {
-            case .deepSeekCoder: 0
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: 0.1
-            case .mythoMax: 0.1
-            case .sauerkrautSolar: 0.1
-            case .openChat: 0.1
-            case .tinyLlama: 0.1
-            case .nousHermesMixtral: 0.1
-            case .fusionNetDpo: 0.1
-            case .momo: 0.1
-            case .whisper: 0
-            }
+            0.1
         }
 
         private var defaultPresentPenalty: Float {

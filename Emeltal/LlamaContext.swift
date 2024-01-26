@@ -228,29 +228,28 @@ final class LlamaContext {
                                               params.frequencyPenatly, // freq penalty
                                               params.presentPenatly) // present penalty
 
+            if params.topP < 1 {
+                llama_sample_top_p(context, &candidates_p, params.topP, 1)
+            }
+
+            if params.topK < 100 {
+                llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
+            }
+
             let newTokenId: llama_token
 
-            switch params.samplingType {
-            case .entropy:
-                let minTemp = max(0, params.temperature - params.temperatureRange)
-                let maxTemp = params.temperature + params.temperatureRange
-                let exponentVal: Float = 1 // TODO?
-                llama_sample_entropy(context, &candidates_p, minTemp, maxTemp, exponentVal)
+            if params.temperature > 0 {
+                if params.temperatureRange > 0 {
+                    let minTemp = max(0, params.temperature - params.temperatureRange)
+                    let maxTemp = params.temperature + params.temperatureRange
+                    let exponentVal: Float = params.temperatureExponent
+                    llama_sample_entropy(context, &candidates_p, minTemp, maxTemp, exponentVal)
+                } else {
+                    llama_sample_temp(context, &candidates_p, params.temperature)
+                }
                 newTokenId = llama_sample_token(context, &candidates_p)
 
-            case .temperature:
-                llama_sample_temp(context, &candidates_p, params.temperature)
-                newTokenId = llama_sample_token(context, &candidates_p)
-
-            case .topK:
-                llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
-                newTokenId = llama_sample_token_greedy(context, &candidates_p)
-
-            case .topP:
-                llama_sample_top_p(context, &candidates_p, params.topP, 1)
-                newTokenId = llama_sample_token_greedy(context, &candidates_p)
-
-            case .greedy:
+            } else {
                 newTokenId = llama_sample_token_greedy(context, &candidates_p)
             }
 
