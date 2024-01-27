@@ -17,6 +17,7 @@ struct ContentView: View {
                             if !visibleFetchers.isEmpty {
                                 Text("Fetching ML data. This is only needed once per type of model.")
                                     .font(.headline)
+                                    .padding(.top)
                                 ForEach(visibleFetchers) {
                                     ManagerRow(manager: $0)
                                 }
