@@ -26,6 +26,10 @@
 
 #define UNUSED(x) (void)(x)
 
+struct ggml_metal_kernel {
+    id<MTLComputePipelineState> pipeline;
+};
+
 enum ggml_metal_kernel_type {
     GGML_METAL_KERNEL_TYPE_ADD,
     GGML_METAL_KERNEL_TYPE_ADD_ROW,
@@ -154,11 +158,10 @@ struct ggml_metal_context {
 
     id<MTLDevice>       device;
     id<MTLCommandQueue> queue;
-    id<MTLLibrary>      library;
-
+    
     dispatch_queue_t d_queue;
 
-    id<MTLComputePipelineState> pipelines[GGML_METAL_KERNEL_TYPE_COUNT];
+    struct ggml_metal_kernel kernels[GGML_METAL_KERNEL_TYPE_COUNT];
 
     bool support_simdgroup_reduction;
     bool support_simdgroup_mm;
@@ -240,9 +243,11 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
     // Configure context
     struct ggml_metal_context * ctx = malloc(sizeof(struct ggml_metal_context));
     ctx->device = device;
-    ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
+    ctx->n_cb   = MIN(n_cb, GGML_METAL_KERNEL_TYPE_COUNT);
     ctx->queue  = [ctx->device newCommandQueue];
     ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
+
+    id<MTLLibrary> metal_library;
 
     // load library
     {
@@ -252,7 +257,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         NSURL * libURL = [NSURL fileURLWithPath:libPath];
         GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [libPath UTF8String]);
         NSError *error;
-        ctx->library = [ctx->device newLibraryWithURL:libURL error:&error];
+        metal_library = [ctx->device newLibraryWithURL:libURL error:&error];
         if (error) {
             GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
             return NULL;
@@ -316,7 +321,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         NSError * error = nil;
 
         for (int i = 0; i < GGML_METAL_KERNEL_TYPE_COUNT; ++i) {
-            ctx->pipelines[i] = nil;
+            ctx->kernels[i].pipeline = nil;
         }
 
         /*
@@ -326,11 +331,13 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         */
 #define GGML_METAL_ADD_KERNEL(e, name, supported) \
         if (supported) { \
-            id<MTLFunction> metal_function = [ctx->library newFunctionWithName:@"kernel_"#name]; \
-            ctx->pipelines[e] = [ctx->device newComputePipelineStateWithFunction:metal_function error:&error]; \
+            struct ggml_metal_kernel * kernel = &ctx->kernels[e]; \
+            id<MTLFunction> metal_function = [metal_library newFunctionWithName:@"kernel_"#name]; \
+            kernel->pipeline = [ctx->device newComputePipelineStateWithFunction:metal_function error:&error]; \
             [metal_function release]; \
             if (error) { \
                 GGML_METAL_LOG_ERROR("%s: error: load pipeline error: %s\n", __func__, [[error description] UTF8String]); \
+                [metal_library release]; \
                 return NULL; \
             } \
         } else { \
@@ -459,6 +466,8 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SUM_ROWS,                  sum_rows,               true);
     }
 
+    [metal_library release];
+
     g_backend_shared_context_ref_count++;
     g_backend_shared_context = ctx;
     return ctx;
@@ -474,10 +483,9 @@ static void ggml_metal_free(struct ggml_metal_context * ctx) {
     GGML_METAL_LOG_INFO("%s: deallocating\n", __func__);
 
     for (int i = 0; i < GGML_METAL_KERNEL_TYPE_COUNT; ++i) {
-        [ctx->pipelines[i] release];
+        [ctx->kernels[i].pipeline release];
     }
 
-    [ctx->library release];
     [ctx->queue release];
     [ctx->device release];
 
@@ -747,7 +755,7 @@ static bool ggml_metal_graph_compute(
                     {
                         const int64_t nb = ne00;
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CONCAT];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CONCAT].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -803,18 +811,18 @@ static bool ggml_metal_graph_compute(
 
                             nb = ne00 / 4;
                             switch (dst->op) {
-                                case GGML_OP_ADD: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ADD_ROW]; break;
-                                case GGML_OP_MUL: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_ROW]; break;
-                                case GGML_OP_DIV: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_DIV_ROW]; break;
+                                case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD_ROW].pipeline; break;
+                                case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_ROW].pipeline; break;
+                                case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV_ROW].pipeline; break;
                                 default: GGML_ASSERT(false);
                             }
 
                             bcast_row = true;
                         } else {
                             switch (dst->op) {
-                                case GGML_OP_ADD: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ADD]; break;
-                                case GGML_OP_MUL: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL]; break;
-                                case GGML_OP_DIV: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_DIV]; break;
+                                case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD].pipeline; break;
+                                case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL].pipeline; break;
+                                case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV].pipeline; break;
                                 default: GGML_ASSERT(false);
                             }
                         }
@@ -881,7 +889,7 @@ static bool ggml_metal_graph_compute(
                             // not sure how to avoid this
                             // TODO: make a simpler cpy_bytes kernel
 
-                            const id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_F32];
+                            const id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_F32].pipeline;
 
                             [encoder setComputePipelineState:pipeline];
                             [encoder setBuffer:id_src0 offset:offs_src0        atIndex:0];
@@ -908,7 +916,7 @@ static bool ggml_metal_graph_compute(
                             [encoder dispatchThreadgroups:MTLSizeMake(ne01, ne02, ne03) threadsPerThreadgroup:MTLSizeMake(nth, 1, 1)];
                         }
 
-                        const id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ADD];
+                        const id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -956,9 +964,9 @@ static bool ggml_metal_graph_compute(
 
                         if (n % 4 == 0) {
                             n /= 4;
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SCALE_4];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SCALE_4].pipeline;
                         } else {
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SCALE];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SCALE].pipeline;
                         }
 
                         [encoder setComputePipelineState:pipeline];
@@ -972,7 +980,7 @@ static bool ggml_metal_graph_compute(
                     switch (ggml_get_unary_op(gf->nodes[i])) {
                         case GGML_UNARY_OP_TANH:
                             {
-                                id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_TANH];
+                                id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_TANH].pipeline;
 
                                 [encoder setComputePipelineState:pipeline];
                                 [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -984,7 +992,7 @@ static bool ggml_metal_graph_compute(
                             } break;
                         case GGML_UNARY_OP_RELU:
                             {
-                                id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_RELU];
+                                id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_RELU].pipeline;
 
                                 [encoder setComputePipelineState:pipeline];
                                 [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -996,7 +1004,7 @@ static bool ggml_metal_graph_compute(
                             } break;
                         case GGML_UNARY_OP_GELU:
                             {
-                                id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GELU];
+                                id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GELU].pipeline;
 
                                 [encoder setComputePipelineState:pipeline];
                                 [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1009,7 +1017,7 @@ static bool ggml_metal_graph_compute(
                             } break;
                         case GGML_UNARY_OP_GELU_QUICK:
                             {
-                                id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GELU_QUICK];
+                                id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GELU_QUICK].pipeline;
 
                                 [encoder setComputePipelineState:pipeline];
                                 [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1022,7 +1030,7 @@ static bool ggml_metal_graph_compute(
                             } break;
                         case GGML_UNARY_OP_SILU:
                             {
-                                id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SILU];
+                                id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SILU].pipeline;
 
                                 [encoder setComputePipelineState:pipeline];
                                 [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1043,7 +1051,7 @@ static bool ggml_metal_graph_compute(
                     {
                         GGML_ASSERT(ggml_is_contiguous(src0));
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SQR];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SQR].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1057,7 +1065,7 @@ static bool ggml_metal_graph_compute(
                     {
                         GGML_ASSERT(src0->nb[0] == ggml_type_size(src0->type));
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SUM_ROWS];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SUM_ROWS].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1099,12 +1107,12 @@ static bool ggml_metal_graph_compute(
                             while (nth < ne00/4 && nth < 256) {
                                 nth *= 2;
                             }
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SOFT_MAX_4];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SOFT_MAX_4].pipeline;
                         } else {
                             while (nth < ne00 && nth < 1024) {
                                 nth *= 2;
                             }
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_SOFT_MAX];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SOFT_MAX].pipeline;
                         }
 
                         const float scale = ((float *) dst->op_params)[0];
@@ -1132,9 +1140,9 @@ static bool ggml_metal_graph_compute(
                         id<MTLComputePipelineState> pipeline = nil;
 
                         if (ne00%8 == 0) {
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_DIAG_MASK_INF_8];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIAG_MASK_INF_8].pipeline;
                         } else {
-                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_DIAG_MASK_INF];
+                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIAG_MASK_INF].pipeline;
                         }
 
                         [encoder setComputePipelineState:pipeline];
@@ -1201,20 +1209,20 @@ static bool ggml_metal_graph_compute(
                             id<MTLComputePipelineState> pipeline = nil;
 
                             switch (src0->type) {
-                                case GGML_TYPE_F32:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_F32_F32    ]; break;
-                                case GGML_TYPE_F16:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_F16_F32    ]; break;
-                                case GGML_TYPE_Q4_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_0_F32   ]; break;
-                                case GGML_TYPE_Q4_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_1_F32   ]; break;
-                                case GGML_TYPE_Q5_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_0_F32   ]; break;
-                                case GGML_TYPE_Q5_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_1_F32   ]; break;
-                                case GGML_TYPE_Q8_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q8_0_F32   ]; break;
-                                case GGML_TYPE_Q2_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q2_K_F32   ]; break;
-                                case GGML_TYPE_Q3_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q3_K_F32   ]; break;
-                                case GGML_TYPE_Q4_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_K_F32   ]; break;
-                                case GGML_TYPE_Q5_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_K_F32   ]; break;
-                                case GGML_TYPE_Q6_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_Q6_K_F32   ]; break;
-                                case GGML_TYPE_IQ2_XXS: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ2_XXS_F32]; break;
-                                case GGML_TYPE_IQ2_XS:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ2_XS_F32 ]; break;
+                                case GGML_TYPE_F32:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_F32_F32    ].pipeline; break;
+                                case GGML_TYPE_F16:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_F16_F32    ].pipeline; break;
+                                case GGML_TYPE_Q4_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q4_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_1_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_1_F32   ].pipeline; break;
+                                case GGML_TYPE_Q8_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q8_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q2_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q2_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q3_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q3_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q4_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q4_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q5_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q6_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_Q6_K_F32   ].pipeline; break;
+                                case GGML_TYPE_IQ2_XXS: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ2_XXS_F32].pipeline; break;
+                                case GGML_TYPE_IQ2_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ2_XS_F32 ].pipeline; break;
                                 default: GGML_ASSERT(false && "MUL MAT-MAT not implemented");
                             }
 
@@ -1249,7 +1257,7 @@ static bool ggml_metal_graph_compute(
                                 case GGML_TYPE_F32:
                                     {
                                         GGML_ASSERT(src1t == GGML_TYPE_F32);
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_F32_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_F32_F32].pipeline;
                                         nrows = 4;
                                     } break;
                                 case GGML_TYPE_F16:
@@ -1258,16 +1266,16 @@ static bool ggml_metal_graph_compute(
                                         nth1 = 1;
                                         if (src1t == GGML_TYPE_F32) {
                                             if (ne11 * ne12 < 4) {
-                                                pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32_1ROW];
+                                                pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32_1ROW].pipeline;
                                             } else if (ne00 >= 128 && ne01 >= 8 && ne00%4 == 0) {
-                                                pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32_L4];
+                                                pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32_L4].pipeline;
                                                 nrows = ne11;
                                             } else {
-                                                pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32];
+                                                pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32].pipeline;
                                                 nrows = 4;
                                             }
                                         } else {
-                                            pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F16];
+                                            pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F16].pipeline;
                                             nrows = 4;
                                         }
                                     } break;
@@ -1275,73 +1283,73 @@ static bool ggml_metal_graph_compute(
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q4_1:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_1_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_1_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_0:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_1:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_1_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_1_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q8_0:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q8_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q8_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q2_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q2_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q2_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q3_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q3_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q3_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q4_K:
                                     {
                                         nth0 = 4; //1;
                                         nth1 = 8; //32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q4_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q5_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q6_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_Q6_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_Q6_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_IQ2_XXS:
                                     {
                                         nth0 = 4;
                                         nth1 = 16;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_IQ2_XXS_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_IQ2_XXS_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_IQ2_XS:
                                     {
                                         nth0 = 4;
                                         nth1 = 16;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_IQ2_XS_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_IQ2_XS_F32].pipeline;
                                     } break;
                                 default:
                                     {
@@ -1465,20 +1473,20 @@ static bool ggml_metal_graph_compute(
                             id<MTLComputePipelineState> pipeline = nil;
 
                             switch (src2->type) {
-                                case GGML_TYPE_F32:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_F32_F32    ]; break;
-                                case GGML_TYPE_F16:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_F16_F32    ]; break;
-                                case GGML_TYPE_Q4_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_0_F32   ]; break;
-                                case GGML_TYPE_Q4_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_1_F32   ]; break;
-                                case GGML_TYPE_Q5_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_0_F32   ]; break;
-                                case GGML_TYPE_Q5_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_1_F32   ]; break;
-                                case GGML_TYPE_Q8_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q8_0_F32   ]; break;
-                                case GGML_TYPE_Q2_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q2_K_F32   ]; break;
-                                case GGML_TYPE_Q3_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q3_K_F32   ]; break;
-                                case GGML_TYPE_Q4_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_K_F32   ]; break;
-                                case GGML_TYPE_Q5_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_K_F32   ]; break;
-                                case GGML_TYPE_Q6_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q6_K_F32   ]; break;
-                                case GGML_TYPE_IQ2_XXS: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ2_XXS_F32]; break;
-                                case GGML_TYPE_IQ2_XS:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ2_XS_F32 ]; break;
+                                case GGML_TYPE_F32:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_F32_F32    ].pipeline; break;
+                                case GGML_TYPE_F16:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_F16_F32    ].pipeline; break;
+                                case GGML_TYPE_Q4_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q4_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_1_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_1_F32   ].pipeline; break;
+                                case GGML_TYPE_Q8_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q8_0_F32   ].pipeline; break;
+                                case GGML_TYPE_Q2_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q2_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q3_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q3_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q4_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q4_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q5_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q5_K_F32   ].pipeline; break;
+                                case GGML_TYPE_Q6_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_Q6_K_F32   ].pipeline; break;
+                                case GGML_TYPE_IQ2_XXS: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ2_XXS_F32].pipeline; break;
+                                case GGML_TYPE_IQ2_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ2_XS_F32 ].pipeline; break;
                                 default: GGML_ASSERT(false && "MUL_MAT_ID not implemented");
                             }
 
@@ -1529,86 +1537,86 @@ static bool ggml_metal_graph_compute(
                                 case GGML_TYPE_F32:
                                     {
                                         GGML_ASSERT(src1t == GGML_TYPE_F32);
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_F32_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_F32_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_F16:
                                     {
                                         GGML_ASSERT(src1t == GGML_TYPE_F32);
                                         nth0 = 32;
                                         nth1 = 1;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_F16_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_F16_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q4_0:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q4_1:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_1_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_1_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_0:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_1:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_1_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_1_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q8_0:
                                     {
                                         nth0 = 8;
                                         nth1 = 8;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q8_0_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q8_0_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q2_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q2_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q2_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q3_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q3_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q3_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q4_K:
                                     {
                                         nth0 = 4; //1;
                                         nth1 = 8; //32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q4_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q5_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q5_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_Q6_K:
                                     {
                                         nth0 = 2;
                                         nth1 = 32;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q6_K_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_Q6_K_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_IQ2_XXS:
                                     {
                                         nth0 = 4;
                                         nth1 = 16;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_IQ2_XXS_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_IQ2_XXS_F32].pipeline;
                                     } break;
                                 case GGML_TYPE_IQ2_XS:
                                     {
                                         nth0 = 4;
                                         nth1 = 16;
-                                        pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_IQ2_XS_F32];
+                                        pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MV_ID_IQ2_XS_F32].pipeline;
                                     } break;
                                 default:
                                     {
@@ -1694,21 +1702,21 @@ static bool ggml_metal_graph_compute(
                         id<MTLComputePipelineState> pipeline = nil;
 
                         switch (src0->type) {
-                            case GGML_TYPE_F32:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_F32    ]; break;
-                            case GGML_TYPE_F16:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_F16    ]; break;
-                            case GGML_TYPE_Q4_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_0   ]; break;
-                            case GGML_TYPE_Q4_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_1   ]; break;
-                            case GGML_TYPE_Q5_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_0   ]; break;
-                            case GGML_TYPE_Q5_1:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_1   ]; break;
-                            case GGML_TYPE_Q8_0:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q8_0   ]; break;
-                            case GGML_TYPE_Q2_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q2_K   ]; break;
-                            case GGML_TYPE_Q3_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q3_K   ]; break;
-                            case GGML_TYPE_Q4_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_K   ]; break;
-                            case GGML_TYPE_Q5_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_K   ]; break;
-                            case GGML_TYPE_Q6_K:    pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q6_K   ]; break;
-                            case GGML_TYPE_IQ2_XXS: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ2_XXS]; break;
-                            case GGML_TYPE_IQ2_XS:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ2_XS ]; break;
-                            case GGML_TYPE_I32:     pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GET_ROWS_I32    ]; break;
+                            case GGML_TYPE_F32:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_F32    ].pipeline; break;
+                            case GGML_TYPE_F16:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_F16    ].pipeline; break;
+                            case GGML_TYPE_Q4_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_0   ].pipeline; break;
+                            case GGML_TYPE_Q4_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_1   ].pipeline; break;
+                            case GGML_TYPE_Q5_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_0   ].pipeline; break;
+                            case GGML_TYPE_Q5_1:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_1   ].pipeline; break;
+                            case GGML_TYPE_Q8_0:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q8_0   ].pipeline; break;
+                            case GGML_TYPE_Q2_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q2_K   ].pipeline; break;
+                            case GGML_TYPE_Q3_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q3_K   ].pipeline; break;
+                            case GGML_TYPE_Q4_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q4_K   ].pipeline; break;
+                            case GGML_TYPE_Q5_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q5_K   ].pipeline; break;
+                            case GGML_TYPE_Q6_K:    pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_Q6_K   ].pipeline; break;
+                            case GGML_TYPE_IQ2_XXS: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ2_XXS].pipeline; break;
+                            case GGML_TYPE_IQ2_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ2_XS ].pipeline; break;
+                            case GGML_TYPE_I32:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_I32    ].pipeline; break;
                             default: GGML_ASSERT(false && "not implemented");
                         }
 
@@ -1740,7 +1748,7 @@ static bool ggml_metal_graph_compute(
                             nth *= 2;
                         }
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_RMS_NORM];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_RMS_NORM].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0        atIndex:0];
@@ -1771,7 +1779,7 @@ static bool ggml_metal_graph_compute(
                         //    nth *= 2;
                         //}
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_GROUP_NORM];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GROUP_NORM].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0  offset:offs_src0        atIndex:0];
@@ -1795,7 +1803,7 @@ static bool ggml_metal_graph_compute(
 
                         const int nth = MIN(256, ne00);
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_NORM];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_NORM].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0        atIndex:0];
@@ -1824,7 +1832,7 @@ static bool ggml_metal_graph_compute(
                         const float m0 = powf(2.0f, -(max_bias) / n_heads_log2_floor);
                         const float m1 = powf(2.0f, -(max_bias / 2.0f) / n_heads_log2_floor);
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ALIBI_F32];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ALIBI_F32].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -1874,8 +1882,8 @@ static bool ggml_metal_graph_compute(
                         id<MTLComputePipelineState> pipeline = nil;
 
                         switch (src0->type) {
-                            case GGML_TYPE_F32: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ROPE_F32]; break;
-                            case GGML_TYPE_F16: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ROPE_F16]; break;
+                            case GGML_TYPE_F32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_F32].pipeline; break;
+                            case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_F16].pipeline; break;
                             default: GGML_ASSERT(false);
                         };
 
@@ -1946,7 +1954,7 @@ static bool ggml_metal_graph_compute(
 
                         switch (src0->type) {
                             case GGML_TYPE_F32: GGML_ASSERT(false && "not implemented"); break;
-                            case GGML_TYPE_F16: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_IM2COL_F16]; break;
+                            case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_IM2COL_F16].pipeline; break;
                             default: GGML_ASSERT(false);
                         };
 
@@ -1973,7 +1981,7 @@ static bool ggml_metal_graph_compute(
 
                         const int sf = dst->op_params[0];
 
-                        const id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_UPSCALE_F32];
+                        const id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_UPSCALE_F32].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -2004,7 +2012,7 @@ static bool ggml_metal_graph_compute(
                     {
                         GGML_ASSERT(src0->type == GGML_TYPE_F32);
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_PAD_F32];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_PAD_F32].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
@@ -2042,8 +2050,8 @@ static bool ggml_metal_graph_compute(
                         id<MTLComputePipelineState> pipeline = nil;
 
                         switch (order) {
-                            case GGML_SORT_ASC:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_ASC];  break;
-                            case GGML_SORT_DESC: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_DESC]; break;
+                            case GGML_SORT_ASC:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_ASC].pipeline;  break;
+                            case GGML_SORT_DESC: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_DESC].pipeline; break;
                             default: GGML_ASSERT(false);
                         };
 
@@ -2061,7 +2069,7 @@ static bool ggml_metal_graph_compute(
                         float slope;
                         memcpy(&slope, dst->op_params, sizeof(float));
 
-                        id<MTLComputePipelineState> pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_LEAKY_RELU_F32];
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_LEAKY_RELU_F32].pipeline;
 
                         [encoder setComputePipelineState:pipeline];
                         [encoder setBuffer:id_src0 offset:offs_src0   atIndex:0];
@@ -2088,21 +2096,21 @@ static bool ggml_metal_graph_compute(
                                     GGML_ASSERT(ne0 % ggml_blck_size(dst->type) == 0);
 
                                     switch (dstt) {
-                                        case GGML_TYPE_F16:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_F16];  break;
-                                        case GGML_TYPE_F32:  pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_F32];  break;
-                                        case GGML_TYPE_Q8_0: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_Q8_0]; break;
-                                        case GGML_TYPE_Q4_0: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_Q4_0]; break;
-                                        case GGML_TYPE_Q4_1: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_Q4_1]; break;
-                                      //case GGML_TYPE_Q5_0: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_0]; break;
-                                      //case GGML_TYPE_Q5_1: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_1]; break;
+                                        case GGML_TYPE_F16:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_F16].pipeline;  break;
+                                        case GGML_TYPE_F32:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_F32].pipeline;  break;
+                                        case GGML_TYPE_Q8_0: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q8_0].pipeline; break;
+                                        case GGML_TYPE_Q4_0: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q4_0].pipeline; break;
+                                        case GGML_TYPE_Q4_1: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q4_1].pipeline; break;
+                                      //case GGML_TYPE_Q5_0: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_0].pipeline; break;
+                                      //case GGML_TYPE_Q5_1: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_1].pipeline; break;
                                         default: GGML_ASSERT(false && "not implemented");
                                     };
                                 } break;
                             case GGML_TYPE_F16:
                                 {
                                     switch (dstt) {
-                                        case GGML_TYPE_F16: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F16_F16]; break;
-                                        case GGML_TYPE_F32: pipeline = ctx->pipelines[GGML_METAL_KERNEL_TYPE_CPY_F16_F32]; break;
+                                        case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F16_F16].pipeline; break;
+                                        case GGML_TYPE_F32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F16_F32].pipeline; break;
                                         default: GGML_ASSERT(false && "not implemented");
                                     };
                                 } break;
@@ -2309,7 +2317,7 @@ GGML_CALL static ggml_backend_buffer_t ggml_backend_metal_buffer_type_alloc_buff
     ctx->buffers[0].size = size;
     ctx->buffers[0].metal = [device newBufferWithBytesNoCopy:ctx->all_data
                     length:size_aligned
-                    options:MTLResourceStorageModeShared
+                    options:GGML_METAL_BUFFER_OPTIONS
                     deallocator:nil];
 
     if (ctx->buffers[0].metal == nil) {
@@ -2389,7 +2397,7 @@ GGML_CALL ggml_backend_buffer_t ggml_backend_metal_buffer_from_ptr(void * data, 
         ctx->buffers[ctx->n_buffers].data = data;
         ctx->buffers[ctx->n_buffers].size = size;
 
-        ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:data length:size_aligned options:MTLResourceStorageModeShared deallocator:nil];
+        ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:data length:size_aligned options:GGML_METAL_BUFFER_OPTIONS deallocator:nil];
 
         if (ctx->buffers[ctx->n_buffers].metal == nil) {
             GGML_METAL_LOG_ERROR("%s: error: failed to allocate buffer, size = %8.2f MiB\n", __func__, size_aligned / 1024.0 / 1024.0);
@@ -2412,7 +2420,7 @@ GGML_CALL ggml_backend_buffer_t ggml_backend_metal_buffer_from_ptr(void * data, 
             ctx->buffers[ctx->n_buffers].data = (void *) ((uint8_t *) data + i);
             ctx->buffers[ctx->n_buffers].size = size_step_aligned;
 
-            ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:(void *) ((uint8_t *) data + i) length:size_step_aligned options:MTLResourceStorageModeShared deallocator:nil];
+            ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:(void *) ((uint8_t *) data + i) length:size_step_aligned options:GGML_METAL_BUFFER_OPTIONS deallocator:nil];
 
             if (ctx->buffers[ctx->n_buffers].metal == nil) {
                 GGML_METAL_LOG_ERROR("%s: error: failed to allocate buffer, size = %8.2f MiB\n", __func__, size_step_aligned / 1024.0 / 1024.0);
