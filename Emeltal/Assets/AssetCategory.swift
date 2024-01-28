@@ -3,30 +3,31 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
 
         var order: Int {
             switch self {
             case .whisper: 0
             case .sauerkrautSolar: 100
-            case .openChat: 200
+            case .fusionNetDpo: 200
             case .nousHermesMixtral: 300
             case .dolphinMixtral: 400
             case .dolphinPhi2: 500
             case .dolphin70b: 600
-            case .deepSeekCoder: 700
-            case .mythoMax: 800
-            case .tinyLlama: 900
-            case .fusionNetDpo: 950
-            case .momo: 1000
+            case .deepSeekCoder33: 700
+            case .deepSeekCoder7: 800
+            case .mythoMax: 900
+            case .openChat: 1000
+            case .tinyLlama: 1100
+            case .momo: 1200
             }
         }
 
         var format: Template.Format {
             switch self {
-            case .deepSeekCoder: .alpaca
+            case .deepSeekCoder7, .deepSeekCoder33: .alpaca
             case .dolphin70b, .dolphinMixtral, .dolphinPhi2: .chatml
             case .mythoMax: .alpaca
             case .sauerkrautSolar: .userAssistant
@@ -40,7 +41,16 @@ extension Asset {
         }
 
         private var defaultPrompt: String {
-            "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            switch self {
+            case .deepSeekCoder7, .deepSeekCoder33:
+                "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .tinyLlama:
+                "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            case .mythoMax:
+                "You are a helpful, imaginative, collaborative, and friendly writing assistant."
+            case .whisper:
+                ""
+            }
         }
 
         var useGpuOnThisSystem: Bool {
@@ -55,7 +65,8 @@ extension Asset {
         var vramRequiredToFitInGpu: Int {
             switch self {
             case .dolphinMixtral: 41
-            case .deepSeekCoder: 36
+            case .deepSeekCoder33: 36
+            case .deepSeekCoder7: 10
             case .sauerkrautSolar: 12
             case .dolphinPhi2: 5
             case .mythoMax: 16
@@ -73,7 +84,8 @@ extension Asset {
             switch self {
             case .dolphin70b: "48.8 GB"
             case .dolphinMixtral: "32.2 GB"
-            case .deepSeekCoder: "27.4 GB"
+            case .deepSeekCoder33: "27.4 GB"
+            case .deepSeekCoder7: "5.67 GB"
             case .sauerkrautSolar: "7.6 GB"
             case .mythoMax: "10.7 GB"
             case .whisper: "1.1 GB"
@@ -88,7 +100,8 @@ extension Asset {
 
         var aboutText: String {
             switch self {
-            case .deepSeekCoder: "This no-nonsense model focuses specifically on code-related generation and questions"
+            case .deepSeekCoder33: "This no-nonsense model focuses specifically on code-related generation and questions"
+            case .deepSeekCoder7: "A more compact version of the Deepseek Coder model, focusing on code-related generation and questions"
             case .dolphinMixtral: "The current state of the art, with multifaceted expertise and good conversational ability."
             case .mythoMax: "MythoMax is a model designed to be both imaginative, and useful for creativity and writing."
             case .sauerkrautSolar: "One of the highest performing models for chat. A great starting point."
@@ -105,7 +118,7 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .tinyLlama: 256
             case .whisper: 0
             }
@@ -120,11 +133,21 @@ extension Asset {
         }
 
         private var defaultTemperature: Float {
-            0.7
+            switch self {
+            case .deepSeekCoder7, .deepSeekCoder33:
+                0
+            default:
+                0.7
+            }
         }
 
         private var defaultTemperatureRange: Float {
-            0.2
+            switch self {
+            case .deepSeekCoder7, .deepSeekCoder33:
+                0
+            default:
+                0.2
+            }
         }
 
         private var defaultTemperatureExponent: Float {
@@ -132,11 +155,21 @@ extension Asset {
         }
 
         private var defaultRepeatPenatly: Float {
-            1.17
+            switch self {
+            case .deepSeekCoder7, .deepSeekCoder33:
+                1.0
+            default:
+                1.17
+            }
         }
 
         private var defaultFrequencyPenalty: Float {
-            0.1
+            switch self {
+            case .deepSeekCoder7, .deepSeekCoder33:
+                0
+            default:
+                0.1
+            }
         }
 
         private var defaultPresentPenalty: Float {
@@ -150,7 +183,8 @@ extension Asset {
         var originalRepoUrl: URL {
             let uri = switch self {
             case .dolphinMixtral: "https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b"
-            case .deepSeekCoder: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
+            case .deepSeekCoder33: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
+            case .deepSeekCoder7: "https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5"
             case .mythoMax: "https://huggingface.co/Gryphe/MythoMax-L2-13b"
             case .whisper: "https://huggingface.co/ggerganov/whisper.cpp"
             case .sauerkrautSolar: "https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct"
@@ -168,7 +202,8 @@ extension Asset {
         var fetchUrl: URL {
             let fileName = switch self {
             case .dolphinMixtral: "dolphin-2.7-mixtral-8x7b.Q5_K_M.gguf"
-            case .deepSeekCoder: "deepseek-coder-33b-instruct.Q6_K.gguf"
+            case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
+            case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
             case .mythoMax: "mythomax-l2-13b.Q6_K.gguf"
             case .whisper: "ggml-large-v3-q5_k.bin"
             case .sauerkrautSolar: "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
@@ -190,7 +225,8 @@ extension Asset {
         var displayName: String {
             switch self {
             case .dolphinMixtral: "Dolphin"
-            case .deepSeekCoder: "DeepSeek Coder"
+            case .deepSeekCoder33: "DeepSeek Coder"
+            case .deepSeekCoder7: "DeepSeek Coder (Compact)"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Voice Recognition"
             case .sauerkrautSolar: "Sauerkraut"
@@ -207,7 +243,8 @@ extension Asset {
         var detail: String {
             switch self {
             case .dolphinMixtral: "v2.7, on Mixtral 8x7b"
-            case .deepSeekCoder: "33b variant, on Llama2"
+            case .deepSeekCoder33: "33b variant, on Llama2"
+            case .deepSeekCoder7: "v1.5, on Llama2"
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3"
             case .sauerkrautSolar: "on Solar 10.7b"
@@ -224,7 +261,7 @@ extension Asset {
         var id: String {
             switch self {
             case .dolphinMixtral: "43678C6F-FB70-4EDB-9C15-3B75E7C483FA"
-            case .deepSeekCoder: "73FD5E35-94F3-4923-9E28-070564DF5B6E"
+            case .deepSeekCoder33: "73FD5E35-94F3-4923-9E28-070564DF5B6E"
             case .mythoMax: "AA4B3287-CA79-466F-8F84-87486D701256"
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .sauerkrautSolar: "195B279E-3CAA-4E53-9CD3-59D5DE5B40A2"
@@ -235,6 +272,7 @@ extension Asset {
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
             case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"
+            case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             }
         }
 
@@ -247,7 +285,8 @@ extension Asset {
                    temperatureExponent: defaultTemperatureExponent,
                    repeatPenatly: defaultRepeatPenatly,
                    frequencyPenatly: defaultFrequencyPenalty,
-                   presentPenatly: defaultPresentPenalty)
+                   presentPenatly: defaultPresentPenalty,
+                   version: 2)
         }
     }
 }

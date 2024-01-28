@@ -11,5 +11,6 @@ extension Asset {
         var repeatPenatly: Float
         var frequencyPenatly: Float
         var presentPenatly: Float
+        var version: Int?
     }
 }

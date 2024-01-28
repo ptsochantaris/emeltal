@@ -89,8 +89,17 @@ final class Asset: Codable, Identifiable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
-        category = try container.decode(Category.self, forKey: .category)
-        params = try container.decode(Params.self, forKey: .params)
+        let loadedCategory = try container.decode(Category.self, forKey: .category)
+        category = loadedCategory
+
+        let loadedParams = try container.decode(Params.self, forKey: .params)
+        if loadedParams.version == nil {
+            var migratedParams = loadedCategory.defaultParams
+            migratedParams.systemPrompt = loadedParams.systemPrompt
+            params = migratedParams
+        } else {
+            params = loadedParams
+        }
         updateInstalledStatus()
     }
 
