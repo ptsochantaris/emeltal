@@ -158,7 +158,7 @@ struct ggml_metal_context {
 
     id<MTLDevice>       device;
     id<MTLCommandQueue> queue;
-    
+
     dispatch_queue_t d_queue;
 
     struct ggml_metal_kernel kernels[GGML_METAL_KERNEL_TYPE_COUNT];
@@ -243,7 +243,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
     // Configure context
     struct ggml_metal_context * ctx = malloc(sizeof(struct ggml_metal_context));
     ctx->device = device;
-    ctx->n_cb   = MIN(n_cb, GGML_METAL_KERNEL_TYPE_COUNT);
+    ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
     ctx->queue  = [ctx->device newCommandQueue];
     ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
 
@@ -2356,6 +2356,7 @@ GGML_CALL ggml_backend_buffer_type_t ggml_backend_metal_buffer_type(void) {
             /* .get_name         = */ ggml_backend_metal_buffer_type_get_name,
             /* .alloc_buffer     = */ ggml_backend_metal_buffer_type_alloc_buffer,
             /* .get_alignment    = */ ggml_backend_metal_buffer_type_get_alignment,
+            /* .get_max_size     = */ NULL, // TODO: return device.maxBufferLength
             /* .get_alloc_size   = */ NULL, // defaults to ggml_nbytes
             /* .supports_backend = */ ggml_backend_metal_buffer_type_supports_backend,
             /* .is_host          = */ ggml_backend_metal_buffer_type_is_host,
