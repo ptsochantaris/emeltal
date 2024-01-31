@@ -15,7 +15,9 @@ final class Turn: Codable {
 
     func append(tokens: [llama_token], in context: OpaquePointer, andPredict: Bool, offset: Int) -> UnsafeMutablePointer<Float>? {
         let promptCount = tokens.count
-        // print("Seq ID \(id): \(promptCount) tokens, offset: \(offset): ", terminator: "")
+        #if DEBUG
+            print("Seq ID \(id): \(promptCount) tokens, offset: \(offset): ", terminator: "")
+        #endif
         var b = llama_batch_init(Int32(promptCount), 0, 1)
         defer {
             length += tokens.count
@@ -31,7 +33,9 @@ final class Turn: Codable {
             b.seq_id[i]![0] = 0
             b.logits[i] = 0
         }
-        // print()
+        #if DEBUG
+            print()
+        #endif
         if andPredict {
             b.logits[promptCount - 1] = 1
             llama_decode(context, b)
@@ -52,7 +56,9 @@ final class Turn: Codable {
     }()
 
     func appendAndPredict(token: llama_token, in context: OpaquePointer, pos: Int) -> UnsafeMutablePointer<Float> {
-        // print("+[\(pos): \(token)] ", terminator: "")
+        #if DEBUG
+            print("+\(pos):[\(token)] ", terminator: "")
+        #endif
         Self.singleTokenBatch.token[0] = token
         Self.singleTokenBatch.pos[0] = Int32(pos)
         llama_decode(context, Self.singleTokenBatch)

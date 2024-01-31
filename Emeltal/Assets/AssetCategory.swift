@@ -3,9 +3,9 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
 
         var order: Int {
             switch self {
@@ -18,6 +18,7 @@ extension Asset {
             case .dolphin70b: 600
             case .deepSeekCoder33: 700
             case .deepSeekCoder7: 800
+            case .codeLlama70b: 850
             case .mythoMax: 900
             case .openChat: 1000
             case .tinyLlama: 1100
@@ -37,12 +38,13 @@ extension Asset {
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
             case .momo: .chatml
+            case .codeLlama70b: .llamaLarge
             }
         }
 
         private var defaultPrompt: String {
             switch self {
-            case .deepSeekCoder7, .deepSeekCoder33:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .tinyLlama:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
@@ -97,6 +99,7 @@ extension Asset {
             case .nousHermesMixtral: 1_350_000_000
             case .fusionNetDpo: 610_000_000
             case .momo: 587_246_913
+            case .codeLlama70b: 670_000_000
             }
 
             let totalLayers = switch self {
@@ -113,6 +116,7 @@ extension Asset {
             case .nousHermesMixtral: 33
             case .fusionNetDpo: 33
             case .momo: 81
+            case .codeLlama70b: 81
             }
 
             let totalSystemMemoryDesiredGb = switch self {
@@ -129,6 +133,7 @@ extension Asset {
             case .nousHermesMixtral: 41
             case .fusionNetDpo: 19
             case .momo: 133
+            case .codeLlama70b: 53
             }
 
             let totalSystemMemoryDesired = totalSystemMemoryDesiredGb * 1024 * 1024 * 1024
@@ -178,6 +183,13 @@ extension Asset {
                     Int64(currentDevice.recommendedMaxWorkingSetSize))
         }
 
+        var eosOverride: Int32? {
+            switch self {
+            case .codeLlama70b: 32015
+            default: nil
+            }
+        }
+
         var sizeDescription: String {
             switch self {
             case .dolphin70b: "48.8 GB"
@@ -193,6 +205,7 @@ extension Asset {
             case .nousHermesMixtral: "33 GB"
             case .fusionNetDpo: "8.9 GB"
             case .momo: "49.9 GB"
+            case .codeLlama70b: "48.8"
             }
         }
 
@@ -211,29 +224,42 @@ extension Asset {
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
             case .momo: "Moreh's finetune of the Qwen 72B model. Currently the top overall model on the HuggingFace LLM leaderboard."
+            case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .tinyLlama: 256
             case .whisper: 0
             }
         }
 
         private var defaultTopK: Int {
-            50
+            switch self {
+            case .codeLlama70b:
+                10
+            default:
+                50
+            }
         }
 
         private var defaultTopP: Float {
-            0.5
+            switch self {
+            case .codeLlama70b:
+                0.97
+            default:
+                0.5
+            }
         }
 
         private var defaultTemperature: Float {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33:
                 0
+            case .codeLlama70b:
+                0.8
             default:
                 0.7
             }
@@ -241,7 +267,7 @@ extension Asset {
 
         private var defaultTemperatureRange: Float {
             switch self {
-            case .deepSeekCoder7, .deepSeekCoder33:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 0
             default:
                 0.2
@@ -256,6 +282,8 @@ extension Asset {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33:
                 1.0
+            case .codeLlama70b:
+                1.1
             default:
                 1.17
             }
@@ -265,13 +293,20 @@ extension Asset {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33:
                 0
+            case .codeLlama70b:
+                0
             default:
                 0.1
             }
         }
 
         private var defaultPresentPenalty: Float {
-            1
+            switch self {
+            case .codeLlama70b:
+                0
+            default:
+                1
+            }
         }
 
         var emeltalRepo: URL {
@@ -293,6 +328,7 @@ extension Asset {
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
             case .momo: "https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO"
+            case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             }
             return URL(string: uri)!
         }
@@ -312,6 +348,7 @@ extension Asset {
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
             case .momo: "MoMo-72B-lora-1.8.7-DPO-q5_k_s.gguf"
+            case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             }
 
             return emeltalRepo
@@ -335,6 +372,7 @@ extension Asset {
             case .nousHermesMixtral: "Nous Hermes"
             case .fusionNetDpo: "FusionNet"
             case .momo: "MoMo"
+            case .codeLlama70b: "CodeLlama (Large)"
             }
         }
 
@@ -353,6 +391,7 @@ extension Asset {
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
             case .momo: "v1.8.7-DPO, on Qwen 72b"
+            case .codeLlama70b: "70b variant, on Llama2"
             }
         }
 
@@ -371,6 +410,7 @@ extension Asset {
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
             case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
+            case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             }
         }
 

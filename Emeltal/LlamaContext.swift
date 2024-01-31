@@ -39,7 +39,7 @@ final class LlamaContext {
 
         let gpuUsage = asset.category.usage
         switch gpuUsage {
-        case let .low(layers, _), let .partial(layers, _), let .full(layers):
+        case let .full(layers), let .low(layers, _), let .partial(layers, _):
             model_params.n_gpu_layers = Int32(layers)
 
         case .none:
@@ -67,7 +67,7 @@ final class LlamaContext {
             bosToken = ""
         }
 
-        eosTokenId = llama_token_eos(model)
+        eosTokenId = asset.category.eosOverride ?? llama_token_eos(model)
 
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))

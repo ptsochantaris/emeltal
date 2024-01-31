@@ -6,18 +6,18 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, zephyr, openChat
+        case alpaca, chatml, userAssistant, zephyr, openChat, llamaLarge
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .openChat, .userAssistant: false
-            case .alpaca, .chatml, .zephyr: true
+            case .alpaca, .chatml, .llamaLarge, .zephyr: true
             }
         }
 
         var blockBosToken: Bool {
             switch self {
-            case .alpaca, .chatml, .openChat, .userAssistant: false
+            case .alpaca, .chatml, .llamaLarge, .openChat, .userAssistant: false
             case .zephyr: true
             }
         }
@@ -97,11 +97,24 @@ struct Template {
             case .turn: "\n\n### User:\n"
             case .cancel: ""
             }
+
+        case .llamaLarge:
+            switch step {
+            case .initial: "Source: system\n\n "
+            case .turn: "Source: user\n\n "
+            case .cancel: ""
+            }
         }
     }
 
     private func suffix(for step: Step) -> String {
         switch format {
+        case .llamaLarge:
+            switch step {
+            case .cancel, .initial: " <step> "
+            case .turn: " <step> Source: assistant\nDestination: user\n\n "
+            }
+
         case .openChat:
             switch step {
             case .initial: ""
