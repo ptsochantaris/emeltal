@@ -21,7 +21,7 @@ A light helper app which can run on an iPhone or device with not enough processi
 
 ## Currently supported models
 
-Emeltal offers a hand-picked list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes and expands as new models become available.
+Emeltal offers a hand-picked list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes and expands as new models become available, or others are superceeded by much better performing ones. All models run at their maximum context size.
 
 #### General Chat
 - [SauerkrautLM-SOLAR](https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct)
@@ -47,9 +47,7 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
 
 #### Voice Recognition
-- [Whisper (for ASR)](https://huggingface.co/ggerganov/whisper.cpp)
-
-All models are run at their maximum context size.
+- [Whisper](https://huggingface.co/ggerganov/whisper.cpp)
 
 ## Packages
 
