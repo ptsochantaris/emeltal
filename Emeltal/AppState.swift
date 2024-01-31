@@ -303,6 +303,10 @@ final class AppState: Identifiable, ModeProvider {
         try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
         shouldWaitOrListen()
         statusMessage = nil
+
+        if let (used, maximum) = asset.category.vram {
+            log("Startup complete, GPU usage: " + used + " / " + maximum)
+        }
     }
 
     private func shouldWaitOrListen() {

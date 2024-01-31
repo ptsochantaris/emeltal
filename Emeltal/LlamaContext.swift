@@ -30,14 +30,19 @@ final class LlamaContext {
         self.manager = manager
 
         let asset = manager.asset
-        let useGpu = asset.category.useGpuOnThisSystem
 
         llama_backend_init(false)
 
         var model_params = llama_model_default_params()
         model_params.use_mlock = false
         model_params.use_mmap = true
-        if !useGpu {
+
+        let gpuUsage = asset.category.usage
+        switch gpuUsage {
+        case let .low(layers, _), let .partial(layers, _), let .full(layers):
+            model_params.n_gpu_layers = Int32(layers)
+
+        case .none:
             model_params.n_gpu_layers = 0
         }
 
@@ -67,7 +72,7 @@ final class LlamaContext {
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
 
-        let threadCounts = useGpu ? 1 : UInt32(performanceCpuCount)
+        let threadCounts = gpuUsage.involvesGpu ? 1 : UInt32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = 0

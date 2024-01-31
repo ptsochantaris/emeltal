@@ -53,31 +53,129 @@ extension Asset {
             }
         }
 
-        var useGpuOnThisSystem: Bool {
-            guard let device = MTLCreateSystemDefaultDevice() else {
-                fatalError("Failed to get the system's default Metal device.")
+        enum GpuUsage {
+            case none, low(Int, Int), partial(Int, Int), full(Int)
+
+            var involvesGpu: Bool {
+                if case .none = self {
+                    return false
+                }
+                return true
             }
-            let vramSize = device.recommendedMaxWorkingSetSize / 1_000_000_000
-            // log("Checking if current model selection can run on GPU (\(vramSize) GB)")
-            return vramSize > vramRequiredToFitInGpu
+
+            var isFull: Bool {
+                if case .full = self {
+                    return true
+                }
+                return false
+            }
+
+            var usedLayers: Int {
+                switch self {
+                case .none: 0
+                case let .low(usedLayers, _): usedLayers
+                case let .partial(usedLayers, _): usedLayers
+                case let .full(usedLayers): usedLayers
+                }
+            }
         }
 
-        var vramRequiredToFitInGpu: Int {
-            switch self {
+        var usage: GpuUsage {
+            guard let vramBytes else { return .none }
+
+            let layerSize = switch self {
+            case .dolphinMixtral: 1_350_000_000
+            case .deepSeekCoder33: 600_000_000
+            case .deepSeekCoder7: 330_000_000
+            case .sauerkrautSolar: 260_000_000
+            case .dolphinPhi2: 160_000_000
+            case .mythoMax: 410_000_000
+            case .whisper: 1
+            case .dolphin70b: 670_000_000
+            case .tinyLlama: 133_000_000
+            case .openChat: 290_000_000
+            case .nousHermesMixtral: 1_350_000_000
+            case .fusionNetDpo: 610_000_000
+            case .momo: 587_246_913
+            }
+
+            let totalLayers = switch self {
+            case .dolphinMixtral: 33
+            case .deepSeekCoder33: 63
+            case .deepSeekCoder7: 31
+            case .sauerkrautSolar: 49
+            case .dolphinPhi2: 33
+            case .mythoMax: 41
+            case .whisper: 0
+            case .dolphin70b: 81
+            case .tinyLlama: 23
+            case .openChat: 33
+            case .nousHermesMixtral: 33
+            case .fusionNetDpo: 33
+            case .momo: 81
+            }
+
+            let totalSystemMemoryDesiredGb = switch self {
             case .dolphinMixtral: 41
             case .deepSeekCoder33: 36
-            case .deepSeekCoder7: 10
-            case .sauerkrautSolar: 12
-            case .dolphinPhi2: 5
-            case .mythoMax: 16
-            case .whisper: 2
-            case .dolphin70b: 52
-            case .tinyLlama: 3
-            case .openChat: 7
+            case .deepSeekCoder7: 14
+            case .sauerkrautSolar: 15
+            case .dolphinPhi2: 9
+            case .mythoMax: 20
+            case .whisper: 6
+            case .dolphin70b: 53
+            case .tinyLlama: 4
+            case .openChat: 12
             case .nousHermesMixtral: 41
-            case .fusionNetDpo: 11
-            case .momo: 52
+            case .fusionNetDpo: 19
+            case .momo: 133
             }
+
+            let totalSystemMemoryDesired = totalSystemMemoryDesiredGb * 1024 * 1024 * 1024
+            if vramBytes.unifiedMemory, totalSystemMemoryDesired > ProcessInfo.processInfo.physicalMemory {
+                // If the model will fill up more memory than the system has, in a unified memory system don't offload anything, as it will just completely overcommit and effectively lock up the system. At least this way mmap can keep things sane.
+                log("Will not use GPU at all, as model memory use is larger than system memory")
+                return .none
+            }
+
+            let availableGpu = Int(vramBytes.max) - 1_900_000_000 // whisper
+            let layers = Float(availableGpu) / Float(layerSize)
+            let layersThatCanFit = Int(layers.rounded(.down))
+            let layersToFit = min(layersThatCanFit, totalLayers)
+
+            let expected = Int64(Float(layersToFit) * Float(layerSize))
+            log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: expected)) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+
+            if layersToFit >= totalLayers {
+                return .full(totalLayers)
+            }
+
+            if layersToFit == 0 {
+                return .none
+            }
+
+            let ratio = Float(layersToFit) / Float(totalLayers)
+            if ratio < 0.5 {
+                return .low(layersToFit, totalLayers)
+            } else {
+                return .partial(layersToFit, totalLayers)
+            }
+        }
+
+        var vram: (used: String, max: String)? {
+            guard let vramBytes else { return nil }
+            return (sizeFormatter.string(fromByteCount: vramBytes.used),
+                    sizeFormatter.string(fromByteCount: vramBytes.max))
+        }
+
+        var vramBytes: (unifiedMemory: Bool, used: Int64, max: Int64)? {
+            guard let currentDevice = MTLCreateSystemDefaultDevice() else {
+                log("Failed to get the system's default Metal device.")
+                return nil
+            }
+            return (currentDevice.hasUnifiedMemory,
+                    Int64(currentDevice.currentAllocatedSize),
+                    Int64(currentDevice.recommendedMaxWorkingSetSize))
         }
 
         var sizeDescription: String {

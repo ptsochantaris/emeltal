@@ -132,19 +132,33 @@ struct ModelPicker: View {
                     .padding([.top, .bottom], 16)
                 }
 
+                let gpuUsage = selectedAsset.category.usage
+
                 HStack {
                     if selectedAsset.isInstalled {
                         Button("Uninstall") {
                             selectedAsset.unInstall()
                         }
                     }
-                    if selectedAsset.category.useGpuOnThisSystem {
-                        Spacer()
-                    } else {
-                        Text("This model won't fit in this system's video memory and will need to use the CPU. It will work but it will be **too slow for real-time chat**.")
-                            .foregroundStyle(.black)
-                            .frame(maxWidth: .infinity)
+
+                    Group {
+                        switch gpuUsage {
+                        case .none:
+                            Text("This model won't fit in this system's GPU and will use the CPU. It will work but it will be **too slow for real-time chat**.")
+
+                        case .low:
+                            Text("This model will partly fit into this system's GPU but will mostly use the CPU. It will work but it may be **slow for real-time chat**.")
+
+                        case .partial:
+                            Text("This model will mostly fit into this system's GPU and will partly use the CPU. It will work but it may be slower than expected.")
+
+                        case .full:
+                            Spacer()
+                        }
                     }
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+
                     Button(showOverrides ? "Use Defaults" : "Customize…") {
                         if showOverrides {
                             selectedAsset.params = selectedAsset.category.defaultParams
@@ -162,9 +176,9 @@ struct ModelPicker: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .padding([.leading, .trailing], selectedAsset.category.useGpuOnThisSystem ? 0 : 16)
+                .padding([.leading, .trailing], gpuUsage.isFull ? 0 : 16)
                 .padding([.top, .bottom], 8)
-                .background(selectedAsset.category.useGpuOnThisSystem ? .clear : .accent)
+                .background(gpuUsage.isFull ? .clear : .accent)
                 .cornerRadius(8.0)
             }
             .padding([.leading, .trailing])
