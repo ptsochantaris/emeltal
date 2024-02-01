@@ -3,9 +3,9 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b, miqu
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .tinyLlama, .fusionNetDpo, .momo]
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .tinyLlama, .fusionNetDpo, .momo, .miqu]
 
         var order: Int {
             switch self {
@@ -23,6 +23,7 @@ extension Asset {
             case .openChat: 1000
             case .tinyLlama: 1100
             case .momo: 1200
+            case .miqu: 1300
             }
         }
 
@@ -39,6 +40,7 @@ extension Asset {
             case .fusionNetDpo: .alpaca
             case .momo: .chatml
             case .codeLlama70b: .llamaLarge
+            case .miqu: .mistral
             }
         }
 
@@ -46,7 +48,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .tinyLlama:
+            case .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .miqu, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .tinyLlama:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
@@ -56,7 +58,7 @@ extension Asset {
         }
 
         enum GpuUsage {
-            case none, low(Int, Int), partial(Int, Int), full(Int)
+            case none, low(Int, Int), partial(Int, Int), full(Int, Bool)
 
             var involvesGpu: Bool {
                 if case .none = self {
@@ -72,14 +74,40 @@ extension Asset {
                 return false
             }
 
+            var offloadKvCache: Bool {
+                switch self {
+                case .low, .none, .partial: false
+                case let .full(_, offload): offload
+                }
+            }
+
             var usedLayers: Int {
                 switch self {
                 case .none: 0
-                case let .low(usedLayers, _): usedLayers
-                case let .partial(usedLayers, _): usedLayers
-                case let .full(usedLayers): usedLayers
+                case let .full(usedLayers, _), let .low(usedLayers, _), let .partial(usedLayers, _): usedLayers
                 }
             }
+        }
+
+        var kvBytes: Int {
+            let kvCache: Double = switch self {
+            case .codeLlama70b: 1280
+            case .deepSeekCoder33: 3968
+            case .deepSeekCoder7: 1920
+            case .dolphin70b: 1280
+            case .dolphinMixtral: 4096
+            case .dolphinPhi2: 640
+            case .fusionNetDpo: 4096
+            case .miqu: 10238.75
+            case .momo: 81920
+            case .mythoMax: 3200
+            case .nousHermesMixtral: 4096
+            case .openChat: 1024
+            case .sauerkrautSolar: 1536
+            case .tinyLlama: 44
+            case .whisper: 0
+            }
+            return Int((kvCache * 1_048_576).rounded(.up))
         }
 
         var usage: GpuUsage {
@@ -100,6 +128,7 @@ extension Asset {
             case .fusionNetDpo: 610_000_000
             case .momo: 587_246_913
             case .codeLlama70b: 670_000_000
+            case .miqu: 760_000_000
             }
 
             let totalLayers = switch self {
@@ -117,52 +146,54 @@ extension Asset {
             case .fusionNetDpo: 33
             case .momo: 81
             case .codeLlama70b: 81
+            case .miqu: 81
             }
 
-            let totalSystemMemoryDesiredGb = switch self {
-            case .dolphinMixtral: 41
-            case .deepSeekCoder33: 36
-            case .deepSeekCoder7: 14
-            case .sauerkrautSolar: 15
-            case .dolphinPhi2: 9
-            case .mythoMax: 20
-            case .whisper: 6
-            case .dolphin70b: 53
-            case .tinyLlama: 4
-            case .openChat: 12
-            case .nousHermesMixtral: 41
-            case .fusionNetDpo: 19
-            case .momo: 133
-            case .codeLlama70b: 53
-            }
+            let asrBytes = 2_000_000_000
 
-            let totalSystemMemoryDesired = totalSystemMemoryDesiredGb * 1024 * 1024 * 1024
-            if vramBytes.unifiedMemory, totalSystemMemoryDesired > ProcessInfo.processInfo.physicalMemory {
-                // If the model will fill up more memory than the system has, in a unified memory system don't offload anything, as it will just completely overcommit and effectively lock up the system. At least this way mmap can keep things sane.
-                log("Will not use GPU at all, as model memory use is larger than system memory")
+            if asrBytes > vramBytes.max {
+                log("Will not use GPU at all, as space is not enough to hold the base overhead")
                 return .none
             }
 
-            let availableGpu = Int(vramBytes.max) - 1_900_000_000 // whisper
-            let layers = Float(availableGpu) / Float(layerSize)
+            let maxRecommendedVram = Int(vramBytes.max)
+            let availableGpuForLayers = maxRecommendedVram - asrBytes
+
+            // TODO: Determine if KV cache can be offloaded - only if all layers will fit AND the KV cache can fit on top
+
+            let layers = Float(availableGpuForLayers) / Float(layerSize)
             let layersThatCanFit = Int(layers.rounded(.down))
             let layersToFit = min(layersThatCanFit, totalLayers)
+            let usedGpuForLayers = layersToFit * Int(layerSize)
+            let expected = usedGpuForLayers + asrBytes
+            let totalMemoryUsed = expected + kvBytes
 
-            let expected = Int64(Float(layersToFit) * Float(layerSize))
-            log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: expected)) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+            if vramBytes.unifiedMemory, totalMemoryUsed > ProcessInfo.processInfo.physicalMemory {
+                log("Will not use GPU at all, as total memory use is larger than the whole system's memory")
+                return .none
+            }
 
             if layersToFit >= totalLayers {
-                return .full(totalLayers)
+                let offLoad = maxRecommendedVram - expected > kvBytes
+                if offLoad {
+                    log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(totalMemoryUsed))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers, KV cache: \(sizeFormatter.string(fromByteCount: Int64(kvBytes)))")
+                } else {
+                    log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+                }
+                return .full(totalLayers, offLoad)
             }
 
             if layersToFit == 0 {
+                log("Will not use GPU at all, as space is not enough to hold any layers")
                 return .none
             }
 
             let ratio = Float(layersToFit) / Float(totalLayers)
             if ratio < 0.5 {
+                log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
                 return .low(layersToFit, totalLayers)
             } else {
+                log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
                 return .partial(layersToFit, totalLayers)
             }
         }
@@ -206,6 +237,7 @@ extension Asset {
             case .fusionNetDpo: "8.9 GB"
             case .momo: "49.9 GB"
             case .codeLlama70b: "48.8"
+            case .miqu: "48.8"
             }
         }
 
@@ -225,12 +257,13 @@ extension Asset {
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
             case .momo: "Moreh's finetune of the Qwen 72B model. Currently the top overall model on the HuggingFace LLM leaderboard."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
+            case .miqu: "A work-in-progress version of the Mistral Medium model, most probably not suitable for any commercial use."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .miqu, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .tinyLlama: 256
             case .whisper: 0
             }
@@ -329,6 +362,7 @@ extension Asset {
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
             case .momo: "https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
+            case .miqu: "https://huggingface.co/miqudev/miqu-1-70b"
             }
             return URL(string: uri)!
         }
@@ -349,6 +383,13 @@ extension Asset {
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
             case .momo: "MoMo-72B-lora-1.8.7-DPO-q5_k_s.gguf"
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
+            case .miqu: "miqu-1-70b.q5_K_M.gguf"
+            }
+
+            if case .miqu = self {
+                // Not storing this in the Emeltal repo currently, as the distribution rights of the model are not clear, although
+                // Mistral are aware of the repo and only requested attribution, so it's at least legal to use non-commercially
+                return URL(string: "https://huggingface.co/miqudev/miqu-1-70b/blob/main/miqu-1-70b.q5_K_M.gguf")!
             }
 
             return emeltalRepo
@@ -373,6 +414,7 @@ extension Asset {
             case .fusionNetDpo: "FusionNet"
             case .momo: "MoMo"
             case .codeLlama70b: "CodeLlama (Large)"
+            case .miqu: "Miqu"
             }
         }
 
@@ -392,6 +434,7 @@ extension Asset {
             case .fusionNetDpo: "DPO finetune"
             case .momo: "v1.8.7-DPO, on Qwen 72b"
             case .codeLlama70b: "70b variant, on Llama2"
+            case .miqu: "70b Mistral"
             }
         }
 
@@ -411,6 +454,7 @@ extension Asset {
             case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
+            case .miqu: "656CA7E2-6E18-4786-9AA8-C04B1424E01C"
             }
         }
 

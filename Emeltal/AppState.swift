@@ -195,20 +195,20 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         let ctxs = Task.detached {
-            let l = try await LlamaContext(manager: llm)
             let w = try await WhisperContext(manager: whisper)
             _ = await w.warmup()
+            let l = try await LlamaContext(manager: llm)
             return (l, w)
         }
 
         let aud = Task.detached { [weak self] () -> Speaker? in
             guard let self else { return nil }
 
-            let spk = try Speaker();
+            let spk = try Speaker()
 
             await AVCaptureDevice.requestAccess(for: .audio)
 
-            try await spk.warmup();
+            try await spk.warmup()
             await mic.warmup()
 
             await setupMicObservation()

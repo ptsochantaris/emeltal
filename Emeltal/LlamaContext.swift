@@ -38,12 +38,19 @@ final class LlamaContext {
         model_params.use_mmap = true
 
         let gpuUsage = asset.category.usage
+        let offloadKvCache: Bool
         switch gpuUsage {
-        case let .full(layers), let .low(layers, _), let .partial(layers, _):
+        case let .full(layers, offloadKv):
             model_params.n_gpu_layers = Int32(layers)
+            offloadKvCache = offloadKv
+
+        case let .low(layers, _), let .partial(layers, _):
+            model_params.n_gpu_layers = Int32(layers)
+            offloadKvCache = false
 
         case .none:
             model_params.n_gpu_layers = 0
+            offloadKvCache = false
         }
 
         guard let model = llama_load_model_from_file(asset.localModelPath.path, model_params) else {
@@ -81,7 +88,7 @@ final class LlamaContext {
         ctx_params.n_threads_batch = threadCounts
         ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         ctx_params.logits_all = true
-        ctx_params.offload_kqv = true
+        ctx_params.offload_kqv = offloadKvCache
 
         guard let newContext = llama_new_context_with_model(model, ctx_params) else {
             throw "Could not initialise context"
