@@ -194,32 +194,34 @@ final class AppState: Identifiable, ModeProvider {
             messageLog = MessageLog(path: textPath)
         }
 
-        let l = Task.detached { try await LlamaContext(manager: llm) }
-
-        let w = Task.detached { let W = try await WhisperContext(manager: whisper); _ = await W.warmup(); return W }
-
-        let s = Task.detached { let S = try Speaker(); try await S.warmup(); return S }
-
-        let m = Task.detached { [weak self] in
-            guard let self else { return }
-            await AVCaptureDevice.requestAccess(for: .audio)
-            await mic.warmup()
-            await setupMicObservation()
+        let ctxs = Task.detached {
+            let l = try await LlamaContext(manager: llm)
+            let w = try await WhisperContext(manager: whisper)
+            _ = await w.warmup()
+            return (l, w)
         }
 
-        statusMessage = "Mic Setup"
-        _ = await m.value
+        let aud = Task.detached { [weak self] () -> Speaker? in
+            guard let self else { return nil }
 
-        statusMessage = "Loading TTS"
-        let sp = try await s.value
-        speaker = sp
-        shouldPromptForIdealVoice = await !sp.havePreferredVoice
+            let spk = try Speaker();
 
-        statusMessage = "Loading ASR"
-        whisperContext = try await w.value
+            await AVCaptureDevice.requestAccess(for: .audio)
 
-        statusMessage = "Loading LLM"
-        llamaContext = try await l.value
+            try await spk.warmup();
+            await mic.warmup()
+
+            await setupMicObservation()
+
+            return spk
+        }
+
+        statusMessage = "Audio Setup"
+        speaker = try await aud.value
+        shouldPromptForIdealVoice = await !(speaker!.havePreferredVoice)
+
+        statusMessage = "ML Setup"
+        (llamaContext, whisperContext) = try await ctxs.value
 
         template = llm.asset.mlTemplate(in: llamaContext!)
 
