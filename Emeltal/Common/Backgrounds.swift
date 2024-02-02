@@ -25,8 +25,8 @@ struct Genie: View {
 
 struct PickerEntryBackground: View {
     var body: some View {
-        RoundedRectangle(cornerSize: CGSize(width: 20, height: 20))
-            .foregroundStyle(.white.opacity(0.4))
+        RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
+            .foregroundStyle(.white.opacity(0.2))
             .blendMode(.softLight)
     }
 }

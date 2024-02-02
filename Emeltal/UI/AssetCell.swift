@@ -69,6 +69,7 @@ struct AssetCell: View {
                     Text(asset.category.sizeDescription)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .padding(.trailing, 2)
                 }
             }
             .multilineTextAlignment(.center)
