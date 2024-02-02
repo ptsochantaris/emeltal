@@ -277,7 +277,7 @@ final class LlamaContext {
             if written > 0 {
                 Self.wordBuffer[written] = 0
                 let new_token_str = String(utf8String: Self.wordBuffer) ?? ""
-                // log("Fragment: \(new_token_id) - '\(new_token_str)'")
+                log("Fragment: \(newTokenId) - '\(new_token_str)'")
                 continuation.yield(new_token_str)
             } else {
                 log("Warning, wordbuffer was invalid - token ID was \(newTokenId)")

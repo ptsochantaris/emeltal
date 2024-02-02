@@ -3,9 +3,9 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinPhi2, tinyLlama, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b, miqu
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b, miqu
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinPhi2, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .tinyLlama, .fusionNetDpo, .momo, .miqu]
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinTiny, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .fusionNetDpo, .momo, .miqu]
 
         var order: Int {
             switch self {
@@ -14,14 +14,13 @@ extension Asset {
             case .fusionNetDpo: 200
             case .nousHermesMixtral: 300
             case .dolphinMixtral: 400
-            case .dolphinPhi2: 500
+            case .dolphinTiny: 500
             case .dolphin70b: 600
             case .deepSeekCoder33: 700
             case .deepSeekCoder7: 800
-            case .codeLlama70b: 850
-            case .mythoMax: 900
-            case .openChat: 1000
-            case .tinyLlama: 1100
+            case .codeLlama70b: 900
+            case .mythoMax: 1000
+            case .openChat: 1100
             case .momo: 1200
             case .miqu: 1300
             }
@@ -30,11 +29,10 @@ extension Asset {
         var format: Template.Format {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33: .alpaca
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2: .chatml
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny: .chatml
             case .mythoMax: .alpaca
             case .sauerkrautSolar: .userAssistant
             case .whisper: .alpaca
-            case .tinyLlama: .zephyr
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
@@ -48,7 +46,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .miqu, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .tinyLlama:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
@@ -96,7 +94,7 @@ extension Asset {
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
             case .dolphinMixtral: 4096
-            case .dolphinPhi2: 640
+            case .dolphinTiny: 89
             case .fusionNetDpo: 4096
             case .miqu: 10238.75
             case .momo: 81920
@@ -104,7 +102,6 @@ extension Asset {
             case .nousHermesMixtral: 4096
             case .openChat: 1024
             case .sauerkrautSolar: 1536
-            case .tinyLlama: 44
             case .whisper: 0
             }
             return Int((kvCache * 1_048_576).rounded(.up))
@@ -118,11 +115,10 @@ extension Asset {
             case .deepSeekCoder33: 600_000_000
             case .deepSeekCoder7: 330_000_000
             case .sauerkrautSolar: 260_000_000
-            case .dolphinPhi2: 160_000_000
+            case .dolphinTiny: 48_000_000
             case .mythoMax: 410_000_000
             case .whisper: 1
             case .dolphin70b: 670_000_000
-            case .tinyLlama: 133_000_000
             case .openChat: 290_000_000
             case .nousHermesMixtral: 1_350_000_000
             case .fusionNetDpo: 610_000_000
@@ -136,11 +132,10 @@ extension Asset {
             case .deepSeekCoder33: 63
             case .deepSeekCoder7: 31
             case .sauerkrautSolar: 49
-            case .dolphinPhi2: 33
+            case .dolphinTiny: 23
             case .mythoMax: 41
             case .whisper: 0
             case .dolphin70b: 81
-            case .tinyLlama: 23
             case .openChat: 33
             case .nousHermesMixtral: 33
             case .fusionNetDpo: 33
@@ -158,8 +153,6 @@ extension Asset {
 
             let maxRecommendedVram = Int(vramBytes.max)
             let availableGpuForLayers = maxRecommendedVram - asrBytes
-
-            // TODO: Determine if KV cache can be offloaded - only if all layers will fit AND the KV cache can fit on top
 
             let layers = Float(availableGpuForLayers) / Float(layerSize)
             let layersThatCanFit = Int(layers.rounded(.down))
@@ -230,14 +223,13 @@ extension Asset {
             case .sauerkrautSolar: "7.6 GB"
             case .mythoMax: "10.7 GB"
             case .whisper: "1.1 GB"
-            case .dolphinPhi2: "2.3 GB"
-            case .tinyLlama: "0.9 GB"
+            case .dolphinTiny: "0.9 GB"
             case .openChat: "5.2 GB"
             case .nousHermesMixtral: "33 GB"
             case .fusionNetDpo: "8.9 GB"
             case .momo: "49.9 GB"
             case .codeLlama70b: "48.8"
-            case .miqu: "48.8"
+            case .miqu: "48.8 GB"
             }
         }
 
@@ -250,8 +242,7 @@ extension Asset {
             case .sauerkrautSolar: "One of the highest performing models for chat. A great starting point."
             case .dolphin70b: "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
-            case .dolphinPhi2: "The Doplhin chatbot running on Microsoft's compact Phi-2 model, great for systems with constrained storage or processing requirements."
-            case .tinyLlama: "Doesn't do conversation, but huge in terms of size-to-performance. Responds best to stand-alone instructions."
+            case .dolphinTiny: "The Doplhin chatbot running on the Tinyllama model, great for systems with constrained storage or processing requirements."
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
@@ -263,8 +254,8 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .dolphinPhi2, .fusionNetDpo, .miqu, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
-            case .tinyLlama: 256
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .dolphinTiny: 256
             case .whisper: 0
             }
         }
@@ -355,9 +346,8 @@ extension Asset {
             case .whisper: "https://huggingface.co/ggerganov/whisper.cpp"
             case .sauerkrautSolar: "https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct"
             case .dolphin70b: "https://huggingface.co/cognitivecomputations/dolphin-2.2-70b"
-            case .dolphinPhi2: "https://huggingface.co/cognitivecomputations/dolphin-2_6-phi-2"
+            case .dolphinTiny: "https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b"
             case .openChat: "https://huggingface.co/openchat/openchat-3.5-0106"
-            case .tinyLlama: "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
             case .momo: "https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO"
@@ -376,9 +366,8 @@ extension Asset {
             case .whisper: "ggml-large-v3-q5_k.bin"
             case .sauerkrautSolar: "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
             case .dolphin70b: "dolphin-2.2-70b.Q5_K_M.gguf"
-            case .dolphinPhi2: "dolphin-2_6-phi-2.Q6_K.gguf"
+            case .dolphinTiny: "tinydolphin-2.8-1.1b.Q6_K.gguf"
             case .openChat: "openchat-3.5-0106.Q5_K_M.gguf"
-            case .tinyLlama: "tinyllama-1.1b-chat-v1.0.Q6_K.gguf"
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
             case .momo: "MoMo-72B-lora-1.8.7-DPO-q5_k_s.gguf"
@@ -388,7 +377,7 @@ extension Asset {
 
             if case .miqu = self {
                 // Not storing this in the Emeltal repo currently, as the distribution rights of the model are not clear, although
-                // Mistral are aware of the repo and only requested attribution, so it's at least legal to use non-commercially
+                // Mistral are aware of the miqudev repo and only requested attribution, so it's at least legal to use non-commercially
                 return URL(string: "https://huggingface.co/miqudev/miqu-1-70b/blob/main/miqu-1-70b.q5_K_M.gguf")!
             }
 
@@ -407,9 +396,8 @@ extension Asset {
             case .whisper: "Whisper Voice Recognition"
             case .sauerkrautSolar: "Sauerkraut"
             case .dolphin70b: "Dolphin (Large)"
-            case .dolphinPhi2: "Dolphin (Compact)"
+            case .dolphinTiny: "Dolphin (Compact)"
             case .openChat: "OpenChat"
-            case .tinyLlama: "Tiny Llama"
             case .nousHermesMixtral: "Nous Hermes"
             case .fusionNetDpo: "FusionNet"
             case .momo: "MoMo"
@@ -427,9 +415,8 @@ extension Asset {
             case .whisper: "Large v3"
             case .sauerkrautSolar: "on Solar 10.7b"
             case .dolphin70b: "on Llama 70b (x2)"
-            case .dolphinPhi2: "v2.6, on Phi-2"
+            case .dolphinTiny: "v2.8, on TinyLlama"
             case .openChat: "v3.5(0106)"
-            case .tinyLlama: "v1.0 1.1b"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
             case .momo: "v1.8.7-DPO, on Qwen 72b"
@@ -446,9 +433,8 @@ extension Asset {
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .sauerkrautSolar: "195B279E-3CAA-4E53-9CD3-59D5DE5B40A2"
             case .dolphin70b: "0D70BC73-9559-4778-90A6-E5F2E4B71213"
-            case .dolphinPhi2: "72ACC367-207D-4BCA-83F0-2767827D8F64"
+            case .dolphinTiny: "5CDE7417-9281-4186-9C53-921674E8DCC0"
             case .openChat: "983CD5E9-F843-4D76-8D7B-2FB5A40841BE"
-            case .tinyLlama: "547BE1E8-D26B-4286-B34F-C4FB83DFDE11"
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
             case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"

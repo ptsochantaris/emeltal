@@ -6,19 +6,18 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, zephyr, openChat, llamaLarge, mistral
+        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .mistral, .openChat, .userAssistant: false
-            case .alpaca, .chatml, .llamaLarge, .zephyr: true
+            case .alpaca, .chatml, .llamaLarge: true
             }
         }
 
         var blockBosToken: Bool {
             switch self {
             case .alpaca, .chatml, .llamaLarge, .mistral, .openChat, .userAssistant: false
-            case .zephyr: true
             }
         }
     }
@@ -70,13 +69,6 @@ struct Template {
             switch step {
             case .initial: "<|im_start|>system\n"
             case .turn: "\n<|im_start|>user\n"
-            case .cancel: ""
-            }
-
-        case .zephyr:
-            switch step {
-            case .initial: "<|system|>\n"
-            case .turn: "<|user|>\n"
             case .cancel: ""
             }
 
@@ -139,12 +131,6 @@ struct Template {
             case .initial: "<|im_end|>"
             case .turn: "<|im_end|>\n<|im_start|>assistant\n"
             case .cancel: "<|im_end|>"
-            }
-
-        case .zephyr:
-            switch step {
-            case .cancel, .initial: "</s>\n"
-            case .turn: "</s>\n<|assistant|>\n"
             }
 
         case .alpaca:
