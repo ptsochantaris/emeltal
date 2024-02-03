@@ -99,12 +99,7 @@ struct SideBar: View {
         }
         .foregroundColor(.widgetForeground)
         .background {
-            switch state.mode {
-            case .booting, .loading, .startup, .warmup:
-                ShimmerBackground()
-            case .listening, .noting, .replying, .thinking, .waiting:
-                Image(.canvas).resizable().aspectRatio(contentMode: .fill)
-            }
+            Image(.canvas).resizable().aspectRatio(contentMode: .fill)
         }
         .contentShape(Rectangle())
         .frame(width: assistantWidth)

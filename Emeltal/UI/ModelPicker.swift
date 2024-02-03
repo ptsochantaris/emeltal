@@ -42,6 +42,8 @@ struct ModelPicker: View {
     let allowCancel: Bool
     let selection: () -> Void
 
+    @State private var visible = false
+
     @State private var showOverrides = false
     @Environment(\.dismiss) private var dismiss
 
@@ -184,8 +186,10 @@ struct ModelPicker: View {
             .padding([.leading, .trailing])
             .padding(.bottom, 10)
             .foregroundStyle(.white)
-            .background(ShimmerBackground())
+            .background(ShimmerBackground(show: visible))
             .navigationTitle("Select an ML model")
+            .onAppear { visible = true }
+            .onDisappear { visible = false }
         }
     }
 }
