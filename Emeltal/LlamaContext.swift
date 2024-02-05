@@ -82,7 +82,7 @@ final class LlamaContext {
         let threadCounts = gpuUsage.involvesGpu ? 1 : UInt32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
-        ctx_params.n_ctx = 0
+        ctx_params.n_ctx = asset.category.contextSize
         ctx_params.n_batch = asset.category.maxBatch
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts

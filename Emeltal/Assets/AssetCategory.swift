@@ -3,9 +3,9 @@ import Metal
 
 extension Asset {
     enum Category: Identifiable, Codable {
-        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, momo, codeLlama70b, miqu
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, smaug, codeLlama70b, miqu
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinTiny, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .fusionNetDpo, .momo, .miqu]
+        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinTiny, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .fusionNetDpo, .smaug, .miqu]
 
         var order: Int {
             switch self {
@@ -21,7 +21,7 @@ extension Asset {
             case .codeLlama70b: 900
             case .mythoMax: 1000
             case .openChat: 1100
-            case .momo: 1200
+            case .smaug: 1200
             case .miqu: 1300
             }
         }
@@ -36,7 +36,7 @@ extension Asset {
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
-            case .momo: .chatml
+            case .smaug: .chatml
             case .codeLlama70b: .llamaLarge
             case .miqu: .mistral
             }
@@ -46,12 +46,19 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .momo, .nousHermesMixtral, .openChat, .sauerkrautSolar:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .smaug, .nousHermesMixtral, .openChat, .sauerkrautSolar:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .whisper:
                 ""
+            }
+        }
+
+        var contextSize: UInt32 {
+            switch self {
+            case .smaug: 4096
+            default: 0
             }
         }
 
@@ -97,7 +104,7 @@ extension Asset {
             case .dolphinTiny: 89
             case .fusionNetDpo: 4096
             case .miqu: 10238.75
-            case .momo: 81920
+            case .smaug: 10240
             case .mythoMax: 3200
             case .nousHermesMixtral: 4096
             case .openChat: 1024
@@ -122,7 +129,7 @@ extension Asset {
             case .openChat: 290_000_000
             case .nousHermesMixtral: 1_350_000_000
             case .fusionNetDpo: 610_000_000
-            case .momo: 587_246_913
+            case .smaug: 640_000_000
             case .codeLlama70b: 670_000_000
             case .miqu: 760_000_000
             }
@@ -139,7 +146,7 @@ extension Asset {
             case .openChat: 33
             case .nousHermesMixtral: 33
             case .fusionNetDpo: 33
-            case .momo: 81
+            case .smaug: 81
             case .codeLlama70b: 81
             case .miqu: 81
             }
@@ -227,7 +234,7 @@ extension Asset {
             case .openChat: "5.2 GB"
             case .nousHermesMixtral: "33 GB"
             case .fusionNetDpo: "8.9 GB"
-            case .momo: "49.9 GB"
+            case .smaug: "49.9 GB"
             case .codeLlama70b: "48.8"
             case .miqu: "48.8 GB"
             }
@@ -246,15 +253,15 @@ extension Asset {
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
-            case .momo: "Moreh's finetune of the Qwen 72B model. Currently the top overall model on the HuggingFace LLM leaderboard."
+            case .smaug: "A further finetune of Moreh's finetune of Qwen 72B. Currently top on the HuggingFace leaderboard. Capped at a context of 4096, but still slow & bulky."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
-            case .miqu: "A work-in-progress version of the Mistral Medium model, most probably not suitable for any commercial use."
+            case .miqu: "A work-in-progress version of the Mistral Medium model. Very high quality but most probably not suitable for any commercial use."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .momo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .smaug, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -350,7 +357,7 @@ extension Asset {
             case .openChat: "https://huggingface.co/openchat/openchat-3.5-0106"
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
-            case .momo: "https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO"
+            case .smaug: "https://huggingface.co/abacusai/Smaug-72B-v0.1"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .miqu: "https://huggingface.co/miqudev/miqu-1-70b"
             }
@@ -370,7 +377,7 @@ extension Asset {
             case .openChat: "openchat-3.5-0106.Q5_K_M.gguf"
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
-            case .momo: "MoMo-72B-lora-1.8.7-DPO-q5_k_s.gguf"
+            case .smaug: "Smaug-72B-v0.1-q5_k_s.gguf"
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             case .miqu: "miqu-1-70b.q5_K_M.gguf"
             }
@@ -400,7 +407,7 @@ extension Asset {
             case .openChat: "OpenChat"
             case .nousHermesMixtral: "Nous Hermes"
             case .fusionNetDpo: "FusionNet"
-            case .momo: "MoMo"
+            case .smaug: "Smaug"
             case .codeLlama70b: "CodeLlama (Large)"
             case .miqu: "Miqu"
             }
@@ -419,7 +426,7 @@ extension Asset {
             case .openChat: "v3.5(0106)"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
-            case .momo: "v1.8.7-DPO, on Qwen 72b"
+            case .smaug: "on Momo 72b, based on Qwen 72b"
             case .codeLlama70b: "70b variant, on Llama2"
             case .miqu: "70b Mistral"
             }
@@ -437,7 +444,7 @@ extension Asset {
             case .openChat: "983CD5E9-F843-4D76-8D7B-2FB5A40841BE"
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
-            case .momo: "5D29AB99-02EA-44BD-881A-81C838BBBC66"
+            case .smaug: "3D29AB99-02EA-44BD-881A-81C838BBBC66"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             case .miqu: "656CA7E2-6E18-4786-9AA8-C04B1424E01C"

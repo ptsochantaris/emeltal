@@ -35,27 +35,20 @@ struct ShimmerBackground: View {
     let show: Bool
 
     var body: some View {
-        ZStack {
-            Image(.canvas)
-                .resizable()
-                .scaledToFill()
-
-            TimelineView(.animation(paused: !show)) { timeline in
-                let elapsedTime = startTime.distance(to: timeline.date)
-                Rectangle()
-                    .frame(width: 128, height: 128)
-                    .visualEffect { content, proxy in
-                        content
-                            .colorEffect(
-                                ShaderLibrary.modelBackground(
-                                    .float2(proxy.size),
-                                    .float(elapsedTime)
-                                )
+        TimelineView(.animation(paused: !show)) { timeline in
+            let elapsedTime = startTime.distance(to: timeline.date)
+            Rectangle()
+                .frame(width: 256, height: 256)
+                .visualEffect { content, proxy in
+                    content
+                        .colorEffect(
+                            ShaderLibrary.pickerBackground(
+                                .float2(proxy.size),
+                                .float(elapsedTime)
                             )
-                            .scaleEffect(CGSize(width: 7.1, height: 7.1))
-                    }
-            }
-            .blendMode(.plusLighter)
+                        )
+                        .scaleEffect(CGSize(width: 3.52, height: 3.52))
+                }
         }
     }
 }
