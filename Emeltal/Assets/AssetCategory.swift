@@ -125,7 +125,7 @@ extension Asset {
             case .dolphinTiny: 48_000_000
             case .mythoMax: 410_000_000
             case .whisper: 1
-            case .dolphin70b: 670_000_000
+            case .dolphin70b: 608_000_000
             case .openChat: 290_000_000
             case .nousHermesMixtral: 1_350_000_000
             case .fusionNetDpo: 610_000_000
