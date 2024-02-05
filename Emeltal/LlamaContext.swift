@@ -99,16 +99,21 @@ final class LlamaContext {
         turns = []
     }
 
+    private func emptyWarmup() {
+        log("LLM warmup")
+        let bosTokenId = llama_token_bos(model)
+        var emptyData = [bosTokenId, eosTokenId]
+        llama_decode(context, llama_batch_get_one(&emptyData, 2, 0, 0))
+        llama_kv_cache_clear(context)
+    }
+
     func restoreStateIfNeeded(from statePath: URL, template: Template) throws {
         let llmState = statePath.appendingPathComponent("llmState.bin")
         let turnStates = statePath.appendingPathComponent("turns.json")
 
         if FileManager.default.fileExists(atPath: llmState.path),
            FileManager.default.fileExists(atPath: turnStates.path) {
-            let bosTokenId = llama_token_bos(model)
-            var emptyData = [bosTokenId, eosTokenId]
-            llama_decode(context, llama_batch_get_one(&emptyData, 2, 0, 0))
-            llama_kv_cache_clear(context)
+            emptyWarmup()
             log("Warmup complete - Loading state from \(llmState.path)")
 
             var loaded = 0
@@ -119,15 +124,16 @@ final class LlamaContext {
         } else {
             let initial = template.text(for: .initial)
             if initial.isEmpty {
-                log("No system prompt, skipping warmup")
+                log("No system prompt")
+                emptyWarmup()
             } else {
                 log("Adding initial prompt: \(initial)")
                 let tokens = tokenize(text: initial)
                 let seq = Turn(id: 0)
                 _ = seq.append(tokens: tokens, in: context, andPredict: false, offset: 0)
                 turns.append(seq)
-                log("Warmup complete")
             }
+            log("Warmup complete")
         }
     }
 
