@@ -79,7 +79,7 @@ final class LlamaContext {
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
 
-        let threadCounts = gpuUsage.involvesGpu ? 1 : UInt32(performanceCpuCount)
+        let threadCounts = UInt32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = asset.category.contextSize

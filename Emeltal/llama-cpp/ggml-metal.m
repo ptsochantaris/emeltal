@@ -160,8 +160,6 @@ enum ggml_metal_kernel_type {
 };
 
 struct ggml_metal_context {
-    int n_cb;
-
     id<MTLDevice>       device;
     id<MTLCommandQueue> queue;
 
@@ -251,7 +249,6 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
     // Configure context
     struct ggml_metal_context * ctx = malloc(sizeof(struct ggml_metal_context));
     ctx->device = device;
-    ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
     ctx->queue  = [ctx->device newCommandQueue];
     ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
 
@@ -658,7 +655,7 @@ static bool ggml_metal_graph_compute(
     // then, we encode the graph into the command buffers in parallel
 
     const int n_nodes  = gf->n_nodes;
-    const int n_cb = ctx->n_cb;
+    const int n_cb = 1;
     const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
 
     const bool should_capture = ctx->should_capture_next_compute;
@@ -2593,13 +2590,7 @@ bool ggml_backend_is_metal(ggml_backend_t backend) {
     return backend && backend->iface.get_name == ggml_backend_metal_name;
 }
 
-void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
-    GGML_ASSERT(ggml_backend_is_metal(backend));
-
-    struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
-
-    ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
-}
+void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
 
 bool ggml_backend_metal_supports_family(ggml_backend_t backend, int family) {
     GGML_ASSERT(ggml_backend_is_metal(backend));

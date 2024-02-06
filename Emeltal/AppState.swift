@@ -195,9 +195,9 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         let ctxs = Task.detached {
+            let l = try await LlamaContext(manager: llm)
             let w = try await WhisperContext(manager: whisper)
             _ = await w.warmup()
-            let l = try await LlamaContext(manager: llm)
             return (l, w)
         }
 

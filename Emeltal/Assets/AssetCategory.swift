@@ -130,7 +130,7 @@ extension Asset {
             case .nousHermesMixtral: 1_350_000_000
             case .fusionNetDpo: 610_000_000
             case .smaug: 640_000_000
-            case .codeLlama70b: 670_000_000
+            case .codeLlama70b: 640_000_000
             case .miqu: 760_000_000
             }
 
