@@ -25,23 +25,23 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 
 #### General Chat
 - [SauerkrautLM-SOLAR](https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct)
-- [Nous Hermes 2 on Mixtral](https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO)
 - [FusionNet 13b (Truthful_DPO_TomGrc)](https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B)
+- [Nous Hermes 2 on Mixtral](https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO)
 - [OpenChat 3.5](https://huggingface.co/openchat/openchat-3.5-0106)
-- [TinyLlama 1.1b](https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0)
 
 #### Dolphin Series
 - [Dolphin 2.7 on Mixtral](https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b)
 - [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
-- [Dolphin 2.6 on Phi2](https://huggingface.co/cognitivecomputations/dolphin-2_6-phi-2)
+- [Dolphin 2.8 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
 
 #### Coding
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
 - [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
 
-#### Jumbo Size
-- [MoMo 72b](https://huggingface.co/moreh/MoMo-72B-lora-1.8.7-DPO)
+#### Experimental
+- [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
+- [Miqu](https://huggingface.co/miqudev/miqu-1-70b)
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
