@@ -47,7 +47,7 @@ struct ShimmerBackground: View {
                                 .float(elapsedTime)
                             )
                         )
-                        .scaleEffect(CGSize(width: 3.52, height: 3.52))
+                        .scaleEffect(CGSize(width: 3.95, height: 3.75))
                 }
         }
     }

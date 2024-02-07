@@ -8,7 +8,7 @@ final class Asset: Codable, Identifiable {
 
     var params: Params {
         didSet {
-            Asset.assetList = Asset.assetList.map {
+            Persisted.assetList = Asset.assetList().map {
                 if $0.id == id {
                     return self
                 }
@@ -17,48 +17,53 @@ final class Asset: Codable, Identifiable {
         }
     }
 
-    static var assetList: [Asset] {
-        get {
-            let categories = Category.presentedModels
-
-            let peristsedList = (Persisted.assetList ?? [Asset]()).filter { category in
-                if !categories.contains(where: { $0.id == category.id }), !category.isInstalled {
-                    false
-                } else {
-                    true
-                }
-            }
-
-            let newItems = categories
-                .map { Asset(defaultFor: $0) }
-                .filter { defaultAsset in
-                    peristsedList.allSatisfy { $0.id != defaultAsset.id }
-                }
-
-            let presentedItems = (peristsedList + newItems).sorted { $0.category.order < $1.category.order }
-
-            // Clean up deprecated model files
-            let potentialModelPaths = Set(presentedItems.map(\.localModelPath) + [Asset(defaultFor: .whisper).localModelPath])
-            let fm = FileManager.default
-            let onDiskModelPaths = Set((try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)) ?? []).filter { !$0.lastPathComponent.hasPrefix(".") }
-            let unusedFiles = onDiskModelPaths.subtracting(potentialModelPaths)
-            for file in unusedFiles {
-                log("Removing stale unused model file: \(file.path)")
-                try? fm.removeItem(at: file)
-            }
-
-            let potentialStatePaths = Set(presentedItems.map(\.localStatePath))
-            let onDiskStatePaths = Set((try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil))?.filter { $0.lastPathComponent.hasPrefix("states-") } ?? [])
-            let unusedStateDirs = onDiskStatePaths.subtracting(potentialStatePaths)
-            for file in unusedStateDirs {
-                log("Removing stale state dir: \(file.path)")
-                try? fm.removeItem(at: file)
-            }
-
-            return presentedItems
+    static func assetList(for section: Section? = nil) -> [Asset] {
+        let categories: [Category] = if let section {
+            section.presentedModels
+        } else {
+            Category.allCases.filter(\.selectable)
         }
-        set {
-            Persisted.assetList = newValue
+
+        var persistedList = (Persisted.assetList ?? [Asset]()).filter { category in
+            if categories.contains(where: { $0.id == category.id }) {
+                true
+            } else if category.isInstalled {
+                section == .deprecated
+            } else {
+                section == nil
+            }
+        }
+
+        for defaultAsset in categories.map({ Asset(defaultFor: $0) }) {
+            if persistedList.allSatisfy({ $0.id != defaultAsset.id }) {
+                persistedList.append(defaultAsset)
+            }
+        }
+
+        return persistedList
+    }
+
+    static func cleanupNonInstalledAssets() {
+        log("Checking for stale assets…")
+
+        let persistedList = Self.assetList()
+
+        // Clean up deprecated model files
+        let potentialModelPaths = Set(persistedList.map(\.localModelPath) + [Asset(defaultFor: .whisper).localModelPath])
+        let fm = FileManager.default
+        let onDiskModelPaths = Set((try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)) ?? []).filter { !$0.lastPathComponent.hasPrefix(".") }
+        let unusedFiles = onDiskModelPaths.subtracting(potentialModelPaths)
+        for file in unusedFiles {
+            log("Removing stale unused model file: \(file.path)")
+            try? fm.removeItem(at: file)
+        }
+
+        let potentialStatePaths = Set(persistedList.map(\.localStatePath))
+        let onDiskStatePaths = Set((try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil))?.filter { $0.lastPathComponent.hasPrefix("states-") } ?? [])
+        let unusedStateDirs = onDiskStatePaths.subtracting(potentialStatePaths)
+        for file in unusedStateDirs {
+            log("Removing stale state dir: \(file.path)")
+            try? fm.removeItem(at: file)
         }
     }
 

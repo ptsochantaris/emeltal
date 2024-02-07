@@ -2,27 +2,58 @@ import Foundation
 import Metal
 
 extension Asset {
-    enum Category: Identifiable, Codable {
+    enum Section: Int, CaseIterable, Identifiable {
+        var id: Int { rawValue }
+
+        case general, dolphin, coding, creative, experimental, deprecated
+
+        var presentedModels: [Category] {
+            switch self {
+            case .general:
+                [.sauerkrautSolar, .fusionNetDpo, .nousHermesMixtral, .openChat]
+            case .dolphin:
+                [.dolphinMixtral, .dolphinTiny, .dolphin70b]
+            case .coding:
+                [.deepSeekCoder33, .deepSeekCoder7, .codeLlama70b]
+            case .creative:
+                [.mythoMax]
+            case .experimental:
+                [.smaug, .miqu]
+            case .deprecated:
+                []
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .general: "General Chat"
+            case .dolphin: "Dolphin"
+            case .coding: "Coding"
+            case .creative: "Creative"
+            case .experimental: "Experimental"
+            case .deprecated: "Deprecated"
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .general: "These models are for general chat, chosen for being reliable, having good comprehension and response quality representative of each size class."
+            case .dolphin: "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
+            case .coding: "Models that can assist with programming, algorithms, and writing code."
+            case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
+            case .experimental: "Models that are less about being useful and more about being noteworthy for some reason."
+            case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
+            }
+        }
+    }
+
+    enum Category: Identifiable, Codable, CaseIterable {
         case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, smaug, codeLlama70b, miqu
 
-        static let presentedModels: [Category] = [.sauerkrautSolar, .openChat, .nousHermesMixtral, .dolphinMixtral, .dolphin70b, .dolphinTiny, .deepSeekCoder33, .deepSeekCoder7, .codeLlama70b, .mythoMax, .fusionNetDpo, .smaug, .miqu]
-
-        var order: Int {
+        var selectable: Bool {
             switch self {
-            case .whisper: 0
-            case .sauerkrautSolar: 100
-            case .fusionNetDpo: 200
-            case .nousHermesMixtral: 300
-            case .dolphinMixtral: 400
-            case .dolphinTiny: 500
-            case .dolphin70b: 600
-            case .deepSeekCoder33: 700
-            case .deepSeekCoder7: 800
-            case .codeLlama70b: 900
-            case .mythoMax: 1000
-            case .openChat: 1100
-            case .smaug: 1200
-            case .miqu: 1300
+            case .whisper: false
+            default: true
             }
         }
 
@@ -46,7 +77,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .smaug, .nousHermesMixtral, .openChat, .sauerkrautSolar:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .nousHermesMixtral, .openChat, .sauerkrautSolar, .smaug:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
@@ -261,7 +292,7 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .smaug, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .smaug: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }

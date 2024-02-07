@@ -49,26 +49,46 @@ struct ModelPicker: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("The model you select will be downloaded and installed locally on your system. You can change your selection from the menu later. Please ensure you have enough disk space for the model you select.")
-                    .multilineTextAlignment(.center)
-                    .font(.subheadline)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding()
-                    .padding([.leading, .trailing], 64)
-
+            VStack(spacing: 0) {
                 ScrollViewReader { scrollReader in
                     ScrollView {
-                        let item = GridItem(spacing: 14)
-                        LazyVGrid(columns: [item, item, item], spacing: 14) {
-                            let recommended = Asset.Category.sauerkrautSolar
-                            ForEach(Asset.assetList) {
-                                AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
-                                    .aspectRatio(1.5, contentMode: .fit)
-                                    .id($0.id)
+                        let recommended = Asset.Category.sauerkrautSolar
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("The model you select will be downloaded and installed locally on your system. You can change your selection from the menu later. Please ensure you have enough disk space for the model you select.")
+                                .multilineTextAlignment(.center)
+                                .font(.subheadline)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.bottom)
+                                .padding([.leading, .trailing], 64)
+                                .frame(maxWidth: .infinity)
+
+                            ForEach(Asset.Section.allCases) { section in
+                                let assetList = Asset.assetList(for: section)
+
+                                if !assetList.isEmpty {
+                                    ScrollView(.horizontal) {
+                                        HStack(spacing: 14) {
+                                            SectionCell(section: section)
+                                                .frame(width: 200)
+
+                                            ForEach(assetList) {
+                                                AssetCell(asset: $0, recommended: $0.category == recommended, selected: $selectedAsset)
+                                                    .id($0.id)
+                                            }
+                                            .aspectRatio(1.2, contentMode: .fit)
+                                        }
+                                        .frame(height: 200)
+                                        .scrollIndicators(.hidden)
+                                        .padding([.trailing, .top, .bottom])
+                                    }
+                                    .background(.white.opacity(0.3).blendMode(.softLight))
+                                }
                             }
                         }
+                        .padding([.top, .bottom])
                     }
+                    .scrollIndicators(.hidden)
+                    .frame(minWidth: 0)
                     .frame(idealHeight: 480)
                     .onAppear {
                         scrollReader.scrollTo(selectedAsset.id)
@@ -131,7 +151,8 @@ struct ModelPicker: View {
                         }
                     }
                     .font(.callout)
-                    .padding([.top, .bottom], 16)
+                    .padding(16)
+                    .background(.white.opacity(0.2))
                 }
 
                 let gpuUsage = selectedAsset.category.usage
@@ -178,18 +199,17 @@ struct ModelPicker: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .padding([.leading, .trailing], gpuUsage.isFull ? 0 : 16)
-                .padding([.top, .bottom], 8)
-                .background(gpuUsage.isFull ? .clear : .accent)
-                .cornerRadius(8.0)
+                .padding()
+                .background(gpuUsage.isFull ? .white.opacity(0.2) : .accent)
             }
-            .padding([.leading, .trailing])
-            .padding(.bottom, 10)
             .foregroundStyle(.white)
             .background(ShimmerBackground(show: visible))
             .navigationTitle("Select an ML model")
             .onAppear { visible = true }
             .onDisappear { visible = false }
+        }
+        .onAppear {
+            Asset.cleanupNonInstalledAssets()
         }
     }
 }
