@@ -7,7 +7,7 @@ final class LlamaContext {
     private let candidateBuffer: UnsafeMutableBufferPointer<llama_token_data>
     private let context: OpaquePointer
     private var turns: [Turn]
-    private let eosTokenId: Int32
+    private let eosTokenIds: Set<Int32>
 
     let n_ctx: UInt32
     let bosToken: String
@@ -74,7 +74,7 @@ final class LlamaContext {
             bosToken = ""
         }
 
-        eosTokenId = asset.category.eosOverride ?? llama_token_eos(model)
+        eosTokenIds = asset.category.eosOverrides ?? [llama_token_eos(model)]
 
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
@@ -100,9 +100,10 @@ final class LlamaContext {
     }
 
     private func emptyWarmup() {
+        guard let eos = eosTokenIds.first else { return }
         log("LLM warmup")
         let bosTokenId = llama_token_bos(model)
-        var emptyData = [bosTokenId, eosTokenId]
+        var emptyData = [bosTokenId, eos]
         llama_decode(context, llama_batch_get_one(&emptyData, 2, 0, 0))
         llama_kv_cache_clear(context)
     }
@@ -271,7 +272,8 @@ final class LlamaContext {
                 newTokenId = llama_sample_token_greedy(context, &candidates_p)
             }
 
-            if newTokenId == eosTokenId {
+            if eosTokenIds.contains(newTokenId) {
+                log("Text ended with EOS ID \(newTokenId)")
                 break
             }
 

@@ -18,7 +18,7 @@ extension Asset {
             case .creative:
                 [.mythoMax]
             case .experimental:
-                [.smaug, .miqu]
+                [.smaug, .miqu, .internlm2]
             case .deprecated:
                 []
             }
@@ -48,13 +48,17 @@ extension Asset {
     }
 
     enum Category: Identifiable, Codable, CaseIterable {
-        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, smaug, codeLlama70b, miqu
+        case dolphinMixtral, deepSeekCoder33, deepSeekCoder7, mythoMax, sauerkrautSolar, dolphin70b, dolphinTiny, openChat, whisper, nousHermesMixtral, fusionNetDpo, smaug, codeLlama70b, miqu, internlm2
 
         var selectable: Bool {
             switch self {
             case .whisper: false
             default: true
             }
+        }
+
+        var section: Section? {
+            Section.allCases.first { $0.presentedModels.contains(self) }
         }
 
         var format: Template.Format {
@@ -70,6 +74,7 @@ extension Asset {
             case .smaug: .chatml
             case .codeLlama70b: .llamaLarge
             case .miqu: .mistral
+            case .internlm2: .chatml
             }
         }
 
@@ -79,6 +84,8 @@ extension Asset {
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miqu, .nousHermesMixtral, .openChat, .sauerkrautSolar, .smaug:
                 "You are a helpful, respectful, friendly and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            case .internlm2:
+                "You are an AI assistant called InternLM"
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .whisper:
@@ -140,6 +147,7 @@ extension Asset {
             case .nousHermesMixtral: 4096
             case .openChat: 1024
             case .sauerkrautSolar: 1536
+            case .internlm2: 6144
             case .whisper: 0
             }
             return Int((kvCache * 1_048_576).rounded(.up))
@@ -163,6 +171,7 @@ extension Asset {
             case .smaug: 640_000_000
             case .codeLlama70b: 640_000_000
             case .miqu: 760_000_000
+            case .internlm2: 440_000_000
             }
 
             let totalLayers = switch self {
@@ -180,6 +189,7 @@ extension Asset {
             case .smaug: 81
             case .codeLlama70b: 81
             case .miqu: 81
+            case .internlm2: 49
             }
 
             let asrBytes = 2_000_000_000
@@ -245,9 +255,10 @@ extension Asset {
                     Int64(currentDevice.recommendedMaxWorkingSetSize))
         }
 
-        var eosOverride: Int32? {
+        var eosOverrides: Set<Int32>? {
             switch self {
-            case .codeLlama70b: 32015
+            case .codeLlama70b: [32015]
+            case .internlm2: [243, 92542]
             default: nil
             }
         }
@@ -268,6 +279,7 @@ extension Asset {
             case .smaug: "49.9 GB"
             case .codeLlama70b: "48.8"
             case .miqu: "48.8 GB"
+            case .internlm2: "14.1 GB"
             }
         }
 
@@ -287,12 +299,13 @@ extension Asset {
             case .smaug: "A further finetune of Moreh's finetune of Qwen 72B. Currently top on the HuggingFace leaderboard. Capped at a context of 4096, but still slow & bulky."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .miqu: "A work-in-progress version of the Mistral Medium model. Very high quality but most probably not suitable for any commercial use."
+            case .internlm2: "An experimental mix of the v2 InternLM models. High performance and very good at chat, but may be buggy."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .miqu, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .smaug: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .internlm2, .miqu, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .smaug: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -322,6 +335,8 @@ extension Asset {
                 0
             case .codeLlama70b:
                 0.8
+            case .internlm2:
+                0.4
             default:
                 0.7
             }
@@ -391,6 +406,7 @@ extension Asset {
             case .smaug: "https://huggingface.co/abacusai/Smaug-72B-v0.1"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .miqu: "https://huggingface.co/miqudev/miqu-1-70b"
+            case .internlm2: "https://huggingface.co/intervitens/internlm2-limarp-chat-20b-GGUF"
             }
             return URL(string: uri)!
         }
@@ -411,6 +427,7 @@ extension Asset {
             case .smaug: "Smaug-72B-v0.1-q5_k_s.gguf"
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             case .miqu: "miqu-1-70b.q5_K_M.gguf"
+            case .internlm2: "internlm2-limarp-chat-20b.Q5_K_M_imx.gguf"
             }
 
             if case .miqu = self {
@@ -441,6 +458,7 @@ extension Asset {
             case .smaug: "Smaug"
             case .codeLlama70b: "CodeLlama (Large)"
             case .miqu: "Miqu"
+            case .internlm2: "InternLM2"
             }
         }
 
@@ -460,6 +478,7 @@ extension Asset {
             case .smaug: "on Momo 72b, based on Qwen 72b"
             case .codeLlama70b: "70b variant, on Llama2"
             case .miqu: "70b Mistral"
+            case .internlm2: "Limarp Chat 20b"
             }
         }
 
@@ -479,6 +498,7 @@ extension Asset {
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             case .miqu: "656CA7E2-6E18-4786-9AA8-C04B1424E01C"
+            case .internlm2: "289A5C9F-4046-4C21-9EA3-D29DCAFA83CD"
             }
         }
 

@@ -5,6 +5,7 @@ final class Asset: Codable, Identifiable {
     let id: String
     let category: Category
     var isInstalled = false
+    var isDeprecated = false
 
     var params: Params {
         didSet {
@@ -27,7 +28,7 @@ final class Asset: Codable, Identifiable {
         var persistedList = (Persisted.assetList ?? [Asset]()).filter { category in
             if categories.contains(where: { $0.id == category.id }) {
                 true
-            } else if category.isInstalled {
+            } else if category.isDeprecated {
                 section == .deprecated
             } else {
                 section == nil
@@ -110,6 +111,7 @@ final class Asset: Codable, Identifiable {
 
     private func updateInstalledStatus() {
         isInstalled = FileManager.default.fileExists(atPath: localModelPath.path)
+        isDeprecated = isInstalled && Asset.Category.allCases.allSatisfy { $0.id != id }
     }
 
     func unInstall() {
