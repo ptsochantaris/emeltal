@@ -41,7 +41,7 @@ final class Asset: Codable, Identifiable {
             }
         }
 
-        return persistedList
+        return persistedList.sorted { $0.category.rawValue < $1.category.rawValue }
     }
 
     static func cleanupNonInstalledAssets() {

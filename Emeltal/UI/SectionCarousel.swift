@@ -18,7 +18,7 @@ struct SectionCarousel: View {
                         AssetCell(asset: $0, recommended: $0.category == Self.recommended, selected: $selectedAsset)
                             .id($0.id)
                     }
-                    .aspectRatio(1.2, contentMode: .fit)
+                    .aspectRatio(1.4, contentMode: .fit)
                 }
                 .frame(height: 200)
                 .scrollIndicators(.hidden)
