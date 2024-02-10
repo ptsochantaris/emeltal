@@ -32,6 +32,13 @@ let sizeFormatter: ByteCountFormatter = {
     return b
 }()
 
+let memoryFormatter: ByteCountFormatter = {
+    let b = ByteCountFormatter()
+    b.countStyle = .memory
+    b.formattingContext = .standalone
+    return b
+}()
+
 extension Binding {
     // thanks to https://stackoverflow.com/questions/65736518/how-do-i-create-a-slider-in-swiftui-for-an-int-type-property
 

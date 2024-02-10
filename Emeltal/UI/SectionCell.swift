@@ -5,7 +5,7 @@ struct SectionCell: View {
     let section: Asset.Section
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             Rectangle()
                 .frame(width: 1)
 

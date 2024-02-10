@@ -306,8 +306,8 @@ final class AppState: Identifiable, ModeProvider {
         shouldWaitOrListen()
         statusMessage = nil
 
-        if let (used, maximum) = asset.category.vram {
-            log("Startup complete, GPU usage: " + used + " / " + maximum)
+        if let (used, maximum, system) = asset.category.memoryStrings {
+            log("Startup complete, GPU usage: \(used) / \(maximum), system total: \(system)")
         }
     }
 

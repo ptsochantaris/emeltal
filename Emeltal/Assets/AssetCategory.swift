@@ -123,8 +123,8 @@ extension Asset {
             }
 
             var isFull: Bool {
-                if case .full = self {
-                    return true
+                if case let .full(_, offloaded) = self {
+                    return offloaded
                 }
                 return false
             }
@@ -168,7 +168,7 @@ extension Asset {
         }
 
         var usage: GpuUsage {
-            guard let vramBytes else { return .none }
+            guard let memoryBytes, let memoryStrings else { return .none }
 
             let layerSize = switch self {
             case .dolphinMixtral: 1_350_000_000
@@ -186,7 +186,7 @@ extension Asset {
             case .codeLlama70b: 640_000_000
             case .senku70b: 640_000_000
             case .internlm2: 440_000_000
-            case .tess72b: 630_000_000
+            case .tess72b: 640_000_000
             case .tess34b: 540_000_000
             }
 
@@ -212,65 +212,68 @@ extension Asset {
 
             let asrBytes = 2_000_000_000
 
-            if asrBytes > vramBytes.max {
-                log("Will not use GPU at all, as space is not enough to hold the base overhead")
+            if asrBytes > memoryBytes.max {
+                log("Will not use GPU at all, as space is not enough to hold the ASR overhead")
                 return .none
             }
 
-            let maxRecommendedVram = Int(vramBytes.max)
+            let maxRecommendedVram = Int(memoryBytes.max)
             let availableGpuForLayers = maxRecommendedVram - asrBytes
 
             let layers = Float(availableGpuForLayers) / Float(layerSize)
-            let layersThatCanFit = Int(layers.rounded(.down))
-            let layersToFit = min(layersThatCanFit, totalLayers)
+            let layerCapacity = Int(layers.rounded(.down))
+
+            if layerCapacity == 0 {
+                log("Will not use GPU for LLM, as space is not enough to hold any layers")
+                return .none
+            }
+
+            let layersToFit = min(layerCapacity, totalLayers)
             let usedGpuForLayers = layersToFit * Int(layerSize)
-            let expected = usedGpuForLayers + asrBytes
-            let totalMemoryUsed = expected + kvBytes
+            let layersAndAsr = usedGpuForLayers + asrBytes
+            let layersAndAsrAndKv = layersAndAsr + kvBytes
 
-            if vramBytes.unifiedMemory, totalMemoryUsed > ProcessInfo.processInfo.physicalMemory {
-                log("Will not use GPU at all, as total memory use is larger than the whole system's memory")
+            if memoryBytes.unifiedMemory, layersAndAsrAndKv > ProcessInfo.processInfo.physicalMemory {
+                log("Will not use GPU for LLM, as total memory use is larger than the whole system's memory and on a unified memory GPU that will lead to mmap thrashing")
                 return .none
             }
 
-            if layersToFit >= totalLayers {
-                let offLoad = maxRecommendedVram - expected > kvBytes
-                if offLoad {
-                    log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(totalMemoryUsed))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers, KV cache: \(sizeFormatter.string(fromByteCount: Int64(kvBytes)))")
+            if layersToFit == totalLayers {
+                let offLoadKv = maxRecommendedVram - layersAndAsr > kvBytes
+                if offLoadKv {
+                    log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(layersAndAsrAndKv))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers, KV cache: \(memoryFormatter.string(fromByteCount: Int64(kvBytes))) - total system RAM: \(memoryStrings.system)")
                 } else {
-                    log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+                    log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(layersAndAsr))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers - total system RAM: \(memoryStrings.system)")
                 }
-                return .full(totalLayers, offLoad)
-            }
-
-            if layersToFit == 0 {
-                log("Will not use GPU at all, as space is not enough to hold any layers")
-                return .none
+                return .full(totalLayers, offLoadKv)
             }
 
             let ratio = Float(layersToFit) / Float(totalLayers)
-            if ratio < 0.5 {
-                log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+            if ratio < 0.8 {
+                log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(layersAndAsr))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers - total system RAM: \(memoryStrings.system)")
                 return .low(layersToFit, totalLayers)
             } else {
-                log("Estimating GPU use to be \(sizeFormatter.string(fromByteCount: Int64(expected))) / \(sizeFormatter.string(fromByteCount: Int64(vramBytes.max))) using \(layersToFit) / \(totalLayers) layers")
+                log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(layersAndAsr))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers - total system RAM: \(memoryStrings.system)")
                 return .partial(layersToFit, totalLayers)
             }
         }
 
-        var vram: (used: String, max: String)? {
-            guard let vramBytes else { return nil }
-            return (sizeFormatter.string(fromByteCount: vramBytes.used),
-                    sizeFormatter.string(fromByteCount: vramBytes.max))
+        var memoryStrings: (used: String, max: String, system: String)? {
+            guard let memoryBytes else { return nil }
+            return (memoryFormatter.string(fromByteCount: memoryBytes.used),
+                    memoryFormatter.string(fromByteCount: memoryBytes.max),
+                    memoryFormatter.string(fromByteCount: Int64(memoryBytes.systemTotal)))
         }
 
-        var vramBytes: (unifiedMemory: Bool, used: Int64, max: Int64)? {
+        private var memoryBytes: (unifiedMemory: Bool, used: Int64, max: Int64, systemTotal: UInt64)? {
             guard let currentDevice = MTLCreateSystemDefaultDevice() else {
                 log("Failed to get the system's default Metal device.")
                 return nil
             }
             return (currentDevice.hasUnifiedMemory,
                     Int64(currentDevice.currentAllocatedSize),
-                    Int64(currentDevice.recommendedMaxWorkingSetSize))
+                    Int64(currentDevice.recommendedMaxWorkingSetSize),
+                    ProcessInfo.processInfo.physicalMemory)
         }
 
         var eosOverrides: Set<Int32>? {

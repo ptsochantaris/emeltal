@@ -152,19 +152,23 @@ struct ModelPicker: View {
                     Group {
                         switch gpuUsage {
                         case .none:
-                            Text("This model won't fit in this system's GPU and will use the CPU. It will work but it will be **too slow for real-time chat**.")
+                            Text("⚠️ This model won't fit in the GPU at all. It will work but will be too slow for real-time chat.")
 
-                        case .low:
-                            Text("This model will partly fit into this system's GPU but will mostly use the CPU. It will work but it may be **slow for real-time chat**.")
+                        case let .low(allocated, total):
+                            Text("⚠️ This model will fit **\(allocated) of \(total)** layers in the GPU. It will work but may be very slow for real-time chat.")
 
-                        case .partial:
-                            Text("This model will mostly fit into this system's GPU and will partly use the CPU. It will work but it may be slower than expected.")
+                        case let .partial(allocated, total):
+                            Text("⚠️ This model will fit **\(allocated) of \(total)** layers in the GPU. It will work but may be slow for real-time chat.")
 
-                        case .full:
-                            Spacer()
+                        case let .full(total, kvOffload):
+                            if kvOffload {
+                                Spacer()
+                            } else {
+                                Text("⚠️ This model fit all **\(total)** layers on the GPU but will use the CPU for the KV cache.")
+                            }
                         }
                     }
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.accent)
                     .frame(maxWidth: .infinity)
 
                     Button(showOverrides ? "Use Defaults" : "Customize…") {
@@ -185,7 +189,7 @@ struct ModelPicker: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .padding()
-                .background(gpuUsage.isFull ? .white.opacity(0.2) : .accent)
+                .background(.white.opacity(0.2))
             }
             .foregroundStyle(.white)
             .background(ShimmerBackground(show: visible))
