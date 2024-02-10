@@ -152,6 +152,9 @@ struct ModelPicker: View {
                     Group {
                         switch gpuUsage {
                         case .none:
+                            Text("⚠️ The app won't use the GPU at all. It will work but will extremely slow.")
+
+                        case .asrOnly:
                             Text("⚠️ This model won't fit in the GPU at all. It will work but will be too slow for real-time chat.")
 
                         case let .low(allocated, total):

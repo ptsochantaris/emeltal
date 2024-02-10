@@ -113,9 +113,9 @@ extension Asset {
         }
 
         enum GpuUsage {
-            case none, low(Int, Int), partial(Int, Int), full(Int, Bool)
+            case none, asrOnly, low(Int, Int), partial(Int, Int), full(Int, Bool)
 
-            var involvesGpu: Bool {
+            var canOffloadAsr: Bool {
                 if case .none = self {
                     return false
                 }
@@ -131,14 +131,14 @@ extension Asset {
 
             var offloadKvCache: Bool {
                 switch self {
-                case .low, .none, .partial: false
+                case .asrOnly, .low, .none, .partial: false
                 case let .full(_, offload): offload
                 }
             }
 
             var usedLayers: Int {
                 switch self {
-                case .none: 0
+                case .asrOnly, .none: 0
                 case let .full(usedLayers, _), let .low(usedLayers, _), let .partial(usedLayers, _): usedLayers
                 }
             }
@@ -210,7 +210,7 @@ extension Asset {
             case .tess34b: 61
             }
 
-            let asrBytes = 2_000_000_000
+            let asrBytes = 3_500_000_000
 
             if asrBytes > memoryBytes.max {
                 log("Will not use GPU at all, as space is not enough to hold the ASR overhead")

@@ -197,7 +197,7 @@ final class AppState: Identifiable, ModeProvider {
         let ctxs = Task.detached {
             let l = try await LlamaContext(manager: llm)
             let w = try await WhisperContext(manager: whisper)
-            _ = await w.warmup()
+            _ = try await w.warmup()
             return (l, w)
         }
 
@@ -392,8 +392,8 @@ final class AppState: Identifiable, ModeProvider {
             withAnimation {
                 mode = .noting
             }
-            let result = await Task.detached(priority: .userInitiated) { await whisperContext.transcribe(samples: samples).trimmingCharacters(in: .whitespacesAndNewlines) }.value
-            if result.count > 1 {
+            let result = try? await Task.detached(priority: .userInitiated) { try await whisperContext.transcribe(samples: samples).trimmingCharacters(in: .whitespacesAndNewlines) }.value
+            if let result, result.count > 1 {
                 multiLineText = result
                 send()
 

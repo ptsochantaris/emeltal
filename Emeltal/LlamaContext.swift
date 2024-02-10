@@ -48,7 +48,7 @@ final class LlamaContext {
             model_params.n_gpu_layers = Int32(layers)
             offloadKvCache = false
 
-        case .none:
+        case .none, .asrOnly:
             model_params.n_gpu_layers = 0
             offloadKvCache = false
         }
