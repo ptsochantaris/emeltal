@@ -9,7 +9,7 @@ final class WhisperContext {
         self.manager = manager
 
         var params = whisper_context_default_params()
-        params.use_gpu = manager.asset.category.usage.canOffloadAsr
+        params.use_gpu = manager.asset.category.usage.offloadAsr
 
         guard let context = whisper_init_from_file_with_params(manager.asset.localModelPath.path, params) else {
             throw "Could not initialise context"

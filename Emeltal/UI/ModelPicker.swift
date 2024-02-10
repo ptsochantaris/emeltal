@@ -140,8 +140,6 @@ struct ModelPicker: View {
                     .background(.white.opacity(0.2))
                 }
 
-                let gpuUsage = selectedAsset.category.usage
-
                 HStack {
                     if selectedAsset.isInstalled {
                         Button("Uninstall") {
@@ -149,30 +147,67 @@ struct ModelPicker: View {
                         }
                     }
 
-                    Group {
-                        switch gpuUsage {
-                        case .none:
-                            Text("⚠️ The app won't use the GPU at all. It will work but will extremely slow.")
+                    Spacer(minLength: 0)
 
-                        case .asrOnly:
-                            Text("⚠️ This model won't fit in the GPU at all. It will work but will be too slow for real-time chat.")
+                    let memoryUse = selectedAsset.category.usage
 
-                        case let .low(allocated, total):
-                            Text("⚠️ This model will fit **\(allocated) of \(total)** layers in the GPU. It will work but may be very slow for real-time chat.")
+                    if memoryUse.cpuUsageEstimateBytes > 0 || memoryUse.gpuUsageEstimateBytes > 0 {
+                        HStack {
+                            Group {
+                                if let warningMessage = memoryUse.warningMessage {
+                                    Image(systemName: "exclamationmark.circle")
+                                        .font(.title)
 
-                        case let .partial(allocated, total):
-                            Text("⚠️ This model will fit **\(allocated) of \(total)** layers in the GPU. It will work but may be slow for real-time chat.")
+                                    Text(warningMessage)
+                                        .foregroundColor(.primary)
+                                        .frame(width: 250)
+                                } else {
+                                    Text("Estimated Memory")
+                                        .foregroundColor(.secondary)
+                                        .frame(width: 50)
+                                }
+                            }
+                            .multilineTextAlignment(.leading)
+                            .font(.caption2)
 
-                        case let .full(total, kvOffload):
-                            if kvOffload {
-                                Spacer()
-                            } else {
-                                Text("⚠️ This model fit all **\(total)** layers on the GPU but will use the CPU for the KV cache.")
+                            Group {
+                                if memoryUse.gpuUsageEstimateBytes > 0 {
+                                    VStack(spacing: 0) {
+                                        Text("METAL")
+                                            .foregroundColor(.accentColor)
+                                        Text(memoryUse.gpuUsageEstimateBytes, format: .byteCount(style: .memory))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+
+                                if memoryUse.cpuUsageEstimateBytes > 0 {
+                                    VStack(spacing: 0) {
+                                        Text("CPU")
+                                            .foregroundColor(.accentColor)
+                                        Text(memoryUse.cpuUsageEstimateBytes, format: .byteCount(style: .memory))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .fixedSize()
+                            .padding(2)
+                            .padding([.leading, .trailing], 2)
+                            .font(.caption2)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 6, style: .circular)
+                                    .foregroundStyle(.white.opacity(0.3))
+                                    .blendMode(.softLight)
                             }
                         }
+                        .padding(8)
+                        .background {
+                            RoundedRectangle(cornerRadius: 6, style: .circular)
+                                .foregroundStyle(.white.opacity(0.3))
+                                .blendMode(.softLight)
+                        }
                     }
-                    .foregroundStyle(.accent)
-                    .frame(maxWidth: .infinity)
+
+                    Spacer(minLength: 0)
 
                     Button(showOverrides ? "Use Defaults" : "Customize…") {
                         if showOverrides {
@@ -191,7 +226,8 @@ struct ModelPicker: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .padding()
+                .padding([.top, .bottom], 8)
+                .padding([.leading, .trailing])
                 .background(.white.opacity(0.2))
             }
             .foregroundStyle(.white)
