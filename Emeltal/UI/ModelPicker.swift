@@ -159,11 +159,11 @@ struct ModelPicker: View {
                                         .font(.title)
 
                                     Text(warningMessage)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.white)
                                         .frame(width: 250)
                                 } else {
                                     Text("Estimated Memory")
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                         .frame(width: 50)
                                 }
                             }
