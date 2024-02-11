@@ -202,7 +202,7 @@ final class LlamaContext {
         turns.count
     }
 
-    private static let wordBuffer = UnsafeMutablePointer<Int8>.allocate(capacity: 1024)
+    private static let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
 
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let start = Date.now
@@ -264,19 +264,19 @@ final class LlamaContext {
                 break
             }
 
-            ensureCacheSpace(toFit: 1)
-
-            logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
-
             let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023))
             if written > 0 {
                 Self.wordBuffer[written] = 0
-                let new_token_str = String(utf8String: Self.wordBuffer) ?? ""
-                log("Fragment: \(newTokenId) - '\(new_token_str)'")
+                let new_token_str = String(cString: Self.wordBuffer)
+                log("Fragment: \(newTokenId) / '\(new_token_str)' / \(Self.wordBufferBytes(written))")
                 continuation.yield(new_token_str)
             } else {
                 log("Warning, wordbuffer was invalid - token ID was \(newTokenId)")
             }
+
+            ensureCacheSpace(toFit: 1)
+
+            logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
 
             await Task.yield()
         }
@@ -294,5 +294,9 @@ final class LlamaContext {
         }
 
         continuation.finish()
+    }
+
+    private static func wordBufferBytes(_ len: Int) -> String {
+        "[" + (0 ..< len).map { wordBuffer[$0] }.map { String($0) }.joined(separator: "][") + "]"
     }
 }
