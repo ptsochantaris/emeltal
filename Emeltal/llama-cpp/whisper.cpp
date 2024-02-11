@@ -156,11 +156,11 @@ static bool ggml_graph_compute_helper(
           struct ggml_cgraph * graph,
         std::vector<uint8_t> & buf,
                          int   n_threads,
-      whisper_abort_callback   abort_callback,
+         ggml_abort_callback   abort_callback,
                         void * abort_callback_data) {
     struct ggml_cplan plan = ggml_graph_plan(graph, n_threads);
 
-    plan.abort_callback = abort_callback;
+    plan.abort_callback      = abort_callback;
     plan.abort_callback_data = abort_callback_data;
 
     if (plan.work_size > 0) {
@@ -1060,7 +1060,7 @@ static ggml_backend_t whisper_backend_init(const whisper_context_params & params
 #ifdef GGML_USE_CUBLAS
     if (params.use_gpu && ggml_cublas_loaded()) {
         WHISPER_LOG_INFO("%s: using CUDA backend\n", __func__);
-        backend_gpu = ggml_backend_cuda_init(0);
+        backend_gpu = ggml_backend_cuda_init(params.gpu_device);
         if (!backend_gpu) {
             WHISPER_LOG_ERROR("%s: ggml_backend_cuda_init() failed\n", __func__);
         }
@@ -2130,7 +2130,7 @@ static bool whisper_encode_internal(
           whisper_state & wstate,
               const int   mel_offset,
               const int   n_threads,
- whisper_abort_callback   abort_callback,
+    ggml_abort_callback   abort_callback,
                    void * abort_callback_data) {
     const int64_t t_start_us = ggml_time_us();
 
@@ -2561,7 +2561,7 @@ static bool whisper_decode_internal(
           whisper_state & wstate,
     const whisper_batch & batch,
               const int   n_threads,
- whisper_abort_callback   abort_callback,
+    ggml_abort_callback   abort_callback,
                    void * abort_callback_data) {
     const int64_t t_start_us = ggml_time_us();
 
@@ -3213,6 +3213,7 @@ int whisper_ctx_init_openvino_encoder(
 struct whisper_context_params whisper_context_default_params() {
     struct whisper_context_params result = {
         /*.use_gpu    =*/ true,
+        /*.gpu_device =*/ 0,
     };
     return result;
 }

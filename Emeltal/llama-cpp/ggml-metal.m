@@ -648,6 +648,7 @@ static bool ggml_metal_graph_compute(
         struct ggml_metal_context * ctx,
                struct ggml_cgraph * gf) {
 
+    @autoreleasepool {
     MTLComputePassDescriptor * edesc = MTLComputePassDescriptor.computePassDescriptor;
     edesc.dispatchType = MTLDispatchTypeSerial;
 
@@ -2235,6 +2236,7 @@ static bool ggml_metal_graph_compute(
         [[MTLCaptureManager sharedCaptureManager] stopCapture];
     }
 
+    }
     return true;
 }
 
