@@ -119,6 +119,7 @@ extension Asset {
             let offloadKvCache: Bool
             let cpuUsageEstimateBytes: Int64
             let gpuUsageEstimateBytes: Int64
+            let excessBytes: Int64
 
             var warningMessage: String? {
                 if offloadKvCache {
@@ -140,7 +141,11 @@ extension Asset {
                     return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat."
                 }
 
-                return "Emeltal won't use Metal at all. It will work but will probably be very slow."
+                if excessBytes > 0 {
+                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging."
+                }
+
+                return "Emeltal won't use Metal at all. It will work but will probably be slow."
             }
         }
 
@@ -209,43 +214,66 @@ extension Asset {
             }
 
             let asrBytes: Int64 = 3_500_000_000
-            let maxRecommendedVram = Int64(memoryBytes?.max ?? 0)
-            let availableGpuForLayers = maxRecommendedVram - asrBytes
-            let layers = Float(availableGpuForLayers) / Float(layerSize)
-            let layerCapacity = max(0, Int64(layers.rounded(.down)))
+            let totalRequiredMemory = (totalLayers * layerSize) + asrBytes + kvBytes
+            let physicalMemory = Int64(ProcessInfo.processInfo.physicalMemory)
+            let excessBytes = max(0, totalRequiredMemory - physicalMemory)
+
+            guard let memoryBytes, asrBytes < memoryBytes.max else {
+                return GpuUsage(layersUsed: 0,
+                                layersTotal: totalLayers,
+                                offloadAsr: false,
+                                offloadKvCache: false,
+                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
+                                gpuUsageEstimateBytes: 0,
+                                excessBytes: excessBytes)
+            }
+
+            if memoryBytes.unifiedMemory, totalRequiredMemory > physicalMemory {
+                return GpuUsage(layersUsed: 0,
+                                layersTotal: totalLayers,
+                                offloadAsr: false,
+                                offloadKvCache: false,
+                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
+                                gpuUsageEstimateBytes: 0,
+                                excessBytes: excessBytes)
+            }
+
+            let maxVram = Int64(memoryBytes.max)
+            let possibleLayers = Float(maxVram - asrBytes) / Float(layerSize)
+            let layerCapacity = max(0, Int64(possibleLayers.rounded(.down)))
             let layersToFit = min(layerCapacity, totalLayers)
-            let layerMemory = layersToFit * layerSize
-            let asrAndLayers = asrBytes + layerMemory
-            let totalMemoryEstimate = layerMemory + asrBytes + kvBytes
-
-            guard let memoryBytes, let memoryStrings, asrBytes < memoryBytes.max else {
-                log("Will not use GPU at all, as space is not enough to even hold the ASR")
-                return GpuUsage(layersUsed: 0, layersTotal: totalLayers, offloadAsr: false, offloadKvCache: false, cpuUsageEstimateBytes: totalMemoryEstimate, gpuUsageEstimateBytes: 0)
-            }
-
-            if memoryBytes.unifiedMemory, totalMemoryEstimate > ProcessInfo.processInfo.physicalMemory {
-                log("Will not use GPU at all, as total memory use is larger than the whole system's memory; on a unified memory GPU that will lead to mmap thrashing - total system RAM: \(memoryStrings.system)")
-                return GpuUsage(layersUsed: 0, layersTotal: totalLayers, offloadAsr: false, offloadKvCache: false, cpuUsageEstimateBytes: totalMemoryEstimate, gpuUsageEstimateBytes: 0)
-            }
+            let fittedLayerMemory = layersToFit * layerSize
 
             if layerCapacity == 0 {
-                log("Will use GPU only for ASR, as space is not enough to hold any layers - total system RAM: \(memoryStrings.system)")
-                return GpuUsage(layersUsed: 0, layersTotal: totalLayers, offloadAsr: true, offloadKvCache: false, cpuUsageEstimateBytes: layerMemory + kvBytes, gpuUsageEstimateBytes: asrBytes)
+                return GpuUsage(layersUsed: 0,
+                                layersTotal: totalLayers,
+                                offloadAsr: true,
+                                offloadKvCache: false,
+                                cpuUsageEstimateBytes: fittedLayerMemory + kvBytes,
+                                gpuUsageEstimateBytes: asrBytes,
+                                excessBytes: excessBytes)
             }
 
-            if layersToFit == totalLayers {
-                let offLoadKv = maxRecommendedVram - asrAndLayers > kvBytes
-                if offLoadKv {
-                    log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(totalMemoryEstimate))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers, KV cache: \(memoryFormatter.string(fromByteCount: Int64(kvBytes))) - total system RAM: \(memoryStrings.system)")
-                    return GpuUsage(layersUsed: layersToFit, layersTotal: totalLayers, offloadAsr: true, offloadKvCache: true, cpuUsageEstimateBytes: 0, gpuUsageEstimateBytes: totalMemoryEstimate)
-                } else {
-                    log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(asrAndLayers))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers - total system RAM: \(memoryStrings.system)")
-                    return GpuUsage(layersUsed: layersToFit, layersTotal: totalLayers, offloadAsr: true, offloadKvCache: false, cpuUsageEstimateBytes: kvBytes, gpuUsageEstimateBytes: asrAndLayers)
-                }
+            let asrAndLayers = asrBytes + fittedLayerMemory
+
+            if layersToFit < totalLayers {
+                return GpuUsage(layersUsed: layersToFit,
+                                layersTotal: totalLayers,
+                                offloadAsr: true,
+                                offloadKvCache: false,
+                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory - asrAndLayers),
+                                gpuUsageEstimateBytes: asrAndLayers,
+                                excessBytes: excessBytes)
             }
 
-            log("Estimated GPU use: \(memoryFormatter.string(fromByteCount: Int64(asrAndLayers))) / \(memoryStrings.max) using \(layersToFit) / \(totalLayers) layers - total system RAM: \(memoryStrings.system)")
-            return GpuUsage(layersUsed: layersToFit, layersTotal: totalLayers, offloadAsr: true, offloadKvCache: false, cpuUsageEstimateBytes: totalMemoryEstimate - asrAndLayers, gpuUsageEstimateBytes: asrAndLayers)
+            let offLoadKv = maxVram - asrAndLayers > kvBytes
+            return GpuUsage(layersUsed: layersToFit,
+                            layersTotal: totalLayers,
+                            offloadAsr: true,
+                            offloadKvCache: offLoadKv,
+                            cpuUsageEstimateBytes: offLoadKv ? 0 : kvBytes,
+                            gpuUsageEstimateBytes: asrAndLayers + (offLoadKv ? kvBytes : 0),
+                            excessBytes: excessBytes)
         }
 
         var memoryStrings: (used: String, max: String, system: String)? {

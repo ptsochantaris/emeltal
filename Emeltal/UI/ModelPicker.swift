@@ -188,6 +188,15 @@ struct ModelPicker: View {
                                             .foregroundColor(.white)
                                     }
                                 }
+
+                                if memoryUse.excessBytes > 0 {
+                                    VStack(spacing: 0) {
+                                        Text("PAGED")
+                                            .foregroundColor(.red)
+                                        Text(memoryUse.excessBytes, format: .byteCount(style: .memory))
+                                            .foregroundColor(.white)
+                                    }
+                                }
                             }
                             .fixedSize()
                             .padding(2)
