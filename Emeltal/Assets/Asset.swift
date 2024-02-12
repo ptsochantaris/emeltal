@@ -19,29 +19,47 @@ final class Asset: Codable, Identifiable {
     }
 
     static func assetList(for section: Section? = nil) -> [Asset] {
-        let categories: [Category] = if let section {
-            section.presentedModels
-        } else {
-            Category.allCases.filter(\.selectable)
-        }
+        let assetList: [Asset]
+        let persistedAssets = Persisted.assetList ?? [Asset]()
 
-        var persistedList = (Persisted.assetList ?? [Asset]()).filter { category in
-            if categories.contains(where: { $0.id == category.id }) {
-                true
-            } else if category.isDeprecated {
-                section == .deprecated
+        if let section {
+            if section == .deprecated {
+                let allSupportedCategories = Category.allCases.filter(\.selectable)
+                assetList = persistedAssets.filter { persistedAsset in
+                    guard persistedAsset.isInstalled else { return false }
+                    let isSupported = allSupportedCategories.contains { persistedAsset.id == $0.id }
+                    return !isSupported
+                }
+
             } else {
-                section == nil
+                let sectionCategories = section.presentedModels
+                assetList = sectionCategories.map { sectionCategory in
+                    if let persisted = persistedAssets.first(where: { $0.id == sectionCategory.id }), persisted.isInstalled {
+                        persisted
+                    } else {
+                        Asset(defaultFor: sectionCategory)
+                    }
+                }
             }
+        } else {
+            let allSupportedCategories = Category.allCases.filter(\.selectable)
+            let supportedList = allSupportedCategories.map { supportedCategory in
+                if let installed = persistedAssets.first(where: { $0.id == supportedCategory.id }) {
+                    installed
+                } else {
+                    Asset(defaultFor: supportedCategory)
+                }
+            }
+            let deprecatedList = persistedAssets.filter { persistedAsset in
+                guard persistedAsset.isInstalled else { return false }
+                let isSupported = allSupportedCategories.contains { persistedAsset.id == $0.id }
+                return !isSupported
+            }
+
+            assetList = supportedList + deprecatedList
         }
 
-        for defaultAsset in categories.map({ Asset(defaultFor: $0) }) {
-            if persistedList.allSatisfy({ $0.id != defaultAsset.id }) {
-                persistedList.append(defaultAsset)
-            }
-        }
-
-        return persistedList.sorted { $0.category.rawValue < $1.category.rawValue }
+        return assetList.sorted { $0.category.rawValue < $1.category.rawValue }
     }
 
     static func cleanupNonInstalledAssets() {

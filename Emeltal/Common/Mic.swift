@@ -171,7 +171,7 @@ final actor Mic: NSObject {
                         if newLevels > oldLevels {
                             let ratio = newLevels / oldLevels
                             if ratio > 10 {
-                                print("Voice start")
+                                log("Voice start")
                                 startedLevel = oldLevels
                                 voiceDetected = true
                             }

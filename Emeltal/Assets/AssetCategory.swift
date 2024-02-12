@@ -18,7 +18,7 @@ extension Asset {
             case .creative:
                 [.mythoMax]
             case .experimental:
-                [.smaug, .senku70b]
+                [.senku70b, .smaug, .miniCpmOpenHermes]
             case .deprecated:
                 []
             }
@@ -52,7 +52,7 @@ extension Asset {
              sauerkrautSolar, fusionNetDpo, openChat, nousHermesMixtral,
              mythoMax,
              deepSeekCoder33, codeLlama70b, deepSeekCoder7,
-             senku70b, smaug,
+             senku70b, smaug, miniCpmOpenHermes,
              whisper
 
         var selectable: Bool {
@@ -79,6 +79,7 @@ extension Asset {
             case .smaug: .chatml
             case .codeLlama70b: .llamaLarge
             case .senku70b: .mistral
+            case .miniCpmOpenHermes: .miniCpm
             }
         }
 
@@ -86,7 +87,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
@@ -154,6 +155,7 @@ extension Asset {
             case .nousHermesMixtral: 4096
             case .openChat: 1024
             case .sauerkrautSolar: 1536
+            case .miniCpmOpenHermes: 720
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -175,6 +177,7 @@ extension Asset {
             case .smaug: 640_000_000
             case .codeLlama70b: 640_000_000
             case .senku70b: 640_000_000
+            case .miniCpmOpenHermes: 40_000_000
             }
 
             let totalLayers: Int64 = switch self {
@@ -192,6 +195,7 @@ extension Asset {
             case .smaug: 81
             case .codeLlama70b: 81
             case .senku70b: 81
+            case .miniCpmOpenHermes: 41
             }
 
             let asrBytes: Int64 = 3_500_000_000
@@ -298,6 +302,7 @@ extension Asset {
             case .smaug: "49.9 GB"
             case .codeLlama70b: "48.8"
             case .senku70b: "48.8 GB"
+            case .miniCpmOpenHermes: "3.2 GB"
             }
         }
 
@@ -317,13 +322,14 @@ extension Asset {
             case .smaug: "A further finetune of Moreh's finetune of Qwen 72B. Currently top on the HuggingFace leaderboard. Capped at a context of 4,096, but still slow & bulky."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
+            case .miniCpmOpenHermes: "A high-quality dataset running on the small but very capable MiniCPM model."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug: 1024
-            case .dolphinTiny: 256
+            case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
         }
@@ -421,6 +427,7 @@ extension Asset {
             case .smaug: "https://huggingface.co/abacusai/Smaug-72B-v0.1"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .senku70b: "https://huggingface.co/ShinojiResearch/Senku-70B-Full"
+            case .miniCpmOpenHermes: "https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2"
             }
             return URL(string: uri)!
         }
@@ -441,6 +448,7 @@ extension Asset {
             case .smaug: "Smaug-72B-v0.1-q5_k_s.gguf"
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             case .senku70b: "Senku-70B-Full-Q5_K_M.gguf"
+            case .miniCpmOpenHermes: "minicpm-2b-openhermes-2.5-v2.Q8_0.gguf"
             }
 
             if case .senku70b = self {
@@ -471,6 +479,7 @@ extension Asset {
             case .smaug: "Smaug"
             case .codeLlama70b: "CodeLlama (Large)"
             case .senku70b: "Senku"
+            case .miniCpmOpenHermes: "OpenHermes (Compact)"
             }
         }
 
@@ -490,6 +499,7 @@ extension Asset {
             case .smaug: "on Momo 72b, based on Qwen 72b"
             case .codeLlama70b: "70b variant, on Llama2"
             case .senku70b: "70b finetune, on Miqu"
+            case .miniCpmOpenHermes: "3b variant, on MiniCPM"
             }
         }
 
@@ -509,6 +519,7 @@ extension Asset {
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             case .senku70b: "156CA7E2-6E18-4786-9AA8-C04B1424E01C"
+            case .miniCpmOpenHermes: "A16F4EB2-6B73-4341-82C0-A06050169343"
             }
         }
 
