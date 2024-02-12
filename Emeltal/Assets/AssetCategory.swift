@@ -5,7 +5,7 @@ extension Asset {
     enum Section: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case general, dolphin, tess, coding, creative, experimental, deprecated
+        case general, dolphin, coding, creative, experimental, deprecated
 
         var presentedModels: [Category] {
             switch self {
@@ -13,14 +13,12 @@ extension Asset {
                 [.sauerkrautSolar, .fusionNetDpo, .nousHermesMixtral, .openChat]
             case .dolphin:
                 [.dolphinMixtral, .dolphinTiny, .dolphin70b]
-            case .tess:
-                [.tess34b, .tess72b]
             case .coding:
                 [.deepSeekCoder33, .deepSeekCoder7, .codeLlama70b]
             case .creative:
                 [.mythoMax]
             case .experimental:
-                [.smaug, .senku70b, .internlm2]
+                [.smaug, .senku70b]
             case .deprecated:
                 []
             }
@@ -30,7 +28,6 @@ extension Asset {
             switch self {
             case .general: "General Chat"
             case .dolphin: "Dolphin"
-            case .tess: "Tess"
             case .coding: "Coding"
             case .creative: "Creative"
             case .experimental: "Experimental"
@@ -42,7 +39,6 @@ extension Asset {
             switch self {
             case .general: "These models are for general chat, chosen for being reliable, having good comprehension and response quality representative of each size class."
             case .dolphin: "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
-            case .tess: "The Tess set is a very highly rated series of models with especially good ability for long-form conversations."
             case .coding: "Models that can assist with programming, algorithms, and writing code."
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
             case .experimental: "Models that are less about being useful and more about being noteworthy for some reason."
@@ -53,11 +49,10 @@ extension Asset {
 
     enum Category: Int, Identifiable, Codable, CaseIterable {
         case dolphinMixtral, dolphin70b, dolphinTiny,
-             tess34b, tess72b,
              sauerkrautSolar, fusionNetDpo, openChat, nousHermesMixtral,
              mythoMax,
              deepSeekCoder33, codeLlama70b, deepSeekCoder7,
-             senku70b, smaug, internlm2,
+             senku70b, smaug,
              whisper
 
         var selectable: Bool {
@@ -84,8 +79,6 @@ extension Asset {
             case .smaug: .chatml
             case .codeLlama70b: .llamaLarge
             case .senku70b: .mistral
-            case .internlm2: .chatml
-            case .tess34b, .tess72b: .tess
             }
         }
 
@@ -93,10 +86,8 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug, .tess34b, .tess72b:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .internlm2:
-                "You are an AI assistant called InternLM"
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .whisper:
@@ -106,8 +97,7 @@ extension Asset {
 
         var contextSize: UInt32 {
             switch self {
-            case .smaug, .tess72b: 4096
-            case .tess34b: 32768
+            case .smaug: 4096
             default: 0
             }
         }
@@ -164,9 +154,6 @@ extension Asset {
             case .nousHermesMixtral: 4096
             case .openChat: 1024
             case .sauerkrautSolar: 1536
-            case .internlm2: 6144
-            case .tess72b: 10240
-            case .tess34b: 7680
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -188,9 +175,6 @@ extension Asset {
             case .smaug: 640_000_000
             case .codeLlama70b: 640_000_000
             case .senku70b: 640_000_000
-            case .internlm2: 440_000_000
-            case .tess72b: 640_000_000
-            case .tess34b: 540_000_000
             }
 
             let totalLayers: Int64 = switch self {
@@ -208,9 +192,6 @@ extension Asset {
             case .smaug: 81
             case .codeLlama70b: 81
             case .senku70b: 81
-            case .internlm2: 49
-            case .tess72b: 81
-            case .tess34b: 61
             }
 
             let asrBytes: Int64 = 3_500_000_000
@@ -297,7 +278,6 @@ extension Asset {
         var eosOverrides: Set<Int32>? {
             switch self {
             case .codeLlama70b: [32015]
-            case .internlm2: [243, 92542]
             default: nil
             }
         }
@@ -318,9 +298,6 @@ extension Asset {
             case .smaug: "49.9 GB"
             case .codeLlama70b: "48.8"
             case .senku70b: "48.8 GB"
-            case .internlm2: "14.1 GB"
-            case .tess72b: "49.9 GB"
-            case .tess34b: "24.4 GB"
             }
         }
 
@@ -340,15 +317,12 @@ extension Asset {
             case .smaug: "A further finetune of Moreh's finetune of Qwen 72B. Currently top on the HuggingFace leaderboard. Capped at a context of 4,096, but still slow & bulky."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
-            case .internlm2: "An experimental mix of the v2 InternLM models. High performance and very good at chat, but may be buggy."
-            case .tess34b: "Tess, short for Tesoro (Treasure in Italian), is a general purpose Large Language Model series. Context capped at 32,768 in this version."
-            case .tess72b: "The heavy duty version of Tess if you have the memory for it. Capped to a context of 4,096 for sanity."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .internlm2, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug, .tess34b, .tess72b: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -378,8 +352,6 @@ extension Asset {
                 0
             case .codeLlama70b:
                 0.8
-            case .internlm2:
-                0.4
             default:
                 0.7
             }
@@ -449,9 +421,6 @@ extension Asset {
             case .smaug: "https://huggingface.co/abacusai/Smaug-72B-v0.1"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .senku70b: "https://huggingface.co/ShinojiResearch/Senku-70B-Full"
-            case .internlm2: "https://huggingface.co/intervitens/internlm2-limarp-chat-20b-GGUF"
-            case .tess72b: "https://huggingface.co/migtissera/Tess-72B-v1.5b"
-            case .tess34b: "https://huggingface.co/migtissera/Tess-34B-v1.5b"
             }
             return URL(string: uri)!
         }
@@ -472,9 +441,6 @@ extension Asset {
             case .smaug: "Smaug-72B-v0.1-q5_k_s.gguf"
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             case .senku70b: "Senku-70B-Full-Q5_K_M.gguf"
-            case .internlm2: "internlm2-limarp-chat-20b.Q5_K_M_imx.gguf"
-            case .tess72b: "tess-72B-v1.5b-Q5_K_S.gguf"
-            case .tess34b: "tess-34b-v1.5b.Q5_K_M.gguf"
             }
 
             if case .senku70b = self {
@@ -505,9 +471,6 @@ extension Asset {
             case .smaug: "Smaug"
             case .codeLlama70b: "CodeLlama (Large)"
             case .senku70b: "Senku"
-            case .internlm2: "InternLM2"
-            case .tess34b: "Tess"
-            case .tess72b: "Tess (Large)"
             }
         }
 
@@ -527,9 +490,6 @@ extension Asset {
             case .smaug: "on Momo 72b, based on Qwen 72b"
             case .codeLlama70b: "70b variant, on Llama2"
             case .senku70b: "70b finetune, on Miqu"
-            case .internlm2: "Limarp Chat 20b"
-            case .tess34b: "v1.5b, on Yi-34B-200K"
-            case .tess72b: "v1.5b, on Qwen-72B"
             }
         }
 
@@ -549,9 +509,6 @@ extension Asset {
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             case .senku70b: "156CA7E2-6E18-4786-9AA8-C04B1424E01C"
-            case .internlm2: "289A5C9F-4046-4C21-9EA3-D29DCAFA83CD"
-            case .tess34b: "C7686324-D5AE-4AC2-B2FA-D3EADD39ABC6"
-            case .tess72b: "7B8B355F-6C2A-4036-B1EE-2691734FEE0E"
             }
         }
 
