@@ -31,8 +31,8 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 
 #### Dolphin Series
 - [Dolphin 2.7 on Mixtral](https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b)
-- [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
 - [Dolphin 2.8 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
+- [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
 
 #### Coding
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
@@ -41,7 +41,8 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 
 #### Experimental
 - [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
-- [Miqu](https://huggingface.co/miqudev/miqu-1-70b)
+- [Senku](https://huggingface.co/ShinojiResearch/Senku-70B-Full)
+- [MiniCPM-OpenHermes](https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2)
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)

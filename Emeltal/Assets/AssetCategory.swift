@@ -41,7 +41,7 @@ extension Asset {
             case .dolphin: "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
             case .coding: "Models that can assist with programming, algorithms, and writing code."
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
-            case .experimental: "Models that are less about being useful and more about being noteworthy for some reason."
+            case .experimental: "Models to try out that are new and noteworthy. They may be promoted to a category above, be replaced by other interesting models, or just be buggy and output nonsense."
             case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
             }
         }
