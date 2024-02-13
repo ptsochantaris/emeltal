@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm
+        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .miniCpm, .mistral, .openChat, .userAssistant: false
-            case .alpaca, .chatml, .llamaLarge: true
+            case .alpaca, .chatml, .llamaLarge, .vicuna: true
             }
         }
 
@@ -57,6 +57,12 @@ struct Template {
 
     private func prefix(for step: Step) -> String {
         switch format {
+        case .vicuna:
+            switch step {
+            case .cancel, .initial: ""
+            case .turn: "USER: "
+            }
+
         case .miniCpm:
             switch step {
             case .cancel, .initial: ""
@@ -111,6 +117,13 @@ struct Template {
 
     private func suffix(for step: Step) -> String {
         switch format {
+        case .vicuna:
+            switch step {
+            case .cancel: "\n"
+            case .initial: "\n\n"
+            case .turn: "\nASSISTANT: "
+            }
+
         case .miniCpm:
             switch step {
             case .cancel, .initial: ""

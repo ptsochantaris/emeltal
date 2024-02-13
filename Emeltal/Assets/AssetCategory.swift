@@ -5,7 +5,7 @@ extension Asset {
     enum Section: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case general, dolphin, coding, creative, experimental, deprecated
+        case general, dolphin, samantha, coding, creative, experimental, deprecated
 
         var presentedModels: [Category] {
             switch self {
@@ -14,9 +14,11 @@ extension Asset {
             case .dolphin:
                 [.dolphinMixtral, .dolphinTiny, .dolphin70b]
             case .coding:
-                [.deepSeekCoder33, .deepSeekCoder7, .codeLlama70b]
+                [.deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
             case .creative:
                 [.mythoMax]
+            case .samantha:
+                [.samantha7b, .samantha70b]
             case .experimental:
                 [.senku70b, .smaug, .miniCpmOpenHermes]
             case .deprecated:
@@ -32,6 +34,7 @@ extension Asset {
             case .creative: "Creative"
             case .experimental: "Experimental"
             case .deprecated: "Deprecated"
+            case .samantha: "Samantha"
             }
         }
 
@@ -43,17 +46,30 @@ extension Asset {
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
             case .experimental: "Models to try out that are new and noteworthy. They may be promoted to a category above, be replaced by other interesting models, or just be buggy and output nonsense."
             case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
+            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models with the premise they are sentient friends of the user."
             }
         }
     }
 
     enum Category: Int, Identifiable, Codable, CaseIterable {
-        case dolphinMixtral, dolphin70b, dolphinTiny,
-             sauerkrautSolar, fusionNetDpo, openChat, nousHermesMixtral,
-             mythoMax,
-             deepSeekCoder33, codeLlama70b, deepSeekCoder7,
-             senku70b, smaug, miniCpmOpenHermes,
-             whisper
+        case dolphinMixtral = 100,
+             dolphin70b = 200,
+             dolphinTiny = 300,
+             sauerkrautSolar = 400,
+             fusionNetDpo = 500,
+             openChat = 600,
+             nousHermesMixtral = 700,
+             mythoMax = 800,
+             deepSeekCoder33 = 900,
+             codeLlama70b = 1000,
+             deepSeekCoder7 = 1100,
+             everyoneCoder = 1200,
+             senku70b = 1300,
+             smaug = 1400,
+             miniCpmOpenHermes = 1500,
+             samantha7b = 1600,
+             samantha70b = 1700,
+             whisper = 1800
 
         var selectable: Bool {
             switch self {
@@ -80,15 +96,19 @@ extension Asset {
             case .codeLlama70b: .llamaLarge
             case .senku70b: .mistral
             case .miniCpmOpenHermes: .miniCpm
+            case .samantha7b, .samantha70b: .vicuna
+            case .everyoneCoder: .alpaca
             }
         }
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            case .samantha7b, .samantha70b:
+                "You are a caring and empathetic sentient AI companion named Samantha."
             case .mythoMax:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .whisper:
@@ -156,6 +176,9 @@ extension Asset {
             case .openChat: 1024
             case .sauerkrautSolar: 1536
             case .miniCpmOpenHermes: 720
+            case .samantha70b: 1280
+            case .samantha7b: 4096
+            case .everyoneCoder: 4096
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -178,6 +201,9 @@ extension Asset {
             case .codeLlama70b: 640_000_000
             case .senku70b: 640_000_000
             case .miniCpmOpenHermes: 40_000_000
+            case .samantha70b: 640_000_000
+            case .samantha7b: 260_000_000
+            case .everyoneCoder: 480_000_000
             }
 
             let totalLayers: Int64 = switch self {
@@ -196,6 +222,9 @@ extension Asset {
             case .codeLlama70b: 81
             case .senku70b: 81
             case .miniCpmOpenHermes: 41
+            case .samantha70b: 81
+            case .samantha7b: 33
+            case .everyoneCoder: 63
             }
 
             let asrBytes: Int64 = 3_500_000_000
@@ -303,6 +332,9 @@ extension Asset {
             case .codeLlama70b: "48.8"
             case .senku70b: "48.8 GB"
             case .miniCpmOpenHermes: "3.2 GB"
+            case .samantha70b: "48.8 GB"
+            case .samantha7b: "5.2 GB"
+            case .everyoneCoder: "27.4 GB"
             }
         }
 
@@ -323,12 +355,15 @@ extension Asset {
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
             case .miniCpmOpenHermes: "A high-quality dataset running on the small but very capable MiniCPM model."
+            case .samantha70b: "A larger but slightly older version of the Samantha model."
+            case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
+            case .everyoneCoder: "This is a community-created coding specific model made using fine-tunes of the Deekseekcoder base."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -428,6 +463,9 @@ extension Asset {
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .senku70b: "https://huggingface.co/ShinojiResearch/Senku-70B-Full"
             case .miniCpmOpenHermes: "https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2"
+            case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
+            case .samantha7b: "https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b"
+            case .everyoneCoder: "https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base"
             }
             return URL(string: uri)!
         }
@@ -449,6 +487,9 @@ extension Asset {
             case .codeLlama70b: "codellama-70b-instruct.Q5_K_M.gguf"
             case .senku70b: "Senku-70B-Full-Q5_K_M.gguf"
             case .miniCpmOpenHermes: "minicpm-2b-openhermes-2.5-v2.Q8_0.gguf"
+            case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
+            case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
+            case .everyoneCoder: "Everyone-Coder-33b-v2-Base-Q6_K.gguf"
             }
 
             if case .senku70b = self {
@@ -480,6 +521,9 @@ extension Asset {
             case .codeLlama70b: "CodeLlama (Large)"
             case .senku70b: "Senku"
             case .miniCpmOpenHermes: "OpenHermes (Compact)"
+            case .samantha70b: "Samantha (Large)"
+            case .samantha7b: "Samantha"
+            case .everyoneCoder: "EveryoneCoder"
             }
         }
 
@@ -500,6 +544,9 @@ extension Asset {
             case .codeLlama70b: "70b variant, on Llama2"
             case .senku70b: "70b finetune, on Miqu"
             case .miniCpmOpenHermes: "3b variant, on MiniCPM"
+            case .samantha70b: "v1.11, on Llama2"
+            case .samantha7b: "v1.1, on WestLake"
+            case .everyoneCoder: "v2, on DeepSeekCoder 33b"
             }
         }
 
@@ -520,6 +567,9 @@ extension Asset {
             case .codeLlama70b: "41B93F86-721B-4560-A398-A6E69BFCA99B"
             case .senku70b: "156CA7E2-6E18-4786-9AA8-C04B1424E01C"
             case .miniCpmOpenHermes: "A16F4EB2-6B73-4341-82C0-A06050169343"
+            case .samantha70b: "259CD082-71B4-4CD4-8D52-08DC317CC41A"
+            case .samantha7b: "52AD5BC7-0F1C-47DB-9DAD-F2DF17559E7B"
+            case .everyoneCoder: "50E2E4E2-C42C-4558-B572-2BC2399E3134"
             }
         }
 
