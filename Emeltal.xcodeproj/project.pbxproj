@@ -40,7 +40,7 @@
 		1677AF342B603B2B00C11138 /* highlight.css in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF332B603B2B00C11138 /* highlight.css */; };
 		1677AF352B603B2B00C11138 /* highlight.css in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF332B603B2B00C11138 /* highlight.css */; };
 		167B9D2B2B572036006711B9 /* Turn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167B9D2A2B572036006711B9 /* Turn.swift */; };
-		16815BF42B52ADEE00D7C8B9 /* GGMLExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16815BF32B52ADEE00D7C8B9 /* GGMLExecutor.swift */; };
+		16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16815BF32B52ADEE00D7C8B9 /* GGMLActor.swift */; };
 		168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */; };
 		168A96A82B42F99500BE67EF /* IdealVoicePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */; };
 		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
@@ -136,7 +136,7 @@
 		1677AF302B6039B400C11138 /* log.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = log.html; sourceTree = "<group>"; };
 		1677AF332B603B2B00C11138 /* highlight.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = highlight.css; sourceTree = "<group>"; };
 		167B9D2A2B572036006711B9 /* Turn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Turn.swift; sourceTree = "<group>"; };
-		16815BF32B52ADEE00D7C8B9 /* GGMLExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGMLExecutor.swift; sourceTree = "<group>"; };
+		16815BF32B52ADEE00D7C8B9 /* GGMLActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGMLActor.swift; sourceTree = "<group>"; };
 		168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdealVoicePrompt.swift; sourceTree = "<group>"; };
 		168F55FE2B331B8B007CADC1 /* AssetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCategory.swift; sourceTree = "<group>"; };
 		168F56002B331BA8007CADC1 /* AssetParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetParams.swift; sourceTree = "<group>"; };
@@ -264,7 +264,7 @@
 				16C794402B2F43D60052B707 /* Info.plist */,
 				16578A312B18CA5A0038A680 /* AppState.swift */,
 				1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */,
-				16815BF32B52ADEE00D7C8B9 /* GGMLExecutor.swift */,
+				16815BF32B52ADEE00D7C8B9 /* GGMLActor.swift */,
 				16905E4D2B2E2DED006B4EC8 /* Globals.swift */,
 				1608DB972B151DF000FFFB09 /* LlamaContext.swift */,
 				1626DBCB2B45E110002D0A91 /* ServerConnector.swift */,
@@ -520,7 +520,7 @@
 				16578A322B18CA5A0038A680 /* AppState.swift in Sources */,
 				16EEC29B2B50997600541CB0 /* llama.cpp in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
-				16815BF42B52ADEE00D7C8B9 /* GGMLExecutor.swift in Sources */,
+				16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */,
 				16EEC2972B5098FD00541CB0 /* ggml.c in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,

@@ -216,6 +216,8 @@ final class LlamaContext {
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 
+        let params = manager.asset.params
+
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
@@ -226,7 +228,6 @@ final class LlamaContext {
             }
 
             var candidates_p = llama_token_data_array(data: candidateBuffer.baseAddress, size: candidateBuffer.count, sorted: false)
-            let params = manager.asset.params
 
             llama_sample_repetition_penalties(context, &candidates_p, newTokens,
                                               newTokens.count, // previous token count
@@ -277,8 +278,6 @@ final class LlamaContext {
             ensureCacheSpace(toFit: 1)
 
             logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
-
-            await Task.yield()
         }
 
         log("Turn was \(currentTurn.length) tokens long, took \(-start.timeIntervalSinceNow) sec")
