@@ -161,11 +161,13 @@ final class Asset: Codable, Identifiable {
             return
         }
 
-        let task = Task { @MainActor in
-            if FileManager.default.fileExists(atPath: localModelPath.path) {
-                return Status.installed
-            }
+        if FileManager.default.fileExists(atPath: localModelPath.path) {
+            Self.statusCache[id] = (Date.now, .installed, nil)
+            status = .installed
+            return
+        }
 
+        let task = Task { @MainActor in
             log("Checking availability for for \(category.displayName)")
 
             var request = URLRequest(url: category.fetchUrl)
