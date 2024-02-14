@@ -4,7 +4,6 @@ import SwiftUI
 struct SectionCarousel: View {
     let section: Asset.Section
     let assetList: [Asset]
-    static let recommended = Asset.Category.sauerkrautSolar
     @Binding var selectedAsset: Asset
 
     var body: some View {
@@ -15,7 +14,7 @@ struct SectionCarousel: View {
                         .frame(width: 200)
 
                     ForEach(assetList) {
-                        AssetCell(asset: $0, recommended: $0.category == Self.recommended, selected: $selectedAsset)
+                        AssetCell(asset: $0, selected: $selectedAsset)
                             .id($0.id)
                     }
                     .aspectRatio(1.4, contentMode: .fit)

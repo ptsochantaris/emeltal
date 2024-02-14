@@ -141,7 +141,7 @@ struct ModelPicker: View {
                 }
 
                 HStack {
-                    if selectedAsset.isInstalled {
+                    if selectedAsset.status == .installed {
                         Button("Uninstall") {
                             selectedAsset.unInstall()
                         }
@@ -230,8 +230,17 @@ struct ModelPicker: View {
                             dismiss()
                         }
                     }
-                    Button(selectedAsset.isInstalled ? "Select" : "Install") {
-                        selection()
+                    switch selectedAsset.status {
+                    case .checking, .notReady:
+                        EmptyView()
+                    case .available:
+                        Button("Install") {
+                            selection()
+                        }
+                    case .installed:
+                        Button("Select") {
+                            selection()
+                        }
                     }
                 }
                 .buttonStyle(.borderedProminent)

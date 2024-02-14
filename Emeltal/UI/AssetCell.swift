@@ -3,7 +3,6 @@ import SwiftUI
 
 struct AssetCell: View {
     let asset: Asset
-    let recommended: Bool
     @Binding var selected: Asset
 
     @Environment(\.openURL) var openUrl
@@ -45,19 +44,11 @@ struct AssetCell: View {
                 Spacer(minLength: 0)
 
                 HStack {
-                    if recommended {
-                        Text(" START HERE ")
+                    if let label = asset.badgeText {
+                        Text(label)
                             .font(.caption2)
                             .padding(4)
-                            .background {
-                                Capsule(style: .continuous)
-                                    .foregroundStyle(.ultraThinMaterial)
-                            }
-                    }
-                    if asset.isInstalled {
-                        Text(" INSTALLED ")
-                            .font(.caption2)
-                            .padding(4)
+                            .padding(.horizontal, 4)
                             .background {
                                 Capsule(style: .continuous)
                                     .foregroundStyle(.ultraThinMaterial)

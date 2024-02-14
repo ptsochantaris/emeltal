@@ -2,10 +2,13 @@ import Foundation
 
 @Observable
 final class Asset: Codable, Identifiable {
+    enum Status: Codable {
+        case checking, available, installed, notReady
+    }
+
     let id: String
     let category: Category
-    var isInstalled = false
-    var isDeprecated = false
+    private(set) var status = Status.checking
 
     var params: Params {
         didSet {
@@ -18,6 +21,19 @@ final class Asset: Codable, Identifiable {
         }
     }
 
+    var badgeText: String? {
+        switch status {
+        case .available:
+            category.recommended ? "START HERE" : nil
+        case .checking:
+            nil
+        case .installed:
+            "INSTALLED"
+        case .notReady:
+            "NOT AVAILABLE"
+        }
+    }
+
     static func assetList(for section: Section? = nil) -> [Asset] {
         let assetList: [Asset]
         let persistedAssets = Persisted.assetList ?? [Asset]()
@@ -26,7 +42,7 @@ final class Asset: Codable, Identifiable {
             if section == .deprecated {
                 let allSupportedCategories = Category.allCases.filter(\.selectable)
                 assetList = persistedAssets.filter { persistedAsset in
-                    guard persistedAsset.isInstalled else { return false }
+                    guard persistedAsset.status == .installed else { return false }
                     let isSupported = allSupportedCategories.contains { persistedAsset.id == $0.id }
                     return !isSupported
                 }
@@ -34,7 +50,7 @@ final class Asset: Codable, Identifiable {
             } else {
                 let sectionCategories = section.presentedModels
                 assetList = sectionCategories.map { sectionCategory in
-                    if let persisted = persistedAssets.first(where: { $0.id == sectionCategory.id }), persisted.isInstalled {
+                    if let persisted = persistedAssets.first(where: { $0.id == sectionCategory.id }), persisted.status == .installed {
                         persisted
                     } else {
                         Asset(defaultFor: sectionCategory)
@@ -51,7 +67,7 @@ final class Asset: Codable, Identifiable {
                 }
             }
             let deprecatedList = persistedAssets.filter { persistedAsset in
-                guard persistedAsset.isInstalled else { return false }
+                guard persistedAsset.status == .installed else { return false }
                 let isSupported = allSupportedCategories.contains { persistedAsset.id == $0.id }
                 return !isSupported
             }
@@ -127,15 +143,60 @@ final class Asset: Codable, Identifiable {
         updateInstalledStatus()
     }
 
+    private static var statusCache = [String: (lastcheck: Date, status: Status, task: Task<Status, Never>?)]()
+
     private func updateInstalledStatus() {
-        isInstalled = FileManager.default.fileExists(atPath: localModelPath.path)
-        isDeprecated = isInstalled && Asset.Category.allCases.allSatisfy { $0.id != id }
+        if let cacheEntry = Self.statusCache[id], cacheEntry.lastcheck.timeIntervalSinceNow > -600 {
+            let cachedStatus = cacheEntry.status
+            if cachedStatus == .checking, let existingTask = cacheEntry.task {
+                Task { @MainActor in
+                    let resolvedStatus = await existingTask.value
+                    if !Task.isCancelled, status != resolvedStatus {
+                        status = resolvedStatus
+                    }
+                }
+            } else if cachedStatus != status {
+                status = cachedStatus
+            }
+            return
+        }
+
+        let task = Task { @MainActor in
+            if FileManager.default.fileExists(atPath: localModelPath.path) {
+                return Status.installed
+            }
+
+            log("Checking availability for for \(category.displayName)")
+
+            var request = URLRequest(url: category.fetchUrl)
+            request.httpMethod = "head"
+            let response = try? await URLSession.shared.data(for: request).1 as? HTTPURLResponse
+            let newStatus = if let code = response?.statusCode, code >= 200, code < 300 {
+                Status.available
+            } else {
+                Status.notReady
+            }
+            Self.statusCache[id] = (Date.now, newStatus, nil)
+            return newStatus
+        }
+
+        Self.statusCache[id] = (Date.now, .checking, task)
+
+        Task { @MainActor in
+            let newStatus = await task.value
+            if !Task.isCancelled, status != newStatus {
+                status = newStatus
+                log("Status for \(category.displayName) determined to be \(newStatus)")
+            }
+        }
     }
 
     func unInstall() {
         let fm = FileManager.default
         try? fm.removeItem(at: localModelPath)
         try? fm.removeItem(at: localStatePath)
+        Self.statusCache[id] = nil
+        status = .checking
         updateInstalledStatus()
     }
 

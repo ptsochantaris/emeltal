@@ -46,7 +46,7 @@ extension Asset {
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
             case .experimental: "Models to try out that are new and noteworthy. They may be promoted to a category above, be replaced by other interesting models, or just be buggy and output nonsense."
             case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
-            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models with the premise they are sentient friends of the user."
+            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models with the premise they are sentient, and emotionally supportive of the user."
             }
         }
     }
@@ -76,6 +76,10 @@ extension Asset {
             case .whisper: false
             default: true
             }
+        }
+
+        var recommended: Bool {
+            self == .sauerkrautSolar
         }
 
         var section: Section? {
