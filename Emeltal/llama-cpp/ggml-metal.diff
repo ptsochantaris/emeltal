@@ -1,0 +1,180 @@
+18a19
+> #define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared|MTLResourceHazardTrackingModeUntracked
+22a24
+> #define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared
+161,162d162
+<     int n_cb;
+< 
+166,167d165
+<     dispatch_queue_t d_queue;
+< 
+181,186d178
+< // Here to assist with NSBundle Path Hack
+< @interface GGMLMetalClass : NSObject
+< @end
+< @implementation GGMLMetalClass
+< @end
+< 
+229a222,224
+> static int g_backend_shared_context_ref_count = 0;
+> struct ggml_metal_context *g_backend_shared_context = NULL;
+> 
+230a226,231
+>     if(g_backend_shared_context) {
+>         g_backend_shared_context_ref_count++;
+>         GGML_METAL_LOG_INFO("%s: reusing existing context, now used by %d clients\n", __func__, g_backend_shared_context_ref_count);
+>         return g_backend_shared_context;
+>     }
+> 
+249d249
+<     ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
+251d250
+<     ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
+257,263c256
+<         NSBundle * bundle = nil;
+< #ifdef SWIFT_PACKAGE
+<         bundle = SWIFTPM_MODULE_BUNDLE;
+< #else
+<         bundle = [NSBundle bundleForClass:[GGMLMetalClass class]];
+< #endif
+<         NSError * error = nil;
+---
+>         NSBundle * bundle = [NSBundle mainBundle];
+265,316c258,265
+<         if (libPath != nil) {
+<             // pre-compiled library found
+<             NSURL * libURL = [NSURL fileURLWithPath:libPath];
+<             GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [libPath UTF8String]);
+<             metal_library = [ctx->device newLibraryWithURL:libURL error:&error];
+<             if (error) {
+<                 GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+<                 return NULL;
+<             }
+<         } else {
+<             GGML_METAL_LOG_INFO("%s: default.metallib not found, loading from source\n", __func__);
+< 
+<             NSString * sourcePath;
+<             NSString * ggmlMetalPathResources = [[NSProcessInfo processInfo].environment objectForKey:@"GGML_METAL_PATH_RESOURCES"];
+< 
+<             GGML_METAL_LOG_INFO("%s: GGML_METAL_PATH_RESOURCES = %s\n", __func__, ggmlMetalPathResources ? [ggmlMetalPathResources UTF8String] : "nil");
+< 
+<             if (ggmlMetalPathResources) {
+<                 sourcePath = [ggmlMetalPathResources stringByAppendingPathComponent:@"ggml-metal.metal"];
+<             } else {
+<                 sourcePath = [bundle pathForResource:@"ggml-metal" ofType:@"metal"];
+<             }
+<             if (sourcePath == nil) {
+<                 GGML_METAL_LOG_WARN("%s: error: could not use bundle path to find ggml-metal.metal, falling back to trying cwd\n", __func__);
+<                 sourcePath = @"ggml-metal.metal";
+<             }
+<             GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [sourcePath UTF8String]);
+<             NSString * src = [NSString stringWithContentsOfFile:sourcePath encoding:NSUTF8StringEncoding error:&error];
+<             if (error) {
+<                 GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+<                 return NULL;
+<             }
+< 
+<             @autoreleasepool {
+<                 // dictionary of preprocessor macros
+<                 NSMutableDictionary * prep = [NSMutableDictionary dictionary];
+< 
+< #ifdef GGML_QKK_64
+<                 prep[@"QK_K"] = @(64);
+< #endif
+< 
+<                 MTLCompileOptions* options = [MTLCompileOptions new];
+<                 options.preprocessorMacros = prep;
+< 
+<                 //[options setFastMathEnabled:false];
+< 
+<                 metal_library = [ctx->device newLibraryWithSource:src options:options error:&error];
+<                 if (error) {
+<                     GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+<                     return NULL;
+<                 }
+<             }
+---
+>         // pre-compiled library found
+>         NSURL * libURL = [NSURL fileURLWithPath:libPath];
+>         GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [libPath UTF8String]);
+>         NSError *error;
+>         metal_library = [ctx->device newLibraryWithURL:libURL error:&error];
+>         if (error) {
+>             GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+>             return NULL;
+530a480,482
+> 
+>     g_backend_shared_context_ref_count++;
+>     g_backend_shared_context = ctx;
+534a487,492
+>     g_backend_shared_context_ref_count--;
+>     if(g_backend_shared_context > 0) {
+>         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
+>         return;
+>     }
+> 
+544,545d501
+<     dispatch_release(ctx->d_queue);
+< 
+694,700d649
+<     // create multiple command buffers and enqueue them
+<     // then, we encode the graph into the command buffers in parallel
+< 
+<     const int n_nodes  = gf->n_nodes;
+<     const int n_cb = ctx->n_cb;
+<     const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
+< 
+715,716d663
+<     id<MTLCommandBuffer> command_buffer_builder[n_cb];
+<     for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
+718,719d664
+<         command_buffer_builder[cb_idx] = command_buffer;
+< 
+722d666
+<     }
+724,728d667
+<     const id<MTLCommandBuffer> *command_buffers = command_buffer_builder;
+< 
+<     dispatch_apply(n_cb, ctx->d_queue, ^(size_t iter) {
+<         const int cb_idx = iter;
+< 
+733d671
+<         id<MTLCommandBuffer> command_buffer  = command_buffers[cb_idx];
+736,744c674
+<         const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
+<         const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
+< 
+<         for (int i = node_start; i < node_end; ++i) {
+<             if (i == -1) {
+<                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+<                 continue;
+<             }
+< 
+---
+>         for (int i = 0; i < gf->n_nodes; ++i) {
+764a695
+> #ifndef GGML_METAL_NDEBUG
+768a700
+> #endif
+2256d2187
+<     });
+2261,2262d2191
+<     for (int i = 0; i < n_cb; ++i) {
+<         id<MTLCommandBuffer> command_buffer = command_buffers[i];
+2270d2198
+<     }
+2424c2352
+<                     options:MTLResourceStorageModeShared
+---
+>                     options:GGML_METAL_BUFFER_OPTIONS
+2632,2633c2560
+< void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
+<     GGML_ASSERT(ggml_backend_is_metal(backend));
+---
+> void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
+2635,2639d2561
+<     struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
+< 
+<     ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
+< }
+< 
