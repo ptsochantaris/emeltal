@@ -155,20 +155,16 @@ struct ModelPicker: View {
                         HStack {
                             Group {
                                 if let warningMessage = memoryUse.warningMessage {
-                                    Image(systemName: "exclamationmark.circle")
-                                        .font(.title)
-
                                     Text(warningMessage)
                                         .foregroundColor(.white)
-                                        .frame(width: 250)
+                                        .frame(width: 250, alignment: .trailing)
                                 } else {
-                                    Text("Estimated Memory")
+                                    Text("Estimated Memory Use")
                                         .foregroundStyle(.secondary)
-                                        .frame(width: 50)
+                                        .frame(width: 70, alignment: .trailing)
                                 }
                             }
-                            .multilineTextAlignment(.leading)
-                            .font(.caption2)
+                            .multilineTextAlignment(.trailing)
 
                             Group {
                                 if memoryUse.gpuUsageEstimateBytes > 0 {
@@ -201,22 +197,15 @@ struct ModelPicker: View {
                             .fixedSize()
                             .padding(2)
                             .padding([.leading, .trailing], 2)
-                            .font(.caption2)
                             .overlay {
                                 RoundedRectangle(cornerRadius: 6, style: .circular)
                                     .foregroundStyle(.white.opacity(0.3))
                                     .blendMode(.softLight)
                             }
                         }
-                        .padding(8)
-                        .background {
-                            RoundedRectangle(cornerRadius: 6, style: .circular)
-                                .foregroundStyle(.white.opacity(0.3))
-                                .blendMode(.softLight)
-                        }
+                        .font(.caption2)
+                        .padding([.top, .bottom], 8)
                     }
-
-                    Spacer(minLength: 0)
 
                     Button(showOverrides ? "Use Defaults" : "Customize…") {
                         if showOverrides {

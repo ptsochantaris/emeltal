@@ -144,23 +144,23 @@ extension Asset {
                 if layersUsed > 0, layersTotal > 0 {
                     let ratio = Float(layersUsed) / Float(layersTotal)
                     if ratio == 1 {
-                        return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache."
+                        return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache"
                     } else if ratio > 0.8 {
-                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat."
+                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat"
                     } else {
-                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat."
+                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat"
                     }
                 }
 
                 if offloadAsr {
-                    return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat."
+                    return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat"
                 }
 
                 if excessBytes > 0 {
-                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging."
+                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
                 }
 
-                return "Emeltal won't use Metal at all. It will work but will probably be slow."
+                return "Emeltal won't use Metal at all. It will work but will probably be slow"
             }
         }
 
