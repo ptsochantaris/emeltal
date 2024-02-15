@@ -108,15 +108,17 @@
 >     g_backend_shared_context = ctx;
 534a487,492
 >     g_backend_shared_context_ref_count--;
->     if(g_backend_shared_context > 0) {
+>     if(g_backend_shared_context_ref_count > 0) {
 >         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
 >         return;
 >     }
 > 
-544,545d501
+535a494
+>     g_backend_shared_context = nil;
+544,545d502
 <     dispatch_release(ctx->d_queue);
 < 
-694,700d649
+694,700d650
 <     // create multiple command buffers and enqueue them
 <     // then, we encode the graph into the command buffers in parallel
 < 
@@ -124,23 +126,23 @@
 <     const int n_cb = ctx->n_cb;
 <     const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
 < 
-715,716d663
+715,716d664
 <     id<MTLCommandBuffer> command_buffer_builder[n_cb];
 <     for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
-718,719d664
+718,719d665
 <         command_buffer_builder[cb_idx] = command_buffer;
 < 
-722d666
+722d667
 <     }
-724,728d667
+724,728d668
 <     const id<MTLCommandBuffer> *command_buffers = command_buffer_builder;
 < 
 <     dispatch_apply(n_cb, ctx->d_queue, ^(size_t iter) {
 <         const int cb_idx = iter;
 < 
-733d671
+733d672
 <         id<MTLCommandBuffer> command_buffer  = command_buffers[cb_idx];
-736,744c674
+736,744c675
 <         const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
 <         const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
 < 
@@ -152,27 +154,31 @@
 < 
 ---
 >         for (int i = 0; i < gf->n_nodes; ++i) {
-764a695
+764a696
 > #ifndef GGML_METAL_NDEBUG
-768a700
+768a701
 > #endif
-2256d2187
+2256d2188
 <     });
-2261,2262d2191
+2261,2262d2192
 <     for (int i = 0; i < n_cb; ++i) {
 <         id<MTLCommandBuffer> command_buffer = command_buffers[i];
-2270d2198
+2267c2197
+<             GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
+---
+>             GGML_METAL_LOG_INFO("%s: command buffer failed with status %lu\n", __func__, status);
+2270d2199
 <     }
-2424c2352
+2424c2353
 <                     options:MTLResourceStorageModeShared
 ---
 >                     options:GGML_METAL_BUFFER_OPTIONS
-2632,2633c2560
+2632,2633c2561
 < void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
 <     GGML_ASSERT(ggml_backend_is_metal(backend));
 ---
 > void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
-2635,2639d2561
+2635,2639d2562
 <     struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
 < 
 <     ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);

@@ -485,12 +485,13 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
 
 static void ggml_metal_free(struct ggml_metal_context * ctx) {
     g_backend_shared_context_ref_count--;
-    if(g_backend_shared_context > 0) {
+    if(g_backend_shared_context_ref_count > 0) {
         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
         return;
     }
 
     GGML_METAL_LOG_INFO("%s: deallocating\n", __func__);
+    g_backend_shared_context = nil;
 
     for (int i = 0; i < GGML_METAL_KERNEL_TYPE_COUNT; ++i) {
         [ctx->kernels[i].pipeline release];
@@ -2193,7 +2194,7 @@ static bool ggml_metal_graph_compute(
 
         MTLCommandBufferStatus status = [command_buffer status];
         if (status != MTLCommandBufferStatusCompleted) {
-            GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
+            GGML_METAL_LOG_INFO("%s: command buffer failed with status %lu\n", __func__, status);
             return false;
         }
 
