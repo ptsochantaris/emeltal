@@ -280,6 +280,8 @@ final class LlamaContext {
             ensureCacheSpace(toFit: 1)
 
             logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
+
+            await Task.yield()
         }
 
         log("Turn was \(currentTurn.length) tokens long, took \(-start.timeIntervalSinceNow) sec")
