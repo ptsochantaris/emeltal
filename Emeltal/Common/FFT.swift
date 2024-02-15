@@ -74,6 +74,7 @@ final class FFT {
         magnitudes.deallocate()
         realBuffer.deallocate()
         imaginaryBuffer.deallocate()
+        log("FFT deinit")
     }
 
     func fftForward(_ buffer: UnsafeMutablePointer<Float>) {

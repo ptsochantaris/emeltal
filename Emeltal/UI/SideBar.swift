@@ -9,7 +9,8 @@ struct SideBar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Button {
+            Button { [weak state] in
+                guard let state else { return }
                 state.floatingMode.toggle()
                 if !state.floatingMode {
                     focusEntryField = true
@@ -58,7 +59,8 @@ struct SideBar: View {
             } else {
                 let va = state.activationState == .voiceActivated
                 if state.mode.showAlwaysOn {
-                    Button("ALWAYS ON") {
+                    Button("ALWAYS ON") { [weak state] in
+                        guard let state else { return }
                         if va {
                             state.switchToPushButton()
                         } else {

@@ -9,8 +9,13 @@ struct EmeltalApp: App {
 
     var body: some Scene {
         Window("Emeltal", id: "Emeltal") {
-            if let state {
-                ContentView(state: state)
+            if let currentState = state {
+                ContentView(state: currentState) {
+                    Task { @MainActor in
+                        await currentState.shutdown()
+                        state = nil
+                    }
+                }
             } else {
                 ModelPicker(selectedAsset: $asset, allowCancel: false) {
                     Persisted.selectedAssetId = asset.category.id

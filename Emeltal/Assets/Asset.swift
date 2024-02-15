@@ -12,12 +12,7 @@ final class Asset: Codable, Identifiable {
 
     var params: Params {
         didSet {
-            Persisted.assetList = Asset.assetList().map {
-                if $0.id == id {
-                    return self
-                }
-                return $0
-            }
+            Persisted.update(asset: self)
         }
     }
 
@@ -36,7 +31,7 @@ final class Asset: Codable, Identifiable {
 
     static func assetList(for section: Section? = nil) -> [Asset] {
         let assetList: [Asset]
-        let persistedAssets = Persisted.assetList ?? [Asset]()
+        let persistedAssets = Persisted.assetList
 
         if let section {
             if section == .deprecated {
@@ -167,7 +162,8 @@ final class Asset: Codable, Identifiable {
             return
         }
 
-        let task = Task { @MainActor in
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return Status.notReady }
             log("Checking availability for for \(category.displayName)")
 
             var request = URLRequest(url: category.fetchUrl)

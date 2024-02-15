@@ -20,6 +20,7 @@ final class WhisperContext {
 
     deinit {
         whisper_free(context)
+        log("Whisper context deinit")
     }
 
     func warmup() throws {

@@ -67,7 +67,7 @@ final class LinkState: ModeProvider {
         if case .voiceActivated = remoteActivationState {
             return
         }
-        await remote.invalidate()
+        await remote.shutdown()
     }
 
     func send() async {
@@ -134,6 +134,18 @@ final class LinkState: ModeProvider {
             }
             await endMic(sendData: true)
         }
+    }
+
+    func shutdown() async {
+        log("Shutting down app state…")
+        micObservation?.cancel()
+        connectionStateObservation.cancel()
+        await remote.shutdown()
+        await speaker.shutdown()
+    }
+
+    deinit {
+        log("LinkState deinit")
     }
 
     func buttonDown() {

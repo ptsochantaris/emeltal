@@ -44,26 +44,33 @@ extension WebView {
         private let queue = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
 
         func update(from messageLog: MessageLog) {
-            var html1: String?
-            var html2: String?
-
+            let html1: String?
             let newHistoryCount = messageLog.history.count
             if displayedHistoryCount != newHistoryCount {
                 html1 = messageLog.history.markdownToHtml
                 displayedHistoryCount = newHistoryCount
+            } else {
+                html1 = nil
             }
 
+            let html2: String?
             let newBuildingCount = messageLog.newText.count
             if displayedBuildingCount != newBuildingCount {
                 html2 = messageLog.newText.markdownToHtml
                 displayedBuildingCount = newBuildingCount
+            } else {
+                html2 = nil
             }
 
-            if html1 != nil || html2 != nil {
+            if (html1 ?? html2) != nil {
                 let h1 = if let html1 { "'\(html1)'" } else { "null" }
                 let h2 = if let html2 { "'\(html2)'" } else { "null" }
                 queue.continuation.yield("setHTML(\(h1),\(h2));")
             }
+        }
+
+        deinit {
+            log("Coordinator deinit")
         }
 
         init() {
@@ -81,7 +88,8 @@ extension WebView {
                 webView.scrollView.alwaysBounceHorizontal = false
             #endif
 
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
                 while webView.isLoading {
                     await Task.yield()
                 }
@@ -95,6 +103,7 @@ extension WebView {
                         log("Error evaluating JS: \(error)")
                     }
                 }
+                log("Webview output coordinator shutdown")
             }
         }
     }
@@ -139,5 +148,9 @@ final class MessageLog {
 
     func save(to url: URL) throws {
         try history.write(toFile: url.path, atomically: true, encoding: .utf8)
+    }
+
+    deinit {
+        log("MessageLog deinit")
     }
 }

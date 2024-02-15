@@ -45,7 +45,6 @@
 		168A96A82B42F99500BE67EF /* IdealVoicePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */; };
 		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
 		168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56002B331BA8007CADC1 /* AssetParams.swift */; };
-		168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56022B331BCC007CADC1 /* AssetCollection.swift */; };
 		168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B02B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B22B44434F003A1190 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57B12B44434F003A1190 /* SideBar.swift */; };
@@ -140,7 +139,6 @@
 		168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdealVoicePrompt.swift; sourceTree = "<group>"; };
 		168F55FE2B331B8B007CADC1 /* AssetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCategory.swift; sourceTree = "<group>"; };
 		168F56002B331BA8007CADC1 /* AssetParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetParams.swift; sourceTree = "<group>"; };
-		168F56022B331BCC007CADC1 /* AssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCollection.swift; sourceTree = "<group>"; };
 		168F57AE2B443EC6003A1190 /* MessageLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLog.swift; sourceTree = "<group>"; };
 		168F57B12B44434F003A1190 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
 		168F57B32B444377003A1190 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -313,7 +311,6 @@
 				16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */,
 				168F55FE2B331B8B007CADC1 /* AssetCategory.swift */,
 				168F56002B331BA8007CADC1 /* AssetParams.swift */,
-				168F56022B331BCC007CADC1 /* AssetCollection.swift */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -515,7 +512,6 @@
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
 				16EEC2962B5098FD00541CB0 /* ggml-backend.c in Sources */,
 				168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */,
-				168F56032B331BCC007CADC1 /* AssetCollection.swift in Sources */,
 				16EEC2992B5098FD00541CB0 /* whisper.cpp in Sources */,
 				16578A322B18CA5A0038A680 /* AppState.swift in Sources */,
 				16EEC29B2B50997600541CB0 /* llama.cpp in Sources */,

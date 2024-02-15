@@ -118,7 +118,7 @@ class EmeltalConnector {
         }
     }
 
-    final func invalidate() {
+    func shutdown() {
         if case let .connected(nWConnection) = state {
             nWConnection.cancel()
         }
@@ -176,5 +176,9 @@ class EmeltalConnector {
 
         log("[Connector] Did send \(payload) - \(content?.count ?? 0) bytes")
         popTimer.push()
+    }
+
+    deinit {
+        log("EmeltalConnector deinit")
     }
 }

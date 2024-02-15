@@ -70,4 +70,8 @@ final class EmeltalProtocol: NWProtocolFramerImplementation {
             log("[Connector] Error writing network message: \(error.localizedDescription)")
         }
     }
+
+    deinit {
+        log("EmeltalProtocol deinit")
+    }
 }

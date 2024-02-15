@@ -54,6 +54,10 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
     }
 
+    deinit {
+        log("AssetManager deinit")
+    }
+
     nonisolated func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         try? FileManager.default.moveItem(at: location, to: asset.localModelPath)
     }

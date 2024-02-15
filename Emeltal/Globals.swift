@@ -14,7 +14,26 @@ enum Persisted {
     @AppStorage("_textOnly") static var _textOnly = false
     @AppStorage("_floatingMode") static var _floatingMode = false
     @AppStorage("_assetSettings") static var selectedAssetId: Asset.Category.ID?
-    @AppStorage("_assetList") static var assetList: [Asset]?
+    @AppStorage("_assetListData") static var assetListData: Data?
+
+    private static var _cachedAssetList: [Asset]?
+    static var assetList: [Asset] {
+        get {
+            let returned: [Asset] = if let _cachedAssetList {
+                _cachedAssetList
+            } else if let assetListData, let list = try? JSONDecoder().decode([Asset].self, from: assetListData) {
+                list
+            } else {
+                [Asset]()
+            }
+            _cachedAssetList = returned
+            return returned
+        }
+        set {
+            _cachedAssetList = newValue
+            assetListData = try? JSONEncoder().encode(newValue)
+        }
+    }
 
     static var selectedAsset: Asset {
         let list = Asset.assetList()
@@ -22,6 +41,16 @@ enum Persisted {
             return existingAsset
         }
         return list.first!
+    }
+
+    static func update(asset: Asset) {
+        var list = Asset.assetList()
+        if let index = list.firstIndex(where: { $0.id == asset.id }) {
+            list[index] = asset
+        } else {
+            list.append(asset)
+        }
+        assetList = list
     }
 }
 

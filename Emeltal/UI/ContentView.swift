@@ -5,6 +5,8 @@ import SwiftUI
 struct ContentView: View {
     @Bindable var state: AppState
 
+    var changeCallback: () -> Void
+
     @FocusState private var focusEntryField
 
     var body: some View {
@@ -33,7 +35,8 @@ struct ContentView: View {
                         TextField("Hold \"↓\" to speak, or enter your message here", text: $state.multiLineText)
                             .textFieldStyle(.roundedBorder)
                             .focused($focusEntryField)
-                            .onSubmit {
+                            .onSubmit { [weak state] in
+                                guard let state else { return }
                                 if state.mode == .waiting {
                                     state.send()
                                 }
@@ -41,7 +44,8 @@ struct ContentView: View {
                             .padding(.bottom)
                     }
                     .toolbar {
-                        Button {
+                        Button { [weak state] in
+                            guard let state else { return }
                             state.textOnly.toggle()
                         } label: {
                             HStack(spacing: 0) {
@@ -53,7 +57,19 @@ struct ContentView: View {
                         }
 
                         Button {
-                            Task {
+                            changeCallback()
+                        } label: {
+                            HStack(spacing: 0) {
+                                Image(systemName: "square.grid.3x2")
+                                Text("Models")
+                                    .padding([.leading, .trailing], 4)
+                                    .font(.caption)
+                            }
+                        }
+
+                        Button {
+                            Task { [weak state] in
+                                guard let state else { return }
                                 if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) || state.mode == .replying {
                                     try? await state.reset()
                                 }

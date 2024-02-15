@@ -129,6 +129,8 @@ final class LlamaContext {
         llama_free(context)
         llama_free_model(model)
         llama_backend_free()
+        candidateBuffer.deallocate()
+        log("LLama context deinit")
     }
 
     private var predictionTask: Task<Void, Never>?

@@ -46,6 +46,7 @@ import SwiftUI
                 if let monitor {
                     NSEvent.removeMonitor(monitor)
                 }
+                log("PushButton deinit")
             }
 
             @available(*, unavailable)
@@ -58,7 +59,7 @@ import SwiftUI
                 handler(true)
 
                 while true {
-                    guard let theEvent = window?.nextEvent(matching: [.leftMouseUp]) else {
+                    guard let theEvent = window?.nextEvent(matching: .leftMouseUp) else {
                         continue
                     }
                     switch theEvent.type {
@@ -127,6 +128,10 @@ import SwiftUI
                 if let p = pushed, touches.contains(p) {
                     pushed = nil
                 }
+            }
+
+            deinit {
+                log("PushButton deinit")
             }
         }
     }

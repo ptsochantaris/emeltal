@@ -96,6 +96,18 @@ final class AppState: Identifiable, ModeProvider {
         }
     }
 
+    func shutdown() async {
+        log("Shutting down app state…")
+        micObservation?.cancel()
+        connectionStateObservation.cancel()
+        await remote.shutdown()
+        await speaker?.shutdown()
+    }
+
+    deinit {
+        log("App state deinit")
+    }
+
     private var llamaContext: LlamaContext?
     private var whisperContext: WhisperContext?
     private var template: Template!

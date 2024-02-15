@@ -83,6 +83,10 @@ final actor Speaker {
                 log("Speaker stopped speaking")
             }
         }
+
+        deinit {
+            log("UtteranceWatcher deinit")
+        }
     }
 
     init() throws {
@@ -183,7 +187,7 @@ final actor Speaker {
         }
     }
 
-    deinit {
+    func shutdown() {
         effectQueue.continuation.finish()
     }
 
@@ -194,10 +198,10 @@ final actor Speaker {
     }
 
     private func effectPlayerLoop() async throws {
-        let manager = AudioEngineManager.shared
         for await effect in effectQueue.stream {
             if muted { continue }
 
+            let manager = AudioEngineManager.shared
             try? await manager.willUseEngine()
             guard await manager.getEngine().isRunning else {
                 // weird
@@ -219,5 +223,6 @@ final actor Speaker {
             effectPlayer.stop()
             await manager.doneUsingEngine()
         }
+        log("Speaker shutdown")
     }
 }

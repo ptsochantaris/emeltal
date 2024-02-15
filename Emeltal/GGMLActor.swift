@@ -13,6 +13,10 @@ import Foundation
                 j.runSynchronously(on: e)
             }
         }
+
+        deinit {
+            log("GGMLActor deinit")
+        }
     }
 
     private static let executor = Executor()

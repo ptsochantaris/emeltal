@@ -9,7 +9,8 @@ struct Assistant: View {
             ModeView(modeProvider: state)
 
             if state.mode.pushButtonActive {
-                PushButton { down in
+                PushButton { [weak state] down in
+                    guard let state else { return }
                     if down {
                         state.pushButtonDown()
                     } else {

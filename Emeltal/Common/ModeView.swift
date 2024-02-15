@@ -2,12 +2,12 @@ import Foundation
 import SwiftUI
 
 @MainActor
-protocol ModeProvider {
+protocol ModeProvider: AnyObject {
     var mode: AppMode { get }
 }
 
 struct ModeView: View {
-    let modeProvider: any ModeProvider
+    weak var modeProvider: (any ModeProvider)?
 
     init(modeProvider: any ModeProvider) {
         self.modeProvider = modeProvider
@@ -15,7 +15,7 @@ struct ModeView: View {
 
     var body: some View {
         ZStack {
-            let mode = modeProvider.mode
+            let mode = modeProvider?.mode ?? .startup
             switch mode {
             case .booting, .loading, .startup, .warmup:
                 ProgressView()

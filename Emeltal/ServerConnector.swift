@@ -2,12 +2,27 @@ import Foundation
 import Network
 
 final class ServerConnector: EmeltalConnector {
+    private let listener: NWListener
+
+    override init() {
+        let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
+        listener = try! NWListener(service: service, using: EmeltalProtocol.params)
+        super.init()
+    }
+
+    override func shutdown() {
+        listener.cancel()
+        super.shutdown()
+    }
+
+    deinit {
+        log("ServerConnector deinit")
+    }
+
     func startServer() -> AsyncStream<Nibble> {
         let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
 
-        let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
-        let listener = try! NWListener(service: service, using: EmeltalProtocol.params)
-        listener.newConnectionHandler = { connection in
+        listener.newConnectionHandler = { [weak self] connection in
             connection.stateUpdateHandler = { [weak self] change in
                 Task { @NetworkActor [weak self] in
                     guard let self else { return }
@@ -34,6 +49,19 @@ final class ServerConnector: EmeltalConnector {
                 }
             }
             connection.start(queue: Self.networkQueue)
+        }
+        listener.stateUpdateHandler = { state in
+            switch state {
+            case .cancelled:
+                continuation.finish()
+                log("Server listener cancelled")
+
+            case .failed, .ready, .setup, .waiting:
+                break
+
+            @unknown default:
+                break
+            }
         }
         listener.start(queue: Self.networkQueue)
         return inputStream

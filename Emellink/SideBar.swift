@@ -52,7 +52,8 @@ struct SideBar: View {
                     .layoutPriority(2)
 
                 if state.remoteAppMode.pushButtonActive {
-                    PushButton { down in
+                    PushButton { [weak state] down in
+                        guard let state else { return }
                         if down {
                             state.buttonDown()
                         } else {
