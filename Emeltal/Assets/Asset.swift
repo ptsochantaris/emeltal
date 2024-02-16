@@ -31,7 +31,7 @@ final class Asset: Codable, Identifiable {
 
     static func assetList(for section: Section? = nil) -> [Asset] {
         let assetList: [Asset]
-        let persistedAssets = Persisted.assetList
+        let persistedAssets = Persisted.assetList.filter(\.category.selectable)
 
         if let section {
             if section == .deprecated {
