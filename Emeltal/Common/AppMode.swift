@@ -120,7 +120,7 @@ enum AppMode: Equatable {
 
     var iconImageName: String {
         switch self {
-        case .booting, .loading, .startup, .warmup: ""
+        case .booting, .loading, .startup, .warmup: "hourglass.circle"
         case .noting, .waiting: "circle"
         case .listening: "waveform.circle"
         case .thinking: "ellipsis.circle"

@@ -31,7 +31,7 @@ final class LlamaContext {
 
         let asset = manager.asset
 
-        llama_backend_init(false)
+        llama_backend_init()
 
         var model_params = llama_model_default_params()
         model_params.use_mlock = false

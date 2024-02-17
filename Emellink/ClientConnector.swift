@@ -2,16 +2,15 @@ import Foundation
 import Network
 
 final class ClientConnector: EmeltalConnector {
-    private let browser: NWBrowser
+    private var browser: NWBrowser?
 
-    override init() {
-        let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
-        browser = NWBrowser(for: emeltalTcp, using: EmeltalProtocol.params)
-        super.init()
+    private func browserDone() {
+        browser?.cancel()
+        browser = nil
     }
 
     override func shutdown() {
-        browser.cancel()
+        browserDone()
         super.shutdown()
     }
 
@@ -20,15 +19,18 @@ final class ClientConnector: EmeltalConnector {
     }
 
     func startClient() -> AsyncStream<Nibble> {
+        let emeltalTcp = NWBrowser.Descriptor.bonjour(type: "_emeltal._tcp", domain: nil)
+        browser = NWBrowser(for: emeltalTcp, using: EmeltalProtocol.params)
+
         let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
 
         state = .searching
-        browser.browseResultsChangedHandler = { [weak self] results, _ in
+        browser?.browseResultsChangedHandler = { [weak self] results, _ in
             Task { @NetworkActor [weak self] in
                 guard let self, case .searching = state, let result = results.first else { return }
 
                 state = .connecting
-                browser.cancel()
+                browserDone()
 
                 let connection = NWConnection(to: result.endpoint, using: EmeltalProtocol.params)
                 connection.stateUpdateHandler = { [weak self] newState in
@@ -40,6 +42,8 @@ final class ClientConnector: EmeltalConnector {
                             break
 
                         case .cancelled:
+                            log("Client connection cancelled")
+                            continuation.finish()
                             state = .searching
 
                         case .ready:
@@ -48,9 +52,8 @@ final class ClientConnector: EmeltalConnector {
                         case let .waiting(error):
                             state = .error(error)
 
-                        case let .failed(error):
+                        case .failed:
                             state = .searching
-                            browser.start(queue: Self.networkQueue)
 
                         @unknown default:
                             break
@@ -60,20 +63,7 @@ final class ClientConnector: EmeltalConnector {
                 connection.start(queue: Self.networkQueue)
             }
         }
-        browser.stateUpdateHandler = { state in
-            switch state {
-            case .cancelled:
-                continuation.finish()
-                log("Client connection cancelled")
-
-            case .failed, .ready, .setup, .waiting:
-                break
-
-            @unknown default:
-                break
-            }
-        }
-        browser.start(queue: Self.networkQueue)
+        browser?.start(queue: Self.networkQueue)
         return inputStream
     }
 }
