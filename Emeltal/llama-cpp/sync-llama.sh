@@ -1,5 +1,14 @@
+CURRENT=`pwd`
 LSRC=~/llama.cpp
 WSRC=~/whisper.cpp
+
+cd $LSRC
+git pull
+
+cd $WSRC
+git pull
+
+cd $CURRENT
 
 cp\
  $LSRC/ggml-alloc.c\
