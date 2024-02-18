@@ -204,7 +204,63 @@ final class LlamaContext {
         turns.count
     }
 
+    struct UTF8Builder {
+        enum Result {
+            case moreRequired, result(String)
+        }
+
+        enum RunLength: Int {
+            case one = 1, two, three, four
+        }
+
+        var bytes = [UInt8]()
+        var expectedRunLength: RunLength = .one
+
+        mutating func parseByte(_ byte: UInt8) -> Result {
+            // Not escaped
+            if byte & 0b1000_0000 == 0 {
+                expectedRunLength = .one
+                bytes = [byte]
+            }
+
+            // start of 4 byte sequence
+            else if byte & 0b1111_0000 == 0b1111_0000 {
+                expectedRunLength = .four
+                bytes = [byte]
+                return .moreRequired
+            }
+
+            // start of 3 byte sequence
+            else if byte & 0b1110_0000 == 0b1110_0000 {
+                expectedRunLength = .three
+                bytes = [byte]
+                return .moreRequired
+            }
+
+            // start of 2 byte sequence
+            else if byte & 0b1100_0000 == 0b1100_0000 {
+                expectedRunLength = .two
+                bytes = [byte]
+                return .moreRequired
+            }
+
+            // Continuing sequence
+            else {
+                bytes.append(byte)
+            }
+
+            if bytes.count < expectedRunLength.rawValue {
+                return .moreRequired
+            }
+
+            bytes.append(0)
+            let res = String(cString: bytes)
+            return .result(res)
+        }
+    }
+
     private static let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
+    private static var utf8Builder = UTF8Builder()
 
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let start = Date.now
@@ -269,12 +325,31 @@ final class LlamaContext {
 
             let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023))
             if written > 0 {
-                Self.wordBuffer[written] = 0
-                let new_token_str = String(cString: Self.wordBuffer)
-                log("Fragment: \(newTokenId) / '\(new_token_str)' / \(Self.wordBufferBytes(written))")
-                continuation.yield(new_token_str)
+                if written == 1 {
+                    let byte = Self.wordBuffer[0]
+                    switch Self.utf8Builder.parseByte(byte) {
+                    case .moreRequired:
+                        log("Byte: \(newTokenId) / '\(byte)' - building unicode grapheme")
+                    case let .result(completeString):
+                        if Self.utf8Builder.expectedRunLength == .one {
+                            log("Fragment: \(newTokenId) / '\(completeString)' / [\(byte)]")
+                        } else {
+                            log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
+                        }
+                        continuation.yield(completeString)
+                    }
+                } else {
+                    Self.wordBuffer[written] = 0
+                    let completeString = String(cString: Self.wordBuffer)
+                    log("Fragment: \(newTokenId) / '\(completeString)' / \(Self.wordBufferBytes(written))")
+                    continuation.yield(completeString)
+                }
             } else {
-                log("Warning, wordbuffer was invalid - token ID was \(newTokenId)")
+                #if DEBUG
+                fatalError("Warning, wordbuffer was zero length - token ID was \(newTokenId)")
+                #else
+                log("Warning, wordbuffer was zero length - token ID was \(newTokenId)")
+                #endif
             }
 
             ensureCacheSpace(toFit: 1)
