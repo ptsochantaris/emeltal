@@ -53,6 +53,7 @@
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
+		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
 		16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D762B7402DD00781F78 /* SectionCell.swift */; };
 		16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D782B742F0100781F78 /* SectionCarousel.swift */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
@@ -146,6 +147,7 @@
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
+		16AF9D8D2B8238100064B66C /* UTF8Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTF8Builder.swift; sourceTree = "<group>"; };
 		16C23D762B7402DD00781F78 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 		16C23D782B742F0100781F78 /* SectionCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCarousel.swift; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
@@ -275,6 +277,7 @@
 				16C58DED2B34C0DE00006CC2 /* Common */,
 				16053F7B2B1CCB13009E07DA /* llama-cpp */,
 				163EF0512B31B6B400565F49 /* UI */,
+				16AF9D8D2B8238100064B66C /* UTF8Builder.swift */,
 			);
 			path = Emeltal;
 			sourceTree = "<group>";
@@ -498,6 +501,7 @@
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
+				16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */,
 				16EEC2942B5098FD00541CB0 /* ggml-metal.m in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
 				163EF05A2B31B7BD00565F49 /* Assistant.swift in Sources */,
