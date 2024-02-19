@@ -10,6 +10,7 @@ final class ClientConnector: EmeltalConnector {
     }
 
     override func shutdown() {
+        log("ClientConnector shutdown")
         browserDone()
         super.shutdown()
     }

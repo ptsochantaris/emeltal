@@ -10,6 +10,8 @@ struct ContentView: View {
     @FocusState private var focusEntryField
 
     var body: some View {
+        let starting = state.mode.isStarting
+
         VStack(spacing: 16) {
             HStack(alignment: .top, spacing: 14) {
                 if !state.floatingMode {
@@ -56,7 +58,8 @@ struct ContentView: View {
                             }
                         }
 
-                        Button {
+                        Button { [weak state] in
+                            guard let state, !starting else { return }
                             changeCallback()
                         } label: {
                             HStack(spacing: 0) {
@@ -65,11 +68,12 @@ struct ContentView: View {
                                     .padding([.leading, .trailing], 4)
                                     .font(.caption)
                             }
+                            .opacity(starting ? 0.3 : 1)
                         }
 
                         Button {
                             Task { [weak state] in
-                                guard let state else { return }
+                                guard let state, !starting else { return }
                                 if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) || state.mode == .replying {
                                     try? await state.reset()
                                 }
@@ -81,6 +85,7 @@ struct ContentView: View {
                                     .padding([.leading, .trailing], 4)
                                     .font(.caption)
                             }
+                            .opacity(starting ? 0.3 : 1)
                         }
                         .keyboardShortcut(KeyEquivalent("k"), modifiers: .command)
                     }
@@ -92,13 +97,5 @@ struct ContentView: View {
         }
         .padding([.leading, .trailing])
         .navigationTitle("Emeltal — \(state.displayName)")
-        .task {
-            do {
-                try await state.boot()
-            } catch {
-                log("Error booting: \(error.localizedDescription)")
-                fatalError(error.localizedDescription)
-            }
-        }
     }
 }

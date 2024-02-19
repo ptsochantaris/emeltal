@@ -5,6 +5,7 @@ final class ServerConnector: EmeltalConnector {
     private var listener: NWListener?
 
     override func shutdown() {
+        log("ServerConnector shutdown")
         listener?.cancel()
         listener = nil
         super.shutdown()

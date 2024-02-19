@@ -94,6 +94,15 @@ final class AppState: Identifiable, ModeProvider {
             guard let self else { return }
             isRemoteConnected = state.isConnectionActive
         }
+
+        Task {
+            do {
+                try await mainLoop()
+            } catch {
+                log("Error in main loop: \(error.localizedDescription)")
+                fatalError(error.localizedDescription)
+            }
+        }
     }
 
     func shutdown() async {
@@ -174,11 +183,7 @@ final class AppState: Identifiable, ModeProvider {
         sendMessageLog(value: text, initial: false)
     }
 
-    func boot() async throws {
-        guard mode == .startup else {
-            return
-        }
-
+    func mainLoop() async throws {
         let llm = AssetManager(fetching: asset)
         let whisper = AssetManager(fetching: Asset(defaultFor: .whisper))
 
@@ -240,28 +245,8 @@ final class AppState: Identifiable, ModeProvider {
         mode = .warmup
         statusMessage = "Warming Up"
 
-        Task {
-            try await chatInit(hasSavedState: hasSavedState)
-            await startServer()
-        }
-    }
+        try await chatInit(hasSavedState: hasSavedState)
 
-    private func setupMicObservation() {
-        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
-            guard let self else { return }
-            if case let .listening(micState) = mode, newState != micState {
-                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
-                    Task {
-                        await self.endMic(processOutput: true)
-                    }
-                }
-                mode = .listening(state: newState)
-            }
-        }
-    }
-
-    private func startServer() async {
-        try? await Task.sleep(for: .seconds(1))
         log("Listening for remote connections")
         let stream = await remote.startServer()
 
@@ -305,6 +290,22 @@ final class AppState: Identifiable, ModeProvider {
                 } else {
                     switchToVoiceActivated()
                 }
+            }
+        }
+
+        log("Main loop done")
+    }
+
+    private func setupMicObservation() {
+        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
+            guard let self else { return }
+            if case let .listening(micState) = mode, newState != micState {
+                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
+                    Task {
+                        await self.endMic(processOutput: true)
+                    }
+                }
+                mode = .listening(state: newState)
             }
         }
     }

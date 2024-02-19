@@ -82,6 +82,15 @@ enum AppMode: Equatable {
 
     case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
 
+    var isStarting: Bool {
+        switch self {
+        case .booting, .loading, .startup, .warmup:
+            true
+        case .listening, .noting, .replying, .thinking, .waiting:
+            false
+        }
+    }
+
     init?(data: Data) {
         let primary: UInt8 = data[0]
         let secondary: UInt8 = data[1]
