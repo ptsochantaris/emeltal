@@ -16,7 +16,7 @@ extension Asset {
             case .coding:
                 [.deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
             case .creative:
-                [.mythoMax]
+                [.mythoMax, .neuralStory7b]
             case .samantha:
                 [.samantha7b, .samantha70b]
             case .experimental:
@@ -69,7 +69,8 @@ extension Asset {
              miniCpmOpenHermes = 1500,
              samantha7b = 1600,
              samantha70b = 1700,
-             whisper = 1800
+             whisper = 1800,
+             neuralStory7b = 2000
 
         var selectable: Bool {
             switch self {
@@ -102,6 +103,7 @@ extension Asset {
             case .miniCpmOpenHermes: .miniCpm
             case .samantha7b, .samantha70b: .vicuna
             case .everyoneCoder: .alpaca
+            case .neuralStory7b: .mistral
             }
         }
 
@@ -113,7 +115,7 @@ extension Asset {
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
-            case .mythoMax:
+            case .mythoMax, .neuralStory7b:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .whisper:
                 ""
@@ -182,6 +184,7 @@ extension Asset {
             case .miniCpmOpenHermes: 720
             case .samantha70b: 1280
             case .samantha7b: 4096
+            case .neuralStory7b: 4096
             case .everyoneCoder: 4096
             case .whisper: 0
             }
@@ -207,6 +210,7 @@ extension Asset {
             case .miniCpmOpenHermes: 40_000_000
             case .samantha70b: 640_000_000
             case .samantha7b: 260_000_000
+            case .neuralStory7b: 270_000_000
             case .everyoneCoder: 480_000_000
             }
 
@@ -228,6 +232,7 @@ extension Asset {
             case .miniCpmOpenHermes: 41
             case .samantha70b: 81
             case .samantha7b: 33
+            case .neuralStory7b: 33
             case .everyoneCoder: 63
             }
 
@@ -339,6 +344,7 @@ extension Asset {
             case .samantha70b: "48.8 GB"
             case .samantha7b: "5.2 GB"
             case .everyoneCoder: "27.4 GB"
+            case .neuralStory7b: "6.0 GB"
             }
         }
 
@@ -362,12 +368,13 @@ extension Asset {
             case .samantha70b: "A larger but slightly older version of the Samantha model."
             case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
             case .everyoneCoder: "This is a community-created coding specific model made using fine-tunes of the Deekseekcoder base."
+            case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .mythoMax, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -470,6 +477,7 @@ extension Asset {
             case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
             case .samantha7b: "https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b"
             case .everyoneCoder: "https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base"
+            case .neuralStory7b: "https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story"
             }
             return URL(string: uri)!
         }
@@ -494,6 +502,7 @@ extension Asset {
             case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
             case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
             case .everyoneCoder: "Everyone-Coder-33b-v2-Base-Q6_K.gguf"
+            case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
             }
 
             if case .senku70b = self {
@@ -528,6 +537,7 @@ extension Asset {
             case .samantha70b: "Samantha (Large)"
             case .samantha7b: "Samantha"
             case .everyoneCoder: "EveryoneCoder"
+            case .neuralStory7b: "Neural Story"
             }
         }
 
@@ -551,6 +561,7 @@ extension Asset {
             case .samantha70b: "v1.11, on Llama2"
             case .samantha7b: "v1.1, on WestLake"
             case .everyoneCoder: "v2, on DeepSeekCoder 33b"
+            case .neuralStory7b: "on Mistral-Instruct 0.2"
             }
         }
 
@@ -574,6 +585,7 @@ extension Asset {
             case .samantha70b: "259CD082-71B4-4CD4-8D52-08DC317CC41A"
             case .samantha7b: "52AD5BC7-0F1C-47DB-9DAD-F2DF17559E7B"
             case .everyoneCoder: "50E2E4E2-C42C-4558-B572-2BC2399E3134"
+            case .neuralStory7b: "5506DA6E-5403-4BEC-BBA8-5D8F1046DCDD"
             }
         }
 

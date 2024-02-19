@@ -46,6 +46,7 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
+- [Neural Story](https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story)
 
 #### Voice Recognition
 - [Whisper](https://huggingface.co/ggerganov/whisper.cpp)
