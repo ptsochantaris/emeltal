@@ -40,7 +40,7 @@
 <         NSError * error = nil;
 ---
 >         NSBundle * bundle = [NSBundle mainBundle];
-270,321c263,270
+270,330c263,270
 <         if (libPath != nil) {
 <             // pre-compiled library found
 <             NSURL * libURL = [NSURL fileURLWithPath:libPath];
@@ -51,6 +51,14 @@
 <                 return NULL;
 <             }
 <         } else {
+< #if GGML_METAL_EMBED_LIBRARY
+<             GGML_METAL_LOG_INFO("%s: using embedded metal library\n", __func__);
+< 
+<             extern const char ggml_metallib_start[];
+<             extern const char ggml_metallib_end[];
+< 
+<             NSString * src  = [[NSString alloc] initWithBytes:ggml_metallib_start length:(ggml_metallib_end-ggml_metallib_start) encoding:NSUTF8StringEncoding];
+< #else
 <             GGML_METAL_LOG_INFO("%s: default.metallib not found, loading from source\n", __func__);
 < 
 <             NSString * sourcePath;
@@ -73,6 +81,7 @@
 <                 GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
 <                 return NULL;
 <             }
+< #endif
 < 
 <             @autoreleasepool {
 <                 // dictionary of preprocessor macros
@@ -102,47 +111,47 @@
 >         if (error) {
 >             GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
 >             return NULL;
-540a490,492
+549a490,492
 > 
 >     g_backend_shared_context_ref_count++;
 >     g_backend_shared_context = ctx;
-544a497,502
+553a497,502
 >     g_backend_shared_context_ref_count--;
 >     if(g_backend_shared_context_ref_count > 0) {
 >         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
 >         return;
 >     }
 > 
-545a504
+554a504
 >     g_backend_shared_context = nil;
-554,555d512
+563,564d512
 <     dispatch_release(ctx->d_queue);
 < 
-704,710d660
+712,718d659
+< 
 <     // create multiple command buffers and enqueue them
 <     // then, we encode the graph into the command buffers in parallel
 < 
 <     const int n_nodes  = gf->n_nodes;
 <     const int n_cb = ctx->n_cb;
 <     const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
-< 
-725,726d674
+734,735d674
 <     id<MTLCommandBuffer> command_buffer_builder[n_cb];
 <     for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
-728,729d675
+737,738d675
 <         command_buffer_builder[cb_idx] = command_buffer;
 < 
-732d677
+741d677
 <     }
-734,738d678
+743,747d678
 <     const id<MTLCommandBuffer> *command_buffers = command_buffer_builder;
 < 
 <     dispatch_apply(n_cb, ctx->d_queue, ^(size_t iter) {
 <         const int cb_idx = iter;
 < 
-744d683
+753d683
 <         id<MTLCommandBuffer> command_buffer  = command_buffers[cb_idx];
-747,755c686
+756,764c686
 <         const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
 <         const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
 < 
@@ -154,31 +163,31 @@
 < 
 ---
 >         for (int i = 0; i < gf->n_nodes; ++i) {
-776a708
+785a708
 > #ifndef GGML_METAL_NDEBUG
-780a713
+789a713
 > #endif
-2300d2232
+2309d2232
 <     });
-2305,2306d2236
+2314,2315d2236
 <     for (int i = 0; i < n_cb; ++i) {
 <         id<MTLCommandBuffer> command_buffer = command_buffers[i];
-2311c2241
+2320c2241
 <             GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
 ---
 >             GGML_METAL_LOG_INFO("%s: command buffer failed with status %lu\n", __func__, status);
-2314d2243
+2323d2243
 <     }
-2468c2397
+2477c2397
 <                     options:MTLResourceStorageModeShared
 ---
 >                     options:GGML_METAL_BUFFER_OPTIONS
-2676,2677c2605
+2685,2686c2605
 < void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
 <     GGML_ASSERT(ggml_backend_is_metal(backend));
 ---
 > void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
-2679,2683d2606
+2688,2692d2606
 <     struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
 < 
 <     ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);

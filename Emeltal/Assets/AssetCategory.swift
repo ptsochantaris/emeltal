@@ -210,7 +210,7 @@ extension Asset {
             case .miniCpmOpenHermes: 40_000_000
             case .samantha70b: 640_000_000
             case .samantha7b: 260_000_000
-            case .neuralStory7b: 270_000_000
+            case .neuralStory7b: 300_000_000
             case .everyoneCoder: 480_000_000
             }
 
