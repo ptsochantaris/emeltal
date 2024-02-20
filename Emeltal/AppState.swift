@@ -72,17 +72,14 @@ final class AppState: Identifiable, ModeProvider {
 
     var shouldPromptForIdealVoice = false
 
-    private var resetting = false
-
     func reset() async throws {
-        resetting = true
+        mode = .warmup
         await llamaContext?.cancelIfNeeded()
         await speaker?.cancelIfNeeded()
         await llamaContext?.clearAllTokens()
         messageLog.reset()
         try await save()
         try await chatInit(hasSavedState: false)
-        resetting = false
     }
 
     let asset: Asset
@@ -475,16 +472,16 @@ final class AppState: Identifiable, ModeProvider {
                 }
             }
 
-            appendToMessageLog(fragment) // .replacingOccurrences(of: "\n", with: "<br>")
+            appendToMessageLog(fragment)
             sentenceBuffer += fragment
-            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, !resetting {
+            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, mode.nominal {
                 let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
                 await handleText(sentence, inQuote: inQuote)
                 sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
             }
         }
 
-        if !resetting {
+        if mode.nominal {
             if !sentenceBuffer.isEmpty {
                 await handleText(sentenceBuffer, inQuote: inQuote)
             }

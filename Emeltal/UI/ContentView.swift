@@ -10,8 +10,6 @@ struct ContentView: View {
     @FocusState private var focusEntryField
 
     var body: some View {
-        let starting = state.mode.isStarting
-
         VStack(spacing: 16) {
             HStack(alignment: .top, spacing: 14) {
                 if !state.floatingMode {
@@ -58,8 +56,9 @@ struct ContentView: View {
                             }
                         }
 
-                        Button { [weak state] in
-                            guard let state, !starting else { return }
+                        let ready = state.mode.nominal
+
+                        Button {
                             changeCallback()
                         } label: {
                             HStack(spacing: 0) {
@@ -68,13 +67,13 @@ struct ContentView: View {
                                     .padding([.leading, .trailing], 4)
                                     .font(.caption)
                             }
-                            .opacity(starting ? 0.3 : 1)
                         }
+                        .opacity(ready ? 1 : 0.3)
+                        .allowsHitTesting(ready)
 
                         Button {
-                            Task { [weak state] in
-                                guard let state, !starting else { return }
-                                if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) || state.mode == .replying {
+                            if state.mode == .waiting || state.mode == .listening(state: .quiet(prefixBuffer: [])) || state.mode == .replying {
+                                Task {
                                     try? await state.reset()
                                 }
                             }
@@ -85,9 +84,10 @@ struct ContentView: View {
                                     .padding([.leading, .trailing], 4)
                                     .font(.caption)
                             }
-                            .opacity(starting ? 0.3 : 1)
                         }
                         .keyboardShortcut(KeyEquivalent("k"), modifiers: .command)
+                        .opacity(ready ? 1 : 0.3)
+                        .allowsHitTesting(ready)
                     }
                 }
 

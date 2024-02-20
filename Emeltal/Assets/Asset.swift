@@ -164,7 +164,7 @@ final class Asset: Codable, Identifiable {
 
         let task = Task { @MainActor [weak self] in
             guard let self else { return Status.notReady }
-            log("Checking availability for for \(category.displayName)")
+            log("Checking availability of \(category.displayName)")
 
             var request = URLRequest(url: category.fetchUrl)
             request.httpMethod = "head"

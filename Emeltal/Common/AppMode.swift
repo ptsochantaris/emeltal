@@ -82,11 +82,11 @@ enum AppMode: Equatable {
 
     case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
 
-    var isStarting: Bool {
+    var nominal: Bool {
         switch self {
-        case .booting, .loading, .startup, .warmup:
+        case .listening, .replying, .waiting:
             true
-        case .listening, .noting, .replying, .thinking, .waiting:
+        case .booting, .loading, .noting, .startup, .thinking, .warmup:
             false
         }
     }
