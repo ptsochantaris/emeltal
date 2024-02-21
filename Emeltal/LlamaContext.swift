@@ -1,5 +1,15 @@
 import Foundation
 
+extension String {
+    func grapheme(at charIndex: Int) -> Character? {
+        if charIndex >= 0, count > charIndex {
+            let i = index(startIndex, offsetBy: charIndex)
+            return self[i]
+        }
+        return nil
+    }
+}
+
 @GGMLActor
 final class LlamaContext {
     private let model: OpaquePointer
@@ -204,8 +214,36 @@ final class LlamaContext {
         turns.count
     }
 
+    struct FailsafeStopDetector {
+        enum Result {
+            case possible, detected, notDetected(pending: [Character])
+        }
+
+        let text: String
+        private var pending = [Character]()
+
+        init(text: String) {
+            self.text = text
+        }
+
+        mutating func check(character: Character) -> Result {
+            if let char = text.grapheme(at: pending.count), char == character {
+                pending.append(character)
+                if pending.count == text.count {
+                    pending.removeAll(keepingCapacity: true)
+                    return .detected
+                } else {
+                    return .possible
+                }
+            }
+            pending.append(character)
+            let p = pending
+            pending.removeAll(keepingCapacity: true)
+            return .notDetected(pending: p)
+        }
+    }
+
     private static let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
-    private static var utf8Builder = UTF8Builder()
 
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let start = Date.now
@@ -220,6 +258,12 @@ final class LlamaContext {
         turns.append(currentTurn)
 
         let params = manager.asset.params
+
+        var utf8Builder = UTF8Builder()
+        var failsafeStopDetector: FailsafeStopDetector?
+        if let failsafeStop = template.failsafeStop {
+            failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
+        }
 
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
@@ -270,24 +314,57 @@ final class LlamaContext {
 
             let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023))
             if written > 0 {
+                let outputString: String?
                 if written == 1 {
                     let byte = Self.wordBuffer[0]
-                    switch Self.utf8Builder.parseByte(byte) {
+                    switch utf8Builder.parseByte(byte) {
                     case .moreRequired:
+                        outputString = nil
                         log("Byte: \(newTokenId) / '\(byte)' - building unicode grapheme")
+
                     case let .result(completeString):
-                        if Self.utf8Builder.expectedRunLength == .one {
+                        if utf8Builder.expectedRunLength == .one {
                             log("Fragment: \(newTokenId) / '\(completeString)' / [\(byte)]")
                         } else {
                             log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
                         }
-                        continuation.yield(completeString)
+                        outputString = completeString
                     }
+
                 } else {
                     Self.wordBuffer[written] = 0
-                    let completeString = String(cString: Self.wordBuffer)
-                    log("Fragment: \(newTokenId) / '\(completeString)' / \(Self.wordBufferBytes(written))")
-                    continuation.yield(completeString)
+                    let output = String(cString: Self.wordBuffer)
+                    log("Fragment: \(newTokenId) / '\(output)' / \(Self.wordBufferBytes(written))")
+                    outputString = output
+                }
+                if let outputString {
+                    if failsafeStopDetector == nil {
+                        if !outputString.isEmpty {
+                            continuation.yield(outputString)
+                        }
+                    } else { // Scan for failsafe terminator
+                        var detected = false
+                        let finalChars = outputString.reduce([]) { existing, char -> [Character] in
+                            if detected { return existing }
+                            switch failsafeStopDetector!.check(character: char) {
+                            case .detected:
+                                detected = true
+                                fallthrough
+                            case .possible:
+                                return existing
+                            case let .notDetected(pending):
+                                return existing + pending
+                            }
+                        }
+                        if !finalChars.isEmpty {
+                            let out = String(finalChars)
+                            continuation.yield(out)
+                        }
+                        if detected {
+                            log("Text ended with failsafe: [\(failsafeStopDetector?.text ?? "")]")
+                            break
+                        }
+                    }
                 }
             } else {
                 #if DEBUG

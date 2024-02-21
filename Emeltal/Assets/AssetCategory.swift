@@ -20,7 +20,7 @@ extension Asset {
             case .samantha:
                 [.samantha7b, .samantha70b]
             case .experimental:
-                [.senku70b, .smaug, .miniCpmOpenHermes]
+                [.senku70b, .smaug, .miniCpmOpenHermes, .alphaMonarch]
             case .deprecated:
                 []
             }
@@ -70,7 +70,8 @@ extension Asset {
              samantha7b = 1600,
              samantha70b = 1700,
              whisper = 1800,
-             neuralStory7b = 2000
+             neuralStory7b = 2000,
+             alphaMonarch = 2100
 
         var selectable: Bool {
             switch self {
@@ -104,6 +105,7 @@ extension Asset {
             case .samantha7b, .samantha70b: .vicuna
             case .everyoneCoder: .alpaca
             case .neuralStory7b: .mistral
+            case .alphaMonarch: .alpaca
             }
         }
 
@@ -111,7 +113,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -186,6 +188,7 @@ extension Asset {
             case .samantha7b: 4096
             case .neuralStory7b: 4096
             case .everyoneCoder: 4096
+            case .alphaMonarch: 4096
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -212,6 +215,7 @@ extension Asset {
             case .samantha7b: 260_000_000
             case .neuralStory7b: 300_000_000
             case .everyoneCoder: 480_000_000
+            case .alphaMonarch: 280_000_000
             }
 
             let totalLayers: Int64 = switch self {
@@ -234,6 +238,7 @@ extension Asset {
             case .samantha7b: 33
             case .neuralStory7b: 33
             case .everyoneCoder: 63
+            case .alphaMonarch: 33
             }
 
             let asrBytes: Int64 = 3_500_000_000
@@ -345,6 +350,7 @@ extension Asset {
             case .samantha7b: "5.2 GB"
             case .everyoneCoder: "27.4 GB"
             case .neuralStory7b: "6.0 GB"
+            case .alphaMonarch: "4.8 GB"
             }
         }
 
@@ -369,12 +375,13 @@ extension Asset {
             case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
             case .everyoneCoder: "This is a community-created coding specific model made using fine-tunes of the Deekseekcoder base."
             case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
+            case .alphaMonarch: "An experimental model with a very high AGI bechmark quotient, which may also be good for creative writing or roleplay."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug: 1024
+            case .alphaMonarch, .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -478,6 +485,7 @@ extension Asset {
             case .samantha7b: "https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b"
             case .everyoneCoder: "https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base"
             case .neuralStory7b: "https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story"
+            case .alphaMonarch: "https://huggingface.co/mlabonne/AlphaMonarch-7B"
             }
             return URL(string: uri)!
         }
@@ -503,6 +511,7 @@ extension Asset {
             case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
             case .everyoneCoder: "Everyone-Coder-33b-v2-Base-Q6_K.gguf"
             case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
+            case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             }
 
             if case .senku70b = self {
@@ -538,6 +547,7 @@ extension Asset {
             case .samantha7b: "Samantha"
             case .everyoneCoder: "EveryoneCoder"
             case .neuralStory7b: "Neural Story"
+            case .alphaMonarch: "Alpha Monarch"
             }
         }
 
@@ -562,6 +572,7 @@ extension Asset {
             case .samantha7b: "v1.1, on WestLake"
             case .everyoneCoder: "v2, on DeepSeekCoder 33b"
             case .neuralStory7b: "on Mistral-Instruct 0.2"
+            case .alphaMonarch: "Merging descendant"
             }
         }
 
@@ -586,6 +597,7 @@ extension Asset {
             case .samantha7b: "52AD5BC7-0F1C-47DB-9DAD-F2DF17559E7B"
             case .everyoneCoder: "50E2E4E2-C42C-4558-B572-2BC2399E3134"
             case .neuralStory7b: "5506DA6E-5403-4BEC-BBA8-5D8F1046DCDD"
+            case .alphaMonarch: "42D4CD1B-F1D2-4F2E-8DD2-32082D136EED"
             }
         }
 

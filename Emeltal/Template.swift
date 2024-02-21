@@ -170,4 +170,17 @@ struct Template {
             }
         }
     }
+
+    var failsafeStop: String? {
+        switch format {
+        case .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
+            nil
+
+        case .chatml:
+            "<|im_start|>user\n"
+
+        case .alpaca:
+            "### Instruction:\n\n"
+        }
+    }
 }
