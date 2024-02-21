@@ -34,13 +34,21 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [Dolphin 2.8 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
 - [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
 
+#### Samantha Series
+- [Samantha 7b](https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b)
+- [Samantha 70b](https://huggingface.co/cognitivecomputations/Samantha-1.11-70b)
+
+#### Smaug Series
+- [Smaug 34b](https://huggingface.co/abacusai/Smaug-34B-v0.1)
+- [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
+
 #### Coding
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
+- [Everyone Coder](https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base)
 - [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
 
 #### Experimental
-- [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
 - [Senku](https://huggingface.co/ShinojiResearch/Senku-70B-Full)
 - [MiniCPM-OpenHermes](https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2)
 
