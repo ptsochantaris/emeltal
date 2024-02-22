@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna
+        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna, gemma
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .miniCpm, .mistral, .openChat, .userAssistant: false
-            case .alpaca, .chatml, .llamaLarge, .vicuna: true
+            case .alpaca, .chatml, .gemma, .llamaLarge, .vicuna: true
             }
         }
 
@@ -61,6 +61,13 @@ struct Template {
             switch step {
             case .cancel, .initial: ""
             case .turn: "USER: "
+            }
+
+        case .gemma:
+            switch step {
+            case .initial: "<start_of_turn>system\n"
+            case .cancel: ""
+            case let .turn(_, index): index > 0 ? "<start_of_turn>user\n" : ""
             }
 
         case .miniCpm:
@@ -124,6 +131,13 @@ struct Template {
             case .turn: "\nASSISTANT: "
             }
 
+        case .gemma:
+            switch step {
+            case .initial: "\n\n"
+            case .cancel: "\n<end_of_turn>\n"
+            case .turn: "<end_of_turn>\n<start_of_turn>model\n"
+            }
+
         case .miniCpm:
             switch step {
             case .cancel, .initial: ""
@@ -173,7 +187,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
+        case .gemma, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
             nil
 
         case .chatml:
