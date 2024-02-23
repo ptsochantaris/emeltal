@@ -42,6 +42,10 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [Smaug 34b](https://huggingface.co/abacusai/Smaug-34B-v0.1)
 - [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
 
+#### Gemma Series
+- [Gemma 7b](https://huggingface.co/google/gemma-7b-it)
+- [Gemma 2b](https://huggingface.co/google/gemma-2b-it)
+
 #### Coding
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
