@@ -236,7 +236,7 @@ extension Asset {
             case .everyoneCoder: 480_000_000
             case .alphaMonarch: 280_000_000
             case .gemma2b: 100_000_000
-            case .gemma7b: 260_000_000
+            case .gemma7b: 230_000_000
             }
 
             let totalLayers: Int64 = switch self {
