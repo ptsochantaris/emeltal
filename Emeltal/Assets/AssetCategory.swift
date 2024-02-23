@@ -5,7 +5,7 @@ extension Asset {
     enum Section: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case general, dolphin, smaug, samantha, gemma, coding, creative, experimental, deprecated
+        case general, dolphin, smaug, samantha, coding, creative, gemma, experimental, deprecated
 
         var presentedModels: [Category] {
             switch self {
@@ -377,7 +377,7 @@ extension Asset {
             case .neuralStory7b: "6.0 GB"
             case .alphaMonarch: "4.8 GB"
             case .gemma2b: "2.1 GB"
-            case .gemma7b: "7.1 GB"
+            case .gemma7b: "6.2 GB"
             }
         }
 
@@ -547,7 +547,7 @@ extension Asset {
             case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
             case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             case .gemma2b: "gemma-2b-it.Q6_K.gguf"
-            case .gemma7b: "gemma-7b-it.Q6_K.gguf"
+            case .gemma7b: "gemma-7b-it-Q5K_M.gguf"
             }
 
             if case .senku70b = self {

@@ -270,6 +270,7 @@
 				1626DBCB2B45E110002D0A91 /* ServerConnector.swift */,
 				16905E4F2B2E5190006B4EC8 /* Template.swift */,
 				167B9D2A2B572036006711B9 /* Turn.swift */,
+				16AF9D8D2B8238100064B66C /* UTF8Builder.swift */,
 				16578A382B1924B80038A680 /* WhisperContext.swift */,
 				1608DB6F2B151B5000FFFB09 /* Assets.xcassets */,
 				168F56042B331BD8007CADC1 /* Assets */,
@@ -277,7 +278,6 @@
 				16C58DED2B34C0DE00006CC2 /* Common */,
 				16053F7B2B1CCB13009E07DA /* llama-cpp */,
 				163EF0512B31B6B400565F49 /* UI */,
-				16AF9D8D2B8238100064B66C /* UTF8Builder.swift */,
 			);
 			path = Emeltal;
 			sourceTree = "<group>";
