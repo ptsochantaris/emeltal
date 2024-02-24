@@ -67,7 +67,7 @@ struct Template {
             switch step {
             case .initial: "<start_of_turn>system\n"
             case .cancel: ""
-            case let .turn(_, index): index > 0 ? "<start_of_turn>user\n" : ""
+            case .turn: "<start_of_turn>user\n"
             }
 
         case .miniCpm:
@@ -133,9 +133,8 @@ struct Template {
 
         case .gemma:
             switch step {
-            case .initial: "\n\n"
-            case .cancel: "\n<end_of_turn>\n"
-            case .turn: "<end_of_turn>\n<start_of_turn>model\n"
+            case .cancel, .initial: "<end_of_turn>\n"
+            case .turn: "<end_of_turn>\n<start_of_turn>model"
             }
 
         case .miniCpm:
