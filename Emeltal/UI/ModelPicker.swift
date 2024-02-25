@@ -1,38 +1,44 @@
 import Foundation
 import SwiftUI
 
+private struct DescriptorTitle: View {
+    let descriptor: Asset.Params.Descriptors.Descriptor
+    let value: Float
+
+    var body: some View {
+        HStack {
+            Text(descriptor.title)
+                .opacity(0.8)
+            if value == descriptor.disabled {
+                Text("Disabled")
+            } else {
+                Text(value, format: .number)
+            }
+            Spacer()
+        }
+    }
+}
+
 private struct IntRow: View {
-    let title: String
-    let range: ClosedRange<Float>
+    let descriptor: Asset.Params.Descriptors.Descriptor
     @Binding var value: Int
 
     var body: some View {
         VStack {
-            HStack {
-                Text(title)
-                Text(":")
-                Text(value, format: .number)
-                Spacer()
-            }
-            Slider(value: .convert(from: $value), in: range)
+            DescriptorTitle(descriptor: descriptor, value: Float(value))
+            Slider(value: .convert(from: $value), in: descriptor.min ... descriptor.max)
         }
     }
 }
 
 private struct FloatRow: View {
-    let title: String
-    let range: ClosedRange<Float>
+    let descriptor: Asset.Params.Descriptors.Descriptor
     @Binding var value: Float
 
     var body: some View {
         VStack {
-            HStack {
-                Text(title)
-                Text(":")
-                Text(value, format: .number)
-                Spacer()
-            }
-            Slider(value: .round(from: $value), in: range)
+            DescriptorTitle(descriptor: descriptor, value: value)
+            Slider(value: .round(from: $value), in: descriptor.min ... descriptor.max)
         }
     }
 }
@@ -109,29 +115,29 @@ struct ModelPicker: View {
                             VStack(spacing: 10) {
                                 let params = selectedAsset.params
                                 HStack(spacing: 10) {
-                                    let hasTemp = params.temperature > 0
-                                    let hasRange = hasTemp && params.temperatureRange > 0
-                                    FloatRow(title: "Temperature", range: 0 ... 2, value: $selectedAsset.params.temperature)
+                                    let hasTemp = params.temperature != Asset.Params.Descriptors.temperature.disabled
+                                    let hasRange = hasTemp && params.temperatureRange != Asset.Params.Descriptors.temperatureRange.disabled
+                                    FloatRow(descriptor: Asset.Params.Descriptors.temperature, value: $selectedAsset.params.temperature)
                                         .opacity(hasTemp ? 1.0 : 0.5)
 
-                                    FloatRow(title: "Range", range: 0 ... 1, value: $selectedAsset.params.temperatureRange)
+                                    FloatRow(descriptor: Asset.Params.Descriptors.temperatureRange, value: $selectedAsset.params.temperatureRange)
                                         .opacity(hasRange ? 1.0 : 0.5)
 
-                                    FloatRow(title: "Exponent", range: 1 ... 2, value: $selectedAsset.params.temperatureExponent)
+                                    FloatRow(descriptor: Asset.Params.Descriptors.temperatureExponent, value: $selectedAsset.params.temperatureExponent)
                                         .opacity(hasRange ? 1.0 : 0.5)
                                 }
 
-                                FloatRow(title: "Top P", range: 0 ... 1, value: $selectedAsset.params.topP)
-                                    .opacity(params.topP < 1 ? 1.0 : 0.5)
+                                FloatRow(descriptor: Asset.Params.Descriptors.topP, value: $selectedAsset.params.topP)
+                                    .opacity(params.topP != Asset.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
 
-                                IntRow(title: "Top K", range: 1 ... 100, value: $selectedAsset.params.topK)
-                                    .opacity(params.topK < 100 ? 1.0 : 0.5)
+                                IntRow(descriptor: Asset.Params.Descriptors.topK, value: $selectedAsset.params.topK)
+                                    .opacity(params.topK != Int(Asset.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
                             }
 
                             VStack(spacing: 10) {
-                                FloatRow(title: "Repeat Penalty", range: 0 ... 2, value: $selectedAsset.params.repeatPenatly)
-                                FloatRow(title: "Frequency Penalty", range: 0 ... 2, value: $selectedAsset.params.frequencyPenatly)
-                                FloatRow(title: "Presence Penalty", range: 0 ... 2, value: $selectedAsset.params.presentPenatly)
+                                FloatRow(descriptor: Asset.Params.Descriptors.repeatPenatly, value: $selectedAsset.params.repeatPenatly)
+                                FloatRow(descriptor: Asset.Params.Descriptors.frequencyPenatly, value: $selectedAsset.params.frequencyPenatly)
+                                FloatRow(descriptor: Asset.Params.Descriptors.presentPenatly, value: $selectedAsset.params.presentPenatly)
                             }
                         }
                     }

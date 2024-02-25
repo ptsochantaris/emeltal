@@ -2,6 +2,26 @@ import Foundation
 
 extension Asset {
     struct Params: Codable {
+        static let currentVersion = 4
+
+        enum Descriptors {
+            struct Descriptor {
+                let title: String
+                let min: Float
+                let max: Float
+                let disabled: Float
+            }
+
+            static let topK = Descriptor(title: "Top-K", min: 0, max: 200, disabled: 0)
+            static let topP = Descriptor(title: "Top-P", min: 0, max: 2, disabled: 0)
+            static let temperature = Descriptor(title: "Temperature", min: 0, max: 2, disabled: 0)
+            static let temperatureRange = Descriptor(title: "Range", min: 0, max: 1, disabled: 0)
+            static let temperatureExponent = Descriptor(title: "Exponent", min: 1, max: 4, disabled: 0)
+            static let repeatPenatly = Descriptor(title: "Repeat Penalty", min: 1, max: 4, disabled: 1)
+            static let frequencyPenatly = Descriptor(title: "Frequency Penalty", min: 0, max: 4, disabled: 0)
+            static let presentPenatly = Descriptor(title: "Presence Penalty", min: 1, max: 4, disabled: 1)
+        }
+
         var topK: Int
         var topP: Float
         var systemPrompt: String

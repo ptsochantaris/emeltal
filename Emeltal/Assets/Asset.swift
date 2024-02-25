@@ -128,7 +128,8 @@ final class Asset: Codable, Identifiable {
         category = loadedCategory
 
         let loadedParams = try container.decode(Params.self, forKey: .params)
-        if loadedParams.version == nil {
+        let loadedVersion = (loadedParams.version ?? 0)
+        if loadedVersion < Params.currentVersion {
             var migratedParams = loadedCategory.defaultParams
             migratedParams.systemPrompt = loadedParams.systemPrompt
             params = migratedParams

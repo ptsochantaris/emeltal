@@ -52,9 +52,9 @@ extension Asset {
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
             case .experimental: "Models to try out that are new and noteworthy. They may be promoted to a category above, be replaced by other interesting models, or just be buggy and output nonsense."
             case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
-            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models with the premise they are sentient, and emotionally supportive of the user."
+            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models based on the premise they are sentient, and emotionally supportive of the user."
             case .smaug: "The Smaug series of models is trained using a fine-tuning technique that has kept them at the top of their respective open source size-categories."
-            case .gemma: "Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning."
+            case .gemma: "Gemma models currently score highly in generative text benchmarks, but are not well suited for conversation or reasoning."
             }
         }
     }
@@ -185,7 +185,7 @@ extension Asset {
 
         var kvBytes: Int64 {
             let kvCache: Double = switch self {
-            case .codeLlama70b: 1280
+            case .codeLlama70b: 640
             case .deepSeekCoder33: 3968
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
@@ -227,8 +227,8 @@ extension Asset {
             case .fusionNetDpo: 610_000_000
             case .smaug72: 640_000_000
             case .smaug34: 450_000_000
-            case .codeLlama70b: 640_000_000
-            case .senku70b: 640_000_000
+            case .codeLlama70b: 650_000_000
+            case .senku70b: 650_000_000
             case .miniCpmOpenHermes: 40_000_000
             case .samantha70b: 640_000_000
             case .samantha7b: 260_000_000
@@ -417,40 +417,43 @@ extension Asset {
             }
         }
 
-        private var defaultTopK: Int {
+        var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b:
-                10
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
+                true
             default:
-                50
+                false
+            }
+        }
+
+        private var defaultTopK: Int {
+            if isCodingLLm {
+                0
+            } else {
+                90
             }
         }
 
         private var defaultTopP: Float {
-            switch self {
-            case .codeLlama70b:
-                0.97
-            default:
-                0.5
+            if isCodingLLm {
+                0
+            } else {
+                0.9
             }
         }
 
         private var defaultTemperature: Float {
-            switch self {
-            case .deepSeekCoder7, .deepSeekCoder33:
+            if isCodingLLm {
                 0
-            case .codeLlama70b:
-                0.8
-            default:
+            } else {
                 0.7
             }
         }
 
         private var defaultTemperatureRange: Float {
-            switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33:
+            if isCodingLLm {
                 0
-            default:
+            } else {
                 0.2
             }
         }
@@ -460,32 +463,25 @@ extension Asset {
         }
 
         private var defaultRepeatPenatly: Float {
-            switch self {
-            case .deepSeekCoder7, .deepSeekCoder33:
+            if isCodingLLm {
                 1.0
-            case .codeLlama70b:
-                1.1
-            default:
+            } else {
                 1.17
             }
         }
 
         private var defaultFrequencyPenalty: Float {
-            switch self {
-            case .deepSeekCoder7, .deepSeekCoder33:
+            if isCodingLLm {
                 0
-            case .codeLlama70b:
-                0
-            default:
+            } else {
                 0.1
             }
         }
 
         private var defaultPresentPenalty: Float {
-            switch self {
-            case .codeLlama70b:
+            if isCodingLLm {
                 0
-            default:
+            } else {
                 1
             }
         }
@@ -656,7 +652,7 @@ extension Asset {
                    repeatPenatly: defaultRepeatPenatly,
                    frequencyPenatly: defaultFrequencyPenalty,
                    presentPenatly: defaultPresentPenalty,
-                   version: 2)
+                   version: Params.currentVersion)
         }
     }
 }

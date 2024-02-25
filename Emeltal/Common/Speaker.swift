@@ -107,7 +107,7 @@ final actor Speaker {
                 log("Fallback voice: \(anyVoice.identifier)")
                 voice = anyVoice
             } else {
-                throw "Could not find any TTS voices in the system"
+                throw "Could not find any TTS voices in the system (counted: \(allVoices.count))"
             }
         }
     }

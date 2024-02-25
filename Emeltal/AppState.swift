@@ -218,13 +218,12 @@ final class AppState: Identifiable, ModeProvider {
         let aud = Task.detached { [weak self] () -> Speaker? in
             guard let self else { return nil }
 
-            let spk = try Speaker()
-
             await AVCaptureDevice.requestAccess(for: .audio)
 
+            let spk = try Speaker()
             try await spk.warmup()
-            await mic.warmup()
 
+            await mic.warmup()
             await setupMicObservation()
 
             return spk

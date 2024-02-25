@@ -282,11 +282,11 @@ final class LlamaContext {
                                               params.frequencyPenatly, // freq penalty
                                               params.presentPenatly) // present penalty
 
-            if params.topP < 1 {
+            if params.topP != Asset.Params.Descriptors.topP.disabled {
                 llama_sample_top_p(context, &candidates_p, params.topP, 1)
             }
 
-            if params.topK < 100 {
+            if params.topK != Int(Asset.Params.Descriptors.topK.disabled) {
                 llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
             }
 
