@@ -168,22 +168,22 @@ final class LlamaContext {
         turns.reduce(0) { $0 + $1.length }
     }
 
-    private func ensureCacheSpace(toFit count: Int) {
+    private func ensureCacheSpace(toFit desiredFreeCount: Int) {
         guard turns.count > 2 else {
             return
         }
-        while allTokensCount + count >= n_ctx {
+        while allTokensCount + desiredFreeCount >= n_ctx {
             var evictedCount: Int32 = 0
             var idsToEvict = Set<llama_seq_id>()
             for turn in turns.suffix(from: 1) { // avoid evicting the system prompt
                 evictedCount += Int32(turn.length)
                 idsToEvict.insert(turn.id)
-                if evictedCount >= count {
+                if evictedCount >= desiredFreeCount {
                     break
                 }
             }
 
-            if evictedCount < count {
+            if evictedCount < desiredFreeCount {
                 log("\nDropping all tokens from token window to fit new tokens")
                 clearAllTokens()
                 return
@@ -195,9 +195,10 @@ final class LlamaContext {
             let evictEnd = evictStart + evictedCount
 
             llama_kv_cache_seq_rm(context, 0, evictStart, evictEnd)
-            llama_kv_cache_seq_shift(context, 0, evictEnd, -1, -evictedCount)
+            llama_kv_cache_seq_add(context, 0, evictEnd, -1, -evictedCount)
 
             log("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
+            
         }
     }
 
@@ -394,6 +395,8 @@ final class LlamaContext {
         }
 
         continuation.finish()
+        llama_kv_cache_defrag(context)
+        llama_kv_cache_update(context)
     }
 
     private static func wordBufferBytes(_ len: Int) -> String {
