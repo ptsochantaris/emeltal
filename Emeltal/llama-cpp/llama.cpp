@@ -68,10 +68,12 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <cwctype>
 #include <forward_list>
 #include <fstream>
 #include <functional>
 #include <initializer_list>
+#include <locale>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -1641,6 +1643,7 @@ struct llama_cparams {
     float yarn_attn_factor;
     float yarn_beta_fast;
     float yarn_beta_slow;
+    float defrag_thold;
 
     bool mul_mat_q;
     bool offload_kqv;
@@ -2583,6 +2586,7 @@ struct llama_model_loader {
                 case GGML_TYPE_IQ3_XXS: ftype = LLAMA_FTYPE_MOSTLY_IQ3_XXS; break;
                 case GGML_TYPE_IQ1_S:   ftype = LLAMA_FTYPE_MOSTLY_IQ1_S;   break;
                 case GGML_TYPE_IQ4_NL:  ftype = LLAMA_FTYPE_MOSTLY_IQ4_NL;  break;
+                case GGML_TYPE_IQ4_XS:  ftype = LLAMA_FTYPE_MOSTLY_IQ4_XS;  break;
                 case GGML_TYPE_IQ3_S:   ftype = LLAMA_FTYPE_MOSTLY_IQ3_S;   break;
                 default:
                     {
@@ -2940,6 +2944,7 @@ static std::string llama_model_ftype_name(llama_ftype ftype) {
         case LLAMA_FTYPE_MOSTLY_IQ3_XXS:return "IQ3_XXS - 3.0625 bpw";
         case LLAMA_FTYPE_MOSTLY_IQ1_S  :return "IQ1_S - 1.5625 bpw";
         case LLAMA_FTYPE_MOSTLY_IQ4_NL: return "IQ4_NL - 4.5 bpw";
+        case LLAMA_FTYPE_MOSTLY_IQ4_XS: return "IQ4_XS - 4.25 bpw";
         case LLAMA_FTYPE_MOSTLY_IQ3_S:  return "IQ3_S - 3.4375 bpw";
         case LLAMA_FTYPE_MOSTLY_IQ3_M:  return "IQ3_S mix - 3.66 bpw";
 
@@ -5117,16 +5122,16 @@ struct llm_build_context {
     struct ggml_cgraph * build_defrag(const std::vector<uint32_t> & ids) {
         struct ggml_cgraph * gf = ggml_new_graph_custom(ctx0, LLAMA_MAX_NODES, false);
 
-        for (int i = 0; i < n_kv; ++i) {
-            const int id = ids[i];
+        for (uint32_t i = 0; i < ids.size(); ++i) {
+            const uint32_t id = ids[i];
 
-            if (i == id || id == n_kv) {
+            if (i == id || id == ids.size()) {
                 continue;
             }
 
-            int nm = 1;
+            uint32_t nm = 1;
 
-            while (i + nm < n_kv && (int) ids[i + nm] == id + nm) {
+            while (i + nm < ids.size() && ids[i + nm] == id + nm) {
                 nm++;
             }
 
@@ -5157,6 +5162,8 @@ struct llm_build_context {
 
             i += nm - 1;
         }
+
+        //LLAMA_LOG_INFO("gf->n_nodes = %d\n", gf->n_nodes);
 
         return gf;
     }
@@ -7887,9 +7894,9 @@ static int llama_decode_internal(
     const auto n_batch = cparams.n_batch;
 
     GGML_ASSERT(n_tokens <= n_batch);
+    GGML_ASSERT((!batch.token && batch.embd) || (batch.token && !batch.embd)); // NOLINT
 
     int n_threads = n_tokens == 1 ? cparams.n_threads : cparams.n_threads_batch;
-    GGML_ASSERT((!batch.token && batch.embd) || (batch.token && !batch.embd)); // NOLINT
 
     const int64_t t_start_us = ggml_time_us();
 
@@ -7938,6 +7945,8 @@ static int llama_decode_internal(
         batch.seq_id = seq_id_arr.data();
     }
 
+    llama_kv_cache_update(&lctx);
+
     // if we have enough unused cells before the current head ->
     //   better to start searching from the beginning of the cache, hoping to fill it
     if (kv_self.head > kv_self.used + 2*n_tokens) {
@@ -7955,8 +7964,6 @@ static int llama_decode_internal(
     //kv_self.n = llama_kv_cache_cell_max(kv_self);
 
     //printf("kv_self.n = %5d, kv_self.used = %5d, kv_self.head = %5d\n", kv_self.n, kv_self.used, kv_self.head);
-
-    llama_kv_cache_update(&lctx);
 
     ggml_backend_sched_reset(lctx.sched);
     ggml_backend_sched_set_eval_callback(lctx.sched, lctx.cparams.cb_eval, lctx.cparams.cb_eval_user_data);
@@ -8004,6 +8011,18 @@ static int llama_decode_internal(
         // Ensure kv cache head points to a valid index.
         if (kv_self.head >= kv_self.size) {
             kv_self.head = 0;
+        }
+    }
+
+    // decide if we need to defrag the kv cache
+    if (cparams.defrag_thold >= 0.0f) {
+        const float fragmentation = kv_self.n >= 128 ? 1.0f - float(kv_self.used + n_tokens)/float(kv_self.n) : 0.0f;
+
+        // queue defragmentation for next llama_kv_cache_update
+        if (fragmentation > cparams.defrag_thold) {
+            //LLAMA_LOG_INFO("fragmentation: %.2f\n", fragmentation);
+
+            llama_kv_cache_defrag(kv_self);
         }
     }
 
@@ -8098,12 +8117,16 @@ static int llama_decode_internal(
 static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
     auto & kv_self = lctx.kv_self;
 
+    const auto & hparams = lctx.model.hparams;
+
+    const uint32_t n_layer = hparams.n_layer;
+
     const uint32_t n_kv   = llama_kv_cache_cell_max(kv_self);
     const uint32_t n_used = kv_self.used;
 
     assert(n_used <= n_kv);
 
-    const int64_t t_start = ggml_time_us();
+    //const int64_t t_start = ggml_time_us();
 
     // number of cells moved
     uint32_t n_moves = 0;
@@ -8127,15 +8150,26 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
 
         // found a hole - fill it with data from the end of the cache
 
-        // determine the size of the hole
         uint32_t nh = 1;
+
+        // determine the size of the hole
         while (i0 + nh < n_used && kv_self.cells[i0 + nh].is_empty()) {
             nh++;
         }
 
-        // starting from the end, find nh non-empty cells
+        // each move requires 6*n_layer tensors (see build_defrag)
+        //   - source view, destination view, copy operation
+        //   - x2 for keys and values
+        //
+        if (6*(n_moves + nh)*n_layer >= LLAMA_MAX_NODES) {
+            // the graph is too big, we cannot move more cells
+            break;
+        }
+
         uint32_t nf = 0;
         uint32_t is = n_kv - 1;
+
+        // starting from the end, find nh non-empty cells
         for (; is > i0; --is) {
             const auto & cell1 = kv_self.cells[is];
 
@@ -8156,11 +8190,17 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
 
         nf = 0;
 
+        uint32_t i1 = is;
+
+        // are we moving a continuous block of memory?
+        bool cont = false;
+
         // go back and move the nf cells to the hole
-        for (uint32_t i1 = is; i1 < n_kv; ++i1) {
-            const auto & cell1 = kv_self.cells[i1];
+        for (; i1 < n_kv; ++i1) {
+            auto & cell1 = kv_self.cells[i1];
 
             if (cell1.is_empty() || ids[i1] != n_kv) {
+                cont = false;
                 continue;
             }
 
@@ -8170,11 +8210,23 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
             // move the cell meta data
             kv_self.cells[i0 + nf] = cell1;
 
-            n_moves++;
+            // clear the old cell and move the head there
+            cell1 = llama_kv_cell();
+            kv_self.head = n_used;
+
+            if (!cont) {
+                n_moves++;
+                cont = true;
+            }
+
             nf++;
+
+            if (nf == nh) {
+                break;
+            }
         }
 
-        LLAMA_LOG_INFO("(tmp log) KV defrag: move [%u, %u) to [%u, %u)\n", is, n_kv, i0, i0 + nh);
+        //LLAMA_LOG_INFO("(tmp log) KV defrag: move [%u, %u) to [%u, %u)\n", is, i1 + 1, i0, i0 + nh);
 
         i0 += nh - 1;
     }
@@ -8183,15 +8235,9 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
         return;
     }
 
-    LLAMA_LOG_INFO("(tmp log) KV defrag cell moves: %u\n", n_moves);
+    //LLAMA_LOG_INFO("(tmp log) KV defrag cell moves: %u\n", n_moves);
 
-    kv_self.head = n_used;
-    kv_self.used = n_used;
-
-    // zero the rest of the cells
-    for (uint32_t i = n_used; i < n_kv; ++i) {
-        kv_self.cells[i] = llama_kv_cell();
-    }
+    //LLAMA_LOG_INFO("expected gf nodes: %u\n", 6*n_moves*n_layer);
 
 #if 0
     // CPU defrag
@@ -8203,9 +8249,6 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
     // likely not worth the effort, as we have ggml_graph based defrag
     //
 
-    const auto & hparams = lctx.model.hparams;
-
-    const uint32_t n_layer      = hparams.n_layer;
     const uint32_t n_embd_k_gqa = hparams.n_embd_k_gqa();
     const uint32_t n_embd_v_gqa = hparams.n_embd_v_gqa();
 
@@ -8274,9 +8317,9 @@ static void llama_kv_cache_defrag_internal(struct llama_context & lctx) {
     llama_graph_compute(lctx, gf, lctx.cparams.n_threads);
 #endif
 
-    const int64_t t_end = ggml_time_us();
+    //const int64_t t_end = ggml_time_us();
 
-    LLAMA_LOG_INFO("(tmp log) KV defrag time: %.3f ms\n", (t_end - t_start)/1000.0);
+    //LLAMA_LOG_INFO("(tmp log) KV defrag time: %.3f ms\n", (t_end - t_start)/1000.0);
 }
 
 static void llama_kv_cache_update_internal(struct llama_context & lctx) {
@@ -8900,37 +8943,46 @@ struct llm_tokenizer_wpm {
     }
 
     std::vector<std::string> preprocess(const std::string & text) {
-        std::string ori_str = normalize(text);
-        uint64_t ori_size = ori_str.size();
+        // normalalization form D
+        std::vector<uint32_t> codepoints = codepoints_from_utf8(text);
+        std::vector<uint32_t> nfd_codepoints;
+        for (uint32_t code : codepoints) {
+            auto it = nfd_map.find(code);
+            if (it != nfd_map.end()) {
+                for (uint32_t c : it->second) {
+                    nfd_codepoints.push_back(c);
+                }
+            } else {
+                nfd_codepoints.push_back(code);
+            }
+        }
 
-        // single punct / single symbol / single digit
-        // baseline: add whitespace on the left and right of punct and chinese characters
-        std::vector<std::string> words;
+        // strip accents, strip control, uniformize whitespace,
+        // to lowercase, pad chinese characters, pad punctuation
         std::string new_str = "";
-        uint64_t i = 0;
-        while (i < ori_size) {
-            int utf_char_len = utf8_len(ori_str[i]);
-            if ((utf_char_len == 1) && ispunct(ori_str[i])) {
-                new_str += " ";
-                new_str += ori_str[i];
-                new_str += " ";
-                i += 1;
+        for (uint32_t code : nfd_codepoints) {
+            int type = codepoint_type(code);
+            if (type == CODEPOINT_TYPE_ACCENT_MARK || type == CODEPOINT_TYPE_CONTROL) {
+                continue;
             }
-            else if ((utf_char_len == 3) && is_chinese_char(ori_str.substr(i, 3))) {
-                new_str += " ";
-                new_str += ori_str.substr(i, 3);
-                new_str += " ";
-                i += 3;
+            code = to_lower(code);
+            if (type == CODEPOINT_TYPE_WHITESPACE) {
+                code = ' ';
             }
-            else {
-                new_str += ori_str[i];
-                i += 1;
+            std::string s = codepoint_to_utf8(code);
+            if (type == CODEPOINT_TYPE_PUNCTUATION || is_ascii_punct(code) || is_chinese_char(code)) {
+                new_str += " ";
+                new_str += s;
+                new_str += " ";
+            } else {
+                new_str += s;
             }
         }
 
         // split by whitespace
         uint64_t l = 0;
         uint64_t r = 0;
+        std::vector<std::string> words;
         while (r < new_str.size()) {
             // if is whitespace
             if (isspace(new_str[r])) {
@@ -8948,47 +9000,20 @@ struct llm_tokenizer_wpm {
         return words;
     }
 
-    std::string normalize(const std::string & text) {
-        // TODO: handle chinese characters? https://github.com/huggingface/tokenizers/blob/ef5f50605ddf9f8caef1598c0e4853862b9707a7/tokenizers/src/normalizers/bert.rs#L98
-        std::string text2 = strip_accents(text);
-        for (size_t i = 0; i < text2.size(); i += utf8_len(text2[i])) {
-            char c = text2[i];
-            if (c >= 'A' && c <= 'Z') {
-                text2[i] = c - 'A' + 'a';
-            }
+    uint32_t to_lower(uint32_t code) {
+#if defined(_WIN32)
+        if (code > 0xFFFF) {
+            return code;
         }
-        return text2;
+#endif
+        return std::tolower(wchar_t(code), std::locale("en_US.UTF-8"));
     }
 
-    bool is_chinese_char(const std::string & str) {
-        int len = str.length();
-        unsigned int codepoint = 0;
-        int num_bytes = 0;
-        int i = 0;
-        unsigned char ch = static_cast<unsigned char>(str[i]);
-        if (ch <= 0x7f) {
-            codepoint = ch;
-            num_bytes = 1;
-        } else if ((ch >> 5) == 0x06) {
-            codepoint = ch & 0x1f;
-            num_bytes = 2;
-        } else if ((ch >> 4) == 0x0e) {
-            codepoint = ch & 0x0f;
-            num_bytes = 3;
-        } else if ((ch >> 3) == 0x1e) {
-            codepoint = ch & 0x07;
-            num_bytes = 4;
-        }
-        for (int j = 1; j < num_bytes; ++j) {
-            if (i + j >= len) {
-                return false; // incomplete UTF-8 character
-            }
-            unsigned char next_ch = static_cast<unsigned char>(str[i + j]);
-            if ((next_ch >> 6) != 0x02) {
-                return false; // invalid trailing byte
-            }
-            codepoint = (codepoint << 6) | (next_ch & 0x3f);
-        }
+    bool is_ascii_punct(uint32_t code) {
+        return code < 256 && ispunct(code);
+    }
+
+    bool is_chinese_char(uint32_t codepoint) {
         if ((codepoint >= 0x4E00  && codepoint <= 0x9FFF)  ||
             (codepoint >= 0x3400  && codepoint <= 0x4DBF)  ||
             (codepoint >= 0x20000 && codepoint <= 0x2A6DF) ||
@@ -9002,41 +9027,6 @@ struct llm_tokenizer_wpm {
             return true; // NOLINT
         }
         return false;
-    }
-
-    std::string strip_accents(const std::string & input_string) {
-        std::string resultString;
-        std::map<std::string, char> accent_map = {
-            {"À", 'A'}, {"Á", 'A'}, {"Â", 'A'}, {"Ã", 'A'}, {"Ä", 'A'}, {"Å", 'A'},
-            {"à", 'a'}, {"á", 'a'}, {"â", 'a'}, {"ã", 'a'}, {"ä", 'a'}, {"å", 'a'},
-            {"È", 'E'}, {"É", 'E'}, {"Ê", 'E'}, {"Ë", 'E'}, {"è", 'e'}, {"é", 'e'},
-            {"ê", 'e'}, {"ë", 'e'}, {"Ì", 'I'}, {"Í", 'I'}, {"Î", 'I'}, {"Ï", 'I'},
-            {"ì", 'i'}, {"í", 'i'}, {"î", 'i'}, {"ï", 'i'}, {"Ò", 'O'}, {"Ó", 'O'},
-            {"Ô", 'O'}, {"Õ", 'O'}, {"Ö", 'O'}, {"ò", 'o'}, {"ó", 'o'}, {"ô", 'o'},
-            {"õ", 'o'}, {"ö", 'o'}, {"Ù", 'U'}, {"Ú", 'U'}, {"Û", 'U'}, {"Ü", 'U'},
-            {"ù", 'u'}, {"ú", 'u'}, {"û", 'u'}, {"ü", 'u'}, {"Ý", 'Y'}, {"ý", 'y'},
-            {"Ç", 'C'}, {"ç", 'c'}, {"Ñ", 'N'}, {"ñ", 'n'},
-        };
-
-        for (size_t i = 0; i <  input_string.length();) {
-            int len = utf8_len(input_string[i]);
-            std::string curChar = input_string.substr(i, len);
-            auto iter = accent_map.find(curChar);
-            if (iter != accent_map.end()) {
-                resultString += iter->second;
-            } else {
-                resultString += curChar;
-            }
-            i += len;
-        }
-
-        return resultString;
-    }
-
-    static size_t utf8_len(char src) {
-        const size_t lookup[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4};
-        uint8_t highbits = static_cast<uint8_t>(src) >> 4;
-        return lookup[highbits];
     }
 
     const llama_vocab & vocab;
@@ -10072,10 +10062,6 @@ void llama_sample_temp(struct llama_context * ctx, llama_token_data_array * cand
     }
 }
 
-void llama_sample_temperature(struct llama_context * ctx, llama_token_data_array * candidates_p, float temp) {
-    llama_sample_temp(ctx, candidates_p, temp);
-}
-
 void llama_sample_repetition_penalties(
             struct llama_context * ctx,
           llama_token_data_array * candidates,
@@ -10197,38 +10183,6 @@ void llama_sample_apply_guidance(
         const auto & g = logits_guidance[i];
 
         l = scale * (l - g) + g;
-    }
-
-    ctx->t_sample_us += ggml_time_us() - t_start_sample_us;
-}
-
-void llama_sample_classifier_free_guidance(
-          struct llama_context * ctx,
-        llama_token_data_array * candidates,
-          struct llama_context * guidance_ctx,
-                         float   scale) {
-    GGML_ASSERT(ctx);
-    int64_t t_start_sample_us;
-
-    t_start_sample_us = ggml_time_us();
-    const size_t n_vocab = llama_n_vocab(llama_get_model(ctx));
-
-    GGML_ASSERT(n_vocab == candidates->size);
-    GGML_ASSERT(!candidates->sorted);
-
-    std::vector<float> logits_base(n_vocab);
-    for (size_t i = 0; i < n_vocab; ++i) {
-        logits_base[i] = candidates->data[i].logit;
-    }
-
-    float * logits_guidance = llama_get_logits(guidance_ctx);
-
-    ctx->t_sample_us += ggml_time_us() - t_start_sample_us;
-    llama_sample_apply_guidance(ctx, logits_base.data(), logits_guidance, scale);
-    t_start_sample_us = ggml_time_us();
-
-    for (size_t i = 0; i < n_vocab; ++i) {
-        candidates->data[i].logit = logits_base[i];
     }
 
     ctx->t_sample_us += ggml_time_us() - t_start_sample_us;
@@ -10832,7 +10786,7 @@ static ggml_type get_k_quant_type(quantize_state_internal & qs, ggml_type new_ty
             new_type = qs.i_attention_wv < 2 ? GGML_TYPE_Q5_K : GGML_TYPE_Q4_K;
         }
         else if (ftype == LLAMA_FTYPE_MOSTLY_Q3_K_L) new_type = GGML_TYPE_Q5_K;
-        else if (ftype == LLAMA_FTYPE_MOSTLY_IQ4_NL && qs.model.hparams.n_gqa() >= 4) {
+        else if ((ftype == LLAMA_FTYPE_MOSTLY_IQ4_NL || ftype == LLAMA_FTYPE_MOSTLY_IQ4_XS) && qs.model.hparams.n_gqa() >= 4) {
             new_type = GGML_TYPE_Q5_K;
         }
         else if ((ftype == LLAMA_FTYPE_MOSTLY_Q4_K_M || ftype == LLAMA_FTYPE_MOSTLY_Q5_K_M) &&
@@ -10901,8 +10855,8 @@ static ggml_type get_k_quant_type(quantize_state_internal & qs, ggml_type new_ty
                 if (use_more_bits(i_layer, n_layer)) new_type = GGML_TYPE_Q6_K;
             }
         }
-        else if (ftype == LLAMA_FTYPE_MOSTLY_IQ4_NL && !qs.has_imatrix) {
-            if (i_layer < n_layer/8) new_type = GGML_TYPE_Q5_K;
+        else if (i_layer < n_layer/8 && (ftype == LLAMA_FTYPE_MOSTLY_IQ4_NL || ftype == LLAMA_FTYPE_MOSTLY_IQ4_XS) && !qs.has_imatrix) {
+            new_type = GGML_TYPE_Q5_K;
         }
         else if (ftype == LLAMA_FTYPE_MOSTLY_Q5_K_M && use_more_bits(i_layer, n_layer)) new_type = GGML_TYPE_Q6_K;
         else if (ftype == LLAMA_FTYPE_MOSTLY_Q4_K_S && arch != LLM_ARCH_FALCON && i_layer < n_layer/8) {
@@ -10922,7 +10876,7 @@ static ggml_type get_k_quant_type(quantize_state_internal & qs, ggml_type new_ty
                 if (ftype == LLAMA_FTYPE_MOSTLY_Q2_K   || ftype == LLAMA_FTYPE_MOSTLY_IQ3_XS || ftype == LLAMA_FTYPE_MOSTLY_IQ3_XXS ||
                     ftype == LLAMA_FTYPE_MOSTLY_Q3_K_S || ftype == LLAMA_FTYPE_MOSTLY_Q3_K_M  || ftype == LLAMA_FTYPE_MOSTLY_IQ4_NL  ||
                     ftype == LLAMA_FTYPE_MOSTLY_Q4_K_S || ftype == LLAMA_FTYPE_MOSTLY_Q4_K_M  || ftype == LLAMA_FTYPE_MOSTLY_IQ3_S  ||
-                    ftype == LLAMA_FTYPE_MOSTLY_IQ3_M) {
+                    ftype == LLAMA_FTYPE_MOSTLY_IQ3_M  || ftype == LLAMA_FTYPE_MOSTLY_IQ4_XS) {
                     new_type = GGML_TYPE_Q5_K;
                 }
             } else {
@@ -10973,7 +10927,7 @@ static ggml_type get_k_quant_type(quantize_state_internal & qs, ggml_type new_ty
     //}
     bool convert_incompatible_tensor = false;
     if (new_type == GGML_TYPE_Q2_K || new_type == GGML_TYPE_Q3_K || new_type == GGML_TYPE_Q4_K ||
-        new_type == GGML_TYPE_Q5_K || new_type == GGML_TYPE_Q6_K ||
+        new_type == GGML_TYPE_Q5_K || new_type == GGML_TYPE_Q6_K || new_type == GGML_TYPE_IQ4_XS ||
         new_type == GGML_TYPE_IQ2_XS || new_type == GGML_TYPE_IQ2_XXS || new_type == GGML_TYPE_IQ2_S ||
         new_type == GGML_TYPE_IQ3_XXS || ftype == LLAMA_FTYPE_MOSTLY_IQ1_S || new_type == GGML_TYPE_IQ3_S) {
         int nx = tensor->ne[0];
@@ -10994,10 +10948,11 @@ static ggml_type get_k_quant_type(quantize_state_internal & qs, ggml_type new_ty
             case GGML_TYPE_IQ3_S:
             case GGML_TYPE_IQ1_S:
             case GGML_TYPE_Q2_K:
-            case GGML_TYPE_Q3_K: new_type = GGML_TYPE_IQ4_NL; break;
-            case GGML_TYPE_Q4_K: new_type = GGML_TYPE_Q5_0; break;
-            case GGML_TYPE_Q5_K: new_type = GGML_TYPE_Q5_1; break;
-            case GGML_TYPE_Q6_K: new_type = GGML_TYPE_Q8_0; break;
+            case GGML_TYPE_Q3_K:
+            case GGML_TYPE_IQ4_XS: new_type = GGML_TYPE_IQ4_NL; break;
+            case GGML_TYPE_Q4_K:   new_type = GGML_TYPE_Q5_0;   break;
+            case GGML_TYPE_Q5_K:   new_type = GGML_TYPE_Q5_1;   break;
+            case GGML_TYPE_Q6_K:   new_type = GGML_TYPE_Q8_0;   break;
             default: throw std::runtime_error("\nUnsupported tensor size encountered\n");
         }
         LLAMA_LOG_WARN(" - using fallback quantization %s\n", ggml_type_name(new_type));
@@ -11039,6 +10994,7 @@ static void llama_model_quantize_internal(const std::string & fname_inp, const s
         case LLAMA_FTYPE_MOSTLY_IQ3_XXS: quantized_type = GGML_TYPE_IQ3_XXS; break;
         case LLAMA_FTYPE_MOSTLY_IQ1_S:   quantized_type = GGML_TYPE_IQ1_S;   break;
         case LLAMA_FTYPE_MOSTLY_IQ4_NL:  quantized_type = GGML_TYPE_IQ4_NL;  break;
+        case LLAMA_FTYPE_MOSTLY_IQ4_XS:  quantized_type = GGML_TYPE_IQ4_XS;  break;
         case LLAMA_FTYPE_MOSTLY_IQ3_S:   quantized_type = GGML_TYPE_IQ3_S;   break;
         case LLAMA_FTYPE_MOSTLY_IQ3_M:   quantized_type = GGML_TYPE_IQ3_S;   break;
 
@@ -11170,7 +11126,8 @@ static void llama_model_quantize_internal(const std::string & fname_inp, const s
         quantize &= !params->only_copy;
 
         // do not quantize expert gating tensors
-        quantize &= name != LLM_TN(model.arch)(LLM_TENSOR_FFN_GATE_INP, "weight");
+        // NOTE: can't use LLM_TN here because the layer number is not known
+        quantize &= name.find("ffn_gate_inp.weight") == std::string::npos;
 
         // do not quantize positional embeddings and token types (BERT)
         quantize &= name != LLM_TN(model.arch)(LLM_TENSOR_POS_EMBD,    "weight");
@@ -11670,6 +11627,7 @@ struct llama_context_params llama_context_default_params() {
         /*.yarn_beta_fast              =*/ 32.0f,
         /*.yarn_beta_slow              =*/ 1.0f,
         /*.yarn_orig_ctx               =*/ 0,
+        /*.defrag_thold                =*/ -1.0f,
         /*.cb_eval                     =*/ nullptr,
         /*.cb_eval_user_data           =*/ nullptr,
         /*.type_k                      =*/ GGML_TYPE_F16,
@@ -11728,15 +11686,6 @@ bool llama_supports_gpu_offload(void) {
 #else
     return false;
 #endif
-}
-
-// deprecated:
-bool llama_mmap_supported(void) {
-    return llama_supports_mmap();
-}
-
-bool llama_mlock_supported(void) {
-    return llama_supports_mlock();
 }
 
 void llama_backend_init(void) {
@@ -11834,6 +11783,7 @@ struct llama_context * llama_new_context_with_model(
     cparams.yarn_attn_factor = params.yarn_attn_factor;
     cparams.yarn_beta_fast   = params.yarn_beta_fast;
     cparams.yarn_beta_slow   = params.yarn_beta_slow;
+    cparams.defrag_thold     = params.defrag_thold;
     cparams.mul_mat_q        = params.mul_mat_q;
     cparams.offload_kqv      = params.offload_kqv;
     cparams.do_pooling       = params.do_pooling;
@@ -12035,7 +11985,7 @@ struct llama_context * llama_new_context_with_model(
             }
 
             // buffer used to store the computation graph and the tensor meta data
-            ctx->buf_compute_meta.resize(ggml_tensor_overhead()*LLAMA_MAX_NODES + ggml_graph_overhead());
+            ctx->buf_compute_meta.resize(ggml_tensor_overhead()*LLAMA_MAX_NODES + ggml_graph_overhead_custom(LLAMA_MAX_NODES, false));
 
             ctx->sched = ggml_backend_sched_new(ctx->backends.data(), backend_buft.data(), ctx->backends.size(), LLAMA_MAX_NODES);
 
@@ -12245,15 +12195,6 @@ uint32_t llama_model_quantize(
         return 0;
     } catch (const std::exception & err) {
         LLAMA_LOG_ERROR("%s: failed to quantize: %s\n", __func__, err.what());
-        return 1;
-    }
-}
-
-int32_t llama_apply_lora_from_file(struct llama_context * ctx, const char * path_lora, float scale, const char * path_base_model, int32_t n_threads) {
-    try {
-        return llama_apply_lora_from_file_internal(ctx->model, path_lora, scale, path_base_model, n_threads);
-    } catch (const std::exception & err) {
-        LLAMA_LOG_ERROR("%s: failed to apply lora adapter: %s\n", __func__, err.what());
         return 1;
     }
 }
@@ -12604,8 +12545,8 @@ size_t llama_copy_state_data(struct llama_context * ctx, uint8_t * dst) {
 }
 
 // Sets the state reading from the specified source address
-size_t llama_set_state_data(struct llama_context * ctx, uint8_t * src) {
-    uint8_t * inp = src;
+size_t llama_set_state_data(struct llama_context * ctx, const uint8_t * src) {
+    const uint8_t * inp = src;
 
     // set rng
     {
@@ -12614,7 +12555,7 @@ size_t llama_set_state_data(struct llama_context * ctx, uint8_t * src) {
 
         GGML_ASSERT(rng_size <= LLAMA_MAX_RNG_STATE);
 
-        std::string rng_str((char *)inp, rng_size); inp += rng_size;
+        std::string rng_str((const char *)inp, rng_size); inp += rng_size;
 
         std::istringstream rng_ss(rng_str);
         rng_ss >> ctx->rng;
@@ -12805,38 +12746,6 @@ bool llama_save_session_file(struct llama_context * ctx, const char * path_sessi
     llama_copy_state_data_internal(ctx, &data_ctx);
 
     return true;
-}
-
-int llama_eval(
-        struct llama_context * ctx,
-                 llama_token * tokens,
-                     int32_t   n_tokens,
-                     int32_t   n_past) {
-    llama_kv_cache_seq_rm(ctx->kv_self, -1, n_past, -1);
-
-    const int ret = llama_decode_internal(*ctx, llama_batch_get_one(tokens, n_tokens, n_past, 0));
-    if (ret < 0) {
-        LLAMA_LOG_ERROR("%s: failed to decode, ret = %d\n", __func__, ret);
-    }
-
-    return ret;
-}
-
-int llama_eval_embd(
-            struct llama_context * ctx,
-                           float * embd,
-                         int32_t   n_tokens,
-                         int32_t   n_past) {
-    llama_kv_cache_seq_rm(ctx->kv_self, -1, n_past, -1);
-
-    llama_batch batch = { n_tokens, nullptr, embd, nullptr, nullptr, nullptr, nullptr, n_past, 1, 0, };
-
-    const int ret = llama_decode_internal(*ctx, batch);
-    if (ret < 0) {
-        LLAMA_LOG_ERROR("%s: failed to decode, ret = %d\n", __func__, ret);
-    }
-
-    return ret;
 }
 
 void llama_set_n_threads(struct llama_context * ctx, uint32_t n_threads, uint32_t n_threads_batch) {

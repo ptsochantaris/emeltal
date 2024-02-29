@@ -115,6 +115,7 @@ extern "C" {
         LLAMA_FTYPE_MOSTLY_IQ3_M         = 27, // except 1d tensors
         LLAMA_FTYPE_MOSTLY_IQ2_S         = 28, // except 1d tensors
         LLAMA_FTYPE_MOSTLY_IQ2_M         = 29, // except 1d tensors
+        LLAMA_FTYPE_MOSTLY_IQ4_XS        = 30, // except 1d tensors
 
         LLAMA_FTYPE_GUESSED = 1024, // not specified in the model file
     };
@@ -245,6 +246,7 @@ extern "C" {
         float    yarn_beta_fast;   // YaRN low correction dim
         float    yarn_beta_slow;   // YaRN high correction dim
         uint32_t yarn_orig_ctx;    // YaRN original context size
+        float    defrag_thold;     // defragment the KV cache if holes/size > thold, < 0 disabled (default)
 
         ggml_backend_sched_eval_callback cb_eval;
         void * cb_eval_user_data;
@@ -362,9 +364,6 @@ extern "C" {
     LLAMA_API bool llama_supports_mlock      (void);
     LLAMA_API bool llama_supports_gpu_offload(void);
 
-    LLAMA_API DEPRECATED(bool llama_mmap_supported (void), "use llama_supports_mmap() instead");
-    LLAMA_API DEPRECATED(bool llama_mlock_supported(void), "use llama_supports_mlock() instead");
-
     LLAMA_API const struct llama_model * llama_get_model(const struct llama_context * ctx);
 
     LLAMA_API uint32_t llama_n_ctx      (const struct llama_context * ctx);
@@ -421,14 +420,6 @@ extern "C" {
     // The model needs to be reloaded before applying a new adapter, otherwise the adapter
     // will be applied on top of the previous one
     // Returns 0 on success
-    LLAMA_API DEPRECATED(int32_t llama_apply_lora_from_file(
-            struct llama_context * ctx,
-                      const char * path_lora,
-                           float   scale,
-                      const char * path_base_model,
-                         int32_t   n_threads),
-            "use llama_model_apply_lora_from_file instead");
-
     LLAMA_API int32_t llama_model_apply_lora_from_file(
             const struct llama_model * model,
                       const char * path_lora,
@@ -584,7 +575,7 @@ extern "C" {
     // Returns the number of bytes read
     LLAMA_API size_t llama_set_state_data(
             struct llama_context * ctx,
-                         uint8_t * src);
+                   const uint8_t * src);
 
     // Save/load session file
     LLAMA_API bool llama_load_session_file(
@@ -603,27 +594,6 @@ extern "C" {
     //
     // Decoding
     //
-
-    // Run the llama inference to obtain the logits and probabilities for the next token(s).
-    // tokens + n_tokens is the provided batch of new tokens to process
-    // n_past is the number of tokens to use from previous eval calls
-    // Returns 0 on success
-    // DEPRECATED: use llama_decode() instead
-    LLAMA_API DEPRECATED(int llama_eval(
-            struct llama_context * ctx,
-                     llama_token * tokens,
-                         int32_t   n_tokens,
-                         int32_t   n_past),
-            "use llama_decode() instead");
-
-    // Same as llama_eval, but use float matrix input directly.
-    // DEPRECATED: use llama_decode() instead
-    LLAMA_API DEPRECATED(int llama_eval_embd(
-            struct llama_context * ctx,
-                           float * embd,
-                         int32_t   n_tokens,
-                         int32_t   n_past),
-            "use llama_decode() instead");
 
     // Return batch for single sequence of tokens starting at pos_0
     //
@@ -798,13 +768,6 @@ extern "C" {
                              float * logits_guidance,
                              float   scale);
 
-    LLAMA_API DEPRECATED(void llama_sample_classifier_free_guidance(
-              struct llama_context * ctx,
-            llama_token_data_array * candidates,
-              struct llama_context * guidance_ctx,
-                             float   scale),
-              "use llama_sample_apply_guidance() instead");
-
     /// @details Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
     LLAMA_API void llama_sample_softmax(
             struct llama_context * ctx,
@@ -857,12 +820,6 @@ extern "C" {
             struct llama_context * ctx,
           llama_token_data_array * candidates,
                            float   temp);
-
-    LLAMA_API DEPRECATED(void llama_sample_temperature(
-                struct llama_context * ctx,
-              llama_token_data_array * candidates,
-                               float   temp),
-            "use llama_sample_temp instead");
 
     /// @details Apply constraints from grammar
     LLAMA_API void llama_sample_grammar(

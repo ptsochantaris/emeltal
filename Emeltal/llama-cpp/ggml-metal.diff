@@ -2,35 +2,38 @@
 > #define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared|MTLResourceHazardTrackingModeUntracked
 22a24
 > #define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared
-176,177d177
+186,187d187
 <     int n_cb;
 < 
-181,182d180
+191,192d190
 <     dispatch_queue_t d_queue;
 < 
-196,201d193
+197,198d194
+< 
+<     bool should_capture_next_compute;
+205,210d200
+< 
 < // Here to assist with NSBundle Path Hack
 < @interface GGMLMetalClass : NSObject
 < @end
 < @implementation GGMLMetalClass
 < @end
-< 
-244a237,239
+254a245,247
 > static int g_backend_shared_context_ref_count = 0;
 > struct ggml_metal_context *g_backend_shared_context = NULL;
 > 
-245a241,246
+255a249,254
 >     if(g_backend_shared_context) {
 >         g_backend_shared_context_ref_count++;
 >         GGML_METAL_LOG_INFO("%s: reusing existing context, now used by %d clients\n", __func__, g_backend_shared_context_ref_count);
 >         return g_backend_shared_context;
 >     }
 > 
-264d264
+274d272
 <     ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
-266d265
+276d273
 <     ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
-272,278c271
+282,288c279
 <         NSBundle * bundle = nil;
 < #ifdef SWIFT_PACKAGE
 <         bundle = SWIFTPM_MODULE_BUNDLE;
@@ -40,7 +43,7 @@
 <         NSError * error = nil;
 ---
 >         NSBundle * bundle = [NSBundle mainBundle];
-280,340c273,280
+290,350c281,288
 <         if (libPath != nil) {
 <             // pre-compiled library found
 <             NSURL * libURL = [NSURL fileURLWithPath:libPath];
@@ -111,23 +114,26 @@
 >         if (error) {
 >             GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
 >             return NULL;
-569a510,512
+394,395d331
+<     ctx->should_capture_next_compute = false;
+< 
+589a526,528
 > 
 >     g_backend_shared_context_ref_count++;
 >     g_backend_shared_context = ctx;
-573a517,522
+593a533,538
 >     g_backend_shared_context_ref_count--;
 >     if(g_backend_shared_context_ref_count > 0) {
 >         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
 >         return;
 >     }
 > 
-574a524
+594a540
 >     g_backend_shared_context = nil;
-583,584d532
+603,604d548
 <     dispatch_release(ctx->d_queue);
 < 
-732,738d679
+752,758d695
 < 
 <     // create multiple command buffers and enqueue them
 <     // then, we encode the graph into the command buffers in parallel
@@ -135,23 +141,36 @@
 <     const int n_nodes  = gf->n_nodes;
 <     const int n_cb = ctx->n_cb;
 <     const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
-754,755d694
+760,775d696
+<     const bool should_capture = ctx->should_capture_next_compute;
+<     if (should_capture) {
+<         ctx->should_capture_next_compute = false;
+< 
+<         MTLCaptureDescriptor * descriptor = [MTLCaptureDescriptor new];
+<         descriptor.captureObject = ctx->queue;
+< 
+<         NSError * error = nil;
+<         if (![[MTLCaptureManager sharedCaptureManager] startCaptureWithDescriptor:descriptor error:&error]) {
+<             GGML_METAL_LOG_ERROR("%s: error: unable to start capture '%s'\n", __func__, [[error localizedDescription] UTF8String]);
+<             GGML_ASSERT(!"capture failed");
+<         }
+<     }
+< 
 <     id<MTLCommandBuffer> command_buffer_builder[n_cb];
 <     for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
-757,758d695
+777,778d697
 <         command_buffer_builder[cb_idx] = command_buffer;
 < 
-761d697
+781,786d699
 <     }
-763,767d698
+< 
 <     const id<MTLCommandBuffer> *command_buffers = command_buffer_builder;
 < 
 <     dispatch_apply(n_cb, ctx->d_queue, ^(size_t iter) {
 <         const int cb_idx = iter;
-< 
-773d703
+793d705
 <         id<MTLCommandBuffer> command_buffer  = command_buffers[cb_idx];
-776,784c706
+796,804c708
 <         const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
 <         const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
 < 
@@ -163,33 +182,53 @@
 < 
 ---
 >         for (int i = 0; i < gf->n_nodes; ++i) {
-805a728
+825a730
 > #ifndef GGML_METAL_NDEBUG
-809a733
+829a735
 > #endif
-2369d2292
+831,834d736
+<             if (should_capture) {
+<                 [encoder pushDebugGroup:[NSString stringWithCString:ggml_op_desc(dst) encoding:NSUTF8StringEncoding]];
+<             }
+< 
+2410,2413d2311
+< 
+<             if (should_capture) {
+<                 [encoder popDebugGroup];
+<             }
+2419d2316
 <     });
-2374,2375d2296
+2424,2425d2320
 <     for (int i = 0; i < n_cb; ++i) {
 <         id<MTLCommandBuffer> command_buffer = command_buffers[i];
-2380c2301
+2430c2325
 <             GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
 ---
 >             GGML_METAL_LOG_INFO("%s: command buffer failed with status %lu\n", __func__, status);
-2383d2303
+2434,2439d2328
+< 
+<     if (should_capture) {
+<         [[MTLCaptureManager sharedCaptureManager] stopCapture];
 <     }
-2537c2457
+< 
+<     }
+2587c2476
 <                     options:MTLResourceStorageModeShared
 ---
 >                     options:GGML_METAL_BUFFER_OPTIONS
-2745,2746c2665
+2801,2802c2690
 < void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
 <     GGML_ASSERT(ggml_backend_is_metal(backend));
 ---
 > void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
-2748,2752d2666
+2804,2808d2691
 <     struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
 < 
 <     ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
 < }
 < 
+2818,2821d2700
+<     GGML_ASSERT(ggml_backend_is_metal(backend));
+< 
+<     struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
+<     ctx->should_capture_next_compute = true;
