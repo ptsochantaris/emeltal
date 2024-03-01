@@ -1645,7 +1645,6 @@ struct llama_cparams {
     float yarn_beta_slow;
     float defrag_thold;
 
-    bool mul_mat_q;
     bool offload_kqv;
     bool do_pooling;
 
@@ -8947,10 +8946,10 @@ struct llm_tokenizer_wpm {
         std::vector<uint32_t> codepoints = codepoints_from_utf8(text);
         std::vector<uint32_t> nfd_codepoints;
         for (uint32_t code : codepoints) {
-            auto it = nfd_map.find(code);
-            if (it != nfd_map.end()) {
-                for (uint32_t c : it->second) {
-                    nfd_codepoints.push_back(c);
+            auto it = nfd_map.equal_range(code);
+            if (it.first != it.second) {
+                for (auto jt = it.first; jt != it.second; jt++) {
+                    nfd_codepoints.push_back(jt->second);
                 }
             } else {
                 nfd_codepoints.push_back(code);
@@ -9001,12 +9000,13 @@ struct llm_tokenizer_wpm {
     }
 
     uint32_t to_lower(uint32_t code) {
+        static const std::locale locale("en_US.UTF-8");
 #if defined(_WIN32)
         if (code > 0xFFFF) {
             return code;
         }
 #endif
-        return std::tolower(wchar_t(code), std::locale("en_US.UTF-8"));
+        return std::tolower(wchar_t(code), locale);
     }
 
     bool is_ascii_punct(uint32_t code) {
@@ -11632,7 +11632,6 @@ struct llama_context_params llama_context_default_params() {
         /*.cb_eval_user_data           =*/ nullptr,
         /*.type_k                      =*/ GGML_TYPE_F16,
         /*.type_v                      =*/ GGML_TYPE_F16,
-        /*.mul_mat_q                   =*/ true,
         /*.logits_all                  =*/ false,
         /*.embedding                   =*/ false,
         /*.offload_kqv                 =*/ true,
@@ -11784,7 +11783,6 @@ struct llama_context * llama_new_context_with_model(
     cparams.yarn_beta_fast   = params.yarn_beta_fast;
     cparams.yarn_beta_slow   = params.yarn_beta_slow;
     cparams.defrag_thold     = params.defrag_thold;
-    cparams.mul_mat_q        = params.mul_mat_q;
     cparams.offload_kqv      = params.offload_kqv;
     cparams.do_pooling       = params.do_pooling;
 

@@ -198,7 +198,6 @@ final class LlamaContext {
             llama_kv_cache_seq_add(context, 0, evictEnd, -1, -evictedCount)
 
             log("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
-            
         }
     }
 
