@@ -125,7 +125,7 @@ extension Asset {
         private var defaultPrompt: String {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
-                "You are a helpful and honest coding assistant. If a question does not make any sense, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+                "You are a helpful AI programming assistant."
             case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug34, .smaug72:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .gemma2b, .gemma7b:
@@ -220,7 +220,7 @@ extension Asset {
             let layerSize: Int64 = switch self {
             case .dolphinMixtral: 1_350_000_000
             case .deepSeekCoder33: 600_000_000
-            case .dolphinCoder: 380_000_000
+            case .dolphinCoder: 630_000_000
             case .deepSeekCoder7: 330_000_000
             case .sauerkrautSolar: 260_000_000
             case .dolphinTiny: 48_000_000
@@ -232,7 +232,7 @@ extension Asset {
             case .fusionNetDpo: 610_000_000
             case .smaug72: 640_000_000
             case .smaug34: 450_000_000
-            case .codeLlama70b: 650_000_000
+            case .codeLlama70b: 700_000_000
             case .senku70b: 650_000_000
             case .miniCpmOpenHermes: 40_000_000
             case .samantha70b: 640_000_000
@@ -419,7 +419,8 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .alphaMonarch, .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .gemma7b, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .gemma7b, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
             case .dolphinTiny, .gemma2b, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -435,24 +436,16 @@ extension Asset {
         }
 
         private var defaultTopK: Int {
-            if isCodingLLm {
-                0
-            } else {
-                90
-            }
+            90
         }
 
         private var defaultTopP: Float {
-            if isCodingLLm {
-                0
-            } else {
-                0.9
-            }
+            0.9
         }
 
         private var defaultTemperature: Float {
             if isCodingLLm {
-                0
+                0.1
             } else {
                 0.7
             }
@@ -487,11 +480,7 @@ extension Asset {
         }
 
         private var defaultPresentPenalty: Float {
-            if isCodingLLm {
-                0
-            } else {
-                1
-            }
+            1
         }
 
         var emeltalRepo: URL {
