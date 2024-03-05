@@ -47,6 +47,7 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [Gemma 2b](https://huggingface.co/google/gemma-2b-it)
 
 #### Coding
+- [Dolphin Coder](https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b)
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
 - [Everyone Coder](https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base)

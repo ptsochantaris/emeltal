@@ -16,7 +16,7 @@ extension Asset {
             case .smaug:
                 [.smaug34, .smaug72]
             case .coding:
-                [.deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
+                [.dolphinCoder, .deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
             case .creative:
                 [.mythoMax, .neuralStory7b]
             case .samantha:
@@ -68,6 +68,7 @@ extension Asset {
              openChat = 600,
              nousHermesMixtral = 700,
              mythoMax = 800,
+             dolphinCoder = 850,
              deepSeekCoder33 = 900,
              codeLlama70b = 1000,
              deepSeekCoder7 = 1100,
@@ -102,7 +103,7 @@ extension Asset {
         var format: Template.Format {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33: .alpaca
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny: .chatml
+            case .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny: .chatml
             case .mythoMax: .alpaca
             case .sauerkrautSolar: .userAssistant
             case .whisper: .alpaca
@@ -133,6 +134,8 @@ extension Asset {
                 "You are a caring and empathetic sentient AI companion named Samantha."
             case .mythoMax, .neuralStory7b:
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
+            case .dolphinCoder:
+                "You are DolphinCoder, a helpful AI programming assistant."
             case .whisper:
                 ""
             }
@@ -207,6 +210,7 @@ extension Asset {
             case .alphaMonarch: 4096
             case .gemma2b: 144
             case .gemma7b: 3584
+            case .dolphinCoder: 1280
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -216,6 +220,7 @@ extension Asset {
             let layerSize: Int64 = switch self {
             case .dolphinMixtral: 1_350_000_000
             case .deepSeekCoder33: 600_000_000
+            case .dolphinCoder: 380_000_000
             case .deepSeekCoder7: 330_000_000
             case .sauerkrautSolar: 260_000_000
             case .dolphinTiny: 48_000_000
@@ -241,6 +246,7 @@ extension Asset {
 
             let totalLayers: Int64 = switch self {
             case .dolphinMixtral: 33
+            case .dolphinCoder: 41
             case .deepSeekCoder33: 63
             case .deepSeekCoder7: 31
             case .sauerkrautSolar: 49
@@ -378,6 +384,7 @@ extension Asset {
             case .alphaMonarch: "4.8 GB"
             case .gemma2b: "2.1 GB"
             case .gemma7b: "6.2 GB"
+            case .dolphinCoder: "13.1 GB"
             }
         }
 
@@ -406,12 +413,13 @@ extension Asset {
             case .alphaMonarch: "An experimental model with a very high AGI bechmark quotient, which may also be good for creative writing or roleplay."
             case .gemma7b: "A recent model released by Google, built from the same research and technology used to create the Gemini models."
             case .gemma2b: "A compact version of the Gemma model."
+            case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .alphaMonarch, .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .gemma7b, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
+            case .alphaMonarch, .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .fusionNetDpo, .gemma7b, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
             case .dolphinTiny, .gemma2b, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -419,7 +427,7 @@ extension Asset {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder:
                 true
             default:
                 false
@@ -515,6 +523,7 @@ extension Asset {
             case .alphaMonarch: "https://huggingface.co/mlabonne/AlphaMonarch-7B"
             case .gemma2b: "https://huggingface.co/google/gemma-2b-it"
             case .gemma7b: "https://huggingface.co/google/gemma-7b-it"
+            case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             }
             return URL(string: uri)!
         }
@@ -544,6 +553,7 @@ extension Asset {
             case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             case .gemma2b: "gemma-2b-it.Q6_K.gguf"
             case .gemma7b: "gemma-7b-it-Q5K_M.gguf"
+            case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
             }
 
             if case .senku70b = self {
@@ -583,6 +593,7 @@ extension Asset {
             case .alphaMonarch: "Alpha Monarch"
             case .gemma2b: "Gemma (Compact)"
             case .gemma7b: "Gemma"
+            case .dolphinCoder: "Dolphin Coder"
             }
         }
 
@@ -611,6 +622,7 @@ extension Asset {
             case .alphaMonarch: "Merging descendant"
             case .gemma2b: "2b params"
             case .gemma7b: "7b params"
+            case .dolphinCoder: "on StarCoder2 15b"
             }
         }
 
@@ -639,6 +651,7 @@ extension Asset {
             case .alphaMonarch: "42D4CD1B-F1D2-4F2E-8DD2-32082D136EED"
             case .gemma2b: "52783FCC-3889-4E83-BAEF-83548DEFF767"
             case .gemma7b: "20AE4DEE-EADE-46C0-A75A-E26E142FA356"
+            case .dolphinCoder: "80D5B47C-E4ED-47B1-B1D3-F0EE0258670A"
             }
         }
 
