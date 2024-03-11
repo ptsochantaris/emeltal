@@ -3,21 +3,6 @@ import Ink
 import SwiftUI
 import WebKit
 
-private let parser = MarkdownParser()
-
-private extension String {
-    var markdownToHtml: String {
-        let source = trimmingCharacters(in: .whitespacesAndNewlines)
-        if source.isEmpty {
-            return ""
-        }
-        return parser.html(from: source)
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "'", with: "\\'")
-            .replacingOccurrences(of: "\n", with: "\\n")
-    }
-}
-
 #if os(macOS)
     struct WebView: NSViewRepresentable {
         let messageLog: MessageLog
@@ -42,12 +27,24 @@ extension WebView {
         var displayedBuildingCount = 0
 
         private let queue = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
+        private let parser = MarkdownParser()
+
+        private func markdownToHtml(_ markdown: String) -> String {
+            let source = markdown.trimmingCharacters(in: .whitespacesAndNewlines)
+            if source.isEmpty {
+                return ""
+            }
+            return parser.html(from: source)
+                .replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "'", with: "\\'")
+                .replacingOccurrences(of: "\n", with: "\\n")
+        }
 
         func update(from messageLog: MessageLog) {
             let html1: String?
             let newHistoryCount = messageLog.history.count
             if displayedHistoryCount != newHistoryCount {
-                html1 = messageLog.history.markdownToHtml
+                html1 = markdownToHtml(messageLog.history)
                 displayedHistoryCount = newHistoryCount
             } else {
                 html1 = nil
@@ -56,7 +53,7 @@ extension WebView {
             let html2: String?
             let newBuildingCount = messageLog.newText.count
             if displayedBuildingCount != newBuildingCount {
-                html2 = messageLog.newText.markdownToHtml
+                html2 = markdownToHtml(messageLog.newText)
                 displayedBuildingCount = newBuildingCount
             } else {
                 html2 = nil

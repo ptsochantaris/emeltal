@@ -26,6 +26,7 @@ final class ClientConnector: EmeltalConnector {
         let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
 
         state = .searching
+        let queue = networkQueue
         browser?.browseResultsChangedHandler = { [weak self] results, _ in
             Task { @NetworkActor [weak self] in
                 guard let self, case .searching = state, let result = results.first else { return }
@@ -61,10 +62,10 @@ final class ClientConnector: EmeltalConnector {
                         }
                     }
                 }
-                connection.start(queue: Self.networkQueue)
+                connection.start(queue: queue)
             }
         }
-        browser?.start(queue: Self.networkQueue)
+        browser?.start(queue: queue)
         return inputStream
     }
 }

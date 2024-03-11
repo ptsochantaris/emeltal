@@ -4,6 +4,7 @@ import SwiftUI
 #if canImport(AppKit)
     import Carbon.HIToolbox.Events
 
+    @MainActor
     struct PushButton: NSViewRepresentable {
         private let view: MouseTracker
 
@@ -17,11 +18,12 @@ import SwiftUI
 
         func updateNSView(_: MouseTracker, context _: Context) {}
 
+        @MainActor
         final class MouseTracker: NSView {
             var handler: (Bool) -> Void
 
             private var pushed = false
-            private var monitor: Any?
+            private nonisolated(unsafe) var monitor: Any?
 
             init(handler: @escaping (Bool) -> Void, pressed _: Bool = false) {
                 self.handler = handler
@@ -42,10 +44,14 @@ import SwiftUI
                 }
             }
 
-            deinit {
+            private nonisolated func shutdown() {
                 if let monitor {
                     NSEvent.removeMonitor(monitor)
                 }
+            }
+
+            deinit {
+                shutdown()
                 log("PushButton deinit")
             }
 
@@ -76,6 +82,7 @@ import SwiftUI
 
 #elseif canImport(UIKit)
 
+    @MainActor
     struct PushButton: UIViewRepresentable {
         private let view: MouseTracker
 

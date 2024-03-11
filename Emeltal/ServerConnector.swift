@@ -20,6 +20,7 @@ final class ServerConnector: EmeltalConnector {
         listener = try! NWListener(service: service, using: EmeltalProtocol.params)
 
         let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
+        let queue = networkQueue
 
         listener?.newConnectionHandler = { [weak self] connection in
             connection.stateUpdateHandler = { [weak self] change in
@@ -47,7 +48,7 @@ final class ServerConnector: EmeltalConnector {
                     }
                 }
             }
-            connection.start(queue: Self.networkQueue)
+            connection.start(queue: queue)
         }
         listener?.stateUpdateHandler = { state in
             switch state {
@@ -62,7 +63,7 @@ final class ServerConnector: EmeltalConnector {
                 break
             }
         }
-        listener?.start(queue: Self.networkQueue)
+        listener?.start(queue: queue)
         return inputStream
     }
 }

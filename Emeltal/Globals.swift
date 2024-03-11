@@ -10,6 +10,7 @@ let performanceCpuCount = {
     return Int(performanceCpuCount)
 }()
 
+@MainActor
 enum Persisted {
     @AppStorage("_textOnly") static var _textOnly = false
     @AppStorage("_floatingMode") static var _floatingMode = false

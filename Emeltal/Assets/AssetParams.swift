@@ -1,7 +1,7 @@
 import Foundation
 
 extension Asset {
-    struct Params: Codable {
+    struct Params: Codable, Sendable {
         static let currentVersion = 4
 
         enum Descriptors {

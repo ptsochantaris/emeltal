@@ -1,8 +1,9 @@
-import Foundation
+@preconcurrency import Foundation
 
+@MainActor
 @Observable
-final class Asset: Codable, Identifiable {
-    enum Status: Codable {
+final class Asset: Codable, Identifiable, Sendable {
+    enum Status: Codable, Sendable {
         case checking, available, installed, notReady
     }
 

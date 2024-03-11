@@ -129,6 +129,7 @@ extern "C" {
     };
 
     enum llama_pooling_type {
+        LLAMA_POOLING_TYPE_UNSPECIFIED = -1,
         LLAMA_POOLING_TYPE_NONE = 0,
         LLAMA_POOLING_TYPE_MEAN = 1,
         LLAMA_POOLING_TYPE_CLS  = 2,
@@ -162,7 +163,7 @@ extern "C" {
     // - embd   : token embeddings (i.e. float vector of size n_embd) (used when token is NULL)
     // - pos    : the positions of the respective token in the sequence
     // - seq_id : the sequence to which the respective token belongs
-    // - logits : if zero, the logits for the respective token will not be output
+    // - logits : if zero, the logits (and/or the embeddings) for the respective token will not be output
     //
     typedef struct llama_batch {
         int32_t n_tokens;
@@ -172,7 +173,7 @@ extern "C" {
         llama_pos    *  pos;
         int32_t      *  n_seq_id;
         llama_seq_id ** seq_id;
-        int8_t       *  logits;
+        int8_t       *  logits; // TODO: rename this to "output"
 
         // NOTE: helpers for smooth API transition - can be deprecated in the future
         //       for future-proof code, use the above fields instead and ignore everything below
@@ -234,9 +235,13 @@ extern "C" {
         uint32_t seed;              // RNG seed, -1 for random
         uint32_t n_ctx;             // text context, 0 = from model
         uint32_t n_batch;           // prompt processing maximum batch size
+        uint32_t n_parallel;        // number of parallel sequences (i.e. distinct states for recurrent models)
         uint32_t n_threads;         // number of threads to use for generation
         uint32_t n_threads_batch;   // number of threads to use for batch processing
-        int32_t  rope_scaling_type; // RoPE scaling type, from `enum llama_rope_scaling_type`
+
+        enum llama_rope_scaling_type rope_scaling_type; // RoPE scaling type, from `enum llama_rope_scaling_type`
+        enum llama_pooling_type      pooling_type;      // whether to pool (sum) embedding results by sequence id
+                                                        // (ignored if no pooling layer)
 
         // ref: https://github.com/ggerganov/llama.cpp/pull/2054
         float    rope_freq_base;   // RoPE base frequency, 0 = from model
@@ -256,9 +261,8 @@ extern "C" {
 
         // Keep the booleans together to avoid misalignment during copy-by-value.
         bool logits_all;  // the llama_decode() call computes all logits, not just the last one (DEPRECATED - set llama_batch.logits instead)
-        bool embedding;   // embedding mode only
+        bool embeddings;  // if true, extract embeddings (together with logits)
         bool offload_kqv; // whether to offload the KQV ops (including the KV cache) to GPU
-        bool do_pooling;  // whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
 
         // Abort callback
         // if it returns true, execution of llama_decode() will be aborted
@@ -274,7 +278,7 @@ extern "C" {
         bool allow_requantize;       // allow quantizing non-f32/f16 tensors
         bool quantize_output_tensor; // quantize output.weight
         bool only_copy;              // only copy tensors - ftype, allow_requantize and quantize_output_tensor are ignored
-        bool pure;                   // disable k-quant mixtures and quantize all tensors to the same type
+        bool pure;                   // quantize all tensors to the default type
         void * imatrix;              // pointer to importance matrix data
     } llama_model_quantize_params;
 
@@ -373,6 +377,7 @@ extern "C" {
 
     LLAMA_API uint32_t llama_n_ctx      (const struct llama_context * ctx);
     LLAMA_API uint32_t llama_n_batch    (const struct llama_context * ctx);
+    LLAMA_API uint32_t llama_n_max_seq  (const struct llama_context * ctx);
 
     LLAMA_API enum llama_vocab_type llama_vocab_type(const struct llama_model * model);
     LLAMA_API enum llama_rope_type  llama_rope_type (const struct llama_model * model);
@@ -499,7 +504,7 @@ extern "C" {
     // seq_id < 0 : match any sequence
     // p0 < 0     : [0,  p1]
     // p1 < 0     : [p0, inf)
-    LLAMA_API void llama_kv_cache_seq_rm(
+    LLAMA_API bool llama_kv_cache_seq_rm(
             struct llama_context * ctx,
                     llama_seq_id   seq_id,
                        llama_pos   p0,
@@ -638,6 +643,10 @@ extern "C" {
     // n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)
     LLAMA_API void llama_set_n_threads(struct llama_context * ctx, uint32_t n_threads, uint32_t n_threads_batch);
 
+    // Set whether to use causal attention or not
+    // If set to true, the model will only attend to the past tokens
+    LLAMA_API void llama_set_causal_attn(struct llama_context * ctx, bool causal_attn);
+
     // Set abort callback
     LLAMA_API void llama_set_abort_callback(struct llama_context * ctx, ggml_abort_callback abort_callback, void * abort_callback_data);
 
@@ -652,13 +661,19 @@ extern "C" {
     // llama_get_logits(ctx) + i*n_vocab
     LLAMA_API float * llama_get_logits_ith(struct llama_context * ctx, int32_t i);
 
-    // Get the embeddings for the input
-    // shape: [n_embd] (1-dimensional)
+    // Get all output token embeddings
+    // shape: [n_tokens*n_embd] (1-dimensional)
     LLAMA_API float * llama_get_embeddings(struct llama_context * ctx);
 
-    // Get the embeddings for the ith sequence
+    // Get the embeddings for the ith token
     // llama_get_embeddings(ctx) + i*n_embd
+    // shape: [n_embd] (1-dimensional)
     LLAMA_API float * llama_get_embeddings_ith(struct llama_context * ctx, int32_t i);
+
+    // Get the embeddings for a sequence id
+    // Returns NULL if pooling_type is LLAMA_POOLING_TYPE_NONE
+    // shape: [n_embd] (1-dimensional)
+    LLAMA_API float * llama_get_embeddings_seq(struct llama_context * ctx, llama_seq_id seq_id);
 
     //
     // Vocab

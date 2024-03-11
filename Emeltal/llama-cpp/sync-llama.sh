@@ -22,6 +22,7 @@ cp\
  $LSRC/ggml-metal.metal\
  $LSRC/ggml-quants.c\
  $LSRC/ggml-quants.h\
+ $LSRC/ggml-common.h\
  $LSRC/ggml.c\
  $LSRC/ggml.h\
  $LSRC/llama.cpp\

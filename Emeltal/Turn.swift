@@ -42,6 +42,7 @@ final class Turn: Codable {
         }
     }
 
+    @GGMLActor
     private static let singleTokenBatch: llama_batch = {
         var b = llama_batch_init(1, 0, 1)
         b.n_tokens = 1
@@ -51,6 +52,7 @@ final class Turn: Codable {
         return b
     }()
 
+    @GGMLActor
     func appendAndPredict(token: llama_token, in context: OpaquePointer, pos: Int) -> UnsafeMutablePointer<Float> {
         // print("+\(pos):[\(token)] ", terminator: "")
         Self.singleTokenBatch.token[0] = token

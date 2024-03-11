@@ -59,7 +59,7 @@ extension Asset {
         }
     }
 
-    enum Category: Int, Identifiable, Codable, CaseIterable {
+    enum Category: Int, Identifiable, Codable, CaseIterable, Sendable {
         case dolphinMixtral = 100,
              dolphin70b = 200,
              dolphinTiny = 300,
@@ -159,6 +159,10 @@ extension Asset {
             let excessBytes: Int64
 
             var warningMessage: String? {
+                if excessBytes > 0 {
+                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
+                }
+
                 if offloadKvCache {
                     return nil
                 }
@@ -176,10 +180,6 @@ extension Asset {
 
                 if offloadAsr {
                     return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat"
-                }
-
-                if excessBytes > 0 {
-                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
                 }
 
                 return "Emeltal won't use Metal at all. It will work but will probably be slow"
@@ -216,29 +216,31 @@ extension Asset {
             return Int64((kvCache * 1_048_576).rounded(.up))
         }
 
+        // TODO: Installing a new model does not update the selector if going back from the "grid" icon
+
         var usage: GpuUsage {
             let layerSize: Int64 = switch self {
-            case .dolphinMixtral: 1_350_000_000
-            case .deepSeekCoder33: 600_000_000
+            case .dolphinMixtral: 1_100_000_000
+            case .deepSeekCoder33: 680_000_000
             case .dolphinCoder: 630_000_000
-            case .deepSeekCoder7: 330_000_000
-            case .sauerkrautSolar: 260_000_000
+            case .deepSeekCoder7: 240_000_000
+            case .sauerkrautSolar: 180_000_000
             case .dolphinTiny: 48_000_000
-            case .mythoMax: 410_000_000
+            case .mythoMax: 270_000_000
             case .whisper: 1
-            case .dolphin70b: 608_000_000
-            case .openChat: 290_000_000
-            case .nousHermesMixtral: 1_350_000_000
-            case .fusionNetDpo: 610_000_000
-            case .smaug72: 640_000_000
+            case .dolphin70b: 660_000_000
+            case .openChat: 180_000_000
+            case .nousHermesMixtral: 1_130_000_000
+            case .fusionNetDpo: 420_000_000
+            case .smaug72: 720_000_000
             case .smaug34: 450_000_000
             case .codeLlama70b: 700_000_000
             case .senku70b: 650_000_000
             case .miniCpmOpenHermes: 40_000_000
-            case .samantha70b: 640_000_000
-            case .samantha7b: 260_000_000
+            case .samantha70b: 650_000_000
+            case .samantha7b: 280_000_000
             case .neuralStory7b: 300_000_000
-            case .everyoneCoder: 480_000_000
+            case .everyoneCoder: 680_000_000
             case .alphaMonarch: 280_000_000
             case .gemma2b: 100_000_000
             case .gemma7b: 230_000_000
@@ -277,16 +279,6 @@ extension Asset {
             let excessBytes = max(0, totalRequiredMemory - physicalMemory)
 
             guard let memoryBytes, asrBytes < memoryBytes.max else {
-                return GpuUsage(layersUsed: 0,
-                                layersTotal: totalLayers,
-                                offloadAsr: false,
-                                offloadKvCache: false,
-                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
-                                gpuUsageEstimateBytes: 0,
-                                excessBytes: excessBytes)
-            }
-
-            if memoryBytes.unifiedMemory, totalRequiredMemory > physicalMemory {
                 return GpuUsage(layersUsed: 0,
                                 layersTotal: totalLayers,
                                 offloadAsr: false,

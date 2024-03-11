@@ -1,10 +1,10 @@
 import Accelerate
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
 import Foundation
 
 final actor Mic: NSObject {
-    enum State: Equatable {
+    enum State: Equatable, Sendable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
             case .quiet:
@@ -109,12 +109,6 @@ final actor Mic: NSObject {
     private static let fft = FFT(bufferSize: Int(micBufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: transcriptionSampleRate)
     private static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(transcriptionSampleRate), channels: 1, interleaved: true)!
     private static let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
-    private static var voiceFilter = vDSP.Biquad(
-        coefficients: [0.7781271848311052, -1.5562543696622104, 0.7781271848311052, -1.494679407120035, 0.6178293322043856],
-        channelCount: 1,
-        sectionCount: 1,
-        ofType: Float.self
-    )!
 
     private func addTap(useVoiceDetection: Bool) async throws {
         switch tapState {
@@ -145,6 +139,13 @@ final actor Mic: NSObject {
 
         let audioPointer = convertedBuffer.floatChannelData![0]
         var audioProcessingBuffer = UnsafeMutableBufferPointer(start: audioPointer, count: convertedBufferFrames)
+
+        var voiceFilter = vDSP.Biquad(
+            coefficients: [0.7781271848311052, -1.5562543696622104, 0.7781271848311052, -1.494679407120035, 0.6178293322043856],
+            channelCount: 1,
+            sectionCount: 1,
+            ofType: Float.self
+        )!
 
         input.installTap(onBus: 0, bufferSize: Self.micBufferSize, format: inputFormat) { [weak self] incomingBuffer, _ in
             guard let self else { return }
@@ -189,7 +190,7 @@ final actor Mic: NSObject {
             }
             if error != nil { return }
 
-            Self.voiceFilter.apply(input: audioProcessingBuffer, output: &audioProcessingBuffer)
+            voiceFilter.apply(input: audioProcessingBuffer, output: &audioProcessingBuffer)
 
             let segment = [Float](unsafeUninitializedCapacity: convertedBufferFrames) { buffer, initializedCount in
                 memcpy(buffer.baseAddress, audioPointer, convertedBufferBytes)

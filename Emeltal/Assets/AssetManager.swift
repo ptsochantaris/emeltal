@@ -33,15 +33,15 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     let asset: Asset
 
     private var urlSession: URLSession!
+    private let localModelPath: URL
 
-    init(fetching asset: Asset) {
+    init(fetching asset: Asset) async {
         phase = .boot
         self.asset = asset
+        localModelPath = asset.localModelPath
         super.init()
         urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
-        Task {
-            await startup()
-        }
+        await startup()
     }
 
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {
@@ -59,7 +59,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     nonisolated func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        try? FileManager.default.moveItem(at: location, to: asset.localModelPath)
+        try? FileManager.default.moveItem(at: location, to: localModelPath)
     }
 
     private func handleNetworkError(_ error: Error, in task: URLSessionTask) {
@@ -87,7 +87,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
 
         Task {
-            log("[\(asset.category.displayName)] Downloaded asset to \(asset.localModelPath.path)...")
+            log("[\(asset.category.displayName)] Downloaded asset to \(localModelPath.path)...")
             Task { @MainActor in
                 phase = .done
                 urlSession.invalidateAndCancel()

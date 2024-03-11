@@ -100,14 +100,13 @@ final class LinkState: ModeProvider {
 
         setupConnectionObservation()
 
-        try? await withThrowingTaskGroup(of: Void.self) { group in
+        try? await withThrowingDiscardingTaskGroup { group in
             group.addTask { [weak self] in
                 await self?.mic.warmup()
             }
             group.addTask { [weak self] in
                 try await self?.speaker.warmup()
             }
-            try await group.waitForAll()
         }
     }
 

@@ -181,8 +181,8 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     func mainLoop() async throws {
-        let llm = AssetManager(fetching: asset)
-        let whisper = AssetManager(fetching: Asset(defaultFor: .whisper))
+        let llm = await AssetManager(fetching: asset)
+        let whisper = await AssetManager(fetching: Asset(defaultFor: .whisper))
 
         mode = .loading(managers: [llm, whisper])
 

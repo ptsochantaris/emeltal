@@ -1,7 +1,7 @@
 #if canImport(AppKit)
     import AppKit
 #endif
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
 import Foundation
 

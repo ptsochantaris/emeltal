@@ -50,7 +50,8 @@ final class LlamaContext {
         let gpuUsage = asset.category.usage
         model_params.n_gpu_layers = Int32(gpuUsage.layersUsed)
 
-        guard let model = llama_load_model_from_file(asset.localModelPath.path, model_params) else {
+        let modelPath = await asset.localModelPath.path
+        guard let model = llama_load_model_from_file(modelPath, model_params) else {
             throw "Could not initialise context"
         }
 
@@ -257,7 +258,7 @@ final class LlamaContext {
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 
-        let params = manager.asset.params
+        let params = await manager.asset.params
 
         var utf8Builder = UTF8Builder()
         var failsafeStopDetector: FailsafeStopDetector?
