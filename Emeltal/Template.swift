@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna, gemma
+        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna, gemma, llama3
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .miniCpm, .mistral, .openChat, .userAssistant: false
-            case .alpaca, .chatml, .gemma, .llamaLarge, .vicuna: true
+            case .alpaca, .chatml, .gemma, .llamaLarge, .vicuna, .llama3: true
             }
         }
 
@@ -82,6 +82,13 @@ struct Template {
             case .turn: "GPT4 Correct User: "
             }
 
+        case .llama3:
+            switch step {
+            case .initial: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+            case .turn: "<|start_header_id|>user<|end_header_id|>\n\n"
+            case .cancel: ""
+            }
+
         case .chatml:
             switch step {
             case .initial: "<|im_start|>system\n"
@@ -149,6 +156,14 @@ struct Template {
             case .cancel: ""
             }
 
+        case .llama3:
+            switch step {
+            case .initial, .cancel:
+                "<|eot_id|>\n"
+            case .turn:
+                "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+            }
+                         
         case .llamaLarge:
             switch step {
             case .cancel, .initial: " <step> "
@@ -186,7 +201,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
+        case .gemma, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna, .llama3:
             nil
 
         case .chatml:

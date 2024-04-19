@@ -28,6 +28,11 @@ cp\
  $LSRC/llama.cpp\
  $LSRC/llama.h\
  $LSRC/unicode.h\
+ $LSRC/unicode.cpp\
+ $LSRC/unicode-data.h\
+ $LSRC/unicode-data.cpp\
+ $LSRC/sgemm.h\
+ $LSRC/sgemm.cpp\
  $WSRC/whisper.cpp\
  $WSRC/whisper.h\
  .

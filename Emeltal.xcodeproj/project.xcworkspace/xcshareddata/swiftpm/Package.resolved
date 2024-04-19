@@ -1,4 +1,5 @@
 {
+  "originHash" : "09e66415fea0d144ea5cc0757c7b0e070178b99058f8b3a133a7d7dd86ec0535",
   "pins" : [
     {
       "identity" : "ink",
@@ -19,5 +20,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
