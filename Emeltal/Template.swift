@@ -11,7 +11,7 @@ struct Template {
         var acceptsSystemPrompt: Bool {
             switch self {
             case .miniCpm, .mistral, .openChat, .userAssistant: false
-            case .alpaca, .chatml, .gemma, .llamaLarge, .vicuna, .llama3: true
+            case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .vicuna: true
             }
         }
 
@@ -158,12 +158,12 @@ struct Template {
 
         case .llama3:
             switch step {
-            case .initial, .cancel:
+            case .cancel, .initial:
                 "<|eot_id|>\n"
             case .turn:
                 "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
             }
-                         
+
         case .llamaLarge:
             switch step {
             case .cancel, .initial: " <step> "
@@ -201,7 +201,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna, .llama3:
+        case .gemma, .llama3, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
             nil
 
         case .chatml:

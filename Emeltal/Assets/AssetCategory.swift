@@ -12,7 +12,7 @@ extension Asset {
             case .general:
                 [.sauerkrautSolar, .fusionNetDpo, .nousHermesMixtral, .openChat]
             case .llamas:
-                [.llama3large]
+                [.llama3, .llama3large]
             case .dolphin:
                 [.dolphinMixtral, .dolphinTiny, .dolphin70b]
             case .smaug:
@@ -82,6 +82,7 @@ extension Asset {
              whisper = 1800,
              neuralStory7b = 2000,
              alphaMonarch = 2100,
+             llama3 = 2300,
              llama3large = 2400
 
         var selectable: Bool {
@@ -117,7 +118,7 @@ extension Asset {
             case .everyoneCoder: .alpaca
             case .neuralStory7b: .mistral
             case .alphaMonarch: .alpaca
-            case .llama3large: .llama3
+            case .llama3, .llama3large: .llama3
             }
         }
 
@@ -125,7 +126,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug34, .smaug72, .llama3large:
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug34, .smaug72:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -190,6 +191,7 @@ extension Asset {
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
             case .dolphinMixtral: 4096
+            case .llama3: 1024
             case .llama3large: 1280
             case .dolphinTiny: 89
             case .fusionNetDpo: 4096
@@ -215,30 +217,31 @@ extension Asset {
         // TODO: Installing a new model does not update the selector if going back from the "grid" icon
 
         var usage: GpuUsage {
-            let layerSize: Int64 = switch self {
-            case .dolphinMixtral: 1_070_000_000
-            case .deepSeekCoder33: 460_000_000
-            case .dolphinCoder: 350_000_000
-            case .deepSeekCoder7: 160_000_000
-            case .sauerkrautSolar: 160_000_000
-            case .dolphinTiny: 48_000_000
-            case .mythoMax: 260_000_000
+            let layerSizeM: Int64 = switch self {
+            case .dolphinMixtral: 1070
+            case .deepSeekCoder33: 460
+            case .dolphinCoder: 350
+            case .deepSeekCoder7: 160
+            case .sauerkrautSolar: 160
+            case .dolphinTiny: 48
+            case .mythoMax: 260
             case .whisper: 1
-            case .dolphin70b: 610_000_000
-            case .openChat: 170_000_000
-            case .nousHermesMixtral: 1_100_000_000
-            case .fusionNetDpo: 320_000_000
-            case .smaug72: 610_000_000
-            case .smaug34: 420_000_000
-            case .codeLlama70b: 610_000_000
-            case .senku70b: 610_000_000
-            case .miniCpmOpenHermes: 60_000_000
-            case .llama3large: 600_000_000
-            case .samantha70b: 600_000_000
-            case .samantha7b: 210_000_000
-            case .neuralStory7b: 240_000_000
-            case .everyoneCoder: 460_000_000
-            case .alphaMonarch: 200_000_000
+            case .dolphin70b: 610
+            case .openChat: 170
+            case .nousHermesMixtral: 1100
+            case .fusionNetDpo: 320
+            case .smaug72: 610
+            case .smaug34: 420
+            case .codeLlama70b: 610
+            case .senku70b: 610
+            case .miniCpmOpenHermes: 60
+            case .llama3large: 600
+            case .llama3: 170
+            case .samantha70b: 600
+            case .samantha7b: 210
+            case .neuralStory7b: 240
+            case .everyoneCoder: 460
+            case .alphaMonarch: 200
             }
 
             let totalLayers: Int64 = switch self {
@@ -265,9 +268,11 @@ extension Asset {
             case .everyoneCoder: 63
             case .alphaMonarch: 33
             case .llama3large: 81
+            case .llama3: 33
             }
 
             let asrBytes: Int64 = 3_500_000_000
+            let layerSize = layerSizeM * 1_000_000
             let totalRequiredMemory = (totalLayers * layerSize) + asrBytes + kvBytes
             let physicalMemory = Int64(ProcessInfo.processInfo.physicalMemory)
             let excessBytes = max(0, totalRequiredMemory - physicalMemory)
@@ -341,7 +346,7 @@ extension Asset {
         var eosOverrides: Set<Int32>? {
             switch self {
             case .codeLlama70b: [32015]
-            case .llama3large: [128009]
+            case .llama3large: [128_009]
             default: nil
             }
         }
@@ -371,6 +376,7 @@ extension Asset {
             case .alphaMonarch: "4.8 GB"
             case .dolphinCoder: "13.1 GB"
             case .llama3large: "50.1 GB"
+            case .llama3: "5.8 GB"
             }
         }
 
@@ -398,14 +404,15 @@ extension Asset {
             case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
             case .alphaMonarch: "An experimental model with a very high AGI bechmark quotient, which may also be good for creative writing or roleplay."
             case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
-            case .llama3large: "The latest Llama-3 model from Meta"
+            case .llama3large: "The large version of the latest Llama-3 model from Meta"
+            case .llama3: "The compact version of the latest Llama-3 model from Meta"
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72, .llama3large: 1024
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -497,6 +504,7 @@ extension Asset {
             case .alphaMonarch: "https://huggingface.co/mlabonne/AlphaMonarch-7B"
             case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             case .llama3large: "https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct"
+            case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
             }
             return URL(string: uri)!
         }
@@ -526,6 +534,7 @@ extension Asset {
             case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
             case .llama3large: "Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
+            case .llama3: "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
             }
 
             if case .senku70b = self {
@@ -565,6 +574,7 @@ extension Asset {
             case .alphaMonarch: "Alpha Monarch"
             case .dolphinCoder: "Dolphin Coder"
             case .llama3large: "Llama 3 Large"
+            case .llama3: "Llama 3"
             }
         }
 
@@ -593,6 +603,7 @@ extension Asset {
             case .alphaMonarch: "Merging descendant"
             case .dolphinCoder: "on StarCoder2 15b"
             case .llama3large: "70b params"
+            case .llama3: "8b params"
             }
         }
 
@@ -621,6 +632,7 @@ extension Asset {
             case .alphaMonarch: "42D4CD1B-F1D2-4F2E-8DD2-32082D136EED"
             case .dolphinCoder: "80D5B47C-E4ED-47B1-B1D3-F0EE0258670A"
             case .llama3large: "27EDFC84-0525-41D1-BF80-64809CA496AC"
+            case .llama3: "3FB96A68-7459-4564-A6D6-F17CEC959D55"
             }
         }
 
