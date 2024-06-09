@@ -35,6 +35,7 @@ cp\
  $LSRC/sgemm.cpp\
  $WSRC/whisper.cpp\
  $WSRC/whisper.h\
+ $WSRC/whisper-mel.hpp\
  .
 
 patch ggml-metal.m < ggml-metal.diff

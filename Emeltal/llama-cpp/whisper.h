@@ -31,8 +31,10 @@
 
 #define WHISPER_SAMPLE_RATE 16000
 #define WHISPER_N_FFT       400
+#define WHISPER_N_FFT_HALF  (WHISPER_N_FFT / 2 + 1)
 #define WHISPER_HOP_LENGTH  160
 #define WHISPER_CHUNK_SIZE  30
+#define WHISPER_N_SAMPLES   (WHISPER_SAMPLE_RATE * WHISPER_CHUNK_SIZE)
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,6 +115,7 @@ extern "C" {
 
     struct whisper_context_params {
         bool  use_gpu;
+        bool  flash_attn;
         int   gpu_device;  // CUDA device
 
         // [EXPERIMENTAL] Token-level timestamps with DTW
@@ -264,22 +267,6 @@ extern "C" {
                        const float * samples,
                                int   n_samples,
                                int   n_threads);
-
-    // Convert RAW PCM audio to log mel spectrogram but applies a Phase Vocoder to speed up the audio x2.
-    // The resulting spectrogram is stored inside the default state of the provided whisper context.
-    // Returns 0 on success
-    WHISPER_API int whisper_pcm_to_mel_phase_vocoder(
-        struct whisper_context * ctx,
-                   const float * samples,
-                           int   n_samples,
-                           int   n_threads);
-
-    WHISPER_API int whisper_pcm_to_mel_phase_vocoder_with_state(
-        struct whisper_context * ctx,
-          struct whisper_state * state,
-                   const float * samples,
-                           int   n_samples,
-                           int   n_threads);
 
     // This can be used to set a custom log mel spectrogram inside the default state of the provided whisper context.
     // Use this instead of whisper_pcm_to_mel() if you want to provide your own log mel spectrogram.
@@ -498,7 +485,6 @@ extern "C" {
 
         // [EXPERIMENTAL] speed-up techniques
         // note: these can significantly reduce the quality of the output
-        bool speed_up;          // speed-up the audio by 2x using Phase Vocoder
         bool debug_mode;        // enable debug_mode provides extra info (eg. Dump log_mel)
         int  audio_ctx;         // overwrite the audio context size (0 = use default)
 
