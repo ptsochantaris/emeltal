@@ -18,7 +18,7 @@ extension Asset {
             case .smaug:
                 [.smaug34, .smaug72]
             case .coding:
-                [.dolphinCoder, .deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
+                [.codestral, .dolphinCoder, .deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
             case .creative:
                 [.mythoMax, .neuralStory7b]
             case .samantha:
@@ -68,6 +68,7 @@ extension Asset {
              openChat = 600,
              nousHermesMixtral = 700,
              mythoMax = 800,
+             codestral = 820,
              dolphinCoder = 850,
              deepSeekCoder33 = 900,
              codeLlama70b = 1000,
@@ -116,7 +117,7 @@ extension Asset {
             case .miniCpmOpenHermes: .miniCpm
             case .samantha7b, .samantha70b, .smaug34: .vicuna
             case .everyoneCoder: .alpaca
-            case .neuralStory7b: .mistral
+            case .neuralStory7b, .codestral: .mistral
             case .alphaMonarch: .alpaca
             case .llama3, .llama3large: .llama3
             }
@@ -124,7 +125,7 @@ extension Asset {
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .codestral:
                 "You are a helpful AI programming assistant."
             case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug34, .smaug72:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
@@ -190,6 +191,7 @@ extension Asset {
             case .deepSeekCoder33: 3968
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
+            case .codestral: 1000 // TODO
             case .dolphinMixtral: 4096
             case .llama3: 1024
             case .llama3large: 1280
@@ -242,6 +244,7 @@ extension Asset {
             case .neuralStory7b: 240
             case .everyoneCoder: 460
             case .alphaMonarch: 200
+            case .codestral: 480
             }
 
             let totalLayers: Int64 = switch self {
@@ -269,6 +272,7 @@ extension Asset {
             case .alphaMonarch: 33
             case .llama3large: 81
             case .llama3: 33
+            case .codestral: 57
             }
 
             let asrBytes: Int64 = 3_500_000_000
@@ -377,6 +381,7 @@ extension Asset {
             case .dolphinCoder: "13.1 GB"
             case .llama3large: "50.1 GB"
             case .llama3: "5.8 GB"
+            case .codestral: "18.3 GB"
             }
         }
 
@@ -393,7 +398,7 @@ extension Asset {
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
-            case .smaug72: "A further finetune of Moreh's finetune of Qwen 72B. Currently top on the HuggingFace leaderboard. Capped at a context of 4,096, but still very bulky."
+            case .smaug72: "A further finetune of Moreh's finetune of Qwen 72B. A regular visitor to the top of the HuggingFace leaderboard. Capped at a context of 4,096, but still very bulky."
             case .smaug34: "A further finetune of the Bagel 34b model. Currently top of the HuggingFace leaderboard for 34b models."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
@@ -406,12 +411,13 @@ extension Asset {
             case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
             case .llama3large: "The large version of the latest Llama-3 model from Meta"
             case .llama3: "The compact version of the latest Llama-3 model from Meta"
+            case .codestral: "The state of the art code assistant from Mistral.AI"
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .codestral: 4096
             case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
@@ -420,7 +426,7 @@ extension Asset {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder:
+            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .codestral:
                 true
             default:
                 false
@@ -505,6 +511,7 @@ extension Asset {
             case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             case .llama3large: "https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct"
             case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
+            case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
             }
             return URL(string: uri)!
         }
@@ -535,6 +542,7 @@ extension Asset {
             case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
             case .llama3large: "Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
             case .llama3: "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
+            case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
             }
 
             if case .senku70b = self {
@@ -575,6 +583,7 @@ extension Asset {
             case .dolphinCoder: "Dolphin Coder"
             case .llama3large: "Llama 3 Large"
             case .llama3: "Llama 3"
+            case .codestral: "Codestral"
             }
         }
 
@@ -604,6 +613,7 @@ extension Asset {
             case .dolphinCoder: "on StarCoder2 15b"
             case .llama3large: "70b params"
             case .llama3: "8b params"
+            case .codestral: "22b params"
             }
         }
 
@@ -633,6 +643,7 @@ extension Asset {
             case .dolphinCoder: "80D5B47C-E4ED-47B1-B1D3-F0EE0258670A"
             case .llama3large: "27EDFC84-0525-41D1-BF80-64809CA496AC"
             case .llama3: "3FB96A68-7459-4564-A6D6-F17CEC959D55"
+            case .codestral: "303D7134-7861-4167-B465-402DA071C685"
             }
         }
 
