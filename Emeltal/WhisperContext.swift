@@ -19,8 +19,11 @@ final class WhisperContext {
         self.context = context
     }
 
-    deinit {
+    func shutdown() {
         whisper_free(context)
+    }
+
+    deinit {
         log("Whisper context deinit")
     }
 

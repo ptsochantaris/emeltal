@@ -117,7 +117,7 @@ extension Asset {
             case .miniCpmOpenHermes: .miniCpm
             case .samantha7b, .samantha70b, .smaug34: .vicuna
             case .everyoneCoder: .alpaca
-            case .neuralStory7b, .codestral: .mistral
+            case .codestral, .neuralStory7b: .mistral
             case .alphaMonarch: .alpaca
             case .llama3, .llama3large: .llama3
             }
@@ -125,7 +125,7 @@ extension Asset {
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .codestral:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
             case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .sauerkrautSolar, .senku70b, .smaug34, .smaug72:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
@@ -191,7 +191,7 @@ extension Asset {
             case .deepSeekCoder33: 3968
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
-            case .codestral: 1000 // TODO
+            case .codestral: 1000
             case .dolphinMixtral: 4096
             case .llama3: 1024
             case .llama3large: 1280
@@ -329,6 +329,7 @@ extension Asset {
                             excessBytes: excessBytes)
         }
 
+        @MainActor
         var memoryStrings: (used: String, max: String, system: String)? {
             guard let memoryBytes else { return nil }
             return (memoryFormatter.string(fromByteCount: memoryBytes.used),
@@ -417,7 +418,7 @@ extension Asset {
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .codestral: 4096
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
             case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b, .smaug34, .smaug72: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
@@ -426,7 +427,7 @@ extension Asset {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .codestral:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder:
                 true
             default:
                 false

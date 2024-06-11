@@ -55,6 +55,7 @@ enum Persisted {
     }
 }
 
+@MainActor
 let sizeFormatter: ByteCountFormatter = {
     let b = ByteCountFormatter()
     b.countStyle = .file
@@ -62,6 +63,7 @@ let sizeFormatter: ByteCountFormatter = {
     return b
 }()
 
+@MainActor
 let memoryFormatter: ByteCountFormatter = {
     let b = ByteCountFormatter()
     b.countStyle = .memory

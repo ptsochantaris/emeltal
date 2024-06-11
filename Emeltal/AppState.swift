@@ -108,6 +108,8 @@ final class AppState: Identifiable, ModeProvider {
         connectionStateObservation.cancel()
         await remote.shutdown()
         await speaker?.shutdown()
+        await llamaContext?.shutdown()
+        await whisperContext?.shutdown()
     }
 
     deinit {

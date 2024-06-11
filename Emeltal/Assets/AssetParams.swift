@@ -32,5 +32,17 @@ extension Asset {
         var frequencyPenatly: Float
         var presentPenatly: Float
         var version: Int?
+
+        static var empty: Params {
+            Params(topK: 0,
+                   topP: 0,
+                   systemPrompt: "",
+                   temperature: 0,
+                   temperatureRange: 0,
+                   temperatureExponent: 0,
+                   repeatPenatly: 0,
+                   frequencyPenatly: 0,
+                   presentPenatly: 0)
+        }
     }
 }

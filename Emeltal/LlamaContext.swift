@@ -30,7 +30,7 @@ final class LlamaContext {
 
     func save(to url: URL) throws {
         let llmStatePath = url.appendingPathComponent("llmState.bin").path.cString(using: .utf8)
-        llama_save_session_file(context, llmStatePath, nil, 0)
+        llama_state_save_file(context, llmStatePath, nil, 0)
 
         let data = try JSONEncoder().encode(turns)
         try data.write(to: url.appendingPathComponent("turns.json"))
@@ -116,8 +116,7 @@ final class LlamaContext {
             log("Warmup complete - Loading state from \(llmState.path)")
 
             var loaded = 0
-            llama_load_session_file(context, llmState.path.cString(using: .utf8), nil, 0, &loaded)
-
+            llama_state_load_file(context, llmState.path.cString(using: .utf8), nil, 0, &loaded)
             let infoData = try Data(contentsOf: turnStates)
             turns = try JSONDecoder().decode([Turn].self, from: infoData)
         } else {
@@ -136,12 +135,15 @@ final class LlamaContext {
         }
     }
 
-    deinit {
+    func shutdown() {
         llama_free(context)
         llama_free_model(model)
         llama_backend_free()
         candidateBuffer.deallocate()
-        log("LLama context deinit")
+    }
+
+    deinit {
+        log("Llama context deinit")
     }
 
     private var predictionTask: Task<Void, Never>?

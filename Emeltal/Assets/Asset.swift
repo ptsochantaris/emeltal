@@ -11,9 +11,13 @@ final class Asset: Codable, Identifiable, Sendable {
     let category: Category
     private(set) var status = Status.checking
 
-    var params: Params {
+    private var booted = false
+
+    var params = Params.empty {
         didSet {
-            Persisted.update(asset: self)
+            if booted {
+                Persisted.update(asset: self)
+            }
         }
     }
 
@@ -108,11 +112,14 @@ final class Asset: Codable, Identifiable, Sendable {
         case params
     }
 
-    func encode(to encoder: Encoder) throws {
+    nonisolated func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(category, forKey: .category)
-        try container.encode(params, forKey: .params)
+        let paramsCopy = MainActor.assumeIsolated {
+            params
+        }
+        try container.encode(paramsCopy, forKey: .params)
     }
 
     init(defaultFor category: Asset.Category) {
@@ -120,9 +127,10 @@ final class Asset: Codable, Identifiable, Sendable {
         self.category = category
         params = category.defaultParams
         updateInstalledStatus()
+        booted = true
     }
 
-    init(from decoder: Decoder) throws {
+    nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         let loadedCategory = try container.decode(Category.self, forKey: .category)
@@ -130,14 +138,17 @@ final class Asset: Codable, Identifiable, Sendable {
 
         let loadedParams = try container.decode(Params.self, forKey: .params)
         let loadedVersion = (loadedParams.version ?? 0)
-        if loadedVersion < Params.currentVersion {
-            var migratedParams = loadedCategory.defaultParams
-            migratedParams.systemPrompt = loadedParams.systemPrompt
-            params = migratedParams
-        } else {
-            params = loadedParams
+        MainActor.assumeIsolated {
+            if loadedVersion < Params.currentVersion {
+                var migratedParams = loadedCategory.defaultParams
+                migratedParams.systemPrompt = loadedParams.systemPrompt
+                params = migratedParams
+            } else {
+                params = loadedParams
+            }
+            updateInstalledStatus()
+            booted = true
         }
-        updateInstalledStatus()
     }
 
     private static var statusCache = [String: (lastcheck: Date, status: Status, task: Task<Status, Never>?)]()
