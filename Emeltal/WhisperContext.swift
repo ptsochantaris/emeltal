@@ -5,7 +5,7 @@ final class WhisperContext {
     private var context: OpaquePointer
     private let manager: AssetManager
 
-    init(manager: AssetManager) async throws {
+    init(manager: AssetManager) async throws(EmeltalError) {
         self.manager = manager
 
         var params = whisper_context_default_params()
@@ -13,7 +13,7 @@ final class WhisperContext {
 
         let modelPath = await manager.asset.localModelPath.path
         guard let context = whisper_init_from_file_with_params(modelPath, params) else {
-            throw "Could not initialise context"
+            throw .message("Could not initialise context")
         }
 
         self.context = context
@@ -60,7 +60,7 @@ final class WhisperContext {
         log("Transcribing audio")
         try samples.withUnsafeBufferPointer { floats in
             if whisper_full(context, params, floats.baseAddress, Int32(floats.count)) < 0 {
-                throw "Failed to run the whisper model"
+                throw EmeltalError.message("Failed to run the whisper model")
             }
         }
         return (0 ..< whisper_full_n_segments(context)).map {

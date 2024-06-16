@@ -36,7 +36,7 @@ final class LlamaContext {
         try data.write(to: url.appendingPathComponent("turns.json"))
     }
 
-    init(manager: AssetManager) async throws {
+    init(manager: AssetManager) async throws(EmeltalError) {
         self.manager = manager
 
         let asset = manager.asset
@@ -52,7 +52,7 @@ final class LlamaContext {
 
         let modelPath = await asset.localModelPath.path
         guard let model = llama_load_model_from_file(modelPath, model_params) else {
-            throw "Could not initialise context"
+            throw .message("Could not initialise context")
         }
 
         self.model = model
@@ -89,7 +89,7 @@ final class LlamaContext {
         ctx_params.offload_kqv = gpuUsage.offloadKvCache
 
         guard let newContext = llama_new_context_with_model(model, ctx_params) else {
-            throw "Could not initialise context"
+            throw .message("Could not initialise context")
         }
 
         context = newContext

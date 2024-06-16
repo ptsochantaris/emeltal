@@ -674,7 +674,7 @@ static bool ggml_metal_supports_op(const struct ggml_metal_context * ctx, const 
                 case GGML_UNARY_OP_GELU:
                 case GGML_UNARY_OP_GELU_QUICK:
                 case GGML_UNARY_OP_SILU:
-                    return true;
+                    return ggml_is_contiguous(op->src[0]);
                 default:
                     return false;
             }
@@ -1750,9 +1750,10 @@ static enum ggml_status ggml_metal_graph_compute(
                         // ne21 = n_rows
                         const int dst_rows = ne20*ne21;
                         const int dst_rows_min = n_as;
+                        const int dst_rows_max = (ctx->device.maxThreadgroupMemoryLength - 32 - 8192)/4;
 
                         // max size of the rowids array in the kernel shared buffer
-                        GGML_ASSERT(dst_rows <= 2048);
+                        GGML_ASSERT(dst_rows <= dst_rows_max);
 
                         // for now the matrix-matrix multiplication kernel only works on A14+/M1+ SoCs
                         // AMD GPU and older A-chips will reuse matrix-vector multiplication kernel
@@ -2719,10 +2720,10 @@ static enum ggml_status ggml_metal_graph_compute(
 
         MTLCommandBufferStatus status = [command_buffer status];
         if (status != MTLCommandBufferStatusCompleted) {
-            GGML_METAL_LOG_INFO("%s: command buffer failed with status %lu\n", __func__, status);
             return GGML_STATUS_FAILED;
         }
     }
+
     return GGML_STATUS_SUCCESS;
 }
 
@@ -2914,12 +2915,6 @@ GGML_CALL static size_t ggml_backend_metal_buffer_type_get_max_size(ggml_backend
     UNUSED(buft);
 }
 
-GGML_CALL static bool ggml_backend_metal_buffer_type_supports_backend(ggml_backend_buffer_type_t buft, ggml_backend_t backend) {
-    return ggml_backend_is_metal(backend) || ggml_backend_is_cpu(backend);
-
-    UNUSED(buft);
-}
-
 GGML_CALL static bool ggml_backend_metal_buffer_type_is_host(ggml_backend_buffer_type_t buft) {
     return true;
 
@@ -2934,7 +2929,6 @@ GGML_CALL ggml_backend_buffer_type_t ggml_backend_metal_buffer_type(void) {
             /* .get_alignment    = */ ggml_backend_metal_buffer_type_get_alignment,
             /* .get_max_size     = */ ggml_backend_metal_buffer_type_get_max_size,
             /* .get_alloc_size   = */ NULL, // defaults to ggml_nbytes
-            /* .supports_backend = */ ggml_backend_metal_buffer_type_supports_backend,
             /* .is_host          = */ ggml_backend_metal_buffer_type_is_host,
         },
         /* .context = */ NULL,
@@ -3049,6 +3043,12 @@ GGML_CALL static bool ggml_backend_metal_supports_op(ggml_backend_t backend, con
     return ggml_metal_supports_op(metal_ctx, op);
 }
 
+GGML_CALL static bool ggml_backend_metal_supports_buft(ggml_backend_t backend, ggml_backend_buffer_type_t buft) {
+    return buft->iface.get_name == ggml_backend_metal_buffer_type_get_name;
+
+    UNUSED(backend);
+}
+
 static struct ggml_backend_i ggml_backend_metal_i = {
     /* .get_name                = */ ggml_backend_metal_name,
     /* .free                    = */ ggml_backend_metal_free,
@@ -3059,9 +3059,11 @@ static struct ggml_backend_i ggml_backend_metal_i = {
     /* .synchronize             = */ NULL,
     /* .graph_plan_create       = */ NULL,
     /* .graph_plan_free         = */ NULL,
+    /* .graph_plan_update       = */ NULL,
     /* .graph_plan_compute      = */ NULL,
     /* .graph_compute           = */ ggml_backend_metal_graph_compute,
     /* .supports_op             = */ ggml_backend_metal_supports_op,
+    /* .supports_buft           = */ ggml_backend_metal_supports_buft,
     /* .offload_op              = */ NULL,
     /* .event_new               = */ NULL,
     /* .event_free              = */ NULL,

@@ -1,9 +1,8 @@
 import Accelerate
 @preconcurrency import AVFoundation
-import Combine
 import Foundation
 
-final actor Mic: NSObject {
+final actor Mic {
     enum State: Equatable, Sendable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
@@ -47,29 +46,29 @@ final actor Mic: NSObject {
 
                 case .talking:
                     log("Starting to listen")
-                    statePublisher.send(state)
+                    stateStream.continuation.yield(state)
                 }
 
             case let .talking(voiceDetectedCurrent, _):
                 switch state {
                 case .quiet:
                     log("Finished speaking")
-                    statePublisher.send(.quiet(prefixBuffer: []))
+                    stateStream.continuation.yield(.quiet(prefixBuffer: []))
 
                 case let .talking(voiceDetectedNew, _):
                     if voiceDetectedCurrent, !voiceDetectedNew {
                         log("Stopped or paused?")
-                        statePublisher.send(state)
+                        stateStream.continuation.yield(state)
                     } else if !voiceDetectedCurrent, voiceDetectedNew {
                         log("Was a pause, still listening")
-                        statePublisher.send(state)
+                        stateStream.continuation.yield(state)
                     }
                 }
             }
         }
     }
 
-    let statePublisher = CurrentValueSubject<State, Never>(.quiet(prefixBuffer: []))
+    let stateStream = AsyncStream.makeStream(of: State.self, bufferingPolicy: .unbounded)
 
     private var buffer = [Float]()
 

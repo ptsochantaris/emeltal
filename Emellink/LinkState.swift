@@ -1,5 +1,4 @@
 import AVFoundation
-import Combine
 import Foundation
 import Network
 import SwiftUI
@@ -14,8 +13,8 @@ final class LinkState: ModeProvider {
     private let speaker = try! Speaker()
     private let mic = Mic()
 
-    private var connectionStateObservation: Cancellable!
-    private var micObservation: Cancellable!
+    private var connectionStateObservation: Task<Void, Never>!
+    private var micObservation: Task<Void, Never>!
 
     var messageLog = MessageLog(string: "")
     var multiLineText = ""
@@ -186,15 +185,16 @@ final class LinkState: ModeProvider {
     }
 
     private func setupMicObservation() {
-        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
-            guard let self else { return }
-            if case let .listening(micState) = remoteAppMode {
-                if newState != micState {
-                    log("New mic state: \(newState)")
-                    remoteAppMode = .listening(state: newState)
-                    if case .quiet = newState, remoteActivationState == .voiceActivated {
-                        Task {
-                            await self.endMic(sendData: true)
+        micObservation = Task {
+            for await newState in mic.stateStream.stream {
+                if case let .listening(micState) = remoteAppMode {
+                    if newState != micState {
+                        log("New mic state: \(newState)")
+                        remoteAppMode = .listening(state: newState)
+                        if case .quiet = newState, remoteActivationState == .voiceActivated {
+                            Task {
+                                await endMic(sendData: true)
+                            }
                         }
                     }
                 }
@@ -203,15 +203,16 @@ final class LinkState: ModeProvider {
     }
 
     private func setupConnectionObservation() {
-        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
-            log("Received a state update: \(newState)")
-            guard let self else { return }
-            if case .connected = newState {
-                // all good
-            } else if case .connected = connectionState {
-                remoteAppMode = .booting
+        connectionStateObservation = Task {
+            for await newState in remote.stateStream.stream {
+                log("Received a state update: \(newState)")
+                if case .connected = newState {
+                    // all good
+                } else if case .connected = connectionState {
+                    remoteAppMode = .booting
+                }
+                connectionState = newState
             }
-            connectionState = newState
         }
     }
 

@@ -1,7 +1,7 @@
 #if canImport(AppKit)
     import AppKit
 #endif
-@preconcurrency import AVFoundation
+@preconcurrency import AVFAudio
 import Combine
 import Foundation
 
@@ -40,48 +40,32 @@ final actor Speaker {
         }
     }
 
-    @MainActor
-    private final class UtteranceWatcher: NSObject, AVSpeechSynthesizerDelegate {
-        @objc private dynamic var utterances = Set<AVSpeechUtterance>()
+    private final actor UtteranceWatcher: NSObject, AVSpeechSynthesizerDelegate {
+        private var utterances = Set<AVSpeechUtterance>()
 
         private func remove(utterance: AVSpeechUtterance) { utterances.remove(utterance) }
-
-        override nonisolated init() {}
 
         func add(utterance: AVSpeechUtterance) { utterances.insert(utterance) }
 
         func reset() { utterances.removeAll() }
 
         nonisolated func speechSynthesizer(_: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-            Task { @MainActor in
-                remove(utterance: utterance)
+            Task {
+                await remove(utterance: utterance)
             }
         }
 
         nonisolated func speechSynthesizer(_: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-            Task { @MainActor in
-                remove(utterance: utterance)
+            Task {
+                await remove(utterance: utterance)
             }
         }
 
         func waitForZero() async {
-            var observation: Cancellable?
-            var pending = true
-            await withCheckedContinuation { [weak self] (continuation: CheckedContinuation<Void, Never>) in
-                if let self {
-                    observation = publisher(for: \.utterances).filter(\.isEmpty).sink { _ in
-                        if pending {
-                            pending = false
-                            continuation.resume()
-                        }
-                    }
-                } else {
-                    continuation.resume()
-                }
+            while !utterances.isEmpty {
+                try? await Task.sleep(for: .seconds(0.1))
             }
-            withExtendedLifetime(observation) {
-                log("Speaker stopped speaking")
-            }
+            log("Speaker stopped speaking")
         }
 
         deinit {
@@ -89,7 +73,7 @@ final actor Speaker {
         }
     }
 
-    init() throws {
+    init() throws(EmeltalError) {
         #if os(iOS)
             synth.usesApplicationAudioSession = true
         #endif
@@ -107,7 +91,7 @@ final actor Speaker {
                 log("Fallback voice: \(anyVoice.identifier)")
                 voice = anyVoice
             } else {
-                throw "Could not find any TTS voices in the system (counted: \(allVoices.count))"
+                throw .message("Could not find any TTS voices in the system (counted: \(allVoices.count))")
             }
         }
     }

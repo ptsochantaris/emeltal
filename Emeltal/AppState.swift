@@ -1,5 +1,4 @@
 import AVFoundation
-import Combine
 import Foundation
 import Network
 import SwiftUI
@@ -87,9 +86,10 @@ final class AppState: Identifiable, ModeProvider {
     init(asset: Asset) {
         self.asset = asset
 
-        connectionStateObservation = remote.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] state in
-            guard let self else { return }
-            isRemoteConnected = state.isConnectionActive
+        connectionStateObservation = Task {
+            for await state in remote.stateStream.stream {
+                isRemoteConnected = state.isConnectionActive
+            }
         }
 
         Task {
@@ -121,10 +121,10 @@ final class AppState: Identifiable, ModeProvider {
     private var template: Template!
     private var speaker: Speaker?
     private let mic = Mic()
-    private var micObservation: Cancellable?
+    private var micObservation: Task<Void, Never>?
 
     private let remote = ServerConnector()
-    private var connectionStateObservation: Cancellable!
+    private var connectionStateObservation: Task<Void, Never>!
 
     private func processFloatingMode(fromBoot: Bool) {
         if floatingMode {
@@ -295,15 +295,16 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     private func setupMicObservation() {
-        micObservation = mic.statePublisher.receive(on: DispatchQueue.main).sink { [weak self] newState in
-            guard let self else { return }
-            if case let .listening(micState) = mode, newState != micState {
-                if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
-                    Task {
-                        await self.endMic(processOutput: true)
+        micObservation = Task {
+            for await newState in mic.stateStream.stream {
+                if case let .listening(micState) = mode, newState != micState {
+                    if newState == .quiet(prefixBuffer: []), activationState == .voiceActivated {
+                        Task {
+                            await endMic(processOutput: true)
+                        }
                     }
+                    mode = .listening(state: newState)
                 }
-                mode = .listening(state: newState)
             }
         }
     }

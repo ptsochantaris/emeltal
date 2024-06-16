@@ -1,4 +1,4 @@
-@preconcurrency import Foundation
+import Foundation
 
 @MainActor
 @Observable

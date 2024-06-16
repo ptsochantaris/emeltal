@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Network
 import PopTimer
@@ -97,7 +96,7 @@ class EmeltalConnector {
         }
     }
 
-    final let statePublisher = CurrentValueSubject<State, Never>(State.boot)
+    final let stateStream = AsyncStream.makeStream(of: State.self, bufferingPolicy: .unbounded)
 
     nonisolated init() {}
 
@@ -110,7 +109,7 @@ class EmeltalConnector {
 
     final var state = State.boot {
         didSet {
-            statePublisher.send(state)
+            stateStream.continuation.yield(state)
             log("[Connector] State: \(state)")
             if case .connected = state {
                 popTimer.push()
