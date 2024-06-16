@@ -18,6 +18,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
                 .background(Image(.canvas).resizable().ignoresSafeArea())
                 .toolbar {
+                    #if os(iOS) || os(visionOS)
                     if horizontalSizeClass == .compact {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
@@ -27,6 +28,7 @@ struct ContentView: View {
                             }
                         }
                     }
+                    #endif
                 }
                 .navigationTitle("Emeltal")
                 .toolbarTitleDisplayMode(.inline)
@@ -36,6 +38,7 @@ struct ContentView: View {
                 WebView(messageLog: state.messageLog)
                     .navigationBarBackButtonHidden()
                     .toolbar {
+                        #if os(iOS) || os(visionOS)
                         if horizontalSizeClass == .compact {
                             ToolbarItem(placement: .topBarLeading) {
                                 Button {
@@ -45,7 +48,8 @@ struct ContentView: View {
                                 }
                             }
                         }
-
+                        #endif
+                        
                         ToolbarItem {
                             Button {
                                 state.textOnly.toggle()
