@@ -14,7 +14,7 @@ let performanceCpuCount = {
 enum Persisted {
     @AppStorage("_textOnly") static var _textOnly = false
     @AppStorage("_floatingMode") static var _floatingMode = false
-    @AppStorage("_assetSettings") static var selectedAssetId: Asset.Category.ID?
+    @AppStorage("_assetSettings") static var selectedAssetId: Asset.Variant.ID?
     @AppStorage("_assetListData") static var assetListData: Data?
 
     private static var _cachedAssetList: [Asset]?

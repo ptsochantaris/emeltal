@@ -8,7 +8,7 @@ final class Asset: Codable, Identifiable, Sendable {
     }
 
     let id: String
-    let category: Category
+    let category: Variant
     private(set) var status = Status.checking
 
     private var booted = false
@@ -40,7 +40,7 @@ final class Asset: Codable, Identifiable, Sendable {
 
         if let section {
             if section == .deprecated {
-                let allSupportedCategories = Category.allCases.filter(\.selectable)
+                let allSupportedCategories = Variant.allCases.filter(\.selectable)
                 assetList = persistedAssets.filter { persistedAsset in
                     guard persistedAsset.status == .installed else { return false }
                     let isSupported = allSupportedCategories.contains { persistedAsset.id == $0.id }
@@ -58,7 +58,7 @@ final class Asset: Codable, Identifiable, Sendable {
                 }
             }
         } else {
-            let allSupportedCategories = Category.allCases.filter(\.selectable)
+            let allSupportedCategories = Variant.allCases.filter(\.selectable)
             let supportedList = allSupportedCategories.map { supportedCategory in
                 if let installed = persistedAssets.first(where: { $0.id == supportedCategory.id }) {
                     installed
@@ -122,7 +122,7 @@ final class Asset: Codable, Identifiable, Sendable {
         try container.encode(paramsCopy, forKey: .params)
     }
 
-    init(defaultFor category: Asset.Category) {
+    init(defaultFor category: Asset.Variant) {
         id = category.id
         self.category = category
         params = category.defaultParams
@@ -133,7 +133,7 @@ final class Asset: Codable, Identifiable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
-        let loadedCategory = try container.decode(Category.self, forKey: .category)
+        let loadedCategory = try container.decode(Variant.self, forKey: .category)
         category = loadedCategory
 
         let loadedParams = try container.decode(Params.self, forKey: .params)
