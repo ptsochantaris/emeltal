@@ -1,6 +1,8 @@
 import Foundation
+
 #if DEBUG
     import OSLog
+
 #endif
 
 let assistantWidth: CGFloat = 140

@@ -19,15 +19,15 @@ struct ContentView: View {
                 .background(Image(.canvas).resizable().ignoresSafeArea())
                 .toolbar {
                     #if os(iOS) || os(visionOS)
-                    if horizontalSizeClass == .compact {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                preferredColumn = .detail
-                            } label: {
-                                Image(systemName: "text.justify.leading")
+                        if horizontalSizeClass == .compact {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button {
+                                    preferredColumn = .detail
+                                } label: {
+                                    Image(systemName: "text.justify.leading")
+                                }
                             }
                         }
-                    }
                     #endif
                 }
                 .navigationTitle("Emeltal")
@@ -39,17 +39,17 @@ struct ContentView: View {
                     .navigationBarBackButtonHidden()
                     .toolbar {
                         #if os(iOS) || os(visionOS)
-                        if horizontalSizeClass == .compact {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button {
-                                    preferredColumn = .sidebar
-                                } label: {
-                                    Image(systemName: state.mode.iconImageName)
+                            if horizontalSizeClass == .compact {
+                                ToolbarItem(placement: .topBarLeading) {
+                                    Button {
+                                        preferredColumn = .sidebar
+                                    } label: {
+                                        Image(systemName: state.mode.iconImageName)
+                                    }
                                 }
                             }
-                        }
                         #endif
-                        
+
                         ToolbarItem {
                             Button {
                                 state.textOnly.toggle()
