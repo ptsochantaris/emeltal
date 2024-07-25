@@ -52,7 +52,7 @@ final class AppState: Identifiable, ModeProvider {
 
     var isRemoteConnected = false {
         didSet {
-            Task {
+            Task { [isRemoteConnected] in
                 await mic.setRemoteMode(isRemoteConnected)
                 await speaker?.setMute(isRemoteConnected)
             }
@@ -217,7 +217,7 @@ final class AppState: Identifiable, ModeProvider {
             return (l, w)
         }
 
-        let aud = Task.detached { [weak self] () -> Speaker? in
+        let audioTask = Task.detached { [weak self] () -> Speaker? in
             guard let self else { return nil }
 
             await AVCaptureDevice.requestAccess(for: .audio)
@@ -232,7 +232,7 @@ final class AppState: Identifiable, ModeProvider {
         }
 
         statusMessage = "Audio Setup"
-        speaker = try await aud.value
+        speaker = try await audioTask.value
         shouldPromptForIdealVoice = await !(speaker!.havePreferredVoice)
 
         statusMessage = "ML Setup"

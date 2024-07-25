@@ -337,7 +337,7 @@ extern "C" {
     int whisper_token_count(struct whisper_context * ctx, const char * text);
 
     // Largest language id (i.e. number of available languages - 1)
-    WHISPER_API int whisper_lang_max_id();
+    WHISPER_API int whisper_lang_max_id(void);
 
     // Return the id of the specified language, returns -1 if not found
     // Examples:
@@ -558,10 +558,10 @@ extern "C" {
     };
 
     // NOTE: this function allocates memory, and it is the responsibility of the caller to free the pointer - see whisper_free_context_params & whisper_free_params()
-    WHISPER_API struct whisper_context_params * whisper_context_default_params_by_ref();
-    WHISPER_API struct whisper_context_params whisper_context_default_params(void);
+    WHISPER_API struct whisper_context_params * whisper_context_default_params_by_ref(void);
+    WHISPER_API struct whisper_context_params   whisper_context_default_params       (void);
     WHISPER_API struct whisper_full_params * whisper_full_default_params_by_ref(enum whisper_sampling_strategy strategy);
-    WHISPER_API struct whisper_full_params whisper_full_default_params(enum whisper_sampling_strategy strategy);
+    WHISPER_API struct whisper_full_params   whisper_full_default_params       (enum whisper_sampling_strategy strategy);
 
     // Run the entire model: PCM -> log mel spectrogram -> encoder -> decoder -> text
     // Not thread safe for same context

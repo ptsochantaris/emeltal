@@ -79,7 +79,14 @@ final actor Mic {
     }
 
     enum TapState {
-        case none, added(usingVoiceDetection: Bool)
+        case none, added(usingVoiceDetection: Bool), stopping
+
+        var isStopping: Bool {
+            if case .stopping = self {
+                return true
+            }
+            return false
+        }
     }
 
     private var tapState = TapState.none
@@ -99,12 +106,15 @@ final actor Mic {
         guard case .added = tapState else {
             return
         }
+        tapState = .stopping
+        while tapState.isStopping {
+            try? await Task.sleep(for: .seconds(0.1))
+        }
         await AudioEngineManager.shared.getEngine().inputNode.removeTap(onBus: 0)
-        tapState = .none
     }
 
     private static let transcriptionSampleRate = 16000
-    private static let micBufferSize: UInt32 = 4096
+    private static let micBufferSize: UInt32 = 8192
     private static let fft = FFT(bufferSize: Int(micBufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: transcriptionSampleRate)
     private static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(transcriptionSampleRate), channels: 1, interleaved: true)!
     private static let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
@@ -113,6 +123,11 @@ final actor Mic {
         switch tapState {
         case .none:
             break
+            
+        case .stopping:
+            while tapState.isStopping {
+                try? await Task.sleep(for: .seconds(0.1))
+            }
 
         case let .added(usingVoiceDetection):
             if useVoiceDetection == usingVoiceDetection {
@@ -267,6 +282,9 @@ final actor Mic {
                     state = .talking(voiceDetected: false, quietCount: currentQuietCount + 1)
                 }
             }
+        }
+        if tapState.isStopping {
+            tapState = .none
         }
     }
 

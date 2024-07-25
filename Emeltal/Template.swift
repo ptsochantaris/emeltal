@@ -92,7 +92,7 @@ struct Template {
         case .chatml:
             switch step {
             case .initial: "<|im_start|>system\n"
-            case .turn: "\n<|im_start|>user\n"
+            case .turn: "<|im_start|>user\n"
             case .cancel: ""
             }
 
@@ -179,9 +179,9 @@ struct Template {
 
         case .chatml:
             switch step {
-            case .initial: "<|im_end|>"
+            case .initial: "<|im_end|>\n"
             case .turn: "<|im_end|>\n<|im_start|>assistant\n"
-            case .cancel: "<|im_end|>"
+            case .cancel: "<|im_end|>\n"
             }
 
         case .alpaca:

@@ -141,7 +141,35 @@ extension Asset {
         }
 
         var contextSize: UInt32 {
-            0 // 0 = no override
+            switch self {
+            case .dolphinMixtral,
+                    .dolphin70b,
+                    .dolphinTiny,
+                    .sauerkrautSolar,
+                    .fusionNetDpo,
+                    .openChat,
+                    .nousHermesMixtral,
+                    .mythoMax,
+                    .codestral,
+                    .dolphinCoder,
+                    .deepSeekCoder33,
+                    .codeLlama70b,
+                    .deepSeekCoder7,
+                    .everyoneCoder,
+                    .senku70b,
+                    .miniCpmOpenHermes,
+                    .samantha7b,
+                    .samantha70b,
+                    .whisper,
+                    .neuralStory7b,
+                    .alphaMonarch,
+                    .qwen2,
+                    .llama3:
+                0
+            case .llama3large,
+                    .qwen2large:
+                16384
+            }
         }
 
         struct GpuUsage {
@@ -190,11 +218,11 @@ extension Asset {
             case .codestral: 1000
             case .dolphinMixtral: 4096
             case .llama3: 1024
-            case .llama3large: 1280
+            case .llama3large: 5120
             case .dolphinTiny: 89
             case .fusionNetDpo: 4096
             case .senku70b: 10240
-            case .qwen2large: 10240
+            case .qwen2large: 5120
             case .qwen2: 1900
             case .mythoMax: 3200
             case .nousHermesMixtral: 4096
@@ -347,7 +375,6 @@ extension Asset {
         var eosOverrides: Set<Int32>? {
             switch self {
             case .codeLlama70b: [32015]
-            case .llama3large: [128_009]
             default: nil
             }
         }
@@ -376,8 +403,8 @@ extension Asset {
             case .neuralStory7b: "6.0 GB"
             case .alphaMonarch: "4.8 GB"
             case .dolphinCoder: "13.1 GB"
-            case .llama3large: "50.1 GB"
-            case .llama3: "5.8 GB"
+            case .llama3large: "50.0 GB"
+            case .llama3: "6.6 GB"
             case .codestral: "18.3 GB"
             }
         }
@@ -506,8 +533,8 @@ extension Asset {
             case .neuralStory7b: "https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story"
             case .alphaMonarch: "https://huggingface.co/mlabonne/AlphaMonarch-7B"
             case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
-            case .llama3large: "https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct"
-            case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
+            case .llama3large: "https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct"
+            case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct"
             case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
             }
             return URL(string: uri)!
@@ -537,8 +564,8 @@ extension Asset {
             case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
             case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
-            case .llama3large: "Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
-            case .llama3: "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
+            case .llama3large: "Meta-Llama-3.1-70B-Instruct.Q5_K_M.gguf"
+            case .llama3: "Meta-Llama-3.1-8B-Instruct-Q6_K.gguf"
             case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
             }
 
@@ -608,8 +635,8 @@ extension Asset {
             case .neuralStory7b: "on Mistral-Instruct 0.2"
             case .alphaMonarch: "Merging descendant"
             case .dolphinCoder: "on StarCoder2 15b"
-            case .llama3large: "70b params"
-            case .llama3: "8b params"
+            case .llama3large: "v3.1, 70b params"
+            case .llama3: "v3.1, 8b params"
             case .codestral: "22b params"
             }
         }
@@ -638,8 +665,8 @@ extension Asset {
             case .neuralStory7b: "5506DA6E-5403-4BEC-BBA8-5D8F1046DCDD"
             case .alphaMonarch: "42D4CD1B-F1D2-4F2E-8DD2-32082D136EED"
             case .dolphinCoder: "80D5B47C-E4ED-47B1-B1D3-F0EE0258670A"
-            case .llama3large: "27EDFC84-0525-41D1-BF80-64809CA496AC"
-            case .llama3: "3FB96A68-7459-4564-A6D6-F17CEC959D55"
+            case .llama3large: "15D7333B-ECC3-4499-BB41-457F2007F207"
+            case .llama3: "2F547D7D-612B-4BA0-A42E-B17392346FA0"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
             }
         }

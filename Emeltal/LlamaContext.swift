@@ -315,7 +315,7 @@ final class LlamaContext {
                 break
             }
 
-            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023, false))
+            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023, 0, false))
             if written > 0 {
                 let outputString: String?
                 if written == 1 {

@@ -17,6 +17,10 @@
 #include "ggml-sycl.h"
 #endif
 
+#ifdef GGML_USE_VULKAN
+#include "ggml-vulkan.h"
+#endif
+
 #ifdef GGML_USE_BLAS
 #include "ggml-blas.h"
 #endif
@@ -1086,11 +1090,15 @@ static uint32_t whisper_kv_cache_get_padding(const struct whisper_context & wctx
     }
 
 #ifdef GGML_USE_METAL
-    return 32u;
+    if (wctx.params.use_gpu) {
+        return 32u;
+    }
 #endif
 
 #ifdef GGML_USE_CUDA
-    return 256u;
+    if (wctx.params.use_gpu) {
+        return 256u;
+    }
 #endif
 
     return 1u;
@@ -1265,6 +1273,16 @@ static ggml_backend_t whisper_backend_init_gpu(const whisper_context_params & pa
     }
 #endif
 
+#ifdef GGML_USE_VULKAN
+    if (params.use_gpu) {
+        WHISPER_LOG_INFO("%s: using Vulkan backend\n", __func__);
+        result = ggml_backend_vk_init(params.gpu_device);
+        if (!result) {
+            WHISPER_LOG_ERROR("%s: ggml_backend_vk_init() failed\n", __func__);
+        }
+    }
+#endif
+
     return result;
 }
 
@@ -1311,6 +1329,10 @@ static ggml_backend_buffer_type_t whisper_default_buffer_type(const whisper_cont
 
 #ifdef GGML_USE_SYCL
     result || (result = ggml_backend_sycl_buffer_type(params.gpu_device));
+#endif
+
+#ifdef GGML_USE_VULKAN
+    result || (result = ggml_backend_vk_buffer_type(params.gpu_device));
 #endif
 
     result || (result = ggml_backend_cpu_buffer_type());
@@ -2945,7 +2967,7 @@ struct whisper_global_cache {
 // Mel spectrogram
 
 void whisper_mel_init(whisper_mel & mel, ggml_backend_t backend, int n_len, int n_len_org, int n_mel) {
-    WHISPER_LOG_INFO("%s: n_len = %d, n_len_org = %d, n_mel = %d\n", __func__, n_len, n_len_org, n_mel);
+    //WHISPER_LOG_INFO("%s: n_len = %d, n_len_org = %d, n_mel = %d\n", __func__, n_len, n_len_org, n_mel);
     mel.n_len_org = n_len_org;
     assert(!mel.ctx);
     mel.ctx = ggml_init({ggml_tensor_overhead(), nullptr, true});
@@ -3210,8 +3232,10 @@ struct mel_calc_cpu : public whisper_mel_calc {
 };
 }
 
-whisper_mel_calc * whisper_mel_calc_create(ggml_backend_t backend, const whisper_filters & filters) {
-#if defined(GGML_USE_CUDA) && !defined(GGML_USE_HIPBLAS)
+static whisper_mel_calc * whisper_mel_calc_create(ggml_backend_t backend, const whisper_filters & filters) {
+// TODO: disabled because it relies on ggml internals that are no longer accessible (ggml-backend-impl.h, ggml-cuda/common.cuh, ..)
+//#if defined(GGML_USE_CUDA) && !defined(GGML_USE_HIPBLAS)
+#if 0
     if (ggml_backend_is_cuda(backend)) {
         auto ret = whisper_mel_calc_create_cuda(backend, filters);
         if (ret) {
@@ -3964,7 +3988,7 @@ int whisper_token_count(struct whisper_context * ctx, const char * text) {
     return -whisper_tokenize(ctx, text, NULL, 0);
 }
 
-int whisper_lang_max_id() {
+int whisper_lang_max_id(void) {
     auto max_id = 0;
     for (const auto & kv : g_lang) {
         max_id = std::max(max_id, kv.second.first);
@@ -4321,7 +4345,7 @@ const char * whisper_print_system_info(void) {
 
 // Decodes a UTF-8 string which may end in an incomplete sequence. Adds a terminating 0 for use as
 // pointer. If an invalid sequence is encountered, returns `whisper_partial_utf8.n_remain == -1`.
-std::pair<std::vector<uint32_t>, whisper_partial_utf8> decode_utf8(
+static std::pair<std::vector<uint32_t>, whisper_partial_utf8> decode_utf8(
         const char         * src,
         whisper_partial_utf8   partial_start) {
     static const int      lookup[] = { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 3, 4 };
@@ -4735,7 +4759,7 @@ static void whisper_grammar_accept_token(whisper_context & ctx, whisper_grammar 
 
 ////////////////////////////////////////////////////////////////////////////
 
-struct whisper_context_params * whisper_context_default_params_by_ref() {
+struct whisper_context_params * whisper_context_default_params_by_ref(void) {
     struct whisper_context_params params = whisper_context_default_params();
 
     struct whisper_context_params* result = new whisper_context_params();
@@ -7214,9 +7238,10 @@ struct median_filter_user_data {
 };
 
 static void median_filter(struct ggml_tensor * dst , const struct ggml_tensor * a, int ith, int nth, void * userdata) {
+    if (ith != 0) {
+        return;
+    }
     int filter_width = ((median_filter_user_data *) userdata)->filter_width;
-    WHISPER_ASSERT(nth == 1);
-    WHISPER_ASSERT(ith == 0);
     WHISPER_ASSERT(filter_width < a->ne[2]);
     WHISPER_ASSERT(filter_width % 2);
     WHISPER_ASSERT(ggml_n_dims(a) == 3);

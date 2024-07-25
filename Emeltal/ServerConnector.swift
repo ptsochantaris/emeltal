@@ -29,19 +29,19 @@ final class ServerConnector: EmeltalConnector {
 
                     switch change {
                     case .cancelled:
-                        state = .unConnected
+                        self.state = .unConnected
 
                     case .ready:
-                        connectionEstablished(connection, continuation: continuation)
+                        self.connectionEstablished(connection, continuation: continuation)
 
                     case .preparing, .setup:
                         break
 
                     case let .failed(error), let .waiting(error):
-                        if case let .connected(nWConnection) = state, connection !== nWConnection {
+                        if case let .connected(nWConnection) = self.state, connection !== nWConnection {
                             break
                         }
-                        state = .error(error)
+                        self.state = .error(error)
 
                     @unknown default:
                         break

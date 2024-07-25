@@ -5,6 +5,8 @@
 import Combine
 import Foundation
 
+extension AVSpeechUtterance: @retroactive @unchecked Sendable {}
+
 final actor Speaker {
     var havePreferredVoice = false
 
@@ -96,13 +98,13 @@ final actor Speaker {
         }
     }
 
-    func warmup() async throws {
+    func warmup() throws {
         Task {
+            synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
+            log("TTS warmup done")
+            log("Starting sound effect loop")
             try await effectPlayerLoop()
         }
-        log("Sound effect loop running")
-        synth.write(AVSpeechUtterance(string: "Warmup")) { _ in }
-        log("Speech warmup complete")
     }
 
     func cancelIfNeeded() {
@@ -140,9 +142,10 @@ final actor Speaker {
     private func utterance(for text: String) -> AVSpeechUtterance {
         let textToPlay = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let utterance = AVSpeechUtterance(string: textToPlay)
+        utterance.rate = 0.51
         utterance.voice = voice
         if textToPlay.hasSuffix(".") || textToPlay.hasSuffix("!") || textToPlay.hasSuffix("?") || textToPlay.hasSuffix(":") || textToPlay.hasSuffix("\n") {
-            utterance.postUtteranceDelay = 0.2
+            utterance.postUtteranceDelay = 0.18
         }
         return utterance
     }
@@ -198,7 +201,9 @@ final actor Speaker {
             let effectPlayer = await manager.getEffectPlayer()
             effectPlayer.volume = effect.preferredVolume
             effectPlayer.play()
-            await effectPlayer.scheduleFile(sound, at: nil)
+            Task {
+                await effectPlayer.scheduleFile(sound, at: nil)
+            }
 
             // log("Playing effect \(effect); duration: \(msec) ms; volume: \(effectPlayer.volume)")
             try? await Task.sleep(nanoseconds: (msec + 100) * NSEC_PER_MSEC)
