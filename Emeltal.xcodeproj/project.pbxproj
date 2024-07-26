@@ -45,7 +45,6 @@
 		16578A322B18CA5A0038A680 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* AppState.swift */; };
 		16578A342B18CA820038A680 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16578A392B1924B80038A680 /* WhisperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A382B1924B80038A680 /* WhisperContext.swift */; };
-		165A71E92B37AC9500810837 /* Launch.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 165A71E82B37AC9500810837 /* Launch.storyboard */; };
 		1677AF2B2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2C2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2E2B60397400C11138 /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2D2B60397400C11138 /* style.css */; };
@@ -171,7 +170,6 @@
 		16578A312B18CA5A0038A680 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		16578A382B1924B80038A680 /* WhisperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhisperContext.swift; sourceTree = "<group>"; };
-		165A71E82B37AC9500810837 /* Launch.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Launch.storyboard; sourceTree = "<group>"; };
 		1677AF2A2B60391500C11138 /* highlight.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.js; sourceTree = "<group>"; };
 		1677AF2D2B60397400C11138 /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		1677AF302B6039B400C11138 /* log.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = log.html; sourceTree = "<group>"; };
@@ -363,7 +361,6 @@
 				16C58DE92B3470D000006CC2 /* Info.plist */,
 				16C58DDC2B34701200006CC2 /* EmellinkApp.swift */,
 				16C58DE22B34701300006CC2 /* Emellink.entitlements */,
-				165A71E82B37AC9500810837 /* Launch.storyboard */,
 				16F9EF172B3D55C600AD56CC /* LinkState.swift */,
 				168F57B12B44434F003A1190 /* SideBar.swift */,
 				168F57B32B444377003A1190 /* ContentView.swift */,
@@ -518,7 +515,6 @@
 				1677AF322B6039B400C11138 /* log.html in Resources */,
 				1677AF352B603B2B00C11138 /* highlight.css in Resources */,
 				16C58E062B35BB8D00006CC2 /* MicStop.caf in Resources */,
-				165A71E92B37AC9500810837 /* Launch.storyboard in Resources */,
 				1677AF2C2B60391500C11138 /* highlight.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -871,14 +867,16 @@
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = Launch.storyboard;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emellink;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -909,14 +907,16 @@
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = Launch.storyboard;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = build.bru.Emellink;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -23,7 +23,7 @@ final class LinkState: ModeProvider {
 
     var textOnly = false {
         didSet {
-            Task {
+            Task { [textOnly] in
                 await speaker.setMute(textOnly)
             }
         }
