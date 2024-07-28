@@ -85,6 +85,7 @@ final class LlamaContext {
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
         ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
+        ctx_params.flash_attn = true
         ctx_params.logits_all = true
         ctx_params.offload_kqv = gpuUsage.offloadKvCache
 

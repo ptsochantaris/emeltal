@@ -9,6 +9,7 @@ final class WhisperContext {
         self.manager = manager
 
         var params = whisper_context_default_params()
+        params.flash_attn = true
         params.use_gpu = manager.asset.category.usage.offloadAsr
 
         let modelPath = await manager.asset.localModelPath.path

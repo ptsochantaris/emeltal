@@ -956,7 +956,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD_ROW].pipeline; break;
                                 case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_ROW].pipeline; break;
                                 case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV_ROW].pipeline; break;
-                                default: GGML_ASSERT(false);
+                                default: GGML_ABORT("fatal error");
                             }
 
                             bcast_row = true;
@@ -965,7 +965,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD].pipeline; break;
                                 case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL].pipeline; break;
                                 case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV].pipeline; break;
-                                default: GGML_ASSERT(false);
+                                default: GGML_ABORT("fatal error");
                             }
                         }
 
@@ -1019,7 +1019,7 @@ static enum ggml_status ggml_metal_graph_compute(
                             case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_REPEAT_F16].pipeline; break;
                             case GGML_TYPE_I32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_REPEAT_I32].pipeline; break;
                             case GGML_TYPE_I16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_REPEAT_I16].pipeline; break;
-                            default: GGML_ASSERT(false);
+                            default: GGML_ABORT("fatal error");
                         }
 
                         [encoder setComputePipelineState:pipeline];
@@ -1275,7 +1275,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         default:
                             {
                                 GGML_METAL_LOG_WARN("%s: node %3d, op = %8s not implemented\n", __func__, i, ggml_op_name(dst->op));
-                                GGML_ASSERT(false);
+                                GGML_ABORT("fatal error");
                             }
                     } break;
                 case GGML_OP_SQR:
@@ -1497,7 +1497,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 case GGML_TYPE_IQ1_M:   pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ1_M_F32  ].pipeline; break;
                                 case GGML_TYPE_IQ4_NL:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ4_NL_F32 ].pipeline; break;
                                 case GGML_TYPE_IQ4_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_IQ4_XS_F32 ].pipeline; break;
-                                default: GGML_ASSERT(false && "MUL MAT-MAT not implemented");
+                                default: GGML_ABORT("MUL MAT-MAT not implemented");
                             }
 
                             [encoder setComputePipelineState:pipeline];
@@ -1670,7 +1670,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 default:
                                     {
                                         GGML_METAL_LOG_ERROR("Asserting on type %d\n", (int)src0t);
-                                        GGML_ASSERT(false && "not implemented");
+                                        GGML_ABORT("not implemented");
                                     }
                             };
 
@@ -1799,7 +1799,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 case GGML_TYPE_IQ1_M:   pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ1_M_F32  ].pipeline; break;
                                 case GGML_TYPE_IQ4_NL:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ4_NL_F32 ].pipeline; break;
                                 case GGML_TYPE_IQ4_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_MM_ID_IQ4_XS_F32 ].pipeline; break;
-                                default: GGML_ASSERT(false && "MUL_MAT_ID not implemented");
+                                default: GGML_ABORT("MUL_MAT_ID not implemented");
                             }
 
                             [encoder setComputePipelineState:pipeline];
@@ -1966,7 +1966,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 default:
                                     {
                                         GGML_METAL_LOG_ERROR("Asserting on type %d\n", (int)src2t);
-                                        GGML_ASSERT(false && "not implemented");
+                                        GGML_ABORT("not implemented");
                                     }
                             };
 
@@ -2066,7 +2066,7 @@ static enum ggml_status ggml_metal_graph_compute(
                             case GGML_TYPE_IQ4_NL:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ4_NL ].pipeline; break;
                             case GGML_TYPE_IQ4_XS:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_IQ4_XS ].pipeline; break;
                             case GGML_TYPE_I32:     pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_GET_ROWS_I32    ].pipeline; break;
-                            default: GGML_ASSERT(false && "not implemented");
+                            default: GGML_ABORT("not implemented");
                         }
 
                         [encoder setComputePipelineState:pipeline];
@@ -2204,13 +2204,13 @@ static enum ggml_status ggml_metal_graph_compute(
                             switch (src0->type) {
                                 case GGML_TYPE_F32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_NORM_F32].pipeline; break;
                                 case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_NORM_F16].pipeline; break;
-                                default: GGML_ASSERT(false);
+                                default: GGML_ABORT("fatal error");
                             };
                         } else {
                             switch (src0->type) {
                                 case GGML_TYPE_F32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_NEOX_F32].pipeline; break;
                                 case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ROPE_NEOX_F16].pipeline; break;
-                                default: GGML_ASSERT(false);
+                                default: GGML_ABORT("fatal error");
                             };
                         }
 
@@ -2287,7 +2287,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         switch (dst->type) {
                             case GGML_TYPE_F32: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_IM2COL_F32].pipeline; break;
                             case GGML_TYPE_F16: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_IM2COL_F16].pipeline; break;
-                            default: GGML_ASSERT(false);
+                            default: GGML_ABORT("fatal error");
                         };
 
                         [encoder setComputePipelineState:pipeline];
@@ -2444,7 +2444,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         switch (order) {
                             case GGML_SORT_ORDER_ASC:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_ASC].pipeline;  break;
                             case GGML_SORT_ORDER_DESC: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ARGSORT_F32_I32_DESC].pipeline; break;
-                            default: GGML_ASSERT(false);
+                            default: GGML_ABORT("fatal error");
                         };
 
                         [encoder setComputePipelineState:pipeline];
@@ -2533,7 +2533,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                           {
                                               GGML_METAL_LOG_ERROR("unsupported size: %lld\n", ne00);
                                               GGML_METAL_LOG_ERROR("add template specialization for this size\n");
-                                              GGML_ASSERT(false && "add template specialization for this size");
+                                              GGML_ABORT("add template specialization for this size");
                                           }
                             }
                         } else {
@@ -2546,7 +2546,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                           {
                                               GGML_METAL_LOG_ERROR("unsupported size: %lld\n", ne00);
                                               GGML_METAL_LOG_ERROR("add template specialization for this size\n");
-                                              GGML_ASSERT(false && "add template specialization for this size");
+                                              GGML_ABORT("add template specialization for this size");
                                           }
                             }
                         }
@@ -2667,7 +2667,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                         case GGML_TYPE_Q5_0:   pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_0].pipeline; break;
                                         case GGML_TYPE_Q5_1:   pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_Q5_1].pipeline; break;
                                         case GGML_TYPE_IQ4_NL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F32_IQ4_NL].pipeline; break;
-                                        default: GGML_ASSERT(false && "not implemented");
+                                        default: GGML_ABORT("not implemented");
                                     };
                                 } break;
                             case GGML_TYPE_F16:
@@ -2675,10 +2675,10 @@ static enum ggml_status ggml_metal_graph_compute(
                                     switch (dstt) {
                                         case GGML_TYPE_F32:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F16_F32].pipeline; break;
                                         case GGML_TYPE_F16:  pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_CPY_F16_F16].pipeline; break;
-                                        default: GGML_ASSERT(false && "not implemented");
+                                        default: GGML_ABORT("not implemented");
                                     };
                                 } break;
-                            default: GGML_ASSERT(false && "not implemented");
+                            default: GGML_ABORT("not implemented");
                         }
 
                         [encoder setComputePipelineState:pipeline];
@@ -2706,7 +2706,7 @@ static enum ggml_status ggml_metal_graph_compute(
                 default:
                     {
                         GGML_METAL_LOG_ERROR("%s: error: node %3d, op = %8s not implemented\n", __func__, i, ggml_op_name(dst->op));
-                        GGML_ASSERT(false);
+                        GGML_ABORT("fatal error");
                     }
             }
         }
