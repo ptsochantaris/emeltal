@@ -819,13 +819,6 @@ static enum ggml_status ggml_metal_graph_compute(
                     } break;
             }
 
-#ifndef GGML_METAL_NDEBUG
-            if (!ggml_metal_supports_op(ctx, dst)) {
-                GGML_METAL_LOG_ERROR("%s: error: unsupported op '%s'\n", __func__, ggml_op_desc(dst));
-                GGML_ASSERT(!"unsupported op");
-            }
-#endif
-
             const int64_t  ne00 = src0 ? src0->ne[0] : 0;
             const int64_t  ne01 = src0 ? src0->ne[1] : 0;
             const int64_t  ne02 = src0 ? src0->ne[2] : 0;
