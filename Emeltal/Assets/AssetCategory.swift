@@ -162,11 +162,11 @@ extension Asset {
                     .samantha70b,
                     .whisper,
                     .neuralStory7b,
-                    .alphaMonarch,
                     .qwen2,
-                    .llama3:
+                    .alphaMonarch:
                 0
             case .llama3large,
+                    .llama3,
                     .qwen2large:
                 16384
             }
@@ -217,13 +217,13 @@ extension Asset {
             case .dolphin70b: 1280
             case .codestral: 1000
             case .dolphinMixtral: 4096
-            case .llama3: 1024
+            case .llama3: 2048
             case .llama3large: 5120
             case .dolphinTiny: 89
             case .fusionNetDpo: 4096
             case .senku70b: 10240
             case .qwen2large: 5120
-            case .qwen2: 1900
+            case .qwen2: 1800
             case .mythoMax: 3200
             case .nousHermesMixtral: 4096
             case .openChat: 1024
@@ -257,12 +257,12 @@ extension Asset {
             case .nousHermesMixtral: 1100
             case .fusionNetDpo: 320
             case .qwen2large: 590
-            case .qwen2: 220
+            case .qwen2: 155
             case .codeLlama70b: 610
             case .senku70b: 610
             case .miniCpmOpenHermes: 60
             case .llama3large: 600
-            case .llama3: 170
+            case .llama3: 155
             case .samantha70b: 600
             case .samantha7b: 210
             case .neuralStory7b: 240
