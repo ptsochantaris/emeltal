@@ -212,7 +212,7 @@ enum ggml_metal_kernel_type {
     GGML_METAL_KERNEL_TYPE_COUNT
 };
 
-struct ggml_metal_context {
+struct ggml_backend_metal_context {
     id<MTLDevice>       device;
     id<MTLCommandQueue> queue;
 
@@ -280,9 +280,9 @@ static void * ggml_metal_host_malloc(size_t n) {
 }
 
 static int g_backend_shared_context_ref_count = 0;
-struct ggml_metal_context *g_backend_shared_context = NULL;
+struct ggml_backend_metal_context *g_backend_shared_context = NULL;
 
-static struct ggml_metal_context * ggml_metal_init(int n_cb) {
+static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
     if(g_backend_shared_context) {
         g_backend_shared_context_ref_count++;
         GGML_METAL_LOG_INFO("%s: reusing existing context, now used by %d clients\n", __func__, g_backend_shared_context_ref_count);
@@ -291,21 +291,12 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
 
     GGML_METAL_LOG_INFO("%s: allocating\n", __func__);
 
-#if TARGET_OS_OSX && !GGML_METAL_NDEBUG
-    // Show all the Metal device instances in the system
-    NSArray * devices = MTLCopyAllDevices();
-    for (id<MTLDevice> device in devices) {
-        GGML_METAL_LOG_INFO("%s: found device: %s\n", __func__, [[device name] UTF8String]);
-    }
-    [devices release]; // since it was created by a *Copy* C method
-#endif
-
     // Pick and show default Metal device
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     GGML_METAL_LOG_INFO("%s: picking default device: %s\n", __func__, [[device name] UTF8String]);
 
     // Configure context
-    struct ggml_metal_context * ctx = malloc(sizeof(struct ggml_metal_context));
+    struct ggml_backend_metal_context * ctx = malloc(sizeof(struct ggml_backend_metal_context));
     ctx->device = device;
     ctx->queue  = [ctx->device newCommandQueue];
 
@@ -593,7 +584,7 @@ static struct ggml_metal_context * ggml_metal_init(int n_cb) {
     return ctx;
 }
 
-static void ggml_metal_free(struct ggml_metal_context * ctx) {
+static void ggml_metal_free(struct ggml_backend_metal_context * ctx) {
     g_backend_shared_context_ref_count--;
     if(g_backend_shared_context_ref_count > 0) {
         GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
@@ -664,7 +655,7 @@ static id<MTLBuffer> ggml_metal_get_buffer(struct ggml_tensor * t, size_t * offs
     return nil;
 }
 
-static bool ggml_metal_supports_op(const struct ggml_metal_context * ctx, const struct ggml_tensor * op) {
+static bool ggml_metal_supports_op(const struct ggml_backend_metal_context * ctx, const struct ggml_tensor * op) {
     for (size_t i = 0, n = 3; i < n; ++i) {
         if (op->src[i] != NULL && op->src[i]->type == GGML_TYPE_BF16) {
             return false;
@@ -775,7 +766,7 @@ static bool ggml_metal_supports_op(const struct ggml_metal_context * ctx, const 
 }
 
 static enum ggml_status ggml_metal_graph_compute(
-        struct ggml_metal_context * ctx,
+        struct ggml_backend_metal_context * ctx,
                struct ggml_cgraph * gf) {
 
     @autoreleasepool {
@@ -2110,10 +2101,8 @@ static enum ggml_status ggml_metal_graph_compute(
                         GGML_ASSERT(ne00 % 4 == 0);
                         GGML_ASSERT(ggml_is_contiguous(src0));
 
-                        //float eps;
-                        //memcpy(&eps, dst->op_params, sizeof(float));
-
-                        const float eps = 1e-6f; // TODO: temporarily hardcoded
+                        float eps;
+                        memcpy(&eps, dst->op_params + 1, sizeof(float));
 
                         const int32_t n_groups = ((int32_t *) dst->op_params)[0];
 
@@ -2189,7 +2178,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         memcpy(&beta_fast,   (int32_t *) dst->op_params +  9, sizeof(float));
                         memcpy(&beta_slow,   (int32_t *) dst->op_params + 10, sizeof(float));
 
-                        const bool is_neox = mode & 2;
+                        const bool is_neox = mode & GGML_ROPE_TYPE_NEOX;
 
                         id<MTLComputePipelineState> pipeline = nil;
 
@@ -3015,7 +3004,7 @@ GGML_CALL static const char * ggml_backend_metal_name(ggml_backend_t backend) {
 }
 
 GGML_CALL static void ggml_backend_metal_free(ggml_backend_t backend) {
-    struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
+    struct ggml_backend_metal_context * ctx = (struct ggml_backend_metal_context *)backend->context;
     ggml_metal_free(ctx);
     free(backend);
 }
@@ -3027,13 +3016,13 @@ GGML_CALL static ggml_backend_buffer_type_t ggml_backend_metal_get_default_buffe
 }
 
 GGML_CALL static enum ggml_status ggml_backend_metal_graph_compute(ggml_backend_t backend, struct ggml_cgraph * cgraph) {
-    struct ggml_metal_context * metal_ctx = (struct ggml_metal_context *)backend->context;
+    struct ggml_backend_metal_context * metal_ctx = (struct ggml_backend_metal_context *)backend->context;
 
     return ggml_metal_graph_compute(metal_ctx, cgraph);
 }
 
 GGML_CALL static bool ggml_backend_metal_supports_op(ggml_backend_t backend, const struct ggml_tensor * op) {
-    struct ggml_metal_context * metal_ctx = (struct ggml_metal_context *)backend->context;
+    struct ggml_backend_metal_context * metal_ctx = (struct ggml_backend_metal_context *)backend->context;
 
     return ggml_metal_supports_op(metal_ctx, op);
 }
@@ -3078,9 +3067,9 @@ static ggml_guid_t ggml_backend_metal_guid(void) {
 }
 
 ggml_backend_t ggml_backend_metal_init(void) {
-    struct ggml_metal_context * ctx = ggml_metal_init(GGML_DEFAULT_N_THREADS);
-
+    struct ggml_backend_metal_context * ctx = ggml_metal_init(GGML_DEFAULT_N_THREADS);
     if (ctx == NULL) {
+        GGML_METAL_LOG_ERROR("%s: error: failed to allocate context\n", __func__);
         return NULL;
     }
 
@@ -3101,10 +3090,12 @@ bool ggml_backend_is_metal(ggml_backend_t backend) {
 
 void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
 
+void ggml_backend_metal_set_abort_callback(ggml_backend_t backend, ggml_abort_callback abort_callback, void * user_data) {}
+
 bool ggml_backend_metal_supports_family(ggml_backend_t backend, int family) {
     GGML_ASSERT(ggml_backend_is_metal(backend));
 
-    struct ggml_metal_context * ctx = (struct ggml_metal_context *)backend->context;
+    struct ggml_backend_metal_context * ctx = (struct ggml_backend_metal_context *)backend->context;
 
     return [ctx->device supportsFamily:(MTLGPUFamilyApple1 + family - 1)];
 }
