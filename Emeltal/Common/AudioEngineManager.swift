@@ -12,8 +12,19 @@ final actor AudioEngineManager {
         engine
     }
 
-    func getEffectPlayer() -> AVAudioPlayerNode {
-        effectPlayer
+    func getEffectPlayer(scheduling effect: Speaker.Effect) -> (AVAudioPlayerNode, UInt64) {
+
+        let sound = effect.audioFile
+        let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
+
+        effectPlayer.volume = effect.preferredVolume
+        effectPlayer.play()
+
+        Task {
+            await effectPlayer.scheduleFile(sound, at: nil)
+        }
+
+        return (effectPlayer, msec)
     }
 
     init() {

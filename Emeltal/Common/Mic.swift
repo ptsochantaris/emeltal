@@ -123,7 +123,7 @@ final actor Mic {
         switch tapState {
         case .none:
             break
-            
+
         case .stopping:
             while tapState.isStopping {
                 try? await Task.sleep(for: .seconds(0.1))
@@ -211,9 +211,13 @@ final actor Mic {
                 initializedCount = convertedBufferFrames
             }
 
-            Task { [voiceDetected] in
-                await self.append(segment: segment, isVoiceHeard: voiceDetected)
-            }
+            queueWorkaround(segment: segment, isVoiceHeard: voiceDetected)
+        }
+    }
+
+    private nonisolated func queueWorkaround(segment: [Float], isVoiceHeard: Bool) {
+        Task {
+            await append(segment: segment, isVoiceHeard: isVoiceHeard)
         }
     }
 

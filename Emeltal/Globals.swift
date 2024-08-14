@@ -73,27 +73,27 @@ let memoryFormatter: ByteCountFormatter = {
 
 extension Binding {
     // thanks to https://stackoverflow.com/questions/65736518/how-do-i-create-a-slider-in-swiftui-for-an-int-type-property
-
+    
     static func convert<TInt, TFloat>(from intBinding: Binding<TInt>) -> Binding<TFloat>
-        where TInt: BinaryInteger,
-        TFloat: BinaryFloatingPoint {
-        Binding<TFloat>(
-            get: { TFloat(intBinding.wrappedValue) },
-            set: { intBinding.wrappedValue = TInt($0) }
-        )
-    }
-
+    where TInt: BinaryInteger & Sendable,
+          TFloat: BinaryFloatingPoint & Sendable{
+              Binding<TFloat>(
+                get: { TFloat(intBinding.wrappedValue) },
+                set: { intBinding.wrappedValue = TInt($0) }
+              )
+          }
+    
     static func convert<TFloat, TInt>(from floatBinding: Binding<TFloat>) -> Binding<TInt>
-        where TFloat: BinaryFloatingPoint,
-        TInt: BinaryInteger {
-        Binding<TInt>(
-            get: { TInt(floatBinding.wrappedValue) },
-            set: { floatBinding.wrappedValue = TFloat($0) }
-        )
-    }
-
+    where TFloat: BinaryFloatingPoint & Sendable,
+          TInt: BinaryInteger & Sendable {
+              Binding<TInt>(
+                get: { TInt(floatBinding.wrappedValue) },
+                set: { floatBinding.wrappedValue = TFloat($0) }
+              )
+          }
+    
     static func round<TFloat>(from floatBinding: Binding<TFloat>) -> Binding<TFloat>
-        where TFloat: BinaryFloatingPoint {
+    where TFloat: BinaryFloatingPoint & Sendable {
         Binding<TFloat>(
             get: { floatBinding.wrappedValue },
             set: { floatBinding.wrappedValue = ($0 * 100.0).rounded() / 100.0 }

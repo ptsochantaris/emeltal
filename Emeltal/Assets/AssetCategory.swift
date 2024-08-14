@@ -142,32 +142,32 @@ extension Asset {
 
         var contextSize: UInt32 {
             switch self {
-            case .dolphinMixtral,
-                    .dolphin70b,
-                    .dolphinTiny,
-                    .sauerkrautSolar,
-                    .fusionNetDpo,
-                    .openChat,
-                    .nousHermesMixtral,
-                    .mythoMax,
-                    .codestral,
-                    .dolphinCoder,
-                    .deepSeekCoder33,
-                    .codeLlama70b,
-                    .deepSeekCoder7,
-                    .everyoneCoder,
-                    .senku70b,
-                    .miniCpmOpenHermes,
-                    .samantha7b,
-                    .samantha70b,
-                    .whisper,
-                    .neuralStory7b,
-                    .qwen2,
-                    .alphaMonarch:
+            case .alphaMonarch,
+                 .codeLlama70b,
+                 .codestral,
+                 .deepSeekCoder7,
+                 .deepSeekCoder33,
+                 .dolphin70b,
+                 .dolphinCoder,
+                 .dolphinMixtral,
+                 .dolphinTiny,
+                 .everyoneCoder,
+                 .fusionNetDpo,
+                 .miniCpmOpenHermes,
+                 .mythoMax,
+                 .neuralStory7b,
+                 .nousHermesMixtral,
+                 .openChat,
+                 .qwen2,
+                 .samantha7b,
+                 .samantha70b,
+                 .sauerkrautSolar,
+                 .senku70b,
+                 .whisper:
                 0
-            case .llama3large,
-                    .llama3,
-                    .qwen2large:
+            case .llama3,
+                 .llama3large,
+                 .qwen2large:
                 16384
             }
         }
