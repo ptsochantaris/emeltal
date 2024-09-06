@@ -58,14 +58,7 @@ final class LlamaContext {
         self.model = model
         n_vocab = llama_n_vocab(model)
 
-        let shouldAddBosToken = {
-            let add_bos = llama_add_bos_token(model)
-            if add_bos == -1 {
-                return llama_vocab_type(model) == LLAMA_VOCAB_TYPE_SPM
-            }
-            return add_bos != 0
-        }()
-        if shouldAddBosToken {
+        if llama_add_bos_token(model) {
             let bosTokenId = llama_token_bos(model)
             bosToken = String(cString: llama_token_get_text(model, bosTokenId))
         } else {
@@ -77,7 +70,7 @@ final class LlamaContext {
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
 
-        let threadCounts = UInt32(performanceCpuCount)
+        let threadCounts = Int32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = asset.category.contextSize

@@ -46,5 +46,3 @@ cp\
  $WSRC/include/whisper.h\
  $WSRC/src/whisper-mel.hpp\
  .
-
-patch -R ggml-metal.m < ggml-metal.diff

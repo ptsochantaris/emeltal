@@ -16,12 +16,10 @@
 #define GGML_METAL_LOG_INFO(...)
 #define GGML_METAL_LOG_WARN(...)
 #define GGML_METAL_LOG_ERROR(...)
-#define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared|MTLResourceHazardTrackingModeUntracked
 #else
 #define GGML_METAL_LOG_INFO(...)  ggml_metal_log(GGML_LOG_LEVEL_INFO, __VA_ARGS__)
 #define GGML_METAL_LOG_WARN(...)  ggml_metal_log(GGML_LOG_LEVEL_WARN, __VA_ARGS__)
 #define GGML_METAL_LOG_ERROR(...) ggml_metal_log(GGML_LOG_LEVEL_ERROR, __VA_ARGS__)
-#define GGML_METAL_BUFFER_OPTIONS MTLResourceStorageModeShared
 #endif
 
 #define UNUSED(x) (void)(x)
@@ -33,6 +31,8 @@ struct ggml_metal_kernel {
 enum ggml_metal_kernel_type {
     GGML_METAL_KERNEL_TYPE_ADD,
     GGML_METAL_KERNEL_TYPE_ADD_ROW,
+    GGML_METAL_KERNEL_TYPE_SUB,
+    GGML_METAL_KERNEL_TYPE_SUB_ROW,
     GGML_METAL_KERNEL_TYPE_MUL,
     GGML_METAL_KERNEL_TYPE_MUL_ROW,
     GGML_METAL_KERNEL_TYPE_DIV,
@@ -84,6 +84,8 @@ enum ggml_metal_kernel_type {
     GGML_METAL_KERNEL_TYPE_RMS_NORM,
     GGML_METAL_KERNEL_TYPE_GROUP_NORM,
     GGML_METAL_KERNEL_TYPE_NORM,
+    GGML_METAL_KERNEL_TYPE_SSM_CONV_F32,
+    GGML_METAL_KERNEL_TYPE_SSM_SCAN_F32,
     GGML_METAL_KERNEL_TYPE_MUL_MV_F32_F32,
     GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F16,
     GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32,
@@ -207,25 +209,44 @@ enum ggml_metal_kernel_type {
     GGML_METAL_KERNEL_TYPE_CPY_F32_IQ4_NL,
     GGML_METAL_KERNEL_TYPE_CONCAT,
     GGML_METAL_KERNEL_TYPE_SQR,
+    GGML_METAL_KERNEL_TYPE_SQRT,
+    GGML_METAL_KERNEL_TYPE_SIN,
+    GGML_METAL_KERNEL_TYPE_COS,
     GGML_METAL_KERNEL_TYPE_SUM_ROWS,
 
     GGML_METAL_KERNEL_TYPE_COUNT
 };
 
 struct ggml_backend_metal_context {
+    int n_cb;
+
     id<MTLDevice>       device;
     id<MTLCommandQueue> queue;
+
+    dispatch_queue_t d_queue;
 
     struct ggml_metal_kernel kernels[GGML_METAL_KERNEL_TYPE_COUNT];
 
     bool support_simdgroup_reduction;
     bool support_simdgroup_mm;
+
+    bool should_capture_next_compute;
+
+    // abort ggml_metal_graph_compute if callback returns true
+    ggml_abort_callback abort_callback;
+    void *              abort_callback_data;
 };
 
 // MSL code
 // TODO: move the contents here when ready
 //       for now it is easier to work in a separate file
 // static NSString * const msl_library_source = @"see metal.metal";
+
+// Here to assist with NSBundle Path Hack
+@interface GGMLMetalClass : NSObject
+@end
+@implementation GGMLMetalClass
+@end
 
 static void ggml_metal_default_log_callback(enum ggml_log_level level, const char * msg, void * user_data) {
     fprintf(stderr, "%s", msg);
@@ -279,40 +300,115 @@ static void * ggml_metal_host_malloc(size_t n) {
     return data;
 }
 
-static int g_backend_shared_context_ref_count = 0;
-struct ggml_backend_metal_context *g_backend_shared_context = NULL;
-
 static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
-    if(g_backend_shared_context) {
-        g_backend_shared_context_ref_count++;
-        GGML_METAL_LOG_INFO("%s: reusing existing context, now used by %d clients\n", __func__, g_backend_shared_context_ref_count);
-        return g_backend_shared_context;
-    }
-
     GGML_METAL_LOG_INFO("%s: allocating\n", __func__);
+
+#if TARGET_OS_OSX && !GGML_METAL_NDEBUG
+    // Show all the Metal device instances in the system
+    NSArray * devices = MTLCopyAllDevices();
+    for (id<MTLDevice> device in devices) {
+        GGML_METAL_LOG_INFO("%s: found device: %s\n", __func__, [[device name] UTF8String]);
+    }
+    [devices release]; // since it was created by a *Copy* C method
+#endif
 
     // Pick and show default Metal device
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     GGML_METAL_LOG_INFO("%s: picking default device: %s\n", __func__, [[device name] UTF8String]);
 
     // Configure context
-    struct ggml_backend_metal_context * ctx = malloc(sizeof(struct ggml_backend_metal_context));
+    struct ggml_backend_metal_context * ctx = calloc(1, sizeof(struct ggml_backend_metal_context));
     ctx->device = device;
+    ctx->n_cb   = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
     ctx->queue  = [ctx->device newCommandQueue];
+    ctx->d_queue = dispatch_queue_create("ggml-metal", DISPATCH_QUEUE_CONCURRENT);
 
     id<MTLLibrary> metal_library;
 
     // load library
+    //
+    // - first check if the library is embedded
+    // - then check if the library is in the bundle
+    // - if not found, load the source and compile it
+    // - if that fails, return NULL
     {
-        NSError * error = nil;
-        NSString * path_lib = [[NSBundle mainBundle] pathForResource:@"default" ofType:@"metallib"];
-        NSURL * libURL = [NSURL fileURLWithPath:path_lib];
-        GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [path_lib UTF8String]);
+        NSBundle * bundle = nil;
+#ifdef SWIFT_PACKAGE
+        bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+        bundle = [NSBundle bundleForClass:[GGMLMetalClass class]];
+#endif
 
-        metal_library = [ctx->device newLibraryWithURL:libURL error:&error];
-        if (error) {
-            GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
-            return NULL;
+        NSError * error = nil;
+
+#if GGML_METAL_EMBED_LIBRARY
+        const bool try_metallib = false;
+#else
+        const bool try_metallib = true;
+#endif
+
+        NSString * path_lib = [bundle pathForResource:@"default" ofType:@"metallib"];
+        if (try_metallib && path_lib != nil) {
+            // pre-compiled library found
+            NSURL * libURL = [NSURL fileURLWithPath:path_lib];
+            GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [path_lib UTF8String]);
+
+            metal_library = [ctx->device newLibraryWithURL:libURL error:&error];
+            if (error) {
+                GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+                return NULL;
+            }
+        } else {
+#if GGML_METAL_EMBED_LIBRARY
+            GGML_METAL_LOG_INFO("%s: using embedded metal library\n", __func__);
+
+            extern const char ggml_metallib_start[];
+            extern const char ggml_metallib_end[];
+
+            NSString * src = [[NSString alloc] initWithBytes:ggml_metallib_start length:(ggml_metallib_end-ggml_metallib_start) encoding:NSUTF8StringEncoding];
+#else
+            GGML_METAL_LOG_INFO("%s: default.metallib not found, loading from source\n", __func__);
+
+            NSString * path_source;
+            NSString * path_resource = [[NSProcessInfo processInfo].environment objectForKey:@"GGML_METAL_PATH_RESOURCES"];
+
+            GGML_METAL_LOG_INFO("%s: GGML_METAL_PATH_RESOURCES = %s\n", __func__, path_resource ? [path_resource UTF8String] : "nil");
+
+            if (path_resource) {
+                path_source = [path_resource stringByAppendingPathComponent:@"ggml-metal.metal"];
+            } else {
+                path_source = [bundle pathForResource:@"ggml-metal" ofType:@"metal"];
+            }
+
+            if (path_source == nil) {
+                GGML_METAL_LOG_WARN("%s: error: could not use bundle path to find ggml-metal.metal, falling back to trying cwd\n", __func__);
+                path_source = @"ggml-metal.metal";
+            }
+
+            GGML_METAL_LOG_INFO("%s: loading '%s'\n", __func__, [path_source UTF8String]);
+
+            NSString * src = [NSString stringWithContentsOfFile:path_source encoding:NSUTF8StringEncoding error:&error];
+            if (error) {
+                GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+                return NULL;
+            }
+#endif // GGML_METAL_EMBED_LIBRARY
+
+            @autoreleasepool {
+                // dictionary of preprocessor macros
+                NSMutableDictionary * prep = [NSMutableDictionary dictionary];
+
+                MTLCompileOptions* options = [MTLCompileOptions new];
+                options.preprocessorMacros = prep;
+
+                //[options setFastMathEnabled:false];
+
+                metal_library = [ctx->device newLibraryWithSource:src options:options error:&error];
+                if (error) {
+                    GGML_METAL_LOG_ERROR("%s: error: %s\n", __func__, [[error description] UTF8String]);
+                    return NULL;
+                }
+            }
         }
     }
 
@@ -355,6 +451,8 @@ static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
     GGML_METAL_LOG_INFO("%s: simdgroup reduction support   = %s\n",       __func__, ctx->support_simdgroup_reduction ? "true" : "false");
     GGML_METAL_LOG_INFO("%s: simdgroup matrix mul. support = %s\n",       __func__, ctx->support_simdgroup_mm ? "true" : "false");
     GGML_METAL_LOG_INFO("%s: hasUnifiedMemory              = %s\n",       __func__, ctx->device.hasUnifiedMemory ? "true" : "false");
+
+    ctx->should_capture_next_compute = false;
 
 #if TARGET_OS_OSX || (TARGET_OS_IOS && __clang_major__ >= 15)
     if (@available(macOS 10.12, iOS 16.0, *)) {
@@ -400,6 +498,8 @@ static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
 
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_ADD,                           add,                            true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_ADD_ROW,                       add_row,                        true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SUB,                           sub,                            true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SUB_ROW,                       sub_row,                        true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_MUL,                           mul,                            true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_MUL_ROW,                       mul_row,                        true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_DIV,                           div,                            true);
@@ -451,6 +551,8 @@ static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_RMS_NORM,                      rms_norm,                       ctx->support_simdgroup_reduction);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_GROUP_NORM,                    group_norm,                     ctx->support_simdgroup_reduction);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_NORM,                          norm,                           true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SSM_CONV_F32,                  ssm_conv_f32,                   true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SSM_SCAN_F32,                  ssm_scan_f32,                   true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_MUL_MV_F32_F32,                mul_mv_f32_f32,                 ctx->support_simdgroup_reduction);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F16,                mul_mv_f16_f16,                 ctx->support_simdgroup_reduction);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_MUL_MV_F16_F32,                mul_mv_f16_f32,                 ctx->support_simdgroup_reduction);
@@ -574,24 +676,17 @@ static struct ggml_backend_metal_context * ggml_metal_init(int n_cb) {
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_CPY_F32_IQ4_NL,                cpy_f32_iq4_nl,                 true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_CONCAT,                        concat,                         true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SQR,                           sqr,                            true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SQRT,                          sqrt,                           true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SIN,                           sin,                            true);
+        GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_COS,                           cos,                            true);
         GGML_METAL_ADD_KERNEL(GGML_METAL_KERNEL_TYPE_SUM_ROWS,                      sum_rows,                       true);
     }
 
     [metal_library release];
-
-    g_backend_shared_context_ref_count++;
-    g_backend_shared_context = ctx;
     return ctx;
 }
 
 static void ggml_metal_free(struct ggml_backend_metal_context * ctx) {
-    g_backend_shared_context_ref_count--;
-    if(g_backend_shared_context_ref_count > 0) {
-        GGML_METAL_LOG_INFO("%s: removed a reference, still used by %d clients\n", __func__, g_backend_shared_context_ref_count);
-        return;
-    }
-    g_backend_shared_context = nil;
-
     GGML_METAL_LOG_INFO("%s: deallocating\n", __func__);
 
     for (int i = 0; i < GGML_METAL_KERNEL_TYPE_COUNT; ++i) {
@@ -600,6 +695,8 @@ static void ggml_metal_free(struct ggml_backend_metal_context * ctx) {
 
     [ctx->queue release];
     [ctx->device release];
+
+    dispatch_release(ctx->d_queue);
 
     free(ctx);
 }
@@ -682,15 +779,20 @@ static bool ggml_metal_supports_op(const struct ggml_backend_metal_context * ctx
         case GGML_OP_PERMUTE:
         case GGML_OP_CONCAT:
         case GGML_OP_ADD:
+        case GGML_OP_SUB:
         case GGML_OP_ACC:
         case GGML_OP_MUL:
         case GGML_OP_DIV:
         case GGML_OP_REPEAT:
         case GGML_OP_SCALE:
         case GGML_OP_CLAMP:
-        case GGML_OP_SQR:
-        case GGML_OP_SUM_ROWS:
             return true;
+        case GGML_OP_SQR:
+        case GGML_OP_SQRT:
+        case GGML_OP_SIN:
+        case GGML_OP_COS:
+            return ggml_is_contiguous(op->src[0]);
+        case GGML_OP_SUM_ROWS:
         case GGML_OP_SOFT_MAX:
         case GGML_OP_RMS_NORM:
         case GGML_OP_GROUP_NORM:
@@ -720,6 +822,9 @@ static bool ggml_metal_supports_op(const struct ggml_backend_metal_context * ctx
                 return false;
             }
             return ctx->support_simdgroup_mm; // TODO: over-restricted for vec-kernels
+        case GGML_OP_SSM_CONV:
+        case GGML_OP_SSM_SCAN:
+            return true;
         case GGML_OP_MUL_MAT:
         case GGML_OP_MUL_MAT_ID:
             return ctx->support_simdgroup_reduction &&
@@ -773,18 +878,61 @@ static enum ggml_status ggml_metal_graph_compute(
     MTLComputePassDescriptor * edesc = MTLComputePassDescriptor.computePassDescriptor;
     edesc.dispatchType = MTLDispatchTypeSerial;
 
+    // create multiple command buffers and enqueue them
+    // then, we encode the graph into the command buffers in parallel
+
+    const int n_nodes  = gf->n_nodes;
+    const int n_cb = ctx->n_cb;
+    const int n_nodes_per_cb = (n_nodes + n_cb - 1) / n_cb;
+
+    const bool should_capture = ctx->should_capture_next_compute;
+    if (should_capture) {
+        ctx->should_capture_next_compute = false;
+
+        MTLCaptureDescriptor * descriptor = [MTLCaptureDescriptor new];
+        descriptor.captureObject = ctx->queue;
+
+        NSError * error = nil;
+        if (![[MTLCaptureManager sharedCaptureManager] startCaptureWithDescriptor:descriptor error:&error]) {
+            GGML_METAL_LOG_ERROR("%s: error: unable to start capture '%s'\n", __func__, [[error localizedDescription] UTF8String]);
+            GGML_ABORT("capture failed");
+        }
+    }
+
+    id<MTLCommandBuffer> command_buffer_builder[n_cb];
+    for (int cb_idx = 0; cb_idx < n_cb; ++cb_idx) {
         id<MTLCommandBuffer> command_buffer  = [ctx->queue commandBufferWithUnretainedReferences];
-        // enqueue the command buffers in order to specify their execution order
-        [command_buffer enqueue];
+        command_buffer_builder[cb_idx] = command_buffer;
+
+        // always enqueue the first two command buffers
+        // enqueue all of the command buffers if we don't need to abort
+        if (cb_idx < 2 || ctx->abort_callback == NULL) {
+            [command_buffer enqueue];
+        }
+    }
+
+    const id<MTLCommandBuffer> *command_buffers = command_buffer_builder;
+
+    dispatch_apply(n_cb, ctx->d_queue, ^(size_t iter) {
+        const int cb_idx = iter;
 
         size_t offs_src0 = 0;
         size_t offs_src1 = 0;
         size_t offs_src2 = 0;
         size_t offs_dst  = 0;
 
+        id<MTLCommandBuffer> command_buffer  = command_buffers[cb_idx];
         id<MTLComputeCommandEncoder> encoder = [command_buffer computeCommandEncoderWithDescriptor: edesc];
 
-        for (int i = 0; i < gf->n_nodes; ++i) {
+        const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
+        const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
+
+        for (int i = node_start; i < node_end; ++i) {
+            if (i == -1) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                continue;
+            }
+
             //GGML_METAL_LOG_INFO("%s: encoding node %3d, op = %8s\n", __func__, i, ggml_op_name(gf->nodes[i]->op));
 
             struct ggml_tensor * src0 = gf->nodes[i]->src[0];
@@ -808,6 +956,15 @@ static enum ggml_status ggml_metal_graph_compute(
                 default:
                     {
                     } break;
+            }
+
+            if (!ggml_metal_supports_op(ctx, dst)) {
+                GGML_METAL_LOG_ERROR("%s: error: unsupported op '%s'\n", __func__, ggml_op_desc(dst));
+                GGML_ABORT("unsupported op");
+            }
+
+            if (should_capture) {
+                [encoder pushDebugGroup:[NSString stringWithCString:ggml_op_desc(dst) encoding:NSUTF8StringEncoding]];
             }
 
             const int64_t  ne00 = src0 ? src0->ne[0] : 0;
@@ -915,6 +1072,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         [encoder dispatchThreadgroups:MTLSizeMake(ne1, ne2, ne3) threadsPerThreadgroup:MTLSizeMake(nth, 1, 1)];
                     } break;
                 case GGML_OP_ADD:
+                case GGML_OP_SUB:
                 case GGML_OP_MUL:
                 case GGML_OP_DIV:
                     {
@@ -938,6 +1096,7 @@ static enum ggml_status ggml_metal_graph_compute(
                             nb = ne00 / 4;
                             switch (dst->op) {
                                 case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD_ROW].pipeline; break;
+                                case GGML_OP_SUB: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SUB_ROW].pipeline; break;
                                 case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL_ROW].pipeline; break;
                                 case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV_ROW].pipeline; break;
                                 default: GGML_ABORT("fatal error");
@@ -947,6 +1106,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         } else {
                             switch (dst->op) {
                                 case GGML_OP_ADD: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_ADD].pipeline; break;
+                                case GGML_OP_SUB: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SUB].pipeline; break;
                                 case GGML_OP_MUL: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_MUL].pipeline; break;
                                 case GGML_OP_DIV: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_DIV].pipeline; break;
                                 default: GGML_ABORT("fatal error");
@@ -1276,6 +1436,48 @@ static enum ggml_status ggml_metal_graph_compute(
 
                         [encoder dispatchThreadgroups:MTLSizeMake(n, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
                     } break;
+                case GGML_OP_SQRT:
+                    {
+                        GGML_ASSERT(ggml_is_contiguous(src0));
+
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SQRT].pipeline;
+
+                        [encoder setComputePipelineState:pipeline];
+                        [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
+                        [encoder setBuffer:id_dst  offset:offs_dst atIndex:1];
+
+                        const int64_t n = ggml_nelements(dst);
+
+                        [encoder dispatchThreadgroups:MTLSizeMake(n, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+                    } break;
+                case GGML_OP_SIN:
+                    {
+                        GGML_ASSERT(ggml_is_contiguous(src0));
+
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SIN].pipeline;
+
+                        [encoder setComputePipelineState:pipeline];
+                        [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
+                        [encoder setBuffer:id_dst  offset:offs_dst atIndex:1];
+
+                        const int64_t n = ggml_nelements(dst);
+
+                        [encoder dispatchThreadgroups:MTLSizeMake(n, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+                    } break;
+                case GGML_OP_COS:
+                    {
+                        GGML_ASSERT(ggml_is_contiguous(src0));
+
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_COS].pipeline;
+
+                        [encoder setComputePipelineState:pipeline];
+                        [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
+                        [encoder setBuffer:id_dst  offset:offs_dst atIndex:1];
+
+                        const int64_t n = ggml_nelements(dst);
+
+                        [encoder dispatchThreadgroups:MTLSizeMake(n, 1, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+                    } break;
                 case GGML_OP_SUM_ROWS:
                     {
                         GGML_ASSERT(src0->nb[0] == ggml_type_size(src0->type));
@@ -1402,6 +1604,121 @@ static enum ggml_status ggml_metal_graph_compute(
                         else {
                             [encoder dispatchThreadgroups:MTLSizeMake(ne00, ne01, ne02) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
                         }
+                    } break;
+                case GGML_OP_SSM_CONV:
+                    {
+                        GGML_ASSERT(src0t == GGML_TYPE_F32);
+                        GGML_ASSERT(src1t == GGML_TYPE_F32);
+
+                        GGML_ASSERT(ggml_is_contiguous(src0));
+                        GGML_ASSERT(ggml_is_contiguous(src1));
+
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SSM_CONV_F32].pipeline;
+
+                        [encoder setComputePipelineState:pipeline];
+                        [encoder setBuffer:id_src0 offset:offs_src0    atIndex:0];
+                        [encoder setBuffer:id_src1 offset:offs_src1    atIndex:1];
+                        [encoder setBuffer:id_dst  offset:offs_dst     atIndex:2];
+                        [encoder setBytes:&ne00    length:sizeof(ne00) atIndex:3];
+                        [encoder setBytes:&ne01    length:sizeof(ne01) atIndex:4];
+                        [encoder setBytes:&ne02    length:sizeof(ne02) atIndex:5];
+                        [encoder setBytes:&nb00    length:sizeof(nb00) atIndex:6];
+                        [encoder setBytes:&nb01    length:sizeof(nb01) atIndex:7];
+                        [encoder setBytes:&nb02    length:sizeof(nb02) atIndex:8];
+                        [encoder setBytes:&ne10    length:sizeof(ne10) atIndex:9];
+                        [encoder setBytes:&ne11    length:sizeof(ne11) atIndex:10];
+                        [encoder setBytes:&nb10    length:sizeof(nb10) atIndex:11];
+                        [encoder setBytes:&nb11    length:sizeof(nb11) atIndex:12];
+                        [encoder setBytes:&ne0     length:sizeof(ne0)  atIndex:13];
+                        [encoder setBytes:&ne1     length:sizeof(ne1)  atIndex:14];
+                        [encoder setBytes:&ne2     length:sizeof(ne2)  atIndex:15];
+                        [encoder setBytes:&nb0     length:sizeof(nb0)  atIndex:16];
+                        [encoder setBytes:&nb1     length:sizeof(nb1)  atIndex:17];
+                        [encoder setBytes:&nb2     length:sizeof(nb2)  atIndex:18];
+
+                        [encoder dispatchThreadgroups:MTLSizeMake(ne01, ne1, ne02) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
+                    } break;
+                case GGML_OP_SSM_SCAN:
+                    {
+                        struct ggml_tensor * src3 = gf->nodes[i]->src[3];
+                        struct ggml_tensor * src4 = gf->nodes[i]->src[4];
+                        struct ggml_tensor * src5 = gf->nodes[i]->src[5];
+
+                        GGML_ASSERT(src3);
+                        GGML_ASSERT(src4);
+                        GGML_ASSERT(src5);
+
+                        size_t offs_src3 = 0;
+                        size_t offs_src4 = 0;
+                        size_t offs_src5 = 0;
+
+                        id<MTLBuffer> id_src3 = src3 ? ggml_metal_get_buffer(src3, &offs_src3) : nil;
+                        id<MTLBuffer> id_src4 = src4 ? ggml_metal_get_buffer(src4, &offs_src4) : nil;
+                        id<MTLBuffer> id_src5 = src5 ? ggml_metal_get_buffer(src5, &offs_src5) : nil;
+
+                        const int64_t  ne30 = src3->ne[0]; GGML_UNUSED(ne30);
+                        const int64_t  ne31 = src3->ne[1]; GGML_UNUSED(ne31);
+
+                        const uint64_t nb30 = src3->nb[0];
+                        const uint64_t nb31 = src3->nb[1];
+
+                        const int64_t  ne40 = src4->ne[0]; GGML_UNUSED(ne40);
+                        const int64_t  ne41 = src4->ne[1]; GGML_UNUSED(ne41);
+                        const int64_t  ne42 = src4->ne[2]; GGML_UNUSED(ne42);
+
+                        const uint64_t nb40 = src4->nb[0];
+                        const uint64_t nb41 = src4->nb[1];
+                        const uint64_t nb42 = src4->nb[2];
+
+                        const int64_t  ne50 = src5->ne[0]; GGML_UNUSED(ne50);
+                        const int64_t  ne51 = src5->ne[1]; GGML_UNUSED(ne51);
+                        const int64_t  ne52 = src5->ne[2]; GGML_UNUSED(ne52);
+
+                        const uint64_t nb50 = src5->nb[0];
+                        const uint64_t nb51 = src5->nb[1];
+                        const uint64_t nb52 = src5->nb[2];
+
+                        const int64_t d_state      = ne00;
+                        const int64_t d_inner      = ne01;
+                        const int64_t n_seq_tokens = ne11;
+                        const int64_t n_seqs       = ne02;
+
+                        id<MTLComputePipelineState> pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_SSM_SCAN_F32].pipeline;
+
+                        [encoder setComputePipelineState:pipeline];
+                        [encoder setBuffer:id_src0 offset:offs_src0 atIndex:0];
+                        [encoder setBuffer:id_src1 offset:offs_src1 atIndex:1];
+                        [encoder setBuffer:id_src2 offset:offs_src2 atIndex:2];
+                        [encoder setBuffer:id_src3 offset:offs_src3 atIndex:3];
+                        [encoder setBuffer:id_src4 offset:offs_src4 atIndex:4];
+                        [encoder setBuffer:id_src5 offset:offs_src5 atIndex:5];
+                        [encoder setBuffer:id_dst  offset:offs_dst  atIndex:6];
+
+                        [encoder setBytes:&d_state      length:sizeof(d_state)      atIndex:7];
+                        [encoder setBytes:&d_inner      length:sizeof(d_inner)      atIndex:8];
+                        [encoder setBytes:&n_seq_tokens length:sizeof(n_seq_tokens) atIndex:9];
+                        [encoder setBytes:&n_seqs       length:sizeof(n_seqs)       atIndex:10];
+
+                        [encoder setBytes:&nb00 length:sizeof(nb00) atIndex:11];
+                        [encoder setBytes:&nb01 length:sizeof(nb01) atIndex:12];
+                        [encoder setBytes:&nb02 length:sizeof(nb02) atIndex:13];
+                        [encoder setBytes:&nb10 length:sizeof(nb10) atIndex:14];
+                        [encoder setBytes:&nb11 length:sizeof(nb11) atIndex:15];
+                        [encoder setBytes:&nb12 length:sizeof(nb12) atIndex:16];
+                        [encoder setBytes:&nb13 length:sizeof(nb13) atIndex:17];
+                        [encoder setBytes:&nb20 length:sizeof(nb20) atIndex:18];
+                        [encoder setBytes:&nb21 length:sizeof(nb21) atIndex:19];
+                        [encoder setBytes:&nb22 length:sizeof(nb22) atIndex:20];
+                        [encoder setBytes:&nb30 length:sizeof(nb30) atIndex:21];
+                        [encoder setBytes:&nb31 length:sizeof(nb31) atIndex:22];
+                        [encoder setBytes:&nb40 length:sizeof(nb40) atIndex:23];
+                        [encoder setBytes:&nb41 length:sizeof(nb41) atIndex:24];
+                        [encoder setBytes:&nb42 length:sizeof(nb42) atIndex:25];
+                        [encoder setBytes:&nb50 length:sizeof(nb50) atIndex:26];
+                        [encoder setBytes:&nb51 length:sizeof(nb51) atIndex:27];
+                        [encoder setBytes:&nb52 length:sizeof(nb52) atIndex:28];
+
+                        [encoder dispatchThreadgroups:MTLSizeMake(d_inner, n_seqs, 1) threadsPerThreadgroup:MTLSizeMake(1, 1, 1)];
                     } break;
                 case GGML_OP_MUL_MAT:
                     {
@@ -2489,9 +2806,14 @@ static enum ggml_status ggml_metal_graph_compute(
 
                         float scale;
                         float max_bias;
+                        float logit_softcap;
+                        memcpy(&scale,         ((int32_t *) dst->op_params) + 0, sizeof(scale));
+                        memcpy(&max_bias,      ((int32_t *) dst->op_params) + 1, sizeof(max_bias));
+                        memcpy(&logit_softcap, ((int32_t *) dst->op_params) + 2, sizeof(logit_softcap));
 
-                        memcpy(&scale,    ((int32_t *) dst->op_params) + 0, sizeof(scale));
-                        memcpy(&max_bias, ((int32_t *) dst->op_params) + 1, sizeof(max_bias));
+                        if (logit_softcap != 0.0f) {
+                            scale /= logit_softcap;
+                        }
 
                         const uint32_t n_head      = src0->ne[2];
                         const uint32_t n_head_log2 = 1u << (uint32_t) floorf(log2f((float) n_head));
@@ -2542,30 +2864,31 @@ static enum ggml_status ggml_metal_graph_compute(
                         } else {
                             [encoder setBuffer:id_src0     offset:offs_src0           atIndex:3];
                         }
-                        [encoder setBuffer:id_dst      offset:offs_dst            atIndex:4];
-                        [encoder setBytes:&ne01        length:sizeof( int64_t)    atIndex:5];
-                        [encoder setBytes:&ne02        length:sizeof( int64_t)    atIndex:6];
-                        [encoder setBytes:&ne03        length:sizeof( int64_t)    atIndex:7];
-                        [encoder setBytes:&nb01        length:sizeof(uint64_t)    atIndex:8];
-                        [encoder setBytes:&nb02        length:sizeof(uint64_t)    atIndex:9];
-                        [encoder setBytes:&nb03        length:sizeof(uint64_t)    atIndex:10];
-                        [encoder setBytes:&ne11        length:sizeof( int64_t)    atIndex:11];
-                        [encoder setBytes:&ne12        length:sizeof( int64_t)    atIndex:12];
-                        [encoder setBytes:&ne13        length:sizeof( int64_t)    atIndex:13];
-                        [encoder setBytes:&nb11        length:sizeof(uint64_t)    atIndex:14];
-                        [encoder setBytes:&nb12        length:sizeof(uint64_t)    atIndex:15];
-                        [encoder setBytes:&nb13        length:sizeof(uint64_t)    atIndex:16];
-                        [encoder setBytes:&nb21        length:sizeof(uint64_t)    atIndex:17];
-                        [encoder setBytes:&nb22        length:sizeof(uint64_t)    atIndex:18];
-                        [encoder setBytes:&nb23        length:sizeof(uint64_t)    atIndex:19];
-                        [encoder setBytes:&nb31        length:sizeof(uint64_t)    atIndex:20];
-                        [encoder setBytes:&ne1         length:sizeof( int64_t)    atIndex:21];
-                        [encoder setBytes:&ne2         length:sizeof( int64_t)    atIndex:22];
-                        [encoder setBytes:&scale       length:sizeof(   float)    atIndex:23];
-                        [encoder setBytes:&max_bias    length:sizeof(   float)    atIndex:24];
-                        [encoder setBytes:&m0          length:sizeof(m0)          atIndex:25];
-                        [encoder setBytes:&m1          length:sizeof(m1)          atIndex:26];
-                        [encoder setBytes:&n_head_log2 length:sizeof(n_head_log2) atIndex:27];
+                        [encoder setBuffer:id_dst        offset:offs_dst              atIndex:4];
+                        [encoder setBytes:&ne01          length:sizeof( int64_t)      atIndex:5];
+                        [encoder setBytes:&ne02          length:sizeof( int64_t)      atIndex:6];
+                        [encoder setBytes:&ne03          length:sizeof( int64_t)      atIndex:7];
+                        [encoder setBytes:&nb01          length:sizeof(uint64_t)      atIndex:8];
+                        [encoder setBytes:&nb02          length:sizeof(uint64_t)      atIndex:9];
+                        [encoder setBytes:&nb03          length:sizeof(uint64_t)      atIndex:10];
+                        [encoder setBytes:&ne11          length:sizeof( int64_t)      atIndex:11];
+                        [encoder setBytes:&ne12          length:sizeof( int64_t)      atIndex:12];
+                        [encoder setBytes:&ne13          length:sizeof( int64_t)      atIndex:13];
+                        [encoder setBytes:&nb11          length:sizeof(uint64_t)      atIndex:14];
+                        [encoder setBytes:&nb12          length:sizeof(uint64_t)      atIndex:15];
+                        [encoder setBytes:&nb13          length:sizeof(uint64_t)      atIndex:16];
+                        [encoder setBytes:&nb21          length:sizeof(uint64_t)      atIndex:17];
+                        [encoder setBytes:&nb22          length:sizeof(uint64_t)      atIndex:18];
+                        [encoder setBytes:&nb23          length:sizeof(uint64_t)      atIndex:19];
+                        [encoder setBytes:&nb31          length:sizeof(uint64_t)      atIndex:20];
+                        [encoder setBytes:&ne1           length:sizeof( int64_t)      atIndex:21];
+                        [encoder setBytes:&ne2           length:sizeof( int64_t)      atIndex:22];
+                        [encoder setBytes:&scale         length:sizeof(   float)      atIndex:23];
+                        [encoder setBytes:&max_bias      length:sizeof(   float)      atIndex:24];
+                        [encoder setBytes:&m0            length:sizeof(m0)            atIndex:25];
+                        [encoder setBytes:&m1            length:sizeof(m1)            atIndex:26];
+                        [encoder setBytes:&n_head_log2   length:sizeof(n_head_log2)   atIndex:27];
+                        [encoder setBytes:&logit_softcap length:sizeof(logit_softcap) atIndex:28];
 
                         if (!use_vec_kernel) {
                             // half8x8 kernel
@@ -2691,23 +3014,60 @@ static enum ggml_status ggml_metal_graph_compute(
                         GGML_ABORT("fatal error");
                     }
             }
+
+            if (should_capture) {
+                [encoder popDebugGroup];
+            }
         }
 
         [encoder endEncoding];
 
-        [command_buffer commit];
+        if (cb_idx < 2 || ctx->abort_callback == NULL) {
+            [command_buffer commit];
+        }
+    });
 
     // Wait for completion and check status of each command buffer
     // needed to detect if the device ran out-of-memory for example (#1881)
 
+    for (int i = 0; i < n_cb; ++i) {
+        id<MTLCommandBuffer> command_buffer = command_buffers[i];
         [command_buffer waitUntilCompleted];
 
         MTLCommandBufferStatus status = [command_buffer status];
         if (status != MTLCommandBufferStatusCompleted) {
+            GGML_METAL_LOG_INFO("%s: command buffer %d failed with status %lu\n", __func__, i, status);
+            if (status == MTLCommandBufferStatusError) {
+                NSString * error_code = [command_buffer error].localizedDescription;
+                GGML_METAL_LOG_INFO("error: %s\n", [error_code UTF8String]);
+            }
+
             return GGML_STATUS_FAILED;
         }
+
+        id<MTLCommandBuffer> next_buffer = (i + 1 < n_cb ? command_buffers[i + 1] : nil);
+        if (!next_buffer) {
+            continue;
+        }
+
+        bool next_queued = ([next_buffer status] != MTLCommandBufferStatusNotEnqueued);
+        if (next_queued) {
+            continue;
+        }
+
+        if (ctx->abort_callback && ctx->abort_callback(ctx->abort_callback_data)) {
+            GGML_METAL_LOG_INFO("%s: command buffer %d aborted", __func__, i);
+            return GGML_STATUS_ABORTED;
+        }
+
+        [next_buffer commit];
     }
 
+    if (should_capture) {
+        [[MTLCaptureManager sharedCaptureManager] stopCapture];
+    }
+
+    }
     return GGML_STATUS_SUCCESS;
 }
 
@@ -2868,7 +3228,7 @@ GGML_CALL static ggml_backend_buffer_t ggml_backend_metal_buffer_type_alloc_buff
         ctx->buffers[0].size = size;
         ctx->buffers[0].metal = [device newBufferWithBytesNoCopy:ctx->all_data
                         length:size_aligned
-                        options:GGML_METAL_BUFFER_OPTIONS
+                        options:MTLResourceStorageModeShared
                         deallocator:nil];
     }
 
@@ -2952,7 +3312,7 @@ GGML_CALL ggml_backend_buffer_t ggml_backend_metal_buffer_from_ptr(void * data, 
         ctx->buffers[ctx->n_buffers].data = data;
         ctx->buffers[ctx->n_buffers].size = size;
 
-        ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:data length:size_aligned options:GGML_METAL_BUFFER_OPTIONS deallocator:nil];
+        ctx->buffers[ctx->n_buffers].metal = [device newBufferWithBytesNoCopy:data length:size_aligned options:MTLResourceStorageModeShared deallocator:nil];
 
         if (ctx->buffers[ctx->n_buffers].metal == nil) {
             GGML_METAL_LOG_ERROR("%s: error: failed to allocate buffer, size = %8.2f MiB\n", __func__, size_aligned / 1024.0 / 1024.0);
@@ -3088,9 +3448,22 @@ bool ggml_backend_is_metal(ggml_backend_t backend) {
     return backend != NULL && ggml_guid_matches(backend->guid, ggml_backend_metal_guid());
 }
 
-void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {}
+void ggml_backend_metal_set_n_cb(ggml_backend_t backend, int n_cb) {
+    GGML_ASSERT(ggml_backend_is_metal(backend));
 
-void ggml_backend_metal_set_abort_callback(ggml_backend_t backend, ggml_abort_callback abort_callback, void * user_data) {}
+    struct ggml_backend_metal_context * ctx = (struct ggml_backend_metal_context *)backend->context;
+
+    ctx->n_cb = MIN(n_cb, GGML_METAL_MAX_BUFFERS);
+}
+
+void ggml_backend_metal_set_abort_callback(ggml_backend_t backend, ggml_abort_callback abort_callback, void * user_data) {
+    GGML_ASSERT(ggml_backend_is_metal(backend));
+
+    struct ggml_backend_metal_context * ctx = (struct ggml_backend_metal_context *)backend->context;
+
+    ctx->abort_callback = abort_callback;
+    ctx->abort_callback_data = user_data;
+}
 
 bool ggml_backend_metal_supports_family(ggml_backend_t backend, int family) {
     GGML_ASSERT(ggml_backend_is_metal(backend));
@@ -3101,6 +3474,10 @@ bool ggml_backend_metal_supports_family(ggml_backend_t backend, int family) {
 }
 
 void ggml_backend_metal_capture_next_compute(ggml_backend_t backend) {
+    GGML_ASSERT(ggml_backend_is_metal(backend));
+
+    struct ggml_backend_metal_context * ctx = (struct ggml_backend_metal_context *)backend->context;
+    ctx->should_capture_next_compute = true;
 }
 
 GGML_CALL ggml_backend_t ggml_backend_reg_metal_init(const char * params, void * user_data); // silence warning
