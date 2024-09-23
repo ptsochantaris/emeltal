@@ -67,3 +67,10 @@ td > code {
     opacity: 70%;
     baseline-shift: 0.1;
 }
+
+.additional-info {
+    font-size: small;
+    opacity: 60%;
+    margin-top: 14pt;
+    margin-bottom: 8pt;
+}

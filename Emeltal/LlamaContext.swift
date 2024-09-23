@@ -16,8 +16,10 @@ final class LlamaContext {
     private let n_vocab: Int32
     private let candidateBuffer: UnsafeMutableBufferPointer<llama_token_data>
     private let context: OpaquePointer
+    private let sampler: UnsafeMutablePointer<llama_sampler>
     private var turns: [Turn]
     private let eosTokenIds: Set<Int32>
+    private let quotes: (String, String)?
 
     let n_ctx: UInt32
     let bosToken: String
@@ -67,6 +69,12 @@ final class LlamaContext {
 
         eosTokenIds = asset.category.eosOverrides ?? [llama_token_eos(model)]
 
+        if let quote = asset.category.quoteTag {
+            quotes = ("<\(quote)>", "</\(quote)>")
+        } else {
+            quotes = nil
+        }
+
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
 
@@ -77,7 +85,6 @@ final class LlamaContext {
         ctx_params.n_batch = asset.category.maxBatch
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
-        ctx_params.seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         ctx_params.flash_attn = true
         ctx_params.logits_all = true
         ctx_params.offload_kqv = gpuUsage.offloadKvCache
@@ -89,6 +96,38 @@ final class LlamaContext {
         context = newContext
         n_ctx = llama_n_ctx(newContext)
         turns = []
+
+        let sparams = llama_sampler_chain_default_params()
+
+        guard let newSampler = llama_sampler_chain_init(sparams) else {
+            throw .message("Could not initialise sampling")
+        }
+
+        let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
+        llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
+
+        let params = await manager.asset.params
+
+        llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
+        sampler = newSampler
+
+        if params.topP != Asset.Params.Descriptors.topP.disabled {
+            llama_sampler_chain_add(newSampler, llama_sampler_init_top_p(params.topP, 1))
+        }
+
+        if params.topK != Int(Asset.Params.Descriptors.topK.disabled) {
+            llama_sampler_chain_add(newSampler, llama_sampler_init_top_k(Int32(params.topK)))
+        }
+
+        if params.temperature > 0 {
+            if params.temperatureRange > 0 {
+                llama_sampler_chain_add(newSampler, llama_sampler_init_temp_ext(params.temperature, params.temperatureRange, params.temperatureExponent))
+            } else {
+                llama_sampler_chain_add(newSampler, llama_sampler_init_temp(params.temperature))
+            }
+        } else {
+            llama_sampler_chain_add(newSampler, llama_sampler_init_greedy())
+        }
     }
 
     private func emptyWarmup() {
@@ -130,6 +169,7 @@ final class LlamaContext {
     }
 
     func shutdown() {
+        llama_sampler_free(sampler)
         llama_free(context)
         llama_free_model(model)
         llama_backend_free()
@@ -254,13 +294,13 @@ final class LlamaContext {
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 
-        let params = await manager.asset.params
-
         var utf8Builder = UTF8Builder()
         var failsafeStopDetector: FailsafeStopDetector?
         if let failsafeStop = template.failsafeStop {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
+
+        var lastBatchTokenIndex = Int32(newTokens.count - 1)
 
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
@@ -271,45 +311,20 @@ final class LlamaContext {
                 candidateBuffer[i] = llama_token_data(id: Int32(i), logit: logits![i], p: 0)
             }
 
-            var candidates_p = llama_token_data_array(data: candidateBuffer.baseAddress, size: candidateBuffer.count, sorted: false)
+            let newTokenId: llama_token = llama_sampler_sample(sampler, context, lastBatchTokenIndex)
+            lastBatchTokenIndex = 0
 
-            llama_sample_repetition_penalties(context, &candidates_p, newTokens,
-                                              newTokens.count, // previous token count
-                                              params.repeatPenatly, // repeat penalty
-                                              params.frequencyPenatly, // freq penalty
-                                              params.presentPenatly) // present penalty
-
-            if params.topP != Asset.Params.Descriptors.topP.disabled {
-                llama_sample_top_p(context, &candidates_p, params.topP, 1)
-            }
-
-            if params.topK != Int(Asset.Params.Descriptors.topK.disabled) {
-                llama_sample_top_k(context, &candidates_p, Int32(params.topK), 1)
-            }
-
-            let newTokenId: llama_token
-
-            if params.temperature > 0 {
-                if params.temperatureRange > 0 {
-                    let minTemp = max(0, params.temperature - params.temperatureRange)
-                    let maxTemp = params.temperature + params.temperatureRange
-                    let exponentVal: Float = params.temperatureExponent
-                    llama_sample_entropy(context, &candidates_p, minTemp, maxTemp, exponentVal)
-                } else {
-                    llama_sample_temp(context, &candidates_p, params.temperature)
-                }
-                newTokenId = llama_sample_token(context, &candidates_p)
-
-            } else {
-                newTokenId = llama_sample_token_greedy(context, &candidates_p)
-            }
-
-            if eosTokenIds.contains(newTokenId) {
-                log("Text ended with EOS ID \(newTokenId)")
+            if llama_token_is_eog(model, newTokenId) {
+                log("Text ended with EOS ID \(newTokenId) - Llama")
                 break
             }
 
-            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023, 0, false))
+            if eosTokenIds.contains(newTokenId) {
+                log("Text ended with EOS ID \(newTokenId) - Emeltal")
+                break
+            }
+
+            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023, 0, true))
             if written > 0 {
                 let outputString: String?
                 if written == 1 {
@@ -332,7 +347,17 @@ final class LlamaContext {
                     Self.wordBuffer[written] = 0
                     let output = String(cString: Self.wordBuffer)
                     log("Fragment: \(newTokenId) / '\(output)' / \(Self.wordBufferBytes(written))")
-                    outputString = output
+                    if let quotes {
+                        if output == quotes.0 {
+                            outputString = "<div class='additional-info'>"
+                        } else if output == quotes.1 {
+                            outputString = "</div>"
+                        } else {
+                            outputString = output
+                        }
+                    } else {
+                        outputString = output
+                    }
                 }
                 if let outputString {
                     if failsafeStopDetector == nil {

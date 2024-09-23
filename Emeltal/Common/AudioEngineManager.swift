@@ -13,7 +13,6 @@ final actor AudioEngineManager {
     }
 
     func getEffectPlayer(scheduling effect: Speaker.Effect) -> (AVAudioPlayerNode, UInt64) {
-
         let sound = effect.audioFile
         let msec = UInt64(Double(sound.length * 1000) / sound.processingFormat.sampleRate)
 

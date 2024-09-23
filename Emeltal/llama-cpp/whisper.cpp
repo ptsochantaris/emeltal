@@ -35,6 +35,7 @@
 
 #include "ggml.h"
 #include "ggml-alloc.h"
+#include "ggml-impl.h"
 #include "ggml-backend.h"
 
 #include "whisper-mel.hpp"

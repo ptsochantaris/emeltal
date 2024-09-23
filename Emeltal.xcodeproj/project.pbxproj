@@ -203,6 +203,7 @@
 		16D332342B6117C5009009A7 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
+		16E56C922CA0E7A5009A45AD /* ggml-cpu-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-cpu-impl.h"; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -234,8 +235,8 @@
 		16053F7B2B1CCB13009E07DA /* llama-cpp */ = {
 			isa = PBXGroup;
 			children = (
-				161A61182C516CB000069736 /* ggml.c */,
 				161A60D72C5169F500069736 /* ggml.h */,
+				161A61182C516CB000069736 /* ggml.c */,
 				161A60D92C5169F500069736 /* ggml-aarch64.h */,
 				161A60DA2C5169F500069736 /* ggml-aarch64.c */,
 				161A60DB2C5169F500069736 /* ggml-alloc.h */,
@@ -244,6 +245,7 @@
 				161A60DE2C5169F500069736 /* ggml-backend.c */,
 				161A60DF2C5169F500069736 /* ggml-backend-impl.h */,
 				161A60E02C5169F500069736 /* ggml-common.h */,
+				16E56C922CA0E7A5009A45AD /* ggml-cpu-impl.h */,
 				161A60E12C5169F500069736 /* ggml-impl.h */,
 				161A60E22C5169F500069736 /* ggml-metal.h */,
 				161A60E32C5169F500069736 /* ggml-metal.m */,

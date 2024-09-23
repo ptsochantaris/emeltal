@@ -26,6 +26,7 @@ cp\
  $LSRC/ggml/src/ggml-aarch64.c\
  $LSRC/ggml/src/ggml-aarch64.h\
  $LSRC/ggml/src/ggml.c\
+ $LSRC/ggml/src/ggml-cpu-impl.h\
  $LSRC/ggml/include/ggml.h\
  $LSRC/ggml/src/llamafile/sgemm.h\
  $LSRC/ggml/src/llamafile/sgemm.cpp\
