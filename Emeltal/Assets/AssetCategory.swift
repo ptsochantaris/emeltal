@@ -16,7 +16,7 @@ extension Asset {
             case .dolphin:
                 [.dolphinMixtral, .dolphinTiny, .dolphin70b]
             case .qwen:
-                [.qwen2, .qwen2large]
+                [.qwen2regular, .qwen2large, .qwen2small]
             case .coding:
                 [.codestral, .dolphinCoder, .deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
             case .creative:
@@ -84,8 +84,9 @@ extension Asset {
              llama3 = 2300,
              llama3large = 2400,
              llama3reflection = 2410,
-             qwen2 = 2500,
-             qwen2large = 2600
+             qwen2regular = 2500,
+             qwen2large = 2600,
+             qwen2small = 2700
 
         var selectable: Bool {
             switch self {
@@ -112,7 +113,7 @@ extension Asset {
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
-            case .qwen2, .qwen2large: .chatml
+            case .qwen2regular, .qwen2large, .qwen2small: .chatml
             case .codeLlama70b: .llamaLarge
             case .senku70b: .mistral
             case .miniCpmOpenHermes: .miniCpm
@@ -128,7 +129,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .qwen2, .qwen2large, .sauerkrautSolar, .senku70b:
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .qwen2regular, .qwen2large, .qwen2small, .sauerkrautSolar, .senku70b:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -159,7 +160,7 @@ extension Asset {
                  .neuralStory7b,
                  .nousHermesMixtral,
                  .openChat,
-                 .qwen2,
+                 .qwen2small,
                  .samantha7b,
                  .samantha70b,
                  .sauerkrautSolar,
@@ -169,6 +170,7 @@ extension Asset {
             case .llama3,
                  .llama3large,
                  .llama3reflection,
+                 .qwen2regular,
                  .qwen2large:
                 16384
             }
@@ -225,7 +227,8 @@ extension Asset {
             case .fusionNetDpo: 4096
             case .senku70b: 10240
             case .qwen2large: 5120
-            case .qwen2: 1800
+            case .qwen2regular: 4096
+            case .qwen2small: 1800
             case .mythoMax: 3200
             case .nousHermesMixtral: 4096
             case .openChat: 1024
@@ -258,8 +261,9 @@ extension Asset {
             case .openChat: 170
             case .nousHermesMixtral: 1100
             case .fusionNetDpo: 320
-            case .qwen2large: 590
-            case .qwen2: 155
+            case .qwen2large: 580
+            case .qwen2regular: 290
+            case .qwen2small: 150
             case .codeLlama70b: 610
             case .senku70b: 610
             case .miniCpmOpenHermes: 60
@@ -287,7 +291,8 @@ extension Asset {
             case .nousHermesMixtral: 33
             case .fusionNetDpo: 33
             case .qwen2large: 81
-            case .qwen2: 29
+            case .qwen2regular: 65
+            case .qwen2small: 29
             case .codeLlama70b: 81
             case .senku70b: 81
             case .miniCpmOpenHermes: 41
@@ -395,7 +400,8 @@ extension Asset {
             case .nousHermesMixtral: "33 GB"
             case .fusionNetDpo: "8.9 GB"
             case .qwen2large: "47.4 GB"
-            case .qwen2: "5.5 GB"
+            case .qwen2regular: "20.0 GB"
+            case .qwen2small: "4.5 GB"
             case .codeLlama70b: "48.8"
             case .senku70b: "48.8 GB"
             case .miniCpmOpenHermes: "3.2 GB"
@@ -425,8 +431,7 @@ extension Asset {
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
-            case .qwen2: "A consistently well regarded all-round model by users and benchmarks."
-            case .qwen2large: "A consistently well regarded all-round model by users and benchmarks."
+            case .qwen2regular, .qwen2large, .qwen2small: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
             case .miniCpmOpenHermes: "A high-quality dataset running on the small but very capable MiniCPM model."
@@ -446,7 +451,7 @@ extension Asset {
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .qwen2, .qwen2large, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b: 1024
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .qwen2regular, .qwen2small, .qwen2large, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }
@@ -533,8 +538,9 @@ extension Asset {
             case .openChat: "https://huggingface.co/openchat/openchat-3.5-0106"
             case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
             case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
-            case .qwen2: "https://huggingface.co/Qwen/Qwen2-7B-Instruct-GGUF"
-            case .qwen2large: "https://huggingface.co/Qwen/Qwen2-72B-Instruct-GGUF"
+            case .qwen2regular: "https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF"
+            case .qwen2large: "https://huggingface.co/bartowski/Qwen2.5-Math-72B-Instruct-GGUF"
+            case .qwen2small: "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF"
             case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
             case .senku70b: "https://huggingface.co/ShinojiResearch/Senku-70B-Full"
             case .miniCpmOpenHermes: "https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2"
@@ -565,8 +571,9 @@ extension Asset {
             case .openChat: "openchat-3.5-0106.Q5_K_M.gguf"
             case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
             case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
-            case .qwen2: "qwen2-7b-instruct-q5_k_m.gguf"
-            case .qwen2large: "qwen2-72b-instruct-q4_k_m.gguf"
+            case .qwen2regular: "Qwen2.5-32B-Instruct-Q4_K_M.gguf"
+            case .qwen2large: "Qwen2.5-72B-Instruct-Q4_K_M.gguf"
+            case .qwen2small: "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
             case .codeLlama70b: "CodeLlama-70b-Instruct-hf-Q5_K_M.gguf"
             case .senku70b: "Senku-70B-Full-Q5_K_M.gguf"
             case .miniCpmOpenHermes: "minicpm-2b-openhermes-2.5-v2.Q8_0.gguf"
@@ -608,7 +615,8 @@ extension Asset {
             case .nousHermesMixtral: "Nous Hermes"
             case .fusionNetDpo: "FusionNet"
             case .qwen2large: "Qwen2 (Large)"
-            case .qwen2: "Qwen2"
+            case .qwen2regular: "Qwen2"
+            case .qwen2small: "Qwen2 (Compact)"
             case .codeLlama70b: "CodeLlama (Large)"
             case .senku70b: "Senku"
             case .miniCpmOpenHermes: "OpenHermes (Compact)"
@@ -638,8 +646,9 @@ extension Asset {
             case .openChat: "v3.5(0106)"
             case .nousHermesMixtral: "v2, on Mixtral 8x7b"
             case .fusionNetDpo: "DPO finetune"
-            case .qwen2large: "v2, 72b variant"
-            case .qwen2: "v2, 7b variant"
+            case .qwen2large: "v2.5, 72b variant"
+            case .qwen2regular: "v2.5, 32b variant"
+            case .qwen2small: "v2.5, 7b variant"
             case .codeLlama70b: "70b HF variant, on Llama2"
             case .senku70b: "70b finetune, on Miqu"
             case .miniCpmOpenHermes: "3b variant, on MiniCPM"
@@ -668,8 +677,9 @@ extension Asset {
             case .openChat: "983CD5E9-F843-4D76-8D7B-2FB5A40841BE"
             case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
             case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
-            case .qwen2: "097BE0CB-37DC-4EDD-8DED-63E56D93E2F7"
-            case .qwen2large: "A111AFB5-D30D-4AAB-99E9-15515E442120"
+            case .qwen2regular: "7D602BDC-DB4E-4DD1-8FC3-0A6A173B38DE"
+            case .qwen2large: "56D9FEFF-788B-4319-9C01-564110C5275A"
+            case .qwen2small: "50911087-9A0E-467B-AF5C-18132840C33D"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "C1B93F86-721B-4560-A398-A6E69BFCA99B"
             case .senku70b: "156CA7E2-6E18-4786-9AA8-C04B1424E01C"
