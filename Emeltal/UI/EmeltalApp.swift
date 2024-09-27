@@ -21,8 +21,7 @@ struct EmeltalApp: App {
                     Persisted.selectedAssetId = asset.category.id
                     state = AppState(asset: asset)
                 }
-                .frame(width: 1000, height: 950)
-                .fixedSize()
+                .frame(idealWidth: 1000, idealHeight: 950)
             }
         }
         .windowResizability(state != nil ? .automatic : .contentSize)

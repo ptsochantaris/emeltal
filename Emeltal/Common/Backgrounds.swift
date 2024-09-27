@@ -35,20 +35,20 @@ struct ShimmerBackground: View {
     let show: Bool
 
     var body: some View {
-        TimelineView(.animation(paused: !show)) { timeline in
-            let elapsedTime = startTime.distance(to: timeline.date)
-            Rectangle()
-                .frame(width: 256, height: 256)
-                .visualEffect { content, proxy in
-                    content
-                        .colorEffect(
-                            ShaderLibrary.pickerBackground(
-                                .float2(proxy.size),
-                                .float(elapsedTime)
+        GeometryReader { _ in
+            TimelineView(.animation(paused: !show)) {
+                let elapsedTime = startTime.distance(to: $0.date)
+                Rectangle()
+                    .visualEffect { content, proxy in
+                        content
+                            .colorEffect(
+                                ShaderLibrary.pickerBackground(
+                                    .float2(proxy.size),
+                                    .float(elapsedTime)
+                                )
                             )
-                        )
-                        .scaleEffect(CGSize(width: 3.95, height: 3.75))
-                }
+                    }
+            }
         }
     }
 }

@@ -570,6 +570,7 @@ extern "C" {
         GGML_LOG_LEVEL_WARN  = 2,
         GGML_LOG_LEVEL_ERROR = 3,
         GGML_LOG_LEVEL_DEBUG = 4,
+        GGML_LOG_LEVEL_CONT  = 5, // continue previous log
     };
 
     // this tensor...
@@ -1978,6 +1979,9 @@ extern "C" {
     typedef void (*ggml_custom1_op_t)(struct ggml_tensor * dst , const struct ggml_tensor * a, int ith, int nth, void * userdata);
     typedef void (*ggml_custom2_op_t)(struct ggml_tensor * dst , const struct ggml_tensor * a, const struct ggml_tensor * b, int ith, int nth, void * userdata);
     typedef void (*ggml_custom3_op_t)(struct ggml_tensor * dst , const struct ggml_tensor * a, const struct ggml_tensor * b, const struct ggml_tensor * c, int ith, int nth, void * userdata);
+
+#define GGML_N_TASKS_MAX (-1)
+    // n_tasks == GGML_N_TASKS_MAX means to use max number of tasks
 
     GGML_API struct ggml_tensor * ggml_map_custom1(
             struct ggml_context   * ctx,

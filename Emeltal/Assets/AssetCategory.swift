@@ -113,7 +113,7 @@ extension Asset {
             case .openChat: .openChat
             case .nousHermesMixtral: .chatml
             case .fusionNetDpo: .alpaca
-            case .qwen2regular, .qwen2large, .qwen2small: .chatml
+            case .qwen2large, .qwen2regular, .qwen2small: .chatml
             case .codeLlama70b: .llamaLarge
             case .senku70b: .mistral
             case .miniCpmOpenHermes: .miniCpm
@@ -129,7 +129,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .qwen2regular, .qwen2large, .qwen2small, .sauerkrautSolar, .senku70b:
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .qwen2large, .qwen2regular, .qwen2small, .sauerkrautSolar, .senku70b:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -170,8 +170,8 @@ extension Asset {
             case .llama3,
                  .llama3large,
                  .llama3reflection,
-                 .qwen2regular,
-                 .qwen2large:
+                 .qwen2large,
+                 .qwen2regular:
                 16384
             }
         }
@@ -431,7 +431,7 @@ extension Asset {
             case .openChat: "One of the highest performing models at the medium-small size range."
             case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
             case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
-            case .qwen2regular, .qwen2large, .qwen2small: "A consistently well regarded all-round model by users and benchmarks."
+            case .qwen2large, .qwen2regular, .qwen2small: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
             case .miniCpmOpenHermes: "A high-quality dataset running on the small but very capable MiniCPM model."
@@ -451,7 +451,7 @@ extension Asset {
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .qwen2regular, .qwen2small, .qwen2large, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b: 1024
+            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b: 1024
             case .dolphinTiny, .miniCpmOpenHermes: 256
             case .whisper: 0
             }

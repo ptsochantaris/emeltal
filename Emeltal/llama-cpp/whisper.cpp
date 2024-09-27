@@ -35,7 +35,6 @@
 
 #include "ggml.h"
 #include "ggml-alloc.h"
-#include "ggml-impl.h"
 #include "ggml-backend.h"
 
 #include "whisper-mel.hpp"
@@ -178,7 +177,7 @@ static bool ggml_graph_compute_helper(
                          int   n_threads,
          ggml_abort_callback   abort_callback,
                         void * abort_callback_data) {
-    struct ggml_cplan plan = ggml_graph_plan(graph, n_threads, NULL);
+    struct ggml_cplan plan = ggml_graph_plan(graph, n_threads, nullptr);
 
     plan.abort_callback      = abort_callback;
     plan.abort_callback_data = abort_callback_data;
@@ -2895,7 +2894,7 @@ static bool whisper_decode_internal(
             ggml_backend_tensor_set(KQ_mask, wstate.inp_mask.data(), 0, ggml_nelements(KQ_mask)*sizeof(float));
         }
 
-        logits = gf->nodes[gf->n_nodes - 1];
+        logits = ggml_graph_node(gf, -1);
 
         if (!ggml_graph_compute_helper(sched, gf, n_threads)) {
             return false;

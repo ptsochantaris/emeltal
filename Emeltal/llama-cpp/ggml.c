@@ -135,6 +135,9 @@ static atomic_bool atomic_flag_test_and_set(atomic_flag * ptr) {
 static void atomic_flag_clear(atomic_flag * ptr) {
     InterlockedExchange(ptr, 0);
 }
+static void atomic_thread_fence(memory_order mo) {
+    MemoryBarrier();
+}
 #else // clang
 #include <stdatomic.h>
 #endif
@@ -310,7 +313,6 @@ void ggml_abort(const char * file, int line, const char * fmt, ...) {
 #define GGML_DEBUG 0
 #define GGML_GELU_FP16
 #define GGML_GELU_QUICK_FP16
-#define GGML_N_TASKS_MAX (-1)
 
 #define GGML_SOFT_MAX_UNROLL 4
 #define GGML_VEC_DOT_UNROLL  2
