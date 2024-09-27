@@ -5,12 +5,10 @@ extension Asset {
     enum Section: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case general, dolphin, qwen, samantha, coding, creative, llamas, experimental, deprecated
+        case qwen, dolphin, samantha, coding, creative, llamas, deprecated
 
         var presentedModels: [Variant] {
             switch self {
-            case .general:
-                [.sauerkrautSolar, .fusionNetDpo, .nousHermesMixtral, .openChat]
             case .llamas:
                 [.llama3, .llama3large, .llama3reflection]
             case .dolphin:
@@ -23,8 +21,6 @@ extension Asset {
                 [.mythoMax, .neuralStory7b]
             case .samantha:
                 [.samantha7b, .samantha70b]
-            case .experimental:
-                [.senku70b, .miniCpmOpenHermes, .alphaMonarch]
             case .deprecated:
                 []
             }
@@ -32,12 +28,10 @@ extension Asset {
 
         var title: String {
             switch self {
-            case .general: "General Chat"
             case .dolphin: "Dolphin"
             case .coding: "Coding"
             case .qwen: "Qwen"
             case .creative: "Creative"
-            case .experimental: "Experimental"
             case .deprecated: "Deprecated"
             case .samantha: "Samantha"
             case .llamas: "Llamas"
@@ -46,11 +40,9 @@ extension Asset {
 
         var description: String {
             switch self {
-            case .general: "These models are for general chat, chosen for being reliable, having good comprehension and response quality representative of each size class."
             case .dolphin: "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
             case .coding: "Models that can assist with programming, algorithms, and writing code."
             case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
-            case .experimental: "Models to try out that are new and noteworthy. They may be promoted to a category above, be replaced by other interesting models, or just be buggy and output nonsense."
             case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
             case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models based on the premise they are sentient, and emotionally supportive of the user."
             case .qwen: "The Qwen models are consistently rated both highly in benchmarks and by users."
@@ -63,10 +55,6 @@ extension Asset {
         case dolphinMixtral = 100,
              dolphin70b = 200,
              dolphinTiny = 300,
-             sauerkrautSolar = 400,
-             fusionNetDpo = 500,
-             openChat = 600,
-             nousHermesMixtral = 700,
              mythoMax = 800,
              codestral = 820,
              dolphinCoder = 850,
@@ -74,13 +62,10 @@ extension Asset {
              codeLlama70b = 1000,
              deepSeekCoder7 = 1100,
              everyoneCoder = 1200,
-             senku70b = 1300,
-             miniCpmOpenHermes = 1500,
              samantha7b = 1600,
              samantha70b = 1700,
              whisper = 1800,
              neuralStory7b = 2000,
-             alphaMonarch = 2100,
              llama3 = 2300,
              llama3large = 2400,
              llama3reflection = 2410,
@@ -96,7 +81,7 @@ extension Asset {
         }
 
         var recommended: Bool {
-            self == .sauerkrautSolar
+            self == .qwen2regular
         }
 
         var section: Section? {
@@ -108,19 +93,12 @@ extension Asset {
             case .deepSeekCoder7, .deepSeekCoder33: .alpaca
             case .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny: .chatml
             case .mythoMax: .alpaca
-            case .sauerkrautSolar: .userAssistant
             case .whisper: .alpaca
-            case .openChat: .openChat
-            case .nousHermesMixtral: .chatml
-            case .fusionNetDpo: .alpaca
             case .qwen2large, .qwen2regular, .qwen2small: .chatml
             case .codeLlama70b: .llamaLarge
-            case .senku70b: .mistral
-            case .miniCpmOpenHermes: .miniCpm
             case .samantha7b, .samantha70b: .vicuna
             case .everyoneCoder: .alpaca
             case .codestral, .neuralStory7b: .mistral
-            case .alphaMonarch: .alpaca
             case .llama3, .llama3large, .llama3reflection: .llama3
             }
         }
@@ -129,7 +107,7 @@ extension Asset {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .dolphinTiny, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .miniCpmOpenHermes, .nousHermesMixtral, .openChat, .qwen2large, .qwen2regular, .qwen2small, .sauerkrautSolar, .senku70b:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .llama3, .llama3large, .llama3reflection, .qwen2large, .qwen2regular, .qwen2small:
                 "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -144,8 +122,7 @@ extension Asset {
 
         var contextSize: UInt32 {
             switch self {
-            case .alphaMonarch,
-                 .codeLlama70b,
+            case .codeLlama70b,
                  .codestral,
                  .deepSeekCoder7,
                  .deepSeekCoder33,
@@ -154,17 +131,11 @@ extension Asset {
                  .dolphinMixtral,
                  .dolphinTiny,
                  .everyoneCoder,
-                 .fusionNetDpo,
-                 .miniCpmOpenHermes,
                  .mythoMax,
                  .neuralStory7b,
-                 .nousHermesMixtral,
-                 .openChat,
                  .qwen2small,
                  .samantha7b,
                  .samantha70b,
-                 .sauerkrautSolar,
-                 .senku70b,
                  .whisper:
                 0
             case .llama3,
@@ -224,21 +195,14 @@ extension Asset {
             case .llama3: 2048
             case .llama3large, .llama3reflection: 5120
             case .dolphinTiny: 89
-            case .fusionNetDpo: 4096
-            case .senku70b: 10240
             case .qwen2large: 5120
             case .qwen2regular: 4096
             case .qwen2small: 1800
             case .mythoMax: 3200
-            case .nousHermesMixtral: 4096
-            case .openChat: 1024
-            case .sauerkrautSolar: 1536
-            case .miniCpmOpenHermes: 720
             case .samantha70b: 1280
             case .samantha7b: 4096
             case .neuralStory7b: 4096
             case .everyoneCoder: 4096
-            case .alphaMonarch: 4096
             case .dolphinCoder: 1280
             case .whisper: 0
             }
@@ -253,27 +217,20 @@ extension Asset {
             case .deepSeekCoder33: 460
             case .dolphinCoder: 350
             case .deepSeekCoder7: 160
-            case .sauerkrautSolar: 160
             case .dolphinTiny: 48
             case .mythoMax: 260
             case .whisper: 1
             case .dolphin70b: 610
-            case .openChat: 170
-            case .nousHermesMixtral: 1100
-            case .fusionNetDpo: 320
             case .qwen2large: 580
             case .qwen2regular: 290
             case .qwen2small: 150
             case .codeLlama70b: 610
-            case .senku70b: 610
-            case .miniCpmOpenHermes: 60
             case .llama3large, .llama3reflection: 600
             case .llama3: 155
             case .samantha70b: 600
             case .samantha7b: 210
             case .neuralStory7b: 240
             case .everyoneCoder: 460
-            case .alphaMonarch: 200
             case .codestral: 480
             }
 
@@ -282,25 +239,18 @@ extension Asset {
             case .dolphinCoder: 41
             case .deepSeekCoder33: 63
             case .deepSeekCoder7: 31
-            case .sauerkrautSolar: 49
             case .dolphinTiny: 23
             case .mythoMax: 41
             case .whisper: 0
             case .dolphin70b: 81
-            case .openChat: 33
-            case .nousHermesMixtral: 33
-            case .fusionNetDpo: 33
             case .qwen2large: 81
             case .qwen2regular: 65
             case .qwen2small: 29
             case .codeLlama70b: 81
-            case .senku70b: 81
-            case .miniCpmOpenHermes: 41
             case .samantha70b: 81
             case .samantha7b: 33
             case .neuralStory7b: 33
             case .everyoneCoder: 63
-            case .alphaMonarch: 33
             case .llama3large, .llama3reflection: 81
             case .llama3: 33
             case .codestral: 57
@@ -392,24 +342,17 @@ extension Asset {
             case .dolphinMixtral: "32.2 GB"
             case .deepSeekCoder33: "27.4 GB"
             case .deepSeekCoder7: "5.67 GB"
-            case .sauerkrautSolar: "7.6 GB"
             case .mythoMax: "10.7 GB"
             case .whisper: "1.1 GB"
             case .dolphinTiny: "0.9 GB"
-            case .openChat: "5.2 GB"
-            case .nousHermesMixtral: "33 GB"
-            case .fusionNetDpo: "8.9 GB"
             case .qwen2large: "47.4 GB"
             case .qwen2regular: "20.0 GB"
             case .qwen2small: "4.5 GB"
             case .codeLlama70b: "48.8"
-            case .senku70b: "48.8 GB"
-            case .miniCpmOpenHermes: "3.2 GB"
             case .samantha70b: "48.8 GB"
             case .samantha7b: "5.2 GB"
             case .everyoneCoder: "27.4 GB"
             case .neuralStory7b: "6.0 GB"
-            case .alphaMonarch: "4.8 GB"
             case .dolphinCoder: "13.1 GB"
             case .llama3large: "50.0 GB"
             case .llama3reflection: "48.7 GB"
@@ -424,22 +367,15 @@ extension Asset {
             case .deepSeekCoder7: "A more compact version of the Deepseek Coder model, focusing on code-related generation and questions"
             case .dolphinMixtral: "The current state of the art, with multifaceted expertise and good conversational ability."
             case .mythoMax: "MythoMax is a model designed to be both imaginative, and useful for creativity and writing."
-            case .sauerkrautSolar: "One of the highest performing models for chat. A great starting point."
             case .dolphin70b: "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
             case .dolphinTiny: "The Doplhin chatbot running on the Tinyllama model, great for systems with constrained storage or processing requirements."
-            case .openChat: "One of the highest performing models at the medium-small size range."
-            case .nousHermesMixtral: "The Nous Hermes chatbot running on the Mixtral state of the art model."
-            case .fusionNetDpo: "Excellent experimental model with the current top sentence completion performance."
             case .qwen2large, .qwen2regular, .qwen2small: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
-            case .senku70b: "A finetune of the Miqu work-in-progress Mistral model. Very high quality but possibly not suitable for commercial use."
-            case .miniCpmOpenHermes: "A high-quality dataset running on the small but very capable MiniCPM model."
             case .samantha70b: "A larger but slightly older version of the Samantha model."
             case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
             case .everyoneCoder: "This is a community-created coding specific model made using fine-tunes of the Deekseekcoder base."
             case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
-            case .alphaMonarch: "An experimental model with a very high AGI bechmark quotient, which may also be good for creative writing or roleplay."
             case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
             case .llama3large: "The large version of the latest Llama-3 model from Meta"
             case .llama3reflection: "The smarter, retuned, Reflection variant of the Llama-3 model from Meta. Will display its chain-of-thought in the response."
@@ -451,8 +387,8 @@ extension Asset {
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .alphaMonarch, .dolphin70b, .dolphinMixtral, .fusionNetDpo, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .nousHermesMixtral, .openChat, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b, .sauerkrautSolar, .senku70b: 1024
-            case .dolphinTiny, .miniCpmOpenHermes: 256
+            case .dolphin70b, .dolphinMixtral, .llama3, .llama3large, .llama3reflection, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b: 1024
+            case .dolphinTiny: 256
             case .whisper: 0
             }
         }
@@ -527,33 +463,26 @@ extension Asset {
 
         var originalRepoUrl: URL {
             let uri = switch self {
-            case .dolphinMixtral: "https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b"
-            case .deepSeekCoder33: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
-            case .deepSeekCoder7: "https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5"
             case .mythoMax: "https://huggingface.co/Gryphe/MythoMax-L2-13b"
             case .whisper: "https://huggingface.co/ggerganov/whisper.cpp"
-            case .sauerkrautSolar: "https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct"
-            case .dolphin70b: "https://huggingface.co/cognitivecomputations/dolphin-2.2-70b"
-            case .dolphinTiny: "https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b"
-            case .openChat: "https://huggingface.co/openchat/openchat-3.5-0106"
-            case .nousHermesMixtral: "https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
-            case .fusionNetDpo: "https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B"
+            case .deepSeekCoder33: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
+            case .deepSeekCoder7: "https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5"
+            case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
+            case .everyoneCoder: "https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base"
+            case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
+            case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             case .qwen2regular: "https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF"
             case .qwen2large: "https://huggingface.co/bartowski/Qwen2.5-Math-72B-Instruct-GGUF"
             case .qwen2small: "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF"
-            case .codeLlama70b: "https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf"
-            case .senku70b: "https://huggingface.co/ShinojiResearch/Senku-70B-Full"
-            case .miniCpmOpenHermes: "https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2"
+            case .dolphinMixtral: "https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b"
+            case .dolphin70b: "https://huggingface.co/cognitivecomputations/dolphin-2.2-70b"
+            case .dolphinTiny: "https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b"
             case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
             case .samantha7b: "https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b"
-            case .everyoneCoder: "https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base"
             case .neuralStory7b: "https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story"
-            case .alphaMonarch: "https://huggingface.co/mlabonne/AlphaMonarch-7B"
-            case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             case .llama3large: "https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct"
             case .llama3reflection: "https://huggingface.co/mattshumer/Reflection-Llama-3.1-70B"
             case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct"
-            case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
             }
             return URL(string: uri)!
         }
@@ -565,34 +494,21 @@ extension Asset {
             case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
             case .mythoMax: "mythomax-l2-13b.Q6_K.gguf"
             case .whisper: "ggml-large-v3-q5_k.bin"
-            case .sauerkrautSolar: "sauerkrautlm-solar-instruct.Q5_K_M.gguf"
             case .dolphin70b: "dolphin-2.2-70b.Q5_K_M.gguf"
             case .dolphinTiny: "tinydolphin-2.8-1.1b.Q6_K.gguf"
-            case .openChat: "openchat-3.5-0106.Q5_K_M.gguf"
-            case .nousHermesMixtral: "nous-hermes-2-mixtral-8x7b-dpo.Q5_K_M.gguf"
-            case .fusionNetDpo: "Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B-q5_k_m.gguf"
             case .qwen2regular: "Qwen2.5-32B-Instruct-Q4_K_M.gguf"
             case .qwen2large: "Qwen2.5-72B-Instruct-Q4_K_M.gguf"
             case .qwen2small: "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
             case .codeLlama70b: "CodeLlama-70b-Instruct-hf-Q5_K_M.gguf"
-            case .senku70b: "Senku-70B-Full-Q5_K_M.gguf"
-            case .miniCpmOpenHermes: "minicpm-2b-openhermes-2.5-v2.Q8_0.gguf"
             case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
             case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
             case .everyoneCoder: "Everyone-Coder-33b-v2-Base-Q6_K.gguf"
             case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
-            case .alphaMonarch: "alphamonarch-7b.Q5_K_M.gguf"
             case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
             case .llama3large: "Meta-Llama-3.1-70B-Instruct.Q5_K_M.gguf"
             case .llama3: "Meta-Llama-3.1-8B-Instruct-Q6_K.gguf"
             case .llama3reflection: "Reflection-Llama-3.1-70B.Q5_K_S.gguf"
             case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
-            }
-
-            if case .senku70b = self {
-                // Not storing this in the Emeltal repo currently, as the distribution rights of the base model are not clear, although
-                // Mistral are aware of the miqudev repo and only requested attribution, so it's at least legal to use non-commercially
-                return URL(string: "https://huggingface.co/LoneStriker/Senku-70B-Full-GGUF/resolve/main/Senku-70B-Full-Q5_K_M.gguf")!
             }
 
             return emeltalRepo
@@ -608,23 +524,16 @@ extension Asset {
             case .deepSeekCoder7: "DeepSeek Coder (Compact)"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Voice Recognition"
-            case .sauerkrautSolar: "Sauerkraut"
             case .dolphin70b: "Dolphin (Large)"
             case .dolphinTiny: "Dolphin (Compact)"
-            case .openChat: "OpenChat"
-            case .nousHermesMixtral: "Nous Hermes"
-            case .fusionNetDpo: "FusionNet"
             case .qwen2large: "Qwen2 (Large)"
             case .qwen2regular: "Qwen2"
             case .qwen2small: "Qwen2 (Compact)"
             case .codeLlama70b: "CodeLlama (Large)"
-            case .senku70b: "Senku"
-            case .miniCpmOpenHermes: "OpenHermes (Compact)"
             case .samantha70b: "Samantha (Large)"
             case .samantha7b: "Samantha"
             case .everyoneCoder: "EveryoneCoder"
             case .neuralStory7b: "Neural Story"
-            case .alphaMonarch: "Alpha Monarch"
             case .dolphinCoder: "Dolphin Coder"
             case .llama3large: "Llama 3 Large"
             case .llama3: "Llama 3"
@@ -640,23 +549,16 @@ extension Asset {
             case .deepSeekCoder7: "v1.5, on Llama2"
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3"
-            case .sauerkrautSolar: "on Solar 10.7b"
             case .dolphin70b: "on Llama 70b (x2)"
             case .dolphinTiny: "v2.8, on TinyLlama"
-            case .openChat: "v3.5(0106)"
-            case .nousHermesMixtral: "v2, on Mixtral 8x7b"
-            case .fusionNetDpo: "DPO finetune"
             case .qwen2large: "v2.5, 72b variant"
             case .qwen2regular: "v2.5, 32b variant"
             case .qwen2small: "v2.5, 7b variant"
             case .codeLlama70b: "70b HF variant, on Llama2"
-            case .senku70b: "70b finetune, on Miqu"
-            case .miniCpmOpenHermes: "3b variant, on MiniCPM"
             case .samantha70b: "v1.11, on Llama2"
             case .samantha7b: "v1.1, on WestLake"
             case .everyoneCoder: "v2, on DeepSeekCoder 33b"
             case .neuralStory7b: "on Mistral-Instruct 0.2"
-            case .alphaMonarch: "Merging descendant"
             case .dolphinCoder: "on StarCoder2 15b"
             case .llama3large: "v3.1, 70b params"
             case .llama3: "v3.1, 8b params"
@@ -671,24 +573,17 @@ extension Asset {
             case .deepSeekCoder33: "73FD5E35-94F3-4923-9E28-070564DF5B6E"
             case .mythoMax: "AA4B3287-CA79-466F-8F84-87486D701256"
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
-            case .sauerkrautSolar: "195B279E-3CAA-4E53-9CD3-59D5DE5B40A2"
             case .dolphin70b: "0D70BC73-9559-4778-90A6-E5F2E4B71213"
             case .dolphinTiny: "5CDE7417-9281-4186-9C53-921674E8DCC0"
-            case .openChat: "983CD5E9-F843-4D76-8D7B-2FB5A40841BE"
-            case .nousHermesMixtral: "DA3F2AB9-963B-44CD-B3D4-CABDCB8C3145"
-            case .fusionNetDpo: "2859B29B-19E1-47DE-817F-6A62A79AF7CF"
             case .qwen2regular: "7D602BDC-DB4E-4DD1-8FC3-0A6A173B38DE"
             case .qwen2large: "56D9FEFF-788B-4319-9C01-564110C5275A"
             case .qwen2small: "50911087-9A0E-467B-AF5C-18132840C33D"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "C1B93F86-721B-4560-A398-A6E69BFCA99B"
-            case .senku70b: "156CA7E2-6E18-4786-9AA8-C04B1424E01C"
-            case .miniCpmOpenHermes: "A16F4EB2-6B73-4341-82C0-A06050169343"
             case .samantha70b: "259CD082-71B4-4CD4-8D52-08DC317CC41A"
             case .samantha7b: "52AD5BC7-0F1C-47DB-9DAD-F2DF17559E7B"
             case .everyoneCoder: "50E2E4E2-C42C-4558-B572-2BC2399E3134"
             case .neuralStory7b: "5506DA6E-5403-4BEC-BBA8-5D8F1046DCDD"
-            case .alphaMonarch: "42D4CD1B-F1D2-4F2E-8DD2-32082D136EED"
             case .dolphinCoder: "80D5B47C-E4ED-47B1-B1D3-F0EE0258670A"
             case .llama3large: "15D7333B-ECC3-4499-BB41-457F2007F207"
             case .llama3: "2F547D7D-612B-4BA0-A42E-B17392346FA0"

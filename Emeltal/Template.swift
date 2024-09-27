@@ -6,11 +6,11 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, userAssistant, openChat, llamaLarge, mistral, miniCpm, vicuna, gemma, llama3
+        case alpaca, chatml, llamaLarge, mistral, vicuna, gemma, llama3
 
         var acceptsSystemPrompt: Bool {
             switch self {
-            case .miniCpm, .mistral, .openChat, .userAssistant: false
+            case .mistral: false
             case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .vicuna: true
             }
         }
@@ -70,18 +70,6 @@ struct Template {
             case .turn: "<start_of_turn>user\n"
             }
 
-        case .miniCpm:
-            switch step {
-            case .cancel, .initial: ""
-            case .turn: "<用户>"
-            }
-
-        case .openChat:
-            switch step {
-            case .cancel, .initial: ""
-            case .turn: "GPT4 Correct User: "
-            }
-
         case .llama3:
             switch step {
             case .initial: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
@@ -105,13 +93,6 @@ struct Template {
                 } else {
                     "<s>\n\n### Instruction:\n\n"
                 }
-            }
-
-        case .userAssistant:
-            switch step {
-            case .initial: "### User:\n"
-            case .turn: "\n\n### User:\n"
-            case .cancel: ""
             }
 
         case .llamaLarge:
@@ -144,12 +125,6 @@ struct Template {
             case .turn: "<end_of_turn>\n<start_of_turn>model"
             }
 
-        case .miniCpm:
-            switch step {
-            case .cancel, .initial: ""
-            case .turn: "<AI>"
-            }
-
         case .mistral:
             switch step {
             case .initial, .turn: " [/INST] "
@@ -170,13 +145,6 @@ struct Template {
             case .turn: " <step> Source: assistant\nDestination: user\n\n "
             }
 
-        case .openChat:
-            switch step {
-            case .initial: ""
-            case .turn: "<|end_of_turn|>GPT4 Correct Assistant: "
-            case .cancel: "<|end_of_turn|>"
-            }
-
         case .chatml:
             switch step {
             case .initial: "<|im_end|>\n"
@@ -190,18 +158,12 @@ struct Template {
             case .turn: "\n\n### Response:\n\n"
             case .cancel: "\n\n"
             }
-
-        case .userAssistant:
-            switch step {
-            case .cancel, .initial: ""
-            case .turn: "\n\n### Assistant:\n"
-            }
         }
     }
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .llama3, .llamaLarge, .miniCpm, .mistral, .openChat, .userAssistant, .vicuna:
+        case .gemma, .llama3, .llamaLarge, .mistral, .vicuna:
             nil
 
         case .chatml:

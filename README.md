@@ -21,26 +21,21 @@ A light helper app which can run on an iPhone or device with not enough processi
 
 ## Currently supported models
 
-Emeltal offers a hand-picked list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes and expands as new models become available, or others are superceeded by much better performing ones. All models run at their maximum context size.
+Emeltal offers a hand-picked list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of Llama 3 and Qwen large variants, which are capped at 16384 tokens) run at their maximum context size.
 
-#### General Chat
-- [SauerkrautLM-SOLAR](https://huggingface.co/VAGOsolutions/SauerkrautLM-SOLAR-Instruct)
-- [FusionNet 13b (Truthful_DPO_TomGrc)](https://huggingface.co/yunconglong/Truthful_DPO_TomGrc_FusionNet_7Bx2_MoE_13B)
-- [Nous Hermes 2 on Mixtral](https://huggingface.co/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO)
-- [OpenChat 3.5](https://huggingface.co/openchat/openchat-3.5-0106)
+#### Qwen Series
+- [Qwen 2.5 70b] https://huggingface.co/bartowski/Qwen2.5-Math-72B-Instruct-GGUF
+- [Qwen 2.5 32b] https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF
+- [Qwen 2.5 7b] https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF
 
 #### Dolphin Series
-- [Dolphin 2.7 on Mixtral](https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b)
-- [Dolphin 2.8 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
 - [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
+- [Dolphin 2.7 on Mixtral](https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b)
+- [Dolphin 2.8.1 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
 
 #### Samantha Series
-- [Samantha 7b](https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b)
-- [Samantha 70b](https://huggingface.co/cognitivecomputations/Samantha-1.11-70b)
-
-#### Smaug Series
-- [Smaug 34b](https://huggingface.co/abacusai/Smaug-34B-v0.1)
-- [Smaug 72b](https://huggingface.co/abacusai/Smaug-72B-v0.1)
+- [Samantha 1.11 70b](https://huggingface.co/cognitivecomputations/Samantha-1.11-70b)
+- [Samantha 1.1 7b](https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b)
 
 #### Llama Series
 - [Llama 3 70b](https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct)
@@ -52,10 +47,7 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
 - [Everyone Coder](https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base)
 - [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
-
-#### Experimental
-- [Senku](https://huggingface.co/ShinojiResearch/Senku-70B-Full)
-- [MiniCPM-OpenHermes](https://huggingface.co/indischepartij/MiniCPM-3B-OpenHermes-2.5-v2)
+- [Codestral](https://huggingface.co/mistralai/Codestral-22B-v0.1)
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
