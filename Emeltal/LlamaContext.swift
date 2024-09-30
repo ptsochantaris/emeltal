@@ -177,6 +177,7 @@ final class LlamaContext {
     }
 
     deinit {
+        wordBuffer.deallocate()
         log("Llama context deinit")
     }
 
@@ -280,7 +281,7 @@ final class LlamaContext {
         }
     }
 
-    private static let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
+    private nonisolated(unsafe) let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
 
     private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
         let start = Date.now
@@ -324,46 +325,34 @@ final class LlamaContext {
                 break
             }
 
-            let written = Int(llama_token_to_piece(model, newTokenId, Self.wordBuffer, 1023, 0, true))
+            let written = Int(llama_token_to_piece(model, newTokenId, wordBuffer, 1024, 0, true))
             if written > 0 {
-                let outputString: String?
-                if written == 1 {
-                    let byte = Self.wordBuffer[0]
+                var outputString = ""
+                for byteIndex in 0 ..< written {
+                    let byte = wordBuffer[byteIndex]
                     switch utf8Builder.parseByte(byte) {
                     case .moreRequired:
-                        outputString = nil
                         log("Byte: \(newTokenId) / '\(byte)' - building unicode grapheme")
 
                     case let .result(completeString):
-                        if utf8Builder.expectedRunLength == .one {
-                            log("Fragment: \(newTokenId) / '\(completeString)' / [\(byte)]")
-                        } else {
-                            log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
-                        }
-                        outputString = completeString
-                    }
-
-                } else {
-                    Self.wordBuffer[written] = 0
-                    let output = String(cString: Self.wordBuffer)
-                    log("Fragment: \(newTokenId) / '\(output)' / \(Self.wordBufferBytes(written))")
-                    if let quotes {
-                        if output == quotes.0 {
-                            outputString = "<div class='additional-info'>"
-                        } else if output == quotes.1 {
-                            outputString = "</div>"
-                        } else {
-                            outputString = output
-                        }
-                    } else {
-                        outputString = output
+                        outputString.append(completeString)
+                        log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
                     }
                 }
-                if let outputString {
-                    if failsafeStopDetector == nil {
-                        if !outputString.isEmpty {
-                            continuation.yield(outputString)
+
+                if !outputString.isEmpty {
+                    log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
+                    if let quotes {
+                        if outputString == quotes.0 {
+                            outputString = "<div class='additional-info'>"
+                        } else if outputString == quotes.1 {
+                            outputString = "</div>"
                         }
+                    }
+
+                    if failsafeStopDetector == nil {
+                        continuation.yield(outputString)
+
                     } else { // Scan for failsafe terminator
                         var detected = false
                         let finalChars = outputString.reduce([]) { existing, char -> [Character] in
@@ -420,7 +409,7 @@ final class LlamaContext {
         llama_kv_cache_update(context)
     }
 
-    private static func wordBufferBytes(_ len: Int) -> String {
+    private func wordBufferBytes(_ len: Int) -> String {
         "[" + (0 ..< len).map { wordBuffer[$0] }.map { String($0) }.joined(separator: "][") + "]"
     }
 }

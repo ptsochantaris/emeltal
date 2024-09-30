@@ -23,21 +23,18 @@ struct UTF8Builder {
         else if byte & 0b1111_0000 == 0b1111_0000 {
             expectedRunLength = .four
             bytes = [byte & 0b0000_1111]
-            return .moreRequired
         }
 
         // start of 3 byte sequence
         else if byte & 0b1110_0000 == 0b1110_0000 {
             expectedRunLength = .three
             bytes = [byte & 0b0001_1111]
-            return .moreRequired
         }
 
         // start of 2 byte sequence
         else if byte & 0b1100_0000 == 0b1100_0000 {
             expectedRunLength = .two
             bytes = [byte & 0b0011_1111]
-            return .moreRequired
         }
 
         // Continuing sequence
@@ -65,6 +62,8 @@ struct UTF8Builder {
         case .four:
             UInt32(bytes[0]) << 18 | UInt32(bytes[1]) << 12 | UInt32(bytes[2]) << 6 | UInt32(bytes[3])
         }
+
+        bytes.removeAll(keepingCapacity: true)
 
         if let scalar = UnicodeScalar(rawScalarValue) {
             let c = Character(scalar)
