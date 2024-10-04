@@ -15,7 +15,6 @@
 		1608DB982B151DF000FFFB09 /* LlamaContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1608DB972B151DF000FFFB09 /* LlamaContext.swift */; };
 		161A60F92C5169F500069736 /* llama-vocab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161A60EF2C5169F500069736 /* llama-vocab.cpp */; };
 		161A60FA2C5169F500069736 /* llama-sampling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161A60ED2C5169F500069736 /* llama-sampling.cpp */; };
-		161A60FB2C5169F500069736 /* ggml-backend.c in Sources */ = {isa = PBXBuildFile; fileRef = 161A60DE2C5169F500069736 /* ggml-backend.c */; };
 		161A60FC2C5169F500069736 /* ggml-quants.c in Sources */ = {isa = PBXBuildFile; fileRef = 161A60E62C5169F500069736 /* ggml-quants.c */; };
 		161A60FD2C5169F500069736 /* llama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 161A60E82C5169F500069736 /* llama.cpp */; };
 		161A60FF2C5169F500069736 /* ggml-metal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 161A60E42C5169F500069736 /* ggml-metal.metal */; };
@@ -32,6 +31,7 @@
 		1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCB2B45E110002D0A91 /* ServerConnector.swift */; };
 		1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */; };
 		1626DBCF2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */; };
+		162AB7162CB059D3008A72D7 /* ggml-backend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 162AB7152CB059D3008A72D7 /* ggml-backend.cpp */; };
 		163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0522B31B6C500565F49 /* ModelPicker.swift */; };
 		163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0542B31B6EB00565F49 /* AssetCell.swift */; };
 		163EF0572B31B78300565F49 /* PushButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF0562B31B78300565F49 /* PushButton.swift */; };
@@ -127,7 +127,6 @@
 		161A60DB2C5169F500069736 /* ggml-alloc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-alloc.h"; sourceTree = "<group>"; };
 		161A60DC2C5169F500069736 /* ggml-alloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-alloc.c"; sourceTree = "<group>"; };
 		161A60DD2C5169F500069736 /* ggml-backend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-backend.h"; sourceTree = "<group>"; };
-		161A60DE2C5169F500069736 /* ggml-backend.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-backend.c"; sourceTree = "<group>"; };
 		161A60DF2C5169F500069736 /* ggml-backend-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-backend-impl.h"; sourceTree = "<group>"; };
 		161A60E02C5169F500069736 /* ggml-common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-common.h"; sourceTree = "<group>"; };
 		161A60E12C5169F500069736 /* ggml-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-impl.h"; sourceTree = "<group>"; };
@@ -158,6 +157,7 @@
 		1626DBC92B45E0EF002D0A91 /* ClientConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientConnector.swift; sourceTree = "<group>"; };
 		1626DBCB2B45E110002D0A91 /* ServerConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConnector.swift; sourceTree = "<group>"; };
 		1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalProtocol.swift; sourceTree = "<group>"; };
+		162AB7152CB059D3008A72D7 /* ggml-backend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-backend.cpp"; sourceTree = "<group>"; };
 		163EF0522B31B6C500565F49 /* ModelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelPicker.swift; sourceTree = "<group>"; };
 		163EF0542B31B6EB00565F49 /* AssetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCell.swift; sourceTree = "<group>"; };
 		163EF0562B31B78300565F49 /* PushButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushButton.swift; sourceTree = "<group>"; };
@@ -242,7 +242,7 @@
 				161A60DB2C5169F500069736 /* ggml-alloc.h */,
 				161A60DC2C5169F500069736 /* ggml-alloc.c */,
 				161A60DD2C5169F500069736 /* ggml-backend.h */,
-				161A60DE2C5169F500069736 /* ggml-backend.c */,
+				162AB7152CB059D3008A72D7 /* ggml-backend.cpp */,
 				161A60DF2C5169F500069736 /* ggml-backend-impl.h */,
 				161A60E02C5169F500069736 /* ggml-common.h */,
 				16E56C922CA0E7A5009A45AD /* ggml-cpu-impl.h */,
@@ -537,6 +537,7 @@
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */,
 				161A61482C516DA600069736 /* ggml-metal.m in Sources */,
+				162AB7162CB059D3008A72D7 /* ggml-backend.cpp in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ContentView.swift in Sources */,
@@ -565,7 +566,6 @@
 				16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */,
 				161A60F92C5169F500069736 /* llama-vocab.cpp in Sources */,
 				161A60FA2C5169F500069736 /* llama-sampling.cpp in Sources */,
-				161A60FB2C5169F500069736 /* ggml-backend.c in Sources */,
 				161A60FC2C5169F500069736 /* ggml-quants.c in Sources */,
 				161A60FD2C5169F500069736 /* llama.cpp in Sources */,
 				161A60FF2C5169F500069736 /* ggml-metal.metal in Sources */,

@@ -14,8 +14,8 @@ cp\
  $LSRC/ggml/src/ggml-alloc.c\
  $LSRC/ggml/include/ggml-alloc.h\
  $LSRC/ggml/src/ggml-backend-impl.h\
- $LSRC/ggml/src/ggml-backend.c\
  $LSRC/ggml/include/ggml-backend.h\
+ $LSRC/ggml/src/ggml-backend.cpp\
  $LSRC/ggml/src/ggml-impl.h\
  $LSRC/ggml/include/ggml-metal.h\
  $LSRC/ggml/src/ggml-metal.m\
