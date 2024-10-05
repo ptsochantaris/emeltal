@@ -777,10 +777,6 @@ kernel void kernel_ssm_conv_f32(
     const int64_t i3 = tgpig.z;
 
     const int64_t nc  = ne10;
-    const int64_t ncs = ne00;
-    const int64_t nr  = ne01;
-    const int64_t n_t = ne1;
-    const int64_t n_s = ne2;
 
     device const float * s = (device const float *) ((device const char *) src0 + ir*nb01 + i2*nb00 + i3*nb02);
     device const float * c = (device const float *) ((device const char *) src1 + ir*nb11);
