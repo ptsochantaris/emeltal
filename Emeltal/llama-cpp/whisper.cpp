@@ -1252,7 +1252,6 @@ static ggml_backend_t whisper_backend_init_gpu(const whisper_context_params & pa
 #ifdef GGML_USE_METAL
     if (params.use_gpu) {
         WHISPER_LOG_INFO("%s: using Metal backend\n", __func__);
-        ggml_backend_metal_log_set_callback(g_state.log_callback, g_state.log_callback_user_data);
         result = ggml_backend_metal_init();
         if (!result) {
             WHISPER_LOG_ERROR("%s: ggml_backend_metal_init() failed\n", __func__);

@@ -830,9 +830,7 @@ kernel void kernel_ssm_scan_f32(
     const int64_t i3 = tgpig.y;
 
     const int64_t nc  = d_state;
-    const int64_t nr  = d_inner;
     const int64_t n_t = n_seq_tokens;
-    const int64_t n_s = n_seqs;
 
     for (int64_t i2 = 0; i2 < n_t; ++i2) {
         device const float * s0 = (device const float *) ((device const char *) src0 + ir*nb01 + i3*nb02);

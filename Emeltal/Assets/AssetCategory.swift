@@ -231,7 +231,7 @@ extension Asset {
             case .codeLlama70b: 610
             case .llama3large: 600
             case .llama3: 155
-            case .llama3compact: 60
+            case .llama3compact: 68
             case .llama3tiny: 4
             case .samantha70b: 600
             case .samantha7b: 210
@@ -264,7 +264,7 @@ extension Asset {
             case .codestral: 57
             }
 
-            let asrBytes: Int64 = 3_500_000_000
+            let asrBytes: Int64 = 2_000_000_000
             let layerSize = layerSizeM * 1_000_000
             let totalRequiredMemory = (totalLayers * layerSize) + asrBytes + kvBytes
             let physicalMemory = Int64(ProcessInfo.processInfo.physicalMemory)
@@ -351,7 +351,7 @@ extension Asset {
             case .deepSeekCoder33: "27.4 GB"
             case .deepSeekCoder7: "5.67 GB"
             case .mythoMax: "10.7 GB"
-            case .whisper: "1.1 GB"
+            case .whisper: "0.6 GB"
             case .dolphinTiny: "0.9 GB"
             case .qwen2large: "47.4 GB"
             case .qwen2regular: "20.0 GB"
@@ -503,7 +503,7 @@ extension Asset {
             case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
             case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
             case .mythoMax: "mythomax-l2-13b.Q6_K.gguf"
-            case .whisper: "ggml-large-v3-q5_k.bin"
+            case .whisper: "ggml-large-v3-turbo-q5_0.bin"
             case .dolphin70b: "dolphin-2.2-70b.Q5_K_M.gguf"
             case .dolphinTiny: "tinydolphin-2.8-1.1b.Q6_K.gguf"
             case .qwen2regular: "Qwen2.5-32B-Instruct-Q4_K_M.gguf"
@@ -560,7 +560,7 @@ extension Asset {
             case .deepSeekCoder33: "33b variant, on Llama2"
             case .deepSeekCoder7: "v1.5, on Llama2"
             case .mythoMax: "vL2 13b variant"
-            case .whisper: "Large v3"
+            case .whisper: "Large v3 Turbo"
             case .dolphin70b: "on Llama 70b (x2)"
             case .dolphinTiny: "v2.8, on TinyLlama"
             case .qwen2large: "v2.5, 72b variant"
