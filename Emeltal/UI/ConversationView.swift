@@ -2,10 +2,10 @@ import AVFoundation
 import SwiftUI
 
 @MainActor
-struct ContentView: View {
-    @Bindable var state: AppState
+struct ConversationView: View {
+    @Binding var appPhase: EmeltalApp.Phase
 
-    var changeCallback: () -> Void
+    @Bindable var state: ConversationState
 
     @FocusState private var focusEntryField
 
@@ -59,7 +59,10 @@ struct ContentView: View {
                         let ready = state.mode.nominal
 
                         Button {
-                            changeCallback()
+                            Task {
+                                await state.shutdown()
+                            }
+                            appPhase = .selection
                         } label: {
                             HStack(spacing: 0) {
                                 Image(systemName: "square.grid.3x2")

@@ -4,26 +4,23 @@ import SwiftUI
 @main
 @MainActor
 struct EmeltalApp: App {
-    @State private var state: AppState? = nil
-    @State private var asset = Persisted.selectedAsset
+    enum Phase {
+        case selection, conversation(ConversationState)
+    }
+
+    @State private var appPhase = Phase.selection
 
     var body: some Scene {
         Window("Emeltal", id: "Emeltal") {
-            if let currentState = state {
-                ContentView(state: currentState) {
-                    Task { @MainActor in
-                        await currentState.shutdown()
-                        state = nil
-                    }
+            Group {
+                switch appPhase {
+                case .selection:
+                    ModelPicker(appPhase: $appPhase)
+                case let .conversation(state):
+                    ConversationView(appPhase: $appPhase, state: state)
                 }
-            } else {
-                ModelPicker(selectedAsset: $asset, allowCancel: false) {
-                    Persisted.selectedAssetId = asset.category.id
-                    state = AppState(asset: asset)
-                }
-                .frame(idealWidth: 1000, idealHeight: 950)
             }
+            .frame(idealWidth: 1000, idealHeight: 950)
         }
-        .windowResizability(state != nil ? .automatic : .contentSize)
     }
 }

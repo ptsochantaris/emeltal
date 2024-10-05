@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 struct Assistant: View {
-    let state: AppState
+    let state: ConversationState
 
     var body: some View {
         ZStack {

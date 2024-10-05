@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 struct SideBar: View {
-    let state: AppState
+    let state: ConversationState
     @FocusState.Binding var focusEntryField: Bool
 
     @State private var originalPos: CGPoint? = nil

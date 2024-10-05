@@ -44,13 +44,12 @@ private struct FloatRow: View {
 }
 
 struct ModelPicker: View {
-    @Binding var selectedAsset: Asset
-    let allowCancel: Bool
-    let selection: () -> Void
+    @Binding var appPhase: EmeltalApp.Phase
 
     @State private var visible = false
-
+    @State private var selectedAsset = Persisted.selectedAsset
     @State private var showOverrides = false
+
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -220,21 +219,18 @@ struct ModelPicker: View {
                             showOverrides = true
                         }
                     }
-                    if allowCancel {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                    }
                     switch selectedAsset.status {
                     case .checking, .notReady:
                         EmptyView()
                     case .available:
                         Button("Install") {
-                            selection()
+                            let state = ConversationState(asset: selectedAsset)
+                            appPhase = .conversation(state)
                         }
                     case .installed:
                         Button("Select") {
-                            selection()
+                            let state = ConversationState(asset: selectedAsset)
+                            appPhase = .conversation(state)
                         }
                     }
                 }

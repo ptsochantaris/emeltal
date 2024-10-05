@@ -5,7 +5,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class AppState: Identifiable, ModeProvider {
+final class ConversationState: Identifiable, ModeProvider {
     nonisolated var id: String { asset.id }
 
     var multiLineText = ""
@@ -113,7 +113,7 @@ final class AppState: Identifiable, ModeProvider {
     }
 
     deinit {
-        log("App state deinit")
+        log("ConversationState deinit")
     }
 
     private var llamaContext: LlamaContext?
