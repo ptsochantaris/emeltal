@@ -18,18 +18,19 @@ struct AssetCell: View {
                     .padding(1)
             }
 
+            let category = asset.category
             VStack(spacing: 8) {
                 VStack(spacing: 2) {
-                    Text(asset.category.displayName)
+                    Text(category.displayName)
                         .font(.title2)
                         .lineLimit(1)
 
                     HStack(spacing: 4) {
-                        Text(asset.category.detail)
+                        Text(category.detail)
                             .lineLimit(1)
 
                         Button {
-                            openUrl(asset.category.originalRepoUrl)
+                            openUrl(category.originalRepoUrl)
                         } label: {
                             Image(systemName: "questionmark.circle.fill")
                         }
@@ -39,12 +40,12 @@ struct AssetCell: View {
                     .foregroundStyle(.secondary)
                 }
 
-                Text(asset.category.aboutText)
+                Text(category.aboutText)
 
                 Spacer(minLength: 0)
 
                 HStack {
-                    if let label = asset.badgeText {
+                    if let label = asset.status.badgeText {
                         Text(label)
                             .font(.caption2)
                             .padding(4)
@@ -57,7 +58,7 @@ struct AssetCell: View {
 
                     Spacer()
 
-                    Text(asset.category.sizeDescription)
+                    Text(category.sizeDescription)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.trailing, 2)

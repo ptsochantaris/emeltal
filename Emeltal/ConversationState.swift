@@ -57,12 +57,12 @@ final class ConversationState: Identifiable, ModeProvider {
         }
     }
 
-    var textOnly = Persisted._textOnly {
+    var textOnly = Persisted.textOnly {
         didSet {
             Task {
                 await speaker?.cancelIfNeeded()
             }
-            Persisted._textOnly = textOnly
+            Persisted.textOnly = textOnly
         }
     }
 
@@ -81,12 +81,12 @@ final class ConversationState: Identifiable, ModeProvider {
         }
     }
 
-    var floatingMode: Bool = Persisted._floatingMode {
+    var floatingMode: Bool = Persisted.floatingMode {
         didSet {
             if oldValue == floatingMode {
                 return
             }
-            Persisted._floatingMode = floatingMode
+            Persisted.floatingMode = floatingMode
             processFloatingMode(fromBoot: false)
         }
     }
@@ -149,6 +149,7 @@ final class ConversationState: Identifiable, ModeProvider {
     private var connectionStateObservation: Task<Void, Never>!
 
     private func processFloatingMode(fromBoot: Bool) {
+        #if canImport(AppKit)
         if floatingMode {
             textOnly = false
             for window in NSApplication.shared.windows {
@@ -182,6 +183,7 @@ final class ConversationState: Identifiable, ModeProvider {
                 }
             }
         }
+        #endif
     }
 
     private func sendMessageLog(value: String, initial: Bool) {

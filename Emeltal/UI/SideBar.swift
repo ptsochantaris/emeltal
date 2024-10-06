@@ -111,6 +111,7 @@ struct SideBar: View {
     }
 
     private func dragged(by value: DragGesture.Value) {
+#if canImport(AppKit)
         guard let window = NSApplication.shared.keyWindow else {
             return
         }
@@ -119,6 +120,7 @@ struct SideBar: View {
         frame.origin = CGPoint(x: p.x + value.translation.width, y: p.y - value.translation.height)
         originalPos = frame.origin
         window.setFrame(frame, display: false)
+        #endif
     }
 
     private func dragEnd() {

@@ -79,7 +79,7 @@ final actor Mic {
     }
 
     enum TapState {
-        case none, added(usingVoiceDetection: Bool), stopping
+        case none, added(usingVoiceDetection: Bool, virtualMode: Bool), stopping
 
         var isStopping: Bool {
             if case .stopping = self {
@@ -103,13 +103,20 @@ final actor Mic {
     }
 
     private func removeTap() async {
-        guard case .added = tapState else {
+        guard case let .added(_, virtualMode) = tapState else {
             return
         }
+
+        if virtualMode {
+            tapState = .none
+            return
+        }
+
         tapState = .stopping
         while tapState.isStopping {
             try? await Task.sleep(for: .seconds(0.1))
         }
+
         await AudioEngineManager.shared.getEngine().inputNode.removeTap(onBus: 0)
     }
 
@@ -129,18 +136,24 @@ final actor Mic {
                 try? await Task.sleep(for: .seconds(0.1))
             }
 
-        case let .added(usingVoiceDetection):
+        case let .added(usingVoiceDetection, _):
             if useVoiceDetection == usingVoiceDetection {
                 return
             }
             await removeTap()
         }
 
-        tapState = .added(usingVoiceDetection: useVoiceDetection)
-
         let input = await AudioEngineManager.shared.getEngine().inputNode
         let inputFormat = input.outputFormat(forBus: 0)
         let sampleRate = AVAudioFrameCount(inputFormat.sampleRate)
+
+        if sampleRate == 0 {
+            log("Warning - could not start mic, sample rate is 0")
+            tapState = .added(usingVoiceDetection: useVoiceDetection, virtualMode: true)
+            return
+        }
+
+        tapState = .added(usingVoiceDetection: useVoiceDetection, virtualMode: false)
 
         let converter = AVAudioConverter(from: inputFormat, to: Self.outputFormat)!
 
@@ -211,13 +224,9 @@ final actor Mic {
                 initializedCount = convertedBufferFrames
             }
 
-            queueWorkaround(segment: segment, isVoiceHeard: voiceDetected)
-        }
-    }
-
-    private nonisolated func queueWorkaround(segment: [Float], isVoiceHeard: Bool) {
-        Task {
-            await append(segment: segment, isVoiceHeard: isVoiceHeard)
+            Task { [voiceDetected] in
+                await append(segment: segment, isVoiceHeard: voiceDetected)
+            }
         }
     }
 

@@ -12,10 +12,10 @@ let performanceCpuCount = {
 
 @MainActor
 enum Persisted {
-    @AppStorage("_textOnly") static var _textOnly = false
-    @AppStorage("_floatingMode") static var _floatingMode = false
-    @AppStorage("_assetSettings") static var selectedAssetId: Asset.Variant.ID?
-    @AppStorage("_assetListData") static var assetListData: Data?
+    @AppStorage("_textOnly") static var textOnly = false
+    @AppStorage("_floatingMode") static var floatingMode = false
+    @AppStorage("_assetSettings") private static var selectedAssetId: Asset.Variant.ID?
+    @AppStorage("_assetListData") private static var assetListData: Data?
 
     private static var _cachedAssetList: [Asset]?
     static var assetList: [Asset] {
@@ -37,11 +37,16 @@ enum Persisted {
     }
 
     static var selectedAsset: Asset {
-        let list = Asset.assetList()
-        if let selectedAssetId, let existingAsset = list.first(where: { $0.id == selectedAssetId }) {
-            return existingAsset
+        set {
+            selectedAssetId = newValue.id
         }
-        return list.first!
+        get {
+            let list = Asset.assetList()
+            if let selectedAssetId, let existingAsset = list.first(where: { $0.id == selectedAssetId }) {
+                return existingAsset
+            }
+            return list.first!
+        }
     }
 
     static func update(asset: Asset) {

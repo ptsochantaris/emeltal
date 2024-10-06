@@ -32,7 +32,7 @@ struct PickerEntryBackground: View {
 }
 
 struct ShimmerBackground: View {
-    let show: Bool
+    @Binding var show: Bool
 
     var body: some View {
         GeometryReader { _ in

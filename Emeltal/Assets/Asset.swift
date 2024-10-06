@@ -4,7 +4,20 @@ import Foundation
 @Observable
 final class Asset: Codable, Identifiable, Sendable, Hashable {
     enum Status: Codable, Sendable {
-        case checking, available, installed, notReady
+        case checking, available, recommended, installed, notReady
+
+        var badgeText: String? {
+            switch self {
+            case .available, .checking:
+                nil
+            case .recommended:
+                "START HERE"
+            case .installed:
+                "INSTALLED"
+            case .notReady:
+                "NOT AVAILABLE"
+            }
+        }
     }
 
     let id: String
@@ -18,19 +31,6 @@ final class Asset: Codable, Identifiable, Sendable, Hashable {
             if booted {
                 Persisted.update(asset: self)
             }
-        }
-    }
-
-    var badgeText: String? {
-        switch status {
-        case .available:
-            category.recommended ? "START HERE" : nil
-        case .checking:
-            nil
-        case .installed:
-            "INSTALLED"
-        case .notReady:
-            "NOT AVAILABLE"
         }
     }
 
@@ -187,7 +187,7 @@ final class Asset: Codable, Identifiable, Sendable, Hashable {
             request.httpMethod = "head"
             let response = try? await URLSession.shared.data(for: request).1 as? HTTPURLResponse
             let newStatus = if let code = response?.statusCode, code >= 200, code < 300 {
-                Status.available
+                category.recommended ? Status.recommended : Status.available
             } else {
                 Status.notReady
             }

@@ -222,7 +222,7 @@ struct ModelPicker: View {
                     switch selectedAsset.status {
                     case .checking, .notReady:
                         EmptyView()
-                    case .available:
+                    case .available, .recommended:
                         Button("Install") {
                             let state = ConversationState(asset: selectedAsset)
                             appPhase = .conversation(state)
@@ -240,7 +240,7 @@ struct ModelPicker: View {
                 .background(.white.opacity(0.2))
             }
             .foregroundStyle(.white)
-            .background(ShimmerBackground(show: visible))
+            .background(ShimmerBackground(show: $visible))
             .navigationTitle("Select an ML model")
             .onAppear { visible = true }
             .onDisappear { visible = false }
@@ -249,7 +249,7 @@ struct ModelPicker: View {
             Asset.cleanupNonInstalledAssets()
         }
         .onChange(of: selectedAsset) { _, newValue in
-            Persisted.selectedAssetId = newValue.id
+            Persisted.selectedAsset = newValue
         }
     }
 }

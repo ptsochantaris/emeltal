@@ -15,7 +15,6 @@ struct SectionCarousel: View {
 
                     ForEach(assetList) {
                         AssetCell(asset: $0, selected: $selectedAsset)
-                            .id($0.id)
                     }
                     .aspectRatio(1.4, contentMode: .fit)
                 }
@@ -28,6 +27,5 @@ struct SectionCarousel: View {
                 horizontalScrollReader.scrollTo(selectedAsset.id)
             }
         }
-        .id(section.id)
     }
 }
