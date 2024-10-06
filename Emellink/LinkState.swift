@@ -44,7 +44,7 @@ final class LinkState: ModeProvider {
             Task {
                 if pushed {
                     await speaker.cancelIfNeeded()
-                    await remote.send(.buttonDown, content: emptyData)
+                    await remote.send(.buttonTap, content: emptyData)
                 } else {
                     if case .voiceActivated = remoteActivationState {
                         return
@@ -261,7 +261,7 @@ final class LinkState: ModeProvider {
             case .responseDone:
                 messageLog.commitNewText()
 
-            case .buttonDown, .heartbeat, .hello, .recordedSpeech, .recordedSpeechDone, .requestReset, .textInput, .toggleListeningMode:
+            case .buttonTap, .heartbeat, .hello, .recordedSpeech, .recordedSpeechDone, .requestReset, .textInput, .toggleListeningMode:
                 break
 
             case .unknown:
