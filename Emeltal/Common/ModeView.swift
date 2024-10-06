@@ -4,18 +4,15 @@ import SwiftUI
 @MainActor
 protocol ModeProvider: AnyObject {
     var mode: AppMode { get }
+    var buttonPushed: Bool { get set }
 }
 
 struct ModeView: View {
-    weak var modeProvider: (any ModeProvider)?
-
-    init(modeProvider: any ModeProvider) {
-        self.modeProvider = modeProvider
-    }
+    let modeProvider: ModeProvider
 
     var body: some View {
         ZStack {
-            let mode = modeProvider?.mode ?? .startup
+            let mode = modeProvider.mode
             switch mode {
             case .booting, .loading, .startup, .warmup:
                 ProgressView()
@@ -66,6 +63,7 @@ struct ModeView: View {
                     .symbolEffect(.variableColor)
             }
         }
+        .pushButton(Binding(get: { modeProvider.buttonPushed }, set: { modeProvider.buttonPushed = $0 }))
         .contentTransition(.opacity)
         .fontWeight(.light)
     }

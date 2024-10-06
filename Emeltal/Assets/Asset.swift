@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class Asset: Codable, Identifiable, Sendable {
+final class Asset: Codable, Identifiable, Sendable, Hashable {
     enum Status: Codable, Sendable {
         case checking, available, installed, notReady
     }
@@ -102,8 +102,12 @@ final class Asset: Codable, Identifiable, Sendable {
         }
     }
 
-    static func == (lhs: Asset, rhs: Asset) -> Bool {
+    nonisolated static func == (lhs: Asset, rhs: Asset) -> Bool {
         lhs.id == rhs.id
+    }
+
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 
     enum CodingKeys: CodingKey {

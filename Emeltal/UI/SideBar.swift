@@ -94,7 +94,7 @@ struct SideBar: View {
                     })
             }
 
-            Assistant(state: state)
+            ModeView(modeProvider: state)
                 .padding(.bottom, 4)
                 .padding([.leading, .trailing])
                 .foregroundColor(.widgetForeground.opacity(state.mode == .waiting ? 0.7 : 0.8))

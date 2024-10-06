@@ -31,8 +31,8 @@ final class ClientConnector: EmeltalConnector {
             Task { @NetworkActor [weak self] in
                 guard let self, case .searching = self.state, let result = results.first else { return }
 
-                self.state = .connecting
-                self.browserDone()
+                state = .connecting
+                browserDone()
 
                 let connection = NWConnection(to: result.endpoint, using: EmeltalProtocol.params)
                 connection.stateUpdateHandler = { [weak self] newState in
@@ -46,16 +46,16 @@ final class ClientConnector: EmeltalConnector {
                         case .cancelled:
                             log("Client connection cancelled")
                             continuation.finish()
-                            self.state = .searching
+                            state = .searching
 
                         case .ready:
-                            self.connectionEstablished(connection, continuation: continuation)
+                            connectionEstablished(connection, continuation: continuation)
 
                         case let .waiting(error):
-                            self.state = .error(error)
+                            state = .error(error)
 
                         case .failed:
-                            self.state = .searching
+                            state = .searching
 
                         @unknown default:
                             break

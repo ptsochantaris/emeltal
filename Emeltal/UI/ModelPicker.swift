@@ -47,8 +47,8 @@ struct ModelPicker: View {
     @Binding var appPhase: EmeltalApp.Phase
 
     @State private var visible = false
-    @State private var selectedAsset = Persisted.selectedAsset
     @State private var showOverrides = false
+    @State private var selectedAsset = Persisted.selectedAsset
 
     @Environment(\.dismiss) private var dismiss
 
@@ -247,6 +247,9 @@ struct ModelPicker: View {
         }
         .onAppear {
             Asset.cleanupNonInstalledAssets()
+        }
+        .onChange(of: selectedAsset) { _, newValue in
+            Persisted.selectedAssetId = newValue.id
         }
     }
 }

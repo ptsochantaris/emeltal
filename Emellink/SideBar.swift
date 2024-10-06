@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 struct SideBar: View {
-    @Bindable var state: LinkState
+    let state: LinkState
 
     var body: some View {
         VStack {
@@ -45,23 +45,10 @@ struct SideBar: View {
                     .frame(maxHeight: .infinity)
             }
 
-            ZStack {
-                ModeView(modeProvider: state)
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: assistantWidth)
-                    .layoutPriority(2)
-
-                if state.remoteAppMode.pushButtonActive {
-                    PushButton { [weak state] down in
-                        guard let state else { return }
-                        if down {
-                            state.buttonDown()
-                        } else {
-                            state.buttonUp()
-                        }
-                    }
-                }
-            }
+            ModeView(modeProvider: state)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: assistantWidth)
+                .layoutPriority(2)
         }
     }
 }

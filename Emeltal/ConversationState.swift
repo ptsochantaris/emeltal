@@ -10,6 +10,28 @@ final class ConversationState: Identifiable, ModeProvider {
 
     var multiLineText = ""
 
+    var buttonPushed = false {
+        didSet {
+            guard oldValue != buttonPushed, mode.pushButtonActive else { return }
+            let pushed = buttonPushed
+            Task {
+                if pushed {
+                    await speaker?.cancelIfNeeded()
+                    if case .waiting = mode {
+                        await startMic()
+                    } else {
+                        await llamaContext?.cancelIfNeeded()
+                    }
+                } else {
+                    if case .voiceActivated = activationState {
+                        return
+                    }
+                    await endMic(processOutput: true)
+                }
+            }
+        }
+    }
+
     var messageLog = MessageLog(path: nil)
 
     var mode: AppMode = .startup {
@@ -279,8 +301,9 @@ final class ConversationState: Identifiable, ModeProvider {
             case .recordedSpeechDone:
                 await endMic(processOutput: true)
 
-            case .buttonDown:
-                pushButtonDown()
+            case .buttonTap:
+                await speaker?.cancelIfNeeded()
+                await llamaContext?.cancelIfNeeded()
 
             case .toggleListeningMode:
                 if activationState == .voiceActivated {
@@ -416,26 +439,6 @@ final class ConversationState: Identifiable, ModeProvider {
         } else {
             log("Sound clip too short, will ignore it")
             shouldWaitOrListen()
-        }
-    }
-
-    func pushButtonUp() {
-        if case .voiceActivated = activationState {
-            return
-        }
-        Task {
-            await endMic(processOutput: true)
-        }
-    }
-
-    func pushButtonDown() {
-        Task {
-            await speaker?.cancelIfNeeded()
-            if case .waiting = mode {
-                await startMic()
-            } else {
-                await llamaContext?.cancelIfNeeded()
-            }
         }
     }
 

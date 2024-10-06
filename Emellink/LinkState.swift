@@ -37,6 +37,24 @@ final class LinkState: ModeProvider {
         }
     }
 
+    var buttonPushed = false {
+        didSet {
+            guard oldValue != buttonPushed, mode.pushButtonActive else { return }
+            let pushed = buttonPushed
+            Task {
+                if pushed {
+                    await speaker.cancelIfNeeded()
+                    await remote.send(.buttonDown, content: emptyData)
+                } else {
+                    if case .voiceActivated = remoteActivationState {
+                        return
+                    }
+                    await endMic(sendData: true)
+                }
+            }
+        }
+    }
+
     var mode: AppMode { remoteAppMode }
 
     var remoteAppMode = AppMode.booting {
@@ -125,15 +143,6 @@ final class LinkState: ModeProvider {
         }
     }
 
-    func buttonUp() {
-        Task {
-            if case .voiceActivated = remoteActivationState {
-                return
-            }
-            await endMic(sendData: true)
-        }
-    }
-
     func shutdown() async {
         log("Shutting down app state…")
         micObservation?.cancel()
@@ -144,13 +153,6 @@ final class LinkState: ModeProvider {
 
     deinit {
         log("LinkState deinit")
-    }
-
-    func buttonDown() {
-        Task {
-            await speaker.cancelIfNeeded()
-            await remote.send(.buttonDown, content: emptyData)
-        }
     }
 
     func requestReset() {
