@@ -77,7 +77,7 @@ private struct SelectionGrid: View {
             .onChange(of: showingOverrides) { _, newValue in
                 Task {
                     try? await Task.sleep(for: .seconds(0.3))
-                    if newValue,  let section = ManagerViewModel.shared.category(for: selected.variant) {
+                    if newValue, let section = ManagerViewModel.shared.category(for: selected.variant) {
                         withAnimation {
                             verticalScrollReader.scrollTo(section.id)
                         }

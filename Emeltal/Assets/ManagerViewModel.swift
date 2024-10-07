@@ -1,5 +1,6 @@
 import Foundation
 import Metal
+import PopTimer
 
 @MainActor
 @Observable
@@ -208,11 +209,6 @@ final class Model: Hashable, Identifiable, Sendable {
             case .whisper:
                 ""
             }
-        }
-
-        var persistedParams: Params? {
-            // TODO:
-            nil
         }
 
         var contextSize: UInt32 {
@@ -678,7 +674,14 @@ final class Model: Hashable, Identifiable, Sendable {
     let id: String
     let category: Category
     let variant: Variant
-    var params: Params
+
+    private var saveTimer: PopTimer?
+
+    var params: Params {
+        didSet {
+            saveTimer?.push()
+        }
+    }
 
     private(set) var status: Status
 
@@ -693,11 +696,22 @@ final class Model: Hashable, Identifiable, Sendable {
     }
 
     init(category: Category, variant: Variant) {
-        id = "\(category.id)-\(variant.id)"
+        let myId = "\(category.id)-\(variant.id)"
+        id = myId
         self.category = category
         self.variant = variant
-        params = variant.persistedParams ?? variant.defaultParams
         status = .checking
+
+        if let modelParams = Persisted.modelParams, let list = try? JSONDecoder().decode([ParamsHolder].self, from: modelParams), let mine = list.first(where: { $0.modelId == myId }) {
+            params = mine.params
+        } else {
+            params = variant.defaultParams
+        }
+
+        saveTimer = PopTimer(timeInterval: 0.1) { [weak self] in
+            self?.save()
+        }
+
         updateInstalledStatus()
     }
 
@@ -781,6 +795,7 @@ final class Model: Hashable, Identifiable, Sendable {
             list.append(myParams)
         }
         Persisted.modelParams = try? JSONEncoder().encode(list)
+        log("Saved params for model \(id)")
     }
 }
 
