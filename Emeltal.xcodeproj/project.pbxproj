@@ -151,7 +151,6 @@
 		161A60F52C5169F500069736 /* unicode-data.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "unicode-data.cpp"; sourceTree = "<group>"; };
 		161A60F62C5169F500069736 /* whisper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = whisper.h; sourceTree = "<group>"; };
 		161A60F72C5169F500069736 /* whisper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = whisper.cpp; sourceTree = "<group>"; };
-		161A60F82C5169F500069736 /* whisper-mel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "whisper-mel.hpp"; sourceTree = "<group>"; };
 		161A61182C516CB000069736 /* ggml.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
 		1626DBC92B45E0EF002D0A91 /* ClientConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientConnector.swift; sourceTree = "<group>"; };
 		1626DBCB2B45E110002D0A91 /* ServerConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConnector.swift; sourceTree = "<group>"; };
@@ -267,7 +266,6 @@
 				161A60F52C5169F500069736 /* unicode-data.cpp */,
 				161A60F62C5169F500069736 /* whisper.h */,
 				161A60F72C5169F500069736 /* whisper.cpp */,
-				161A60F82C5169F500069736 /* whisper-mel.hpp */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";

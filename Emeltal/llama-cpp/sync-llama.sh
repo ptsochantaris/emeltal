@@ -45,5 +45,4 @@ cp\
  $LSRC/src/unicode-data.cpp\
  $WSRC/src/whisper.cpp\
  $WSRC/include/whisper.h\
- $WSRC/src/whisper-mel.hpp\
  .
