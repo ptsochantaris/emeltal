@@ -11,8 +11,8 @@ struct EmeltalApp: App {
     @State private var appPhase = Phase.selection
 
     var body: some Scene {
-        Window("Emeltal", id: "Emeltal") {
-            Group {
+        WindowGroup {
+            NavigationStack {
                 switch appPhase {
                 case .selection:
                     ModelPicker(appPhase: $appPhase)

@@ -820,7 +820,6 @@ final class ManagerViewModel {
         Model(category: .coding, variant: .dolphinCoder),
         Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .codeLlama70b),
-        Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .everyoneCoder),
         Model(category: .samantha, variant: .samantha7b),
         Model(category: .samantha, variant: .samantha70b),
@@ -852,23 +851,26 @@ final class ManagerViewModel {
 
     func cleanupNonInstalledAssets() {
         log("Checking for stale assets…")
+        let modelsDir = Model.modelsDir
+        let appDocumentsUrl = appDocumentsUrl
 
-        // Clean up deprecated model files
-        let modelPaths = Set(models.map(\.localModelPath))
+        let modelPaths = Set(models.map(\.localModelPath)).map { $0.lastPathComponent }
         let fm = FileManager.default
-        let onDiskModelPaths = Set((try? fm.contentsOfDirectory(at: Model.modelsDir, includingPropertiesForKeys: nil)) ?? []).filter { !$0.lastPathComponent.hasPrefix(".") }
+        let modelDirs = (try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)) ?? []
+        let onDiskModelPaths = Set(modelDirs.map { $0.lastPathComponent }.filter { !$0.hasPrefix(".") })
         let unusedFiles = onDiskModelPaths.subtracting(modelPaths)
         for file in unusedFiles {
-            log("Removing stale unused model file: \(file.path)")
-            try? fm.removeItem(at: file)
+            log("Removing stale unused model file: \(file)")
+            try? fm.removeItem(at: modelsDir.appendingPathComponent(file))
         }
 
-        let statePaths = Set(models.map(\.localStatePath))
-        let onDiskStatePaths = Set((try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil))?.filter { $0.lastPathComponent.hasPrefix("states-") } ?? [])
+        let statePaths = Set(models.map(\.localStatePath)).map { $0.lastPathComponent }
+        let stateDirs = (try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil)) ?? []
+        let onDiskStatePaths = Set(stateDirs.map { $0.lastPathComponent }.filter { $0.hasPrefix("states-") })
         let unusedStateDirs = onDiskStatePaths.subtracting(statePaths)
         for file in unusedStateDirs {
-            log("Removing stale state dir: \(file.path)")
-            try? fm.removeItem(at: file)
+            log("Removing stale state dir: \(file)")
+            try? fm.removeItem(at: appDocumentsUrl.appendingPathComponent(file))
         }
     }
 }

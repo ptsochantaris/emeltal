@@ -276,23 +276,21 @@ struct ModelPicker: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                SelectionGrid(selected: $manager.selected, showingOverrides: showOverrides)
-
-                if showOverrides {
-                    Overrides(selected: $manager.selected)
-                        .transition(.move(edge: .bottom))
-                }
-
-                Buttons(selected: $manager.selected, showOverrides: $showOverrides, appPhase: $appPhase)
+        VStack(spacing: 0) {
+            SelectionGrid(selected: $manager.selected, showingOverrides: showOverrides)
+            
+            if showOverrides {
+                Overrides(selected: $manager.selected)
+                    .transition(.move(edge: .bottom))
             }
-            .foregroundStyle(.white)
-            .background(ShimmerBackground(show: $visible))
-            .navigationTitle("Select an ML model")
-            .onAppear { visible = true }
-            .onDisappear { visible = false }
+            
+            Buttons(selected: $manager.selected, showOverrides: $showOverrides, appPhase: $appPhase)
         }
+        .foregroundStyle(.white)
+        .background(ShimmerBackground(show: $visible))
+        .navigationTitle("Select an ML model")
+        .onAppear { visible = true }
+        .onDisappear { visible = false }
         .onAppear {
             manager.cleanupNonInstalledAssets()
         }
