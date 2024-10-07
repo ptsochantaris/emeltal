@@ -103,7 +103,7 @@ class EmeltalConnector {
     private lazy var popTimer = PopTimer(timeInterval: 4) { [weak self] in
         Task { @NetworkActor [weak self] in
             guard let self else { return }
-            self.send(.heartbeat, content: emptyData)
+            send(.heartbeat, content: emptyData)
         }
     }
 

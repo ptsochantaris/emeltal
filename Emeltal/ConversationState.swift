@@ -6,7 +6,7 @@ import SwiftUI
 @MainActor
 @Observable
 final class ConversationState: Identifiable, ModeProvider {
-    nonisolated var id: String { asset.id }
+    let id: String
 
     var multiLineText = ""
 
@@ -67,7 +67,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     var displayName: String {
-        asset.category.displayName
+        model.variant.displayName
     }
 
     var statusMessage: String? = "Starting"
@@ -103,10 +103,11 @@ final class ConversationState: Identifiable, ModeProvider {
         try await chatInit(hasSavedState: false)
     }
 
-    let asset: Asset
+    let model: Model
 
-    init(asset: Asset) {
-        self.asset = asset
+    init(model: Model) {
+        id = model.id
+        self.model = model
 
         connectionStateObservation = Task {
             for await state in remote.stateStream.stream {
@@ -150,39 +151,39 @@ final class ConversationState: Identifiable, ModeProvider {
 
     private func processFloatingMode(fromBoot: Bool) {
         #if canImport(AppKit)
-        if floatingMode {
-            textOnly = false
-            for window in NSApplication.shared.windows {
-                let originalFrame = window.frame
-                window.level = .floating
-                window.styleMask = .borderless
-                window.isOpaque = false
-                window.backgroundColor = .clear
-                if fromBoot {
-                    window.setFrame(CGRect(x: originalFrame.minX, y: originalFrame.minY, width: assistantWidth, height: assistantHeight), display: true)
-                } else {
-                    window.setFrame(CGRect(x: originalFrame.maxX - assistantWidth - 32, y: originalFrame.minY + 191, width: assistantWidth, height: assistantHeight), display: true)
-                }
-            }
-        } else {
-            for window in NSApplication.shared.windows {
-                window.level = .normal
-                window.styleMask = [.titled, .closable, .miniaturizable]
-                window.isOpaque = true
-                window.backgroundColor = .windowBackgroundColor
-                if !fromBoot {
-                    let w: CGFloat = 800
-                    let h: CGFloat = 600
-                    if let bounds = NSApplication.shared.keyWindow?.screen?.frame.size {
-                        let x = (bounds.width - w) * 0.5
-                        let y = (bounds.height - h) * 0.5
-                        window.setFrame(CGRect(x: x, y: y, width: w, height: h), display: true)
+            if floatingMode {
+                textOnly = false
+                for window in NSApplication.shared.windows {
+                    let originalFrame = window.frame
+                    window.level = .floating
+                    window.styleMask = .borderless
+                    window.isOpaque = false
+                    window.backgroundColor = .clear
+                    if fromBoot {
+                        window.setFrame(CGRect(x: originalFrame.minX, y: originalFrame.minY, width: assistantWidth, height: assistantHeight), display: true)
                     } else {
-                        window.setFrame(CGRect(x: 100, y: 100, width: w, height: h), display: true)
+                        window.setFrame(CGRect(x: originalFrame.maxX - assistantWidth - 32, y: originalFrame.minY + 191, width: assistantWidth, height: assistantHeight), display: true)
+                    }
+                }
+            } else {
+                for window in NSApplication.shared.windows {
+                    window.level = .normal
+                    window.styleMask = [.titled, .closable, .miniaturizable]
+                    window.isOpaque = true
+                    window.backgroundColor = .windowBackgroundColor
+                    if !fromBoot {
+                        let w: CGFloat = 800
+                        let h: CGFloat = 600
+                        if let bounds = NSApplication.shared.keyWindow?.screen?.frame.size {
+                            let x = (bounds.width - w) * 0.5
+                            let y = (bounds.height - h) * 0.5
+                            window.setFrame(CGRect(x: x, y: y, width: w, height: h), display: true)
+                        } else {
+                            window.setFrame(CGRect(x: 100, y: 100, width: w, height: h), display: true)
+                        }
                     }
                 }
             }
-        }
         #endif
     }
 
@@ -207,8 +208,8 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     func mainLoop() async throws {
-        let llm = await AssetManager(fetching: asset)
-        let whisper = await AssetManager(fetching: Asset(defaultFor: .whisper))
+        let llm = await AssetManager(fetching: model)
+        let whisper = await AssetManager(fetching: Model(category: .system, variant: .whisper))
 
         mode = .loading(managers: [llm, whisper])
 
@@ -262,7 +263,7 @@ final class ConversationState: Identifiable, ModeProvider {
         statusMessage = "ML Setup"
         (llamaContext, whisperContext) = try await ctxs.value
 
-        template = llm.asset.mlTemplate(in: llamaContext!)
+        template = llm.model.mlTemplate(in: llamaContext!)
 
         mode = .warmup
         statusMessage = "Warming Up"
@@ -343,7 +344,7 @@ final class ConversationState: Identifiable, ModeProvider {
         shouldWaitOrListen()
         statusMessage = nil
 
-        if let (used, maximum, system) = asset.category.memoryStrings {
+        if let (used, maximum, system) = model.variant.memoryStrings {
             log("Startup complete, GPU usage: \(used) / \(maximum), system total: \(system)")
         }
     }
@@ -514,7 +515,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     private var statePath: URL {
-        asset.localStatePath
+        model.localStatePath
     }
 
     private var textPath: URL {

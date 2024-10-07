@@ -25,27 +25,29 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
     }
 
-    nonisolated var id: String { asset.id }
+    let id: String
+    let model: Model
 
     var builderDone: ((Phase) -> Void)?
-
     var phase: Phase
-    let asset: Asset
 
     private var urlSession: URLSession!
     private let localModelPath: URL
 
-    init(fetching asset: Asset) async {
+    init(fetching model: Model) async {
+        id = model.id
         phase = .boot
-        self.asset = asset
-        localModelPath = asset.localModelPath
+        self.model = model
+        localModelPath = model.localModelPath
         super.init()
-        urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(asset.id)"), delegate: self, delegateQueue: nil)
+        urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(model.id)"), delegate: self, delegateQueue: nil)
         await startup()
     }
 
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {
-        log("[\(asset.category.displayName)] Download task created: \(task.taskIdentifier)")
+        Task { @MainActor in
+            log("[\(model.variant.displayName)] Download task created: \(task.taskIdentifier)")
+        }
     }
 
     nonisolated func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didWriteData _: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -63,7 +65,7 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     private func handleNetworkError(_ error: Error, in task: URLSessionTask) {
-        log("[\(asset.category.displayName)] Network error on \(task.originalRequest?.url?.absoluteString ?? "<no url>"): \(error.localizedDescription)")
+        log("[\(model.variant.displayName)] Network error on \(task.originalRequest?.url?.absoluteString ?? "<no url>"): \(error.localizedDescription)")
         phase = .error(error: error)
         urlSession.invalidateAndCancel()
         builderDone?(phase)
@@ -86,22 +88,21 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
             return
         }
 
-        Task {
-            log("[\(asset.category.displayName)] Downloaded asset to \(localModelPath.path)...")
-            Task { @MainActor in
-                phase = .done
-                urlSession.invalidateAndCancel()
-                builderDone?(phase)
-                builderDone = nil
-            }
+        Task { @MainActor in
+            log("[\(model.variant.displayName)] Downloaded asset to \(localModelPath.path)...")
+            phase = .done
+            urlSession.invalidateAndCancel()
+            model.updateInstalledStatus()
+            builderDone?(phase)
+            builderDone = nil
         }
     }
 
     private func startup() async {
-        log("[\(asset.category.displayName)] Setting up asset for \(asset.category.displayName)")
+        log("[\(model.variant.displayName)] Setting up asset for \(model.variant.displayName)")
 
-        if FileManager.default.fileExists(atPath: asset.localModelPath.path) {
-            log("[\(asset.category.displayName)] Asset ready at \(asset.localModelPath.path)...")
+        if FileManager.default.fileExists(atPath: model.localModelPath.path) {
+            log("[\(model.variant.displayName)] Asset ready at \(model.localModelPath.path)...")
             phase = .done
             urlSession.invalidateAndCancel()
             builderDone?(phase)
@@ -109,11 +110,11 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
             return
         }
 
-        log("[\(asset.category.displayName)] Need to fetch asset...")
+        log("[\(model.variant.displayName)] Need to fetch asset...")
         phase = .fetching(downloaded: 0, expected: 0)
 
         let downloadTasks = await urlSession.tasks.2
-        var related = downloadTasks.filter { $0.originalRequest?.url?.lastPathComponent == asset.category.fetchUrl.lastPathComponent }
+        var related = downloadTasks.filter { $0.originalRequest?.url?.lastPathComponent == model.variant.fetchUrl.lastPathComponent }
         while related.count > 1 {
             if let task = related.popLast() {
                 task.cancel()
@@ -121,17 +122,19 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
 
         if !related.isEmpty {
-            log("[\(asset.category.displayName)] Existing download for currently selected asset detected, continuing")
+            log("[\(model.variant.displayName)] Existing download for currently selected asset detected, continuing")
             return
         }
 
         do {
-            log("[\(asset.category.displayName)] Requesting new asset transfer...")
-            urlSession.downloadTask(with: asset.category.fetchUrl).resume()
+            log("[\(model.variant.displayName)] Requesting new asset transfer...")
+            urlSession.downloadTask(with: model.variant.fetchUrl).resume()
         }
     }
 
     nonisolated func urlSessionDidFinishEvents(forBackgroundURLSession _: URLSession) {
-        log("[\(asset.category.displayName)] Background URL session events complete")
+        Task { @MainActor in
+            log("[\(model.variant.displayName)] Background URL session events complete")
+        }
     }
 }

@@ -2,19 +2,19 @@ import Foundation
 import SwiftUI
 
 struct SectionCarousel: View {
-    let section: Asset.Section
-    let assetList: [Asset]
-    @Binding var selectedAsset: Asset
+    let category: Model.Category
+    let modelList: [Model]
+    @Binding var selected: Model
 
     var body: some View {
         ScrollViewReader { horizontalScrollReader in
             ScrollView(.horizontal) {
                 HStack(spacing: 14) {
-                    SectionCell(section: section)
+                    SectionCell(category: category)
                         .frame(width: 200)
 
-                    ForEach(assetList) {
-                        AssetCell(asset: $0, selected: $selectedAsset)
+                    ForEach(modelList) {
+                        AssetCell(model: $0, selected: $selected)
                     }
                     .aspectRatio(1.4, contentMode: .fit)
                 }
@@ -24,7 +24,7 @@ struct SectionCarousel: View {
             }
             .background(.white.opacity(0.3).blendMode(.softLight))
             .onAppear {
-                horizontalScrollReader.scrollTo(selectedAsset.id)
+                horizontalScrollReader.scrollTo(selected.variant.id)
             }
         }
     }

@@ -1,30 +1,75 @@
 import Foundation
 import Metal
 
-extension Asset {
-    enum Section: Int, CaseIterable, Identifiable {
-        var id: Int { rawValue }
+@MainActor
+@Observable
+final class Model: Hashable, Identifiable, Sendable {
+    struct Params: Codable, Sendable {
+        static let currentVersion = 4
 
-        case qwen, dolphin, samantha, coding, creative, llamas, deprecated
+        enum Descriptors {
+            struct Descriptor {
+                let title: String
+                let min: Float
+                let max: Float
+                let disabled: Float
+            }
 
-        var presentedModels: [Variant] {
+            static let topK = Descriptor(title: "Top-K", min: 0, max: 200, disabled: 0)
+            static let topP = Descriptor(title: "Top-P", min: 0, max: 2, disabled: 0)
+            static let temperature = Descriptor(title: "Temperature", min: 0, max: 2, disabled: 0)
+            static let temperatureRange = Descriptor(title: "Range", min: 0, max: 1, disabled: 0)
+            static let temperatureExponent = Descriptor(title: "Exponent", min: 1, max: 4, disabled: 0)
+            static let repeatPenatly = Descriptor(title: "Repeat Penalty", min: 1, max: 4, disabled: 1)
+            static let frequencyPenatly = Descriptor(title: "Frequency Penalty", min: 0, max: 4, disabled: 0)
+            static let presentPenatly = Descriptor(title: "Presence Penalty", min: 1, max: 4, disabled: 1)
+        }
+
+        var topK: Int
+        var topP: Float
+        var systemPrompt: String
+        var temperature: Float
+        var temperatureRange: Float
+        var temperatureExponent: Float
+        var repeatPenatly: Float
+        var frequencyPenatly: Float
+        var presentPenatly: Float
+        var version: Int?
+
+        static var empty: Params {
+            Params(topK: 0,
+                   topP: 0,
+                   systemPrompt: "",
+                   temperature: 0,
+                   temperatureRange: 0,
+                   temperatureExponent: 0,
+                   repeatPenatly: 0,
+                   frequencyPenatly: 0,
+                   presentPenatly: 0)
+        }
+    }
+
+    enum Status: Codable, Sendable {
+        case checking, available, recommended, installed, notReady
+
+        var badgeText: String? {
             switch self {
-            case .llamas:
-                [.llama3, .llama3large, .llama3compact, .llama3tiny]
-            case .dolphin:
-                [.dolphinMixtral, .dolphinTiny, .dolphin70b]
-            case .qwen:
-                [.qwen2regular, .qwen2large, .qwen2small]
-            case .coding:
-                [.codestral, .dolphinCoder, .deepSeekCoder33, .deepSeekCoder7, .everyoneCoder, .codeLlama70b]
-            case .creative:
-                [.mythoMax, .neuralStory7b]
-            case .samantha:
-                [.samantha7b, .samantha70b]
-            case .deprecated:
-                []
+            case .available, .checking:
+                nil
+            case .recommended:
+                "START HERE"
+            case .installed:
+                "INSTALLED"
+            case .notReady:
+                "NOT AVAILABLE"
             }
         }
+    }
+
+    enum Category: Int, CaseIterable, Identifiable {
+        var id: Int { rawValue }
+
+        case qwen, dolphin, samantha, coding, creative, llamas, system
 
         var title: String {
             switch self {
@@ -32,22 +77,73 @@ extension Asset {
             case .coding: "Coding"
             case .qwen: "Qwen"
             case .creative: "Creative"
-            case .deprecated: "Deprecated"
             case .samantha: "Samantha"
             case .llamas: "Llamas"
+            case .system: "Internal"
+            }
+        }
+
+        var displayable: Bool {
+            switch self {
+            case .coding, .creative, .dolphin, .llamas, .qwen, .samantha: true
+            case .system: false
             }
         }
 
         var description: String {
             switch self {
-            case .dolphin: "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
-            case .coding: "Models that can assist with programming, algorithms, and writing code."
-            case .creative: "Models that can help with creative activities, such as writing. More will be added soon."
-            case .deprecated: "Models from previous versions of Emeltal that are installed but no longer offered."
-            case .samantha: "The \"sister\" of Dolphin, Samantha is a data set which produces models based on the premise they are sentient, and emotionally supportive of the user."
-            case .qwen: "The Qwen models are consistently rated both highly in benchmarks and by users."
-            case .llamas: "The llama is a quadruped which lives in big rivers like the Amazon. It has two ears, a heart, a forehead, and a beak for eating honey. But it is provided with fins for swimming."
+            case .dolphin:
+                "The Dolphin dataset produces some of the best LLMs out there. This is a selection of models finetuned with this dataset."
+            case .coding:
+                "Models that can assist with programming, algorithms, and writing code."
+            case .creative:
+                "Models that can help with creative activities, such as writing. More will be added soon."
+            case .samantha:
+                "The \"sister\" of Dolphin, Samantha is a data set which produces models based on the premise they are sentient, and emotionally supportive of the user."
+            case .qwen:
+                "The Qwen models are consistently rated both highly in benchmarks and by users."
+            case .llamas:
+                "The llama is a quadruped which lives in big rivers like the Amazon. It has two ears, a heart, a forehead, and a beak for eating honey. But it is provided with fins for swimming."
+            case .system:
+                ""
             }
+        }
+    }
+
+    struct GpuUsage {
+        let layersUsed: Int64
+        let layersTotal: Int64
+        let offloadAsr: Bool
+        let offloadKvCache: Bool
+        let cpuUsageEstimateBytes: Int64
+        let gpuUsageEstimateBytes: Int64
+        let excessBytes: Int64
+
+        var warningMessage: String? {
+            if excessBytes > 0 {
+                return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
+            }
+
+            if offloadKvCache {
+                return nil
+            }
+
+            if layersUsed > 0, layersTotal > 0 {
+                let ratio = Float(layersUsed) / Float(layersTotal)
+                if ratio == 1 {
+                    return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache"
+                } else if ratio > 0.8 {
+                    return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat"
+                } else {
+                    return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat"
+                }
+            }
+
+            if offloadAsr {
+                return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat"
+            }
+
+            return "Emeltal won't use Metal at all. It will work but will probably be slow"
         }
     }
 
@@ -74,19 +170,12 @@ extension Asset {
              qwen2large = 2600,
              qwen2small = 2700
 
-        var selectable: Bool {
-            switch self {
-            case .whisper: false
-            default: true
-            }
-        }
-
         var recommended: Bool {
             self == .qwen2regular
         }
 
-        var section: Section? {
-            Section.allCases.first { $0.presentedModels.contains(self) }
+        var displayable: Bool {
+            self != .whisper
         }
 
         var format: Template.Format {
@@ -121,6 +210,11 @@ extension Asset {
             }
         }
 
+        var persistedParams: Params? {
+            // TODO:
+            nil
+        }
+
         var contextSize: UInt32 {
             switch self {
             case .codeLlama70b,
@@ -146,43 +240,6 @@ extension Asset {
                  .qwen2large,
                  .qwen2regular:
                 16384
-            }
-        }
-
-        struct GpuUsage {
-            let layersUsed: Int64
-            let layersTotal: Int64
-            let offloadAsr: Bool
-            let offloadKvCache: Bool
-            let cpuUsageEstimateBytes: Int64
-            let gpuUsageEstimateBytes: Int64
-            let excessBytes: Int64
-
-            var warningMessage: String? {
-                if excessBytes > 0 {
-                    return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
-                }
-
-                if offloadKvCache {
-                    return nil
-                }
-
-                if layersUsed > 0, layersTotal > 0 {
-                    let ratio = Float(layersUsed) / Float(layersTotal)
-                    if ratio == 1 {
-                        return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache"
-                    } else if ratio > 0.8 {
-                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat"
-                    } else {
-                        return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat"
-                    }
-                }
-
-                if offloadAsr {
-                    return "This model won't fit in Metal at all. It will work but will be too slow for real-time chat"
-                }
-
-                return "Emeltal won't use Metal at all. It will work but will probably be slow"
             }
         }
 
@@ -212,8 +269,6 @@ extension Asset {
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
         }
-
-        // TODO: Installing a new model does not update the selector if going back from the "grid" icon
 
         var usage: GpuUsage {
             let layerSizeM: Int64 = switch self {
@@ -537,9 +592,9 @@ extension Asset {
             case .whisper: "Whisper Voice Recognition"
             case .dolphin70b: "Dolphin (Large)"
             case .dolphinTiny: "Dolphin (Compact)"
-            case .qwen2large: "Qwen2 (Large)"
-            case .qwen2regular: "Qwen2"
-            case .qwen2small: "Qwen2 (Compact)"
+            case .qwen2large: "Qwen 2.5 (Large)"
+            case .qwen2regular: "Qwen 2.5"
+            case .qwen2small: "Qwen 2.5 (Compact)"
             case .codeLlama70b: "CodeLlama (Large)"
             case .samantha70b: "Samantha (Large)"
             case .samantha7b: "Samantha"
@@ -617,6 +672,188 @@ extension Asset {
                    frequencyPenatly: defaultFrequencyPenalty,
                    presentPenatly: defaultPresentPenalty,
                    version: Params.currentVersion)
+        }
+    }
+
+    let id: String
+    let category: Category
+    let variant: Variant
+    var params: Params
+
+    private(set) var status: Status
+
+    static var modelsDir = appDocumentsUrl.appendingPathComponent("models", conformingTo: .directory)
+
+    nonisolated static func == (lhs: Model, rhs: Model) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    init(category: Category, variant: Variant) {
+        id = "\(category.id)-\(variant.id)"
+        self.category = category
+        self.variant = variant
+        params = variant.persistedParams ?? variant.defaultParams
+        status = .checking
+        updateInstalledStatus()
+    }
+
+    func unInstall() {
+        let fm = FileManager.default
+        try? fm.removeItem(at: localModelPath)
+        try? fm.removeItem(at: localStatePath)
+        status = .checking
+        updateInstalledStatus()
+    }
+
+    func updateInstalledStatus() {
+        if FileManager.default.fileExists(atPath: localModelPath.path) {
+            status = .installed
+            return
+        }
+
+        let task = Task.detached { [weak self] in
+            guard let self else { return Model.Status.notReady }
+            log("Checking availability of \(variant.displayName)")
+
+            var request = URLRequest(url: variant.fetchUrl)
+            request.httpMethod = "head"
+            let response = try? await URLSession.shared.data(for: request).1 as? HTTPURLResponse
+            let newStatus: Model.Status = if let code = response?.statusCode, code >= 200, code < 300 {
+                variant.recommended ? .recommended : .available
+            } else {
+                .notReady
+            }
+            return newStatus
+        }
+
+        Task {
+            let newStatus = await task.value
+            if !Task.isCancelled, status != newStatus {
+                status = newStatus
+                log("Status for \(variant.displayName) determined to be \(newStatus)")
+            }
+        }
+    }
+
+    var localModelPath: URL {
+        let modelDir = Self.modelsDir
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: modelDir.path) {
+            try! fm.createDirectory(at: modelDir, withIntermediateDirectories: true)
+        }
+        return modelDir.appendingPathComponent(variant.fetchUrl.lastPathComponent)
+    }
+
+    var localStatePath: URL {
+        let fm = FileManager.default
+        let statePath = appDocumentsUrl.appendingPathComponent("states-\(id)", conformingTo: .directory)
+        if !fm.fileExists(atPath: statePath.path) {
+            try? fm.createDirectory(at: statePath, withIntermediateDirectories: true)
+        }
+        return statePath
+    }
+
+    func mlTemplate(in context: LlamaContext) -> Template? {
+        Template(format: variant.format,
+                 system: params.systemPrompt,
+                 bosToken: context.bosToken)
+    }
+
+    func resetToDefaults() {
+        params = variant.defaultParams
+    }
+
+    func save() {
+        var list = if let modelParams = Persisted.modelParams, let list = try? JSONDecoder().decode([ParamsHolder].self, from: modelParams) {
+            list
+        } else {
+            [ParamsHolder]()
+        }
+
+        let myParams = ParamsHolder(modelId: id, params: params)
+        if let index = list.firstIndex(where: { $0.modelId == myParams.modelId }) {
+            list[index] = myParams
+        } else {
+            list.append(myParams)
+        }
+        Persisted.modelParams = try? JSONEncoder().encode(list)
+    }
+}
+
+@MainActor
+@Observable
+final class ManagerViewModel {
+    static let shared = ManagerViewModel()
+
+    var selected: Model {
+        didSet {
+            Persisted.selectedAssetId = selected.id
+        }
+    }
+
+    let models = [
+        Model(category: .dolphin, variant: .dolphinMixtral),
+        Model(category: .dolphin, variant: .dolphin70b),
+        Model(category: .dolphin, variant: .dolphinTiny),
+        Model(category: .creative, variant: .mythoMax),
+        Model(category: .creative, variant: .neuralStory7b),
+        Model(category: .coding, variant: .codestral),
+        Model(category: .coding, variant: .dolphinCoder),
+        Model(category: .coding, variant: .deepSeekCoder7),
+        Model(category: .coding, variant: .codeLlama70b),
+        Model(category: .coding, variant: .deepSeekCoder7),
+        Model(category: .coding, variant: .everyoneCoder),
+        Model(category: .samantha, variant: .samantha7b),
+        Model(category: .samantha, variant: .samantha70b),
+        Model(category: .llamas, variant: .llama3),
+        Model(category: .llamas, variant: .llama3large),
+        Model(category: .llamas, variant: .llama3compact),
+        Model(category: .llamas, variant: .llama3tiny),
+        Model(category: .qwen, variant: .qwen2regular),
+        Model(category: .qwen, variant: .qwen2large),
+        Model(category: .qwen, variant: .qwen2small),
+        Model(category: .system, variant: .whisper)
+    ]
+
+    init() {
+        selected = if let id = Persisted.selectedAssetId {
+            models.first { $0.id == id } ?? models.first!
+        } else {
+            models.first!
+        }
+    }
+
+    func models(for category: Model.Category) -> [Model] {
+        models.filter { $0.category == category }
+    }
+
+    func category(for variant: Model.Variant) -> Model.Category? {
+        models.first { $0.variant == variant }?.category
+    }
+
+    func cleanupNonInstalledAssets() {
+        log("Checking for stale assets…")
+
+        // Clean up deprecated model files
+        let modelPaths = Set(models.map(\.localModelPath))
+        let fm = FileManager.default
+        let onDiskModelPaths = Set((try? fm.contentsOfDirectory(at: Model.modelsDir, includingPropertiesForKeys: nil)) ?? []).filter { !$0.lastPathComponent.hasPrefix(".") }
+        let unusedFiles = onDiskModelPaths.subtracting(modelPaths)
+        for file in unusedFiles {
+            log("Removing stale unused model file: \(file.path)")
+            try? fm.removeItem(at: file)
+        }
+
+        let statePaths = Set(models.map(\.localStatePath))
+        let onDiskStatePaths = Set((try? fm.contentsOfDirectory(at: appDocumentsUrl, includingPropertiesForKeys: nil))?.filter { $0.lastPathComponent.hasPrefix("states-") } ?? [])
+        let unusedStateDirs = onDiskStatePaths.subtracting(statePaths)
+        for file in unusedStateDirs {
+            log("Removing stale state dir: \(file.path)")
+            try? fm.removeItem(at: file)
         }
     }
 }

@@ -10,54 +10,17 @@ let performanceCpuCount = {
     return Int(performanceCpuCount)
 }()
 
+struct ParamsHolder: Codable {
+    let modelId: String
+    let params: Model.Params
+}
+
 @MainActor
 enum Persisted {
     @AppStorage("_textOnly") static var textOnly = false
     @AppStorage("_floatingMode") static var floatingMode = false
-    @AppStorage("_assetSettings") private static var selectedAssetId: Asset.Variant.ID?
-    @AppStorage("_assetListData") private static var assetListData: Data?
-
-    private static var _cachedAssetList: [Asset]?
-    static var assetList: [Asset] {
-        get {
-            let returned: [Asset] = if let _cachedAssetList {
-                _cachedAssetList
-            } else if let assetListData, let list = try? JSONDecoder().decode([Asset].self, from: assetListData) {
-                list
-            } else {
-                [Asset]()
-            }
-            _cachedAssetList = returned
-            return returned
-        }
-        set {
-            _cachedAssetList = newValue
-            assetListData = try? JSONEncoder().encode(newValue)
-        }
-    }
-
-    static var selectedAsset: Asset {
-        set {
-            selectedAssetId = newValue.id
-        }
-        get {
-            let list = Asset.assetList()
-            if let selectedAssetId, let existingAsset = list.first(where: { $0.id == selectedAssetId }) {
-                return existingAsset
-            }
-            return list.first!
-        }
-    }
-
-    static func update(asset: Asset) {
-        var list = Asset.assetList()
-        if let index = list.firstIndex(where: { $0.id == asset.id }) {
-            list[index] = asset
-        } else {
-            list.append(asset)
-        }
-        assetList = list
-    }
+    @AppStorage("_assetSettings") static var selectedAssetId: Model.Variant.ID?
+    @AppStorage("_modelParams") static var modelParams: Data?
 }
 
 @MainActor

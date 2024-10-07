@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 struct SectionCell: View {
-    let section: Asset.Section
+    let category: Model.Category
 
     var body: some View {
         HStack(spacing: 14) {
@@ -10,10 +10,10 @@ struct SectionCell: View {
                 .frame(width: 1)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(section.title)
+                Text(category.title)
                     .font(.title)
 
-                Text(section.description)
+                Text(category.description)
                     .font(.caption2)
 
                 Spacer(minLength: 0)

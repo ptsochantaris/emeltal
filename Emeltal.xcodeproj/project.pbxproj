@@ -56,8 +56,6 @@
 		16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16815BF32B52ADEE00D7C8B9 /* GGMLActor.swift */; };
 		168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */; };
 		168A96A82B42F99500BE67EF /* IdealVoicePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */; };
-		168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F55FE2B331B8B007CADC1 /* AssetCategory.swift */; };
-		168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F56002B331BA8007CADC1 /* AssetParams.swift */; };
 		168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B02B443EC6003A1190 /* MessageLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57AE2B443EC6003A1190 /* MessageLog.swift */; };
 		168F57B22B44434F003A1190 /* SideBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168F57B12B44434F003A1190 /* SideBar.swift */; };
@@ -65,7 +63,7 @@
 		16905E4C2B2E0D6D006B4EC8 /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */; };
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
-		16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E512B2E52BD006B4EC8 /* Asset.swift */; };
+		16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A090F72CB46F0700468E93 /* ManagerViewModel.swift */; };
 		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
 		16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D762B7402DD00781F78 /* SectionCell.swift */; };
 		16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D782B742F0100781F78 /* SectionCarousel.swift */; };
@@ -174,15 +172,13 @@
 		167B9D2A2B572036006711B9 /* Turn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Turn.swift; sourceTree = "<group>"; };
 		16815BF32B52ADEE00D7C8B9 /* GGMLActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGMLActor.swift; sourceTree = "<group>"; };
 		168A96A62B42F66E00BE67EF /* IdealVoicePrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdealVoicePrompt.swift; sourceTree = "<group>"; };
-		168F55FE2B331B8B007CADC1 /* AssetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCategory.swift; sourceTree = "<group>"; };
-		168F56002B331BA8007CADC1 /* AssetParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetParams.swift; sourceTree = "<group>"; };
 		168F57AE2B443EC6003A1190 /* MessageLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLog.swift; sourceTree = "<group>"; };
 		168F57B12B44434F003A1190 /* SideBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBar.swift; sourceTree = "<group>"; };
 		168F57B32B444377003A1190 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
-		16905E512B2E52BD006B4EC8 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
+		16A090F72CB46F0700468E93 /* ManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerViewModel.swift; sourceTree = "<group>"; };
 		16AF9D8D2B8238100064B66C /* UTF8Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTF8Builder.swift; sourceTree = "<group>"; };
 		16C23D762B7402DD00781F78 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 		16C23D782B742F0100781F78 /* SectionCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCarousel.swift; sourceTree = "<group>"; };
@@ -344,10 +340,8 @@
 		168F56042B331BD8007CADC1 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				16905E512B2E52BD006B4EC8 /* Asset.swift */,
+				16A090F72CB46F0700468E93 /* ManagerViewModel.swift */,
 				16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */,
-				168F55FE2B331B8B007CADC1 /* AssetCategory.swift */,
-				168F56002B331BA8007CADC1 /* AssetParams.swift */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -523,7 +517,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				168F55FF2B331B8B007CADC1 /* AssetCategory.swift in Sources */,
 				16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */,
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
 				16C58DFE2B351C6E00006CC2 /* AppMode.swift in Sources */,
@@ -538,16 +531,15 @@
 				1608DB6E2B151B4F00FFFB09 /* ConversationView.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
 				16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
-				16905E522B2E52BD006B4EC8 /* Asset.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
 				16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
-				168F56012B331BA8007CADC1 /* AssetParams.swift in Sources */,
 				16578A322B18CA5A0038A680 /* ConversationState.swift in Sources */,
 				161A61392C516CB000069736 /* ggml.c in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
 				16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */,
+				16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,

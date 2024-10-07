@@ -2,8 +2,8 @@ import Foundation
 import SwiftUI
 
 struct AssetCell: View {
-    let asset: Asset
-    @Binding var selected: Asset
+    let model: Model
+    @Binding var selected: Model
 
     @Environment(\.openURL) var openUrl
 
@@ -11,26 +11,26 @@ struct AssetCell: View {
         ZStack(alignment: .top) {
             PickerEntryBackground()
 
-            if selected == asset {
+            if selected == model {
                 RoundedRectangle(cornerSize: CGSize(width: 20, height: 20), style: .continuous)
                     .stroke(style: StrokeStyle(lineWidth: 3))
                     .foregroundStyle(.accent)
                     .padding(1)
             }
 
-            let category = asset.category
+            let variant = model.variant
             VStack(spacing: 8) {
                 VStack(spacing: 2) {
-                    Text(category.displayName)
+                    Text(variant.displayName)
                         .font(.title2)
                         .lineLimit(1)
 
                     HStack(spacing: 4) {
-                        Text(category.detail)
+                        Text(variant.detail)
                             .lineLimit(1)
 
                         Button {
-                            openUrl(category.originalRepoUrl)
+                            openUrl(variant.originalRepoUrl)
                         } label: {
                             Image(systemName: "questionmark.circle.fill")
                         }
@@ -40,12 +40,12 @@ struct AssetCell: View {
                     .foregroundStyle(.secondary)
                 }
 
-                Text(category.aboutText)
+                Text(variant.aboutText)
 
                 Spacer(minLength: 0)
 
                 HStack {
-                    if let label = asset.status.badgeText {
+                    if let label = model.status.badgeText {
                         Text(label)
                             .font(.caption2)
                             .padding(4)
@@ -58,7 +58,7 @@ struct AssetCell: View {
 
                     Spacer()
 
-                    Text(category.sizeDescription)
+                    Text(variant.sizeDescription)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.trailing, 2)
@@ -69,7 +69,7 @@ struct AssetCell: View {
             .frame(minHeight: 0)
         }
         .onTapGesture {
-            selected = asset
+            selected = model
         }
     }
 }

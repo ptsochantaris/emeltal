@@ -41,7 +41,7 @@ final class LlamaContext {
     init(manager: AssetManager) async throws(EmeltalError) {
         self.manager = manager
 
-        let asset = manager.asset
+        let asset = manager.model
 
         llama_backend_init()
 
@@ -49,7 +49,7 @@ final class LlamaContext {
         model_params.use_mlock = false
         model_params.use_mmap = true
 
-        let gpuUsage = asset.category.usage
+        let gpuUsage = asset.variant.usage
         model_params.n_gpu_layers = Int32(gpuUsage.layersUsed)
 
         let modelPath = await asset.localModelPath.path
@@ -67,9 +67,9 @@ final class LlamaContext {
             bosToken = ""
         }
 
-        eosTokenIds = asset.category.eosOverrides ?? [llama_token_eos(model)]
+        eosTokenIds = asset.variant.eosOverrides ?? [llama_token_eos(model)]
 
-        if let quote = asset.category.quoteTag {
+        if let quote = asset.variant.quoteTag {
             quotes = ("<\(quote)>", "</\(quote)>")
         } else {
             quotes = nil
@@ -81,8 +81,8 @@ final class LlamaContext {
         let threadCounts = Int32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
-        ctx_params.n_ctx = asset.category.contextSize
-        ctx_params.n_batch = asset.category.maxBatch
+        ctx_params.n_ctx = asset.variant.contextSize
+        ctx_params.n_batch = asset.variant.maxBatch
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
         ctx_params.flash_attn = true
@@ -106,16 +106,16 @@ final class LlamaContext {
         let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
 
-        let params = await manager.asset.params
+        let params = await manager.model.params
 
         llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
         sampler = newSampler
 
-        if params.topP != Asset.Params.Descriptors.topP.disabled {
+        if params.topP != Model.Params.Descriptors.topP.disabled {
             llama_sampler_chain_add(newSampler, llama_sampler_init_top_p(params.topP, 1))
         }
 
-        if params.topK != Int(Asset.Params.Descriptors.topK.disabled) {
+        if params.topK != Int(Model.Params.Descriptors.topK.disabled) {
             llama_sampler_chain_add(newSampler, llama_sampler_init_top_k(Int32(params.topK)))
         }
 
@@ -244,7 +244,7 @@ final class LlamaContext {
         let maxTokens = max(128, textLen)
         var newTokens = [llama_token](repeating: 0, count: Int(maxTokens))
         let tokenisedCount = llama_tokenize(model, text, textLen, &newTokens, maxTokens, false, true)
-        let newTokenLimit = Int(min(manager.asset.category.maxBatch, UInt32(tokenisedCount)))
+        let newTokenLimit = Int(min(manager.model.variant.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
     }
 
