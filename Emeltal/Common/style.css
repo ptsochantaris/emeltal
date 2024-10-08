@@ -6,12 +6,15 @@
 }
 
 body {
-    margin: 3pt;
+    margin-top: 3pt;
+    margin-bottom: 3pt;
+    margin-left: 0pt;
+    margin-right: 6pt;
 }
 
 h4 {
-    border-color: gray;
-    border-width: 0.5pt;
+    border-color: #FFFFFF19;
+    border-width: 2pt;
     border-bottom-style: solid;
     display: block;
 
@@ -20,14 +23,10 @@ h4 {
 
     padding: 0;
     padding-bottom: 9pt;
-    padding-left: 3pt;
-    padding-right: 3pt;
 
-    margin: 0;
     margin-top: 30pt;
     margin-bottom: -3pt;
-    margin-left: -3pt;
-    margin-right: -3pt;
+    margin-right: -6pt;
 }
 
 @supports (-webkit-overflow-scrolling: touch) {
@@ -43,12 +42,12 @@ h4 {
 blockquote {
     font-size: small;
     margin: 0;
-    background: Canvas;
+    background: #FFFFFF19;
     padding-left: 12pt;
     padding-right: 12pt;
     padding-top: 2pt;
     padding-bottom: 3pt;
-    border-radius: 16pt;
+    border-radius: 15pt;
 }
 
 pre code {

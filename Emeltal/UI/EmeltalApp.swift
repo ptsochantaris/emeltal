@@ -21,6 +21,7 @@ struct EmeltalApp: App {
                 }
             }
             .frame(idealWidth: 1000, idealHeight: 950)
+            .preferredColorScheme(.dark)
         }
     }
 }

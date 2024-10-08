@@ -225,6 +225,9 @@ private struct Buttons: View {
                 Button("Uninstall") {
                     selected.unInstall()
                 }
+                #if !os(visionOS)
+                .foregroundStyle(.black)
+                #endif
             }
 
             Spacer(minLength: 0)
@@ -242,6 +245,9 @@ private struct Buttons: View {
                     }
                 }
             }
+            #if !os(visionOS)
+            .foregroundStyle(.black)
+            #endif
 
             switch selected.status {
             case .checking, .notReady:
@@ -251,11 +257,17 @@ private struct Buttons: View {
                     let state = ConversationState(model: selected)
                     appPhase = .conversation(state)
                 }
+                #if !os(visionOS)
+                .foregroundStyle(.black)
+                #endif
             case .installed:
                 Button("Select") {
                     let state = ConversationState(model: selected)
                     appPhase = .conversation(state)
                 }
+                #if !os(visionOS)
+                .foregroundStyle(.black)
+                #endif
             }
         }
         .buttonStyle(.borderedProminent)
@@ -278,21 +290,28 @@ struct ModelPicker: View {
     var body: some View {
         VStack(spacing: 0) {
             SelectionGrid(selected: $manager.selected, showingOverrides: showOverrides)
-            
+
             if showOverrides {
                 Overrides(selected: $manager.selected)
                     .transition(.move(edge: .bottom))
             }
-            
+
             Buttons(selected: $manager.selected, showOverrides: $showOverrides, appPhase: $appPhase)
         }
-        .foregroundStyle(.white)
-        .background(ShimmerBackground(show: $visible))
-        .navigationTitle("Select an ML model")
-        .onAppear { visible = true }
-        .onDisappear { visible = false }
-        .onAppear {
-            manager.cleanupNonInstalledAssets()
+        .background {
+            ShimmerBackground(show: $visible)
+                .ignoresSafeArea()
         }
+        .navigationTitle("Select an ML model")
+        .foregroundStyle(.white)
+        .toolbarTitleDisplayMode(.inline)
+        #if canImport(UIKit)
+            .toolbarBackground(.material, for: .navigationBar)
+        #endif
+            .onAppear { visible = true }
+            .onDisappear { visible = false }
+            .onAppear {
+                manager.cleanupNonInstalledAssets()
+            }
     }
 }

@@ -90,7 +90,9 @@ struct ContentView: View {
                     }
                     .focused($focusEntryField)
             }
-            .background(Image(.canvas).resizable().ignoresSafeArea().opacity(0.7))
+            .background {
+                Image(.background).resizable().aspectRatio(contentMode: .fill)
+            }
             .navigationTitle("Conversation")
             .toolbarTitleDisplayMode(.inline)
         }

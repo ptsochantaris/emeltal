@@ -10,18 +10,22 @@ struct SideBar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Button { [weak state] in
-                guard let state else { return }
-                state.floatingMode.toggle()
-                if !state.floatingMode {
-                    focusEntryField = true
+            #if canImport(AppKit)
+                Button { [weak state] in
+                    guard let state else { return }
+                    state.floatingMode.toggle()
+                    if !state.floatingMode {
+                        focusEntryField = true
+                    }
+                } label: {
+                    Image(systemName: state.floatingMode ? "chevron.compact.up" : "chevron.compact.down")
+                        .font(.largeTitle)
+                        .padding()
                 }
-            } label: {
-                Image(systemName: state.floatingMode ? "chevron.compact.up" : "chevron.compact.down")
-                    .font(.largeTitle)
-                    .padding()
-            }
-            .buttonStyle(.borderless)
+                .buttonStyle(.borderless)
+            #else
+                Color.clear.frame(height: 33)
+            #endif
 
             if let statusMessage = state.statusMessage {
                 Text(statusMessage)
@@ -102,12 +106,17 @@ struct SideBar: View {
         }
         .foregroundColor(.widgetForeground)
         .background {
-            Image(.canvas).resizable().aspectRatio(contentMode: .fill)
+            if state.floatingMode {
+                Image(.canvas)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Rectangle()
+                    .foregroundStyle(.material)
+            }
         }
-        .contentShape(Rectangle())
         .frame(width: assistantWidth)
-        .cornerRadius(44)
-        .shadow(radius: state.floatingMode ? 0 : 6)
+        .cornerRadius(21)
     }
 
     private func dragged(by value: DragGesture.Value) {

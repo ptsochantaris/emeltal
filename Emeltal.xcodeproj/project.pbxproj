@@ -44,6 +44,7 @@
 		16578A322B18CA5A0038A680 /* ConversationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* ConversationState.swift */; };
 		16578A342B18CA820038A680 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16578A392B1924B80038A680 /* WhisperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A382B1924B80038A680 /* WhisperContext.swift */; };
+		165D9E872CB5C41300AAE9FB /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165D9E862CB5C41300AAE9FB /* Model.swift */; };
 		1677AF2B2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2C2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2E2B60397400C11138 /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2D2B60397400C11138 /* style.css */; };
@@ -165,6 +166,8 @@
 		16578A312B18CA5A0038A680 /* ConversationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		16578A382B1924B80038A680 /* WhisperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhisperContext.swift; sourceTree = "<group>"; };
+		165D9E852CB59E8400AAE9FB /* Emeltal-visionOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Emeltal-visionOS.entitlements"; sourceTree = "<group>"; };
+		165D9E862CB5C41300AAE9FB /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		1677AF2A2B60391500C11138 /* highlight.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.js; sourceTree = "<group>"; };
 		1677AF2D2B60397400C11138 /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		1677AF302B6039B400C11138 /* log.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = log.html; sourceTree = "<group>"; };
@@ -291,6 +294,7 @@
 			isa = PBXGroup;
 			children = (
 				1608DB712B151B5000FFFB09 /* Emeltal.entitlements */,
+				165D9E852CB59E8400AAE9FB /* Emeltal-visionOS.entitlements */,
 				1608DB7A2B151B8B00FFFB09 /* Emeltal-Bridging-Header.h */,
 				16C794402B2F43D60052B707 /* Info.plist */,
 				16578A312B18CA5A0038A680 /* ConversationState.swift */,
@@ -340,6 +344,7 @@
 		168F56042B331BD8007CADC1 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				165D9E862CB5C41300AAE9FB /* Model.swift */,
 				16A090F72CB46F0700468E93 /* ManagerViewModel.swift */,
 				16905E4B2B2E0D6D006B4EC8 /* AssetManager.swift */,
 			);
@@ -531,6 +536,7 @@
 				1608DB6E2B151B4F00FFFB09 /* ConversationView.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
 				16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
+				165D9E872CB5C41300AAE9FB /* Model.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
 				16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */,
@@ -753,6 +759,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = "Emeltal/Emeltal-visionOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -801,6 +808,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Emeltal/Emeltal.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = "Emeltal/Emeltal-visionOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

@@ -52,7 +52,7 @@ struct AssetCell: View {
                             .padding(.horizontal, 4)
                             .background {
                                 Capsule(style: .continuous)
-                                    .foregroundStyle(.ultraThinMaterial)
+                                    .foregroundStyle(.material)
                             }
                     }
 
