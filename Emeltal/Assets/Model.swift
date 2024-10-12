@@ -179,6 +179,13 @@ final class Model: Hashable, Identifiable, Sendable {
             self != .whisper
         }
 
+        var macOnly: Bool {
+            switch self {
+            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .whisper: true
+            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b: false
+            }
+        }
+
         var format: Template.Format {
             switch self {
             case .deepSeekCoder7, .deepSeekCoder33: .alpaca

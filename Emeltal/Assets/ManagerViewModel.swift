@@ -45,7 +45,11 @@ final class ManagerViewModel {
     }
 
     func models(for category: Model.Category) -> [Model] {
-        models.filter { $0.category == category }
+        #if os(macOS)
+            models.filter { $0.category == category }
+        #else
+            models.filter { $0.category == category && (!$0.variant.macOnly) }
+        #endif
     }
 
     func category(for variant: Model.Variant) -> Model.Category? {

@@ -62,7 +62,9 @@ private struct SelectionGrid: View {
                     ForEach(Model.Category.allCases) { category in
                         if category.displayable {
                             let models = manager.models(for: category)
-                            SectionCarousel(category: category, modelList: models, selected: $manager.selected)
+                            if !models.isEmpty {
+                                SectionCarousel(category: category, modelList: models, selected: $manager.selected)
+                            }
                         }
                     }
                 }

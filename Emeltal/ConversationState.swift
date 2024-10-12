@@ -107,7 +107,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
     init(llm: AssetFetcher, whisper: AssetFetcher) {
         id = llm.model.id
-        self.model = llm.model
+        model = llm.model
 
         connectionStateObservation = Task {
             for await state in remote.stateStream.stream {
