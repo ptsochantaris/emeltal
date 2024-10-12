@@ -224,7 +224,7 @@ private struct Buttons: View {
     var body: some View {
         HStack {
             let selected = manager.selected
-            if selected.status == .installed {
+            if case .installed = selected.status {
                 Button("Uninstall") {
                     selected.unInstall()
                 }
@@ -255,16 +255,24 @@ private struct Buttons: View {
             switch selected.status {
             case .checking, .notReady:
                 EmptyView()
+
+            case .installing:
+                Button("Cancel") {
+                    selected.cancelInstall()
+                }
+
             case .available, .recommended:
                 Button("Install") {
-                    go()
+                    selected.install()
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
                 #endif
-            case .installed:
-                Button("Select") {
-                    go()
+
+            case let .installed(fetcher):
+                Button("Start") {
+                    let state = ConversationState(llm: fetcher, whisper: manager.whisper)
+                    appPhase = .conversation(state)
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
@@ -275,12 +283,6 @@ private struct Buttons: View {
         .padding([.top, .bottom], 8)
         .padding([.leading, .trailing])
         .background(.white.opacity(0.2))
-    }
-
-    private func go() {
-        let llm = AssetFetcher(fetching: manager.selected)
-        let state = ConversationState(llm: llm, whisper: manager.whisper)
-        appPhase = .conversation(state)
     }
 }
 

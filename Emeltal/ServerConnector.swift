@@ -15,40 +15,51 @@ final class ServerConnector: EmeltalConnector {
         log("ServerConnector deinit")
     }
 
+    @NetworkActor
+    private func connectionStateChanged(to newState: NWConnection.State, connection: NWConnection, continuation: AsyncStream<Nibble>.Continuation) {
+        switch newState {
+        case .cancelled:
+            state = .unConnected
+
+        case .ready:
+            connectionEstablished(connection, continuation: continuation)
+
+        case .preparing, .setup:
+            break
+
+        case let .failed(error), let .waiting(error):
+            if case let .connected(nWConnection) = state, connection !== nWConnection {
+                break
+            }
+            state = .error(error)
+
+        @unknown default:
+            break
+        }
+    }
+
+    @NetworkActor
+    private func listenerConnected(connection: NWConnection, continuation: AsyncStream<Nibble>.Continuation, queue: DispatchQueue) async {
+        connection.stateUpdateHandler = { [weak self] change in
+            guard let self else { return }
+            Task {
+                await connectionStateChanged(to: change, connection: connection, continuation: continuation)
+            }
+        }
+        connection.start(queue: queue)
+    }
+
     func startServer() -> AsyncStream<Nibble> {
         let service = NWListener.Service(name: "Emeltal", type: "_emeltal._tcp", domain: nil)
-        listener = try! NWListener(service: service, using: EmeltalProtocol.params)
+        listener = try? NWListener(service: service, using: EmeltalProtocol.params)
 
         let (inputStream, continuation) = AsyncStream.makeStream(of: Nibble.self, bufferingPolicy: .unbounded)
         let queue = networkQueue
-
         listener?.newConnectionHandler = { [weak self] connection in
-            connection.stateUpdateHandler = { [weak self] change in
-                Task { @NetworkActor [weak self] in
-                    guard let self else { return }
-
-                    switch change {
-                    case .cancelled:
-                        self.state = .unConnected
-
-                    case .ready:
-                        self.connectionEstablished(connection, continuation: continuation)
-
-                    case .preparing, .setup:
-                        break
-
-                    case let .failed(error), let .waiting(error):
-                        if case let .connected(nWConnection) = self.state, connection !== nWConnection {
-                            break
-                        }
-                        self.state = .error(error)
-
-                    @unknown default:
-                        break
-                    }
-                }
+            guard let self else { return }
+            Task {
+                await listenerConnected(connection: connection, continuation: continuation, queue: queue)
             }
-            connection.start(queue: queue)
         }
         listener?.stateUpdateHandler = { state in
             switch state {

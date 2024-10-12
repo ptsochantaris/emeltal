@@ -11,6 +11,8 @@ struct ManagerRow: View {
                 switch manager.phase {
                 case .boot, .done:
                     Text("**\(manager.model.variant.displayName)** Starting")
+                case .cancelled:
+                    Text("**\(manager.model.variant.displayName)** Cancelled")
                 case let .error(error):
                     Text("**\(manager.model.variant.displayName)** error: \(error.localizedDescription)")
                 case let .fetching(downloaded, expected):

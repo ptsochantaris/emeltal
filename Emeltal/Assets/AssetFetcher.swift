@@ -4,20 +4,20 @@ import Foundation
 @Observable
 final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     enum Phase {
-        case boot, fetching(downloaded: Int64, expected: Int64), error(error: Error), done
+        case boot, fetching(downloaded: Int64, expected: Int64), error(error: Error), done, cancelled
 
         var isOngoing: Bool {
             switch self {
             case .boot, .fetching:
                 true
-            case .done, .error:
+            case .cancelled, .done, .error:
                 false
             }
         }
 
         var shouldShowToUser: Bool {
             switch self {
-            case .boot, .error, .fetching:
+            case .boot, .cancelled, .error, .fetching:
                 true
             case .done:
                 false
@@ -45,6 +45,28 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         }
     }
 
+    func cancel() {
+        phase = .cancelled
+        urlSession.invalidateAndCancel()
+        builderDone?(phase)
+        builderDone = nil
+    }
+
+    var progressPercentage: Int {
+        switch phase {
+        case let .fetching(downloaded: downloaded, expected: expected):
+            if expected == 0 {
+                0
+            } else {
+                Int((Double(downloaded) / Double(expected)) * 100)
+            }
+        case .done:
+            100
+        case .boot, .cancelled, .error:
+            0
+        }
+    }
+
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {
         Task { @MainActor in
             log("[\(model.variant.displayName)] Download task created: \(task.taskIdentifier)")
@@ -66,6 +88,9 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     }
 
     private func handleNetworkError(_ error: Error, in task: URLSessionTask) {
+        if case .cancelled = phase {
+            return
+        }
         log("[\(model.variant.displayName)] Network error on \(task.originalRequest?.url?.absoluteString ?? "<no url>"): \(error.localizedDescription)")
         phase = .error(error: error)
         urlSession.invalidateAndCancel()

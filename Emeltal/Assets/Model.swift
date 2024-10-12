@@ -50,19 +50,17 @@ final class Model: Hashable, Identifiable, Sendable {
         }
     }
 
-    enum Status: Codable, Sendable {
-        case checking, available, recommended, installed, notReady
+    @MainActor
+    enum Status: Sendable, Equatable {
+        case checking, available, recommended, installed(AssetFetcher), notReady, installing(AssetFetcher)
 
         var badgeText: String? {
             switch self {
-            case .available, .checking:
-                nil
-            case .recommended:
-                "START HERE"
-            case .installed:
-                "INSTALLED"
-            case .notReady:
-                "NOT AVAILABLE"
+            case .available, .checking: nil
+            case .recommended: "START HERE"
+            case .installed: "INSTALLED"
+            case .notReady: "NOT AVAILABLE"
+            case let .installing(fetcher): "INSTALLING: \(fetcher.progressPercentage)%"
             }
         }
     }
@@ -732,7 +730,8 @@ final class Model: Hashable, Identifiable, Sendable {
 
     func updateInstalledStatus() {
         if FileManager.default.fileExists(atPath: localModelPath.path) {
-            status = .installed
+            let fetcher = AssetFetcher(fetching: self)
+            status = .installed(fetcher)
             return
         }
 
@@ -803,5 +802,16 @@ final class Model: Hashable, Identifiable, Sendable {
         }
         Persisted.modelParams = try? JSONEncoder().encode(list)
         log("Saved params for model \(id)")
+    }
+
+    func cancelInstall() {
+        guard case let .installing(fetcher) = status else { return }
+        fetcher.cancel()
+        status = .available
+    }
+
+    func install() {
+        let fetcher = AssetFetcher(fetching: self)
+        status = .installing(fetcher)
     }
 }
