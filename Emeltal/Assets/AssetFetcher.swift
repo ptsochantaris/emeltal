@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 @Observable
-final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
+final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
     enum Phase {
         case boot, fetching(downloaded: Int64, expected: Int64), error(error: Error), done
 
@@ -28,20 +28,22 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     let id: String
     let model: Model
 
-    var builderDone: ((Phase) -> Void)?
     var phase: Phase
 
     private var urlSession: URLSession!
     private let localModelPath: URL
+    private var builderDone: ((Phase) -> Void)?
 
-    init(fetching model: Model) async {
+    init(fetching model: Model) {
         id = model.id
         phase = .boot
         self.model = model
         localModelPath = model.localModelPath
         super.init()
         urlSession = URLSession(configuration: URLSessionConfiguration.background(withIdentifier: "build.bru.emeltal.background-download-\(model.id)"), delegate: self, delegateQueue: nil)
-        await startup()
+        Task {
+            await startup()
+        }
     }
 
     nonisolated func urlSession(_: URLSession, didCreateTask task: URLSessionTask) {
@@ -135,6 +137,21 @@ final class AssetManager: NSObject, URLSessionDownloadDelegate, Identifiable {
     nonisolated func urlSessionDidFinishEvents(forBackgroundURLSession _: URLSession) {
         Task { @MainActor in
             log("[\(model.variant.displayName)] Background URL session events complete")
+        }
+    }
+
+    func waitForCompletion() async throws {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            if phase.isOngoing {
+                builderDone = { _ in
+                    continuation.resume()
+                }
+            } else {
+                continuation.resume()
+            }
+        }
+        if case let .error(error) = phase {
+            throw error
         }
     }
 }

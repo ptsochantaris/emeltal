@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 struct ManagerRow: View {
-    let manager: AssetManager
+    let manager: AssetFetcher
 
     var body: some View {
         HStack {

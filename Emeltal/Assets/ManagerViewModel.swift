@@ -5,6 +5,8 @@ import Foundation
 final class ManagerViewModel {
     static let shared = ManagerViewModel()
 
+    let whisper = AssetFetcher(fetching: Model(category: .system, variant: .whisper))
+
     var selected: Model {
         didSet {
             Persisted.selectedAssetId = selected.id

@@ -105,9 +105,9 @@ final class ConversationState: Identifiable, ModeProvider {
 
     let model: Model
 
-    init(model: Model) {
-        id = model.id
-        self.model = model
+    init(llm: AssetFetcher, whisper: AssetFetcher) {
+        id = llm.model.id
+        self.model = llm.model
 
         connectionStateObservation = Task {
             for await state in remote.stateStream.stream {
@@ -117,7 +117,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
         Task {
             do {
-                try await mainLoop()
+                try await mainLoop(llm: llm, whisper: whisper)
             } catch {
                 log("Error in main loop: \(error.localizedDescription)")
                 fatalError(error.localizedDescription)
@@ -207,25 +207,11 @@ final class ConversationState: Identifiable, ModeProvider {
         sendMessageLog(value: text, initial: false)
     }
 
-    func mainLoop() async throws {
-        let llm = await AssetManager(fetching: model)
-        let whisper = await AssetManager(fetching: Model(category: .system, variant: .whisper))
-
+    private func mainLoop(llm: AssetFetcher, whisper: AssetFetcher) async throws {
         mode = .loading(managers: [llm, whisper])
 
-        for manager in [llm, whisper] {
-            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-                if manager.phase.isOngoing {
-                    manager.builderDone = { _ in
-                        continuation.resume()
-                    }
-                } else {
-                    continuation.resume()
-                }
-            }
-            if case let .error(error) = manager.phase {
-                throw error
-            }
+        for fetcher in [llm, whisper] {
+            try await fetcher.waitForCompletion()
         }
 
         processFloatingMode(fromBoot: true)
@@ -236,8 +222,8 @@ final class ConversationState: Identifiable, ModeProvider {
         }
 
         let ctxs = Task.detached {
-            let l = try await LlamaContext(manager: llm)
-            let w = try await WhisperContext(manager: whisper)
+            let l = try await LlamaContext(asset: llm.model)
+            let w = try await WhisperContext(asset: whisper.model)
             _ = try await w.warmup()
             return (l, w)
         }

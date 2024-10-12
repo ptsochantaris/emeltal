@@ -44,8 +44,8 @@ private struct FloatRow: View {
 }
 
 private struct SelectionGrid: View {
-    @Binding var selected: Model
     let showingOverrides: Bool
+    @Bindable var manager: ManagerViewModel
 
     var body: some View {
         ScrollViewReader { verticalScrollReader in
@@ -61,8 +61,8 @@ private struct SelectionGrid: View {
 
                     ForEach(Model.Category.allCases) { category in
                         if category.displayable {
-                            let models = ManagerViewModel.shared.models(for: category)
-                            SectionCarousel(category: category, modelList: models, selected: $selected)
+                            let models = manager.models(for: category)
+                            SectionCarousel(category: category, modelList: models, selected: $manager.selected)
                         }
                     }
                 }
@@ -70,14 +70,14 @@ private struct SelectionGrid: View {
             }
             .scrollIndicators(.hidden)
             .onAppear {
-                if let section = ManagerViewModel.shared.category(for: selected.variant) {
+                if let section = manager.category(for: manager.selected.variant) {
                     verticalScrollReader.scrollTo(section.id)
                 }
             }
             .onChange(of: showingOverrides) { _, newValue in
                 Task {
                     try? await Task.sleep(for: .seconds(0.3))
-                    if newValue, let section = ManagerViewModel.shared.category(for: selected.variant) {
+                    if newValue, let section = manager.category(for: manager.selected.variant) {
                         withAnimation {
                             verticalScrollReader.scrollTo(section.id)
                         }
@@ -89,11 +89,11 @@ private struct SelectionGrid: View {
 }
 
 private struct Overrides: View {
-    @Binding var selected: Model
+    @Bindable var manager: ManagerViewModel
 
     var body: some View {
         VStack(spacing: 24) {
-            if selected.variant.format.acceptsSystemPrompt {
+            if manager.selected.variant.format.acceptsSystemPrompt {
                 VStack {
                     HStack(alignment: .bottom) {
                         Text("System Prompt")
@@ -105,7 +105,7 @@ private struct Overrides: View {
                             .foregroundStyle(.secondary)
                             .font(.caption2)
                     }
-                    TextField("System Prompt", text: $selected.params.systemPrompt, axis: .vertical)
+                    TextField("System Prompt", text: $manager.selected.params.systemPrompt, axis: .vertical)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding([.top, .bottom], 4)
                         .padding([.leading, .trailing], 7)
@@ -118,31 +118,31 @@ private struct Overrides: View {
 
             HStack(alignment: .top, spacing: 30) {
                 VStack(spacing: 10) {
-                    let params = selected.params
+                    let params = manager.selected.params
                     HStack(spacing: 10) {
                         let hasTemp = params.temperature != Model.Params.Descriptors.temperature.disabled
                         let hasRange = hasTemp && params.temperatureRange != Model.Params.Descriptors.temperatureRange.disabled
-                        FloatRow(descriptor: Model.Params.Descriptors.temperature, value: $selected.params.temperature)
+                        FloatRow(descriptor: Model.Params.Descriptors.temperature, value: $manager.selected.params.temperature)
                             .opacity(hasTemp ? 1.0 : 0.5)
 
-                        FloatRow(descriptor: Model.Params.Descriptors.temperatureRange, value: $selected.params.temperatureRange)
+                        FloatRow(descriptor: Model.Params.Descriptors.temperatureRange, value: $manager.selected.params.temperatureRange)
                             .opacity(hasRange ? 1.0 : 0.5)
 
-                        FloatRow(descriptor: Model.Params.Descriptors.temperatureExponent, value: $selected.params.temperatureExponent)
+                        FloatRow(descriptor: Model.Params.Descriptors.temperatureExponent, value: $manager.selected.params.temperatureExponent)
                             .opacity(hasRange ? 1.0 : 0.5)
                     }
 
-                    FloatRow(descriptor: Model.Params.Descriptors.topP, value: $selected.params.topP)
+                    FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
                         .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
 
-                    IntRow(descriptor: Model.Params.Descriptors.topK, value: $selected.params.topK)
+                    IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
                         .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
                 }
 
                 VStack(spacing: 10) {
-                    FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $selected.params.repeatPenatly)
-                    FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $selected.params.frequencyPenatly)
-                    FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $selected.params.presentPenatly)
+                    FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
+                    FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $manager.selected.params.frequencyPenatly)
+                    FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $manager.selected.params.presentPenatly)
                 }
             }
         }
@@ -215,12 +215,13 @@ private struct MemoryUse: View {
 }
 
 private struct Buttons: View {
-    @Binding var selected: Model
     @Binding var showOverrides: Bool
     @Binding var appPhase: EmeltalApp.Phase
+    let manager: ManagerViewModel
 
     var body: some View {
         HStack {
+            let selected = manager.selected
             if selected.status == .installed {
                 Button("Uninstall") {
                     selected.unInstall()
@@ -254,16 +255,14 @@ private struct Buttons: View {
                 EmptyView()
             case .available, .recommended:
                 Button("Install") {
-                    let state = ConversationState(model: selected)
-                    appPhase = .conversation(state)
+                    go()
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
                 #endif
             case .installed:
                 Button("Select") {
-                    let state = ConversationState(model: selected)
-                    appPhase = .conversation(state)
+                    go()
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
@@ -275,6 +274,12 @@ private struct Buttons: View {
         .padding([.leading, .trailing])
         .background(.white.opacity(0.2))
     }
+
+    private func go() {
+        let llm = AssetFetcher(fetching: manager.selected)
+        let state = ConversationState(llm: llm, whisper: manager.whisper)
+        appPhase = .conversation(state)
+    }
 }
 
 struct ModelPicker: View {
@@ -283,20 +288,20 @@ struct ModelPicker: View {
     @State private var visible = false
     @State private var showOverrides = false
 
-    @Bindable private var manager = ManagerViewModel.shared
+    private let manager = ManagerViewModel.shared
 
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
-            SelectionGrid(selected: $manager.selected, showingOverrides: showOverrides)
+            SelectionGrid(showingOverrides: showOverrides, manager: manager)
 
             if showOverrides {
-                Overrides(selected: $manager.selected)
+                Overrides(manager: manager)
                     .transition(.move(edge: .bottom))
             }
 
-            Buttons(selected: $manager.selected, showOverrides: $showOverrides, appPhase: $appPhase)
+            Buttons(showOverrides: $showOverrides, appPhase: $appPhase, manager: manager)
         }
         .background {
             ShimmerBackground(show: $visible)

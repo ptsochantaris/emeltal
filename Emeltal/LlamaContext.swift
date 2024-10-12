@@ -23,7 +23,7 @@ final class LlamaContext {
 
     let n_ctx: UInt32
     let bosToken: String
-    let manager: AssetManager
+    let asset: Model
 
     func clearAllTokens() {
         turns.removeAll()
@@ -38,10 +38,8 @@ final class LlamaContext {
         try data.write(to: url.appendingPathComponent("turns.json"))
     }
 
-    init(manager: AssetManager) async throws(EmeltalError) {
-        self.manager = manager
-
-        let asset = manager.model
+    init(asset: Model) async throws(EmeltalError) {
+        self.asset = asset
 
         llama_backend_init()
 
@@ -106,7 +104,7 @@ final class LlamaContext {
         let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
 
-        let params = await manager.model.params
+        let params = await asset.params
 
         llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
         sampler = newSampler
@@ -244,7 +242,7 @@ final class LlamaContext {
         let maxTokens = max(128, textLen)
         var newTokens = [llama_token](repeating: 0, count: Int(maxTokens))
         let tokenisedCount = llama_tokenize(model, text, textLen, &newTokens, maxTokens, false, true)
-        let newTokenLimit = Int(min(manager.model.variant.maxBatch, UInt32(tokenisedCount)))
+        let newTokenLimit = Int(min(asset.variant.maxBatch, UInt32(tokenisedCount)))
         return Array(newTokens.prefix(newTokenLimit))
     }
 

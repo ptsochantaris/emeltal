@@ -80,7 +80,7 @@ enum AppMode: Equatable {
         return false
     }
 
-    case startup, booting, warmup, loading(managers: [AssetManager]), waiting, listening(state: Mic.State), noting, thinking, replying
+    case startup, booting, warmup, loading(managers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
 
     var nominal: Bool {
         switch self {
