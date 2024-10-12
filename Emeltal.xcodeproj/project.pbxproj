@@ -92,6 +92,7 @@
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C992B5C1DDF0056E9FB /* Ink */; };
 		16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C9B2B5C1DE50056E9FB /* Ink */; };
+		16F34F042CBAD9F00073FA61 /* ggml-blas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16F34F032CBAD9F00073FA61 /* ggml-blas.cpp */; };
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
@@ -200,6 +201,8 @@
 		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
 		16E56C922CA0E7A5009A45AD /* ggml-cpu-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-cpu-impl.h"; sourceTree = "<group>"; };
+		16F34F022CBAD9F00073FA61 /* ggml-blas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-blas.h"; sourceTree = "<group>"; };
+		16F34F032CBAD9F00073FA61 /* ggml-blas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-blas.cpp"; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -240,6 +243,8 @@
 				161A60DD2C5169F500069736 /* ggml-backend.h */,
 				162AB7152CB059D3008A72D7 /* ggml-backend.cpp */,
 				161A60DF2C5169F500069736 /* ggml-backend-impl.h */,
+				16F34F022CBAD9F00073FA61 /* ggml-blas.h */,
+				16F34F032CBAD9F00073FA61 /* ggml-blas.cpp */,
 				161A60E02C5169F500069736 /* ggml-common.h */,
 				16E56C922CA0E7A5009A45AD /* ggml-cpu-impl.h */,
 				161A60E12C5169F500069736 /* ggml-impl.h */,
@@ -566,6 +571,7 @@
 				161A61032C5169F500069736 /* sgemm.cpp in Sources */,
 				161A61042C5169F500069736 /* ggml-aarch64.c in Sources */,
 				161A61052C5169F500069736 /* ggml-alloc.c in Sources */,
+				16F34F042CBAD9F00073FA61 /* ggml-blas.cpp in Sources */,
 				161A61062C5169F500069736 /* unicode.cpp in Sources */,
 				161A61072C5169F500069736 /* unicode-data.cpp in Sources */,
 				1608DB982B151DF000FFFB09 /* LlamaContext.swift in Sources */,
@@ -656,6 +662,7 @@
 					"GGML_METAL_NDEBUG=1",
 					"ACCELERATE_LAPACK_ILP64=1",
 					"GGML_SOFT_MAX_ACCELERATE=1",
+					"GGML_USE_BLAS=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -731,6 +738,7 @@
 					"GGML_METAL_NDEBUG=1",
 					"ACCELERATE_LAPACK_ILP64=1",
 					"GGML_SOFT_MAX_ACCELERATE=1",
+					"GGML_USE_BLAS=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

@@ -250,14 +250,14 @@ final class Model: Hashable, Identifiable, Sendable {
             case .deepSeekCoder33: 3968
             case .deepSeekCoder7: 1920
             case .dolphin70b: 1280
-            case .codestral: 1000
+            case .codestral: 7168
             case .dolphinMixtral: 4096
             case .llama3: 2048
             case .llama3compact: 1792
             case .llama3tiny: 512
             case .llama3large: 5120
-            case .dolphinTiny: 89
-            case .qwen2large: 5120
+            case .dolphinTiny: 90
+            case .qwen2large: 4096
             case .qwen2regular: 4096
             case .qwen2small: 1800
             case .mythoMax: 3200
@@ -277,12 +277,12 @@ final class Model: Hashable, Identifiable, Sendable {
             case .deepSeekCoder33: 460
             case .dolphinCoder: 350
             case .deepSeekCoder7: 160
-            case .dolphinTiny: 48
+            case .dolphinTiny: 20
             case .mythoMax: 260
             case .whisper: 1
             case .dolphin70b: 610
             case .qwen2large: 580
-            case .qwen2regular: 290
+            case .qwen2regular: 310
             case .qwen2small: 150
             case .codeLlama70b: 610
             case .llama3large: 600
@@ -290,10 +290,10 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3compact: 68
             case .llama3tiny: 4
             case .samantha70b: 600
-            case .samantha7b: 210
+            case .samantha7b: 180
             case .neuralStory7b: 240
             case .everyoneCoder: 460
-            case .codestral: 480
+            case .codestral: 320
             }
 
             let totalLayers: Int64 = switch self {
@@ -320,7 +320,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral: 57
             }
 
-            let asrBytes: Int64 = 2_000_000_000
+            let asrBytes: Int64 = 1_000_000_000
             let layerSize = layerSizeM * 1_000_000
             let totalRequiredMemory = (totalLayers * layerSize) + asrBytes + kvBytes
             let physicalMemory = Int64(ProcessInfo.processInfo.physicalMemory)
