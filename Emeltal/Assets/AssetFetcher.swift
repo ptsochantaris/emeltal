@@ -27,7 +27,6 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
 
     let id: String
     let model: Model
-
     var phase: Phase
 
     private var urlSession: URLSession!

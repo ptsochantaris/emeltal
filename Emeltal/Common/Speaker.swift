@@ -15,18 +15,22 @@ final actor Speaker {
     private var muted = false
     private let watcher = UtteranceWatcher()
     private let effectPlayer = AVAudioPlayerNode()
+    private static let idealVoiceIdentifier = "com.apple.voice.premium.en-US.Zoe"
 
     private static func pickFavourite(from voices: [AVSpeechSynthesisVoice]) -> AVSpeechSynthesisVoice? {
-        if let premiumFemale = voices.filter({ $0.quality == .premium && $0.gender == .female }).first {
+        if let ideal = voices.first(where: { $0.identifier == idealVoiceIdentifier }) {
+            return ideal
+        }
+        if let premiumFemale = voices.first(where: { $0.quality == .premium && $0.gender == .female }) {
             return premiumFemale
         }
-        if let premiumMale = voices.filter({ $0.quality == .premium && $0.gender == .male }).first {
+        if let premiumMale = voices.first(where: { $0.quality == .premium && $0.gender == .male }) {
             return premiumMale
         }
-        if let enhancedFemale = voices.filter({ $0.quality == .enhanced && $0.gender == .female }).first {
+        if let enhancedFemale = voices.first(where: { $0.quality == .enhanced && $0.gender == .female }) {
             return enhancedFemale
         }
-        if let enhancedMale = voices.filter({ $0.quality == .enhanced && $0.gender == .male }).first {
+        if let enhancedMale = voices.first(where: { $0.quality == .enhanced && $0.gender == .male }) {
             return enhancedMale
         }
         if let female = voices.first(where: { $0.gender == .female }) {
@@ -80,21 +84,17 @@ final actor Speaker {
             synth.usesApplicationAudioSession = true
         #endif
         synth.delegate = watcher
-        if let preferred = AVSpeechSynthesisVoice(identifier: "com.apple.voice.premium.en-US.Zoe") {
-            havePreferredVoice = true
-            voice = preferred
+        let allVoices = AVSpeechSynthesisVoice.speechVoices()
+        let enVoices = allVoices.filter { $0.language.hasPrefix("en-US") && !$0.voiceTraits.contains(.isNoveltyVoice) && !$0.voiceTraits.contains(.isPersonalVoice) }
+        if let enVoice = Self.pickFavourite(from: enVoices) {
+            havePreferredVoice = enVoice.identifier == Speaker.idealVoiceIdentifier
+            log("Selected voice: \(enVoice.identifier)")
+            voice = enVoice
+        } else if let anyVoice = Self.pickFavourite(from: allVoices) {
+            log("Fallback voice: \(anyVoice.identifier)")
+            voice = anyVoice
         } else {
-            let allVoices = AVSpeechSynthesisVoice.speechVoices()
-            let enVoices = allVoices.filter { $0.language.hasPrefix("en-US") && !$0.voiceTraits.contains(.isNoveltyVoice) && !$0.voiceTraits.contains(.isPersonalVoice) }
-            if let enVoice = Self.pickFavourite(from: enVoices) {
-                log("Selected voice: \(enVoice.identifier)")
-                voice = enVoice
-            } else if let anyVoice = Self.pickFavourite(from: allVoices) {
-                log("Fallback voice: \(anyVoice.identifier)")
-                voice = anyVoice
-            } else {
-                throw .message("Could not find any TTS voices in the system (counted: \(allVoices.count))")
-            }
+            throw .message("Could not find any TTS voices in the system (counted: \(allVoices.count))")
         }
     }
 

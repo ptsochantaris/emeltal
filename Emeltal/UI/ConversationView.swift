@@ -15,24 +15,28 @@ struct ConversationView: View {
                 .padding(.vertical)
         } else {
             VStack(spacing: 8) {
-                if case let .loading(managers) = state.mode {
-                    let visibleFetchers = managers.filter(\.phase.shouldShowToUser)
-                    if !visibleFetchers.isEmpty {
-                        Text("Fetching ML data. This is only needed once per type of model.")
-                            .font(.headline)
-                            .padding(.top)
-                        ForEach(visibleFetchers) {
-                            ManagerRow(manager: $0)
-                        }
-                    }
-                }
-
-                if state.shouldPromptForIdealVoice {
-                    IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
-                }
-
                 HStack(spacing: 0) {
-                    WebView(messageLog: state.messageLog)
+                    VStack {
+                        if case let .loading(managers) = state.mode {
+                            let visibleFetchers = managers.filter(\.phase.shouldShowToUser)
+                            if !visibleFetchers.isEmpty {
+                                Text("Fetching ML data. This is only needed once per type of model.")
+                                    .font(.headline)
+                                    .padding(.top)
+                                ForEach(visibleFetchers) {
+                                    ManagerRow(manager: $0)
+                                }
+                            }
+                        }
+
+                        if state.shouldPromptForIdealVoice {
+                            IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
+                                .padding(.top, 9)
+                                .padding(.trailing, 7)
+                        }
+
+                        WebView(messageLog: state.messageLog)
+                    }
 
                     SideBar(state: state, focusEntryField: $focusEntryField)
                         .padding(.top, 8)
