@@ -54,13 +54,19 @@ final class Model: Hashable, Identifiable, Sendable {
     enum Status: Sendable, Equatable {
         case checking, available, recommended, installed(AssetFetcher), notReady, installing(AssetFetcher)
 
-        var badgeText: String? {
+        var badgeInfo: (label: String, progress: CGFloat)? {
             switch self {
-            case .available, .checking: nil
-            case .recommended: "START HERE"
-            case .installed: "INSTALLED"
-            case .notReady: "NOT AVAILABLE"
-            case let .installing(fetcher): "INSTALLING: \(fetcher.progressPercentage)%"
+            case .available, .checking:
+                return nil
+            case .recommended:
+                return ("START HERE", 0)
+            case .installed:
+                return ("INSTALLED", 0)
+            case .notReady:
+                return ("NOT AVAILABLE", 0)
+            case let .installing(fetcher):
+                let percent = fetcher.progressPercentage
+                return ("INSTALLING: \(Int(percent * 100))%", percent)
             }
         }
     }
@@ -273,25 +279,25 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var usage: GpuUsage {
             let layerSizeM: Int64 = switch self {
-            case .dolphinMixtral: 1070
+            case .dolphinMixtral: 1000
             case .deepSeekCoder33: 460
-            case .dolphinCoder: 350
-            case .deepSeekCoder7: 160
-            case .dolphinTiny: 20
+            case .dolphinCoder: 320
+            case .deepSeekCoder7: 180
+            case .dolphinTiny: 40
             case .mythoMax: 260
             case .whisper: 1
             case .dolphin70b: 610
-            case .qwen2large: 580
+            case .qwen2large: 600
             case .qwen2regular: 310
-            case .qwen2small: 150
+            case .qwen2small: 160
             case .codeLlama70b: 610
-            case .llama3large: 600
-            case .llama3: 155
-            case .llama3compact: 68
-            case .llama3tiny: 4
-            case .samantha70b: 600
-            case .samantha7b: 180
-            case .neuralStory7b: 240
+            case .llama3large: 620
+            case .llama3: 195
+            case .llama3compact: 100
+            case .llama3tiny: 70
+            case .samantha70b: 605
+            case .samantha7b: 160
+            case .neuralStory7b: 180
             case .everyoneCoder: 460
             case .codestral: 320
             }

@@ -52,16 +52,16 @@ final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
         builderDone = nil
     }
 
-    var progressPercentage: Int {
+    var progressPercentage: CGFloat {
         switch phase {
         case let .fetching(downloaded: downloaded, expected: expected):
             if expected == 0 {
                 0
             } else {
-                Int((Double(downloaded) / Double(expected)) * 100)
+                Double(downloaded) / Double(expected)
             }
         case .done:
-            100
+            1
         case .boot, .cancelled, .error:
             0
         }

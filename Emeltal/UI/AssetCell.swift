@@ -45,14 +45,25 @@ struct AssetCell: View {
                 Spacer(minLength: 0)
 
                 HStack {
-                    if let label = model.status.badgeText {
-                        Text(label)
+                    if let info = model.status.badgeInfo {
+                        Text(info.label)
                             .font(.caption2)
                             .padding(4)
                             .padding(.horizontal, 4)
                             .background {
-                                Capsule(style: .continuous)
-                                    .foregroundStyle(.material)
+                                ZStack {
+                                    Rectangle()
+                                        .foregroundStyle(.material)
+
+                                    if info.progress > 0 {
+                                        GeometryReader { proxy in
+                                            Color.white
+                                                .opacity(0.24)
+                                                .frame(width: proxy.size.width * info.progress)
+                                        }
+                                    }
+                                }
+                                .clipShape(.capsule)
                             }
                     }
 
