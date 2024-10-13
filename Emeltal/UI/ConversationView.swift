@@ -10,12 +10,18 @@ struct ConversationView: View {
     @FocusState private var focusEntryField
 
     var body: some View {
+        #if os(visionOS)
+            let spacing: CGFloat = 18
+        #else
+            let spacing: CGFloat = 8
+        #endif
+
         if state.floatingMode {
             SideBar(state: state, focusEntryField: $focusEntryField)
                 .padding(.vertical)
         } else {
-            VStack(spacing: 8) {
-                HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                HStack(spacing: spacing) {
                     VStack {
                         if case let .loading(managers) = state.mode {
                             let visibleFetchers = managers.filter(\.phase.shouldShowToUser)
@@ -31,25 +37,41 @@ struct ConversationView: View {
 
                         if state.shouldPromptForIdealVoice {
                             IdealVoicePrompt(shouldPromptForIdealVoice: $state.shouldPromptForIdealVoice)
-                                .padding(.top, 9)
-                                .padding(.trailing, 7)
+                                .padding(.top, spacing)
                         }
 
                         WebView(messageLog: state.messageLog)
                     }
 
                     SideBar(state: state, focusEntryField: $focusEntryField)
+                    #if os(visionOS)
+                        .padding(.top, 0)
+                        .padding(.bottom, spacing - 1)
+                    #elseif os(iOS)
+                        .padding(.top, 0)
+                        .padding(.bottom, spacing)
+                    #else
                         .padding(.top, 8)
+                        .padding(.bottom, spacing)
+                    #endif
                 }
+                .padding(.horizontal, spacing)
 
                 TextField("Hold \"↓\" to speak, or enter your message here", text: $state.multiLineText)
                     .textFieldStyle(.plain)
+                #if os(visionOS)
+                    .padding(22)
+                    .background(.ultraThinMaterial)
+                #else
                     .padding(7)
                     .padding(.horizontal, 5)
                     .background {
                         Capsule()
                             .foregroundStyle(.material)
                     }
+                    .padding(.bottom, 8)
+                    .padding(.horizontal, spacing)
+                #endif
                     .focused($focusEntryField)
                     .onSubmit { [weak state] in
                         guard let state else { return }
@@ -57,7 +79,6 @@ struct ConversationView: View {
                             state.send()
                         }
                     }
-                    .padding(.bottom, 8)
             }
             .toolbar {
                 Button { [weak state] in
@@ -66,7 +87,7 @@ struct ConversationView: View {
                 } label: {
                     HStack(spacing: 0) {
                         Image(systemName: state.textOnly ? "text.bubble" : "speaker.wave.2.bubble")
-                        Text(state.textOnly ? "Text-Only Replies" : "Spoken Replies")
+                        Text(state.textOnly ? "Text-Only" : "Spoken Replies")
                             .padding([.leading, .trailing], 4)
                             .font(.caption)
                     }
@@ -108,17 +129,12 @@ struct ConversationView: View {
                 .opacity(ready ? 1 : 0.3)
                 .allowsHitTesting(ready)
             }
-            .padding(.horizontal, 8)
             .navigationTitle("Emeltal — \(state.displayName)")
             .toolbarTitleDisplayMode(.inline)
-            #if canImport(UIKit)
-                .toolbarBackground(.material, for: .navigationBar)
-            #endif
-            #if !os(visionOS)
             .background {
                 Image(.background).resizable().aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
             }
-            #endif
         }
     }
 }

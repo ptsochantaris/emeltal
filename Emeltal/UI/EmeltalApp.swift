@@ -20,8 +20,8 @@ struct EmeltalApp: App {
                     ConversationView(appPhase: $appPhase, state: state)
                 }
             }
-            .frame(idealWidth: 1000, idealHeight: 950)
             .preferredColorScheme(.dark)
         }
+        .defaultSize(width: 1000, height: 1000)
     }
 }

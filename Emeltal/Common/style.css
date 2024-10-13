@@ -6,10 +6,7 @@
 }
 
 body {
-    margin-top: 3pt;
-    margin-bottom: 3pt;
-    margin-left: 0pt;
-    margin-right: 6pt;
+    margin: 0pt;
 }
 
 h4 {
@@ -26,7 +23,6 @@ h4 {
 
     margin-top: 30pt;
     margin-bottom: -3pt;
-    margin-right: -6pt;
 }
 
 @supports (-webkit-overflow-scrolling: touch) {
