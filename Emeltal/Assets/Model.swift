@@ -74,7 +74,7 @@ final class Model: Hashable, Identifiable, Sendable {
     enum Category: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case qwen, dolphin, samantha, coding, creative, llamas, system
+        case qwen, dolphin, samantha, coding, creative, llamas, system, experimental
 
         var title: String {
             switch self {
@@ -85,12 +85,13 @@ final class Model: Hashable, Identifiable, Sendable {
             case .samantha: "Samantha"
             case .llamas: "Llamas"
             case .system: "Internal"
+            case .experimental: "Experimental"
             }
         }
 
         var displayable: Bool {
             switch self {
-            case .coding, .creative, .dolphin, .llamas, .qwen, .samantha: true
+            case .coding, .creative, .dolphin, .llamas, .qwen, .samantha, .experimental: true
             case .system: false
             }
         }
@@ -109,6 +110,8 @@ final class Model: Hashable, Identifiable, Sendable {
                 "The Qwen models are consistently rated both highly in benchmarks and by users."
             case .llamas:
                 "The llama is a quadruped which lives in big rivers like the Amazon. It has two ears, a heart, a forehead, and a beak for eating honey. But it is provided with fins for swimming."
+            case .experimental:
+                "Experimental models that are interesting for different reasons - merges, novelty value, or have a very specific use case."
             case .system:
                 ""
             }
@@ -173,7 +176,8 @@ final class Model: Hashable, Identifiable, Sendable {
              llama3tiny = 2440,
              qwen2regular = 2500,
              qwen2large = 2600,
-             qwen2small = 2700
+             qwen2small = 2700,
+             supernovaMedius = 3000
 
         var recommended: Bool {
             self == .qwen2regular
@@ -185,23 +189,19 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var macOnly: Bool {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .whisper: true
-            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b: false
+            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .supernovaMedius: true
+            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b, .whisper: false
             }
         }
 
         var format: Template.Format {
             switch self {
-            case .deepSeekCoder7, .deepSeekCoder33: .alpaca
-            case .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny: .chatml
-            case .mythoMax: .alpaca
-            case .whisper: .alpaca
-            case .qwen2large, .qwen2regular, .qwen2small: .chatml
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
-            case .everyoneCoder: .alpaca
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
+            case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .whisper, .mythoMax: .alpaca
+            case .qwen2large, .qwen2regular, .qwen2small, .supernovaMedius, .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny: .chatml
             }
         }
 
@@ -209,8 +209,8 @@ final class Model: Hashable, Identifiable, Sendable {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen2large, .qwen2regular, .qwen2small:
-                "You are a helpful, respectful, friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen2large, .qwen2regular, .qwen2small, .supernovaMedius:
+                "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
             case .mythoMax, .neuralStory7b:
@@ -244,6 +244,7 @@ final class Model: Hashable, Identifiable, Sendable {
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
+                 .supernovaMedius,
                  .qwen2large,
                  .qwen2regular:
                 16384
@@ -265,6 +266,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinTiny: 90
             case .qwen2large: 4096
             case .qwen2regular: 4096
+            case .supernovaMedius: 3072
             case .qwen2small: 1800
             case .mythoMax: 3200
             case .samantha70b: 1280
@@ -289,6 +291,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphin70b: 610
             case .qwen2large: 600
             case .qwen2regular: 310
+            case .supernovaMedius: 220
             case .qwen2small: 160
             case .codeLlama70b: 610
             case .llama3large: 620
@@ -313,6 +316,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphin70b: 81
             case .qwen2large: 81
             case .qwen2regular: 65
+            case .supernovaMedius: 49
             case .qwen2small: 29
             case .codeLlama70b: 81
             case .samantha70b: 81
@@ -417,6 +421,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinTiny: "0.9 GB"
             case .qwen2large: "47.4 GB"
             case .qwen2regular: "20.0 GB"
+            case .supernovaMedius: "10.5 GB"
             case .qwen2small: "4.5 GB"
             case .codeLlama70b: "48.8"
             case .samantha70b: "48.8 GB"
@@ -434,9 +439,9 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var aboutText: String {
             switch self {
-            case .deepSeekCoder33: "This no-nonsense model focuses specifically on code-related generation and questions"
-            case .deepSeekCoder7: "A more compact version of the Deepseek Coder model, focusing on code-related generation and questions"
-            case .dolphinMixtral: "The current state of the art, with multifaceted expertise and good conversational ability."
+            case .deepSeekCoder33: "This no-nonsense model focuses specifically on code-related generation and questions."
+            case .deepSeekCoder7: "A more compact version of the Deepseek Coder model, focusing on code-related generation and questions."
+            case .dolphinMixtral: "A well rounded model, with multifaceted expertise and good conversational ability."
             case .mythoMax: "MythoMax is a model designed to be both imaginative, and useful for creativity and writing."
             case .dolphin70b: "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
@@ -448,18 +453,19 @@ final class Model: Hashable, Identifiable, Sendable {
             case .everyoneCoder: "This is a community-created coding specific model made using fine-tunes of the Deekseekcoder base."
             case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
             case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
-            case .llama3large: "The large version of the latest Llama-3 model from Meta"
-            case .llama3: "The regular version of the latest Llama-3 model from Meta"
-            case .llama3compact: "A compact, edge-optimised version of the Llama-3 model from Meta"
-            case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta"
+            case .llama3large: "The large version of the latest Llama-3 model from Meta."
+            case .llama3: "The regular version of the latest Llama-3 model from Meta."
+            case .llama3compact: "A compact, edge-optimised version of the Llama-3 model from Meta."
+            case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta."
             case .codestral: "The state of the art code assistant from Mistral.AI"
+            case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .dolphin70b, .dolphinMixtral, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b: 1024
+            case .dolphin70b, .dolphinMixtral, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b, .supernovaMedius: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -555,6 +561,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct"
             case .llama3tiny: "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct"
             case .llama3compact: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"
+            case .supernovaMedius: "https://huggingface.co/arcee-ai/SuperNova-Medius"
             }
             return URL(string: uri)!
         }
@@ -582,6 +589,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "Llama-3.2-1B-Instruct-Q6_K_L.gguf"
             case .llama3compact: "Llama-3.2-3B-Instruct-Q6_K_L.gguf"
             case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
+            case .supernovaMedius: "SuperNova-Medius-Q5_K_M.gguf"
             }
 
             return emeltalRepo
@@ -608,11 +616,12 @@ final class Model: Hashable, Identifiable, Sendable {
             case .everyoneCoder: "EveryoneCoder"
             case .neuralStory7b: "Neural Story"
             case .dolphinCoder: "Dolphin Coder"
-            case .llama3large: "Llama 3 (Large)"
-            case .llama3: "Llama 3"
-            case .llama3compact: "Llama 3 (Small)"
-            case .llama3tiny: "Llama 3 (Compact)"
+            case .llama3large: "Llama 3.1 (Large)"
+            case .llama3: "Llama 3.1 (Regular)"
+            case .llama3compact: "Llama 3.2 (Small)"
+            case .llama3tiny: "Llama 3.2 (Compact)"
             case .codestral: "Codestral"
+            case .supernovaMedius: "Supernova Medius"
             }
         }
 
@@ -638,6 +647,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3: "v3.1, 8b params"
             case .llama3compact: "v3.2, 3b params"
             case .llama3tiny: "v3.2, 1b params"
+            case .supernovaMedius: "on LLama 3.1 405b & Qwen 2.5 14b"
             case .codestral: "22b params"
             }
         }
@@ -665,6 +675,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3compact: "8EBC25F2-8F1D-492E-8A55-9B67AFB3AA89"
             case .llama3tiny: "611A636C-59C0-451C-A435-FD6A9041DB37"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
+            case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
             }
         }
 

@@ -218,7 +218,7 @@ private struct MemoryUse: View {
 
 private struct Buttons: View {
     @Binding var showOverrides: Bool
-    @Binding var appPhase: EmeltalApp.Phase
+    @Binding var appPhase: AppStack.Phase
     let manager: ManagerViewModel
 
     var body: some View {
@@ -287,7 +287,7 @@ private struct Buttons: View {
 }
 
 struct ModelPicker: View {
-    @Binding var appPhase: EmeltalApp.Phase
+    @Binding var appPhase: AppStack.Phase
 
     @State private var visible = false
     @State private var showOverrides = false

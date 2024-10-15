@@ -38,8 +38,10 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 - [Samantha 1.1 7b](https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b)
 
 #### Llama Series
-- [Llama 3 70b](https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct)
-- [Llama 3 8b](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)
+- [Llama 3.1 70b](https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct)
+- [Llama 3.1 8b](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct)
+- [Llama 3.2 3b](https://huggingface.co/meta-llama/Meta-Llama-3.2-8B-Instruct)
+- [Llama 3.2 1b](https://huggingface.co/meta-llama/Meta-Llama-3.2-8B-Instruct)
 
 #### Coding
 - [Dolphin Coder](https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b)
@@ -52,6 +54,9 @@ Emeltal offers a hand-picked list of proven open-source high-performance models,
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
 - [Neural Story](https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story)
+
+#### Other
+- [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
 
 #### Voice Recognition
 - [Whisper](https://huggingface.co/ggerganov/whisper.cpp)

@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 struct ConversationView: View {
-    @Binding var appPhase: EmeltalApp.Phase
+    @Binding var appPhase: AppStack.Phase
 
     @Bindable var state: ConversationState
 

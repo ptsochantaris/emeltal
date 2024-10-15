@@ -16,7 +16,11 @@ struct SectionCarousel: View {
                     ForEach(modelList) {
                         AssetCell(model: $0, selected: $selected)
                     }
-                    .aspectRatio(1.4, contentMode: .fit)
+#if canImport(AppKit)
+                    .aspectRatio(1.2, contentMode: .fit)
+#else
+                    .aspectRatio(1.8, contentMode: .fit)
+#endif
                 }
                 .frame(height: 200)
                 .scrollIndicators(.hidden)

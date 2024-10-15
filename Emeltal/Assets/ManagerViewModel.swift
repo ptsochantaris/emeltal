@@ -33,6 +33,7 @@ final class ManagerViewModel {
         Model(category: .qwen, variant: .qwen2regular),
         Model(category: .qwen, variant: .qwen2large),
         Model(category: .qwen, variant: .qwen2small),
+        Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .system, variant: .whisper)
     ]
 
