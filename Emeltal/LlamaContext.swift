@@ -91,30 +91,20 @@ final class LlamaContext {
             throw .message("Could not initialise context")
         }
 
-        context = newContext
-        n_ctx = llama_n_ctx(newContext)
-        turns = []
-
         let sparams = llama_sampler_chain_default_params()
 
         guard let newSampler = llama_sampler_chain_init(sparams) else {
             throw .message("Could not initialise sampling")
         }
 
-        let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
-        llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
-
         let params = await asset.params
-
-        llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
-        sampler = newSampler
-
-        if params.topP != Model.Params.Descriptors.topP.disabled {
-            llama_sampler_chain_add(newSampler, llama_sampler_init_top_p(params.topP, 1))
-        }
 
         if params.topK != Int(Model.Params.Descriptors.topK.disabled) {
             llama_sampler_chain_add(newSampler, llama_sampler_init_top_k(Int32(params.topK)))
+        }
+
+        if params.topP != Model.Params.Descriptors.topP.disabled {
+            llama_sampler_chain_add(newSampler, llama_sampler_init_top_p(params.topP, 1))
         }
 
         if params.temperature > 0 {
@@ -126,6 +116,16 @@ final class LlamaContext {
         } else {
             llama_sampler_chain_add(newSampler, llama_sampler_init_greedy())
         }
+
+        llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
+
+        let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
+        llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
+
+        sampler = newSampler
+        context = newContext
+        n_ctx = llama_n_ctx(newContext)
+        turns = []
     }
 
     private func emptyWarmup() {
@@ -133,7 +133,7 @@ final class LlamaContext {
         log("LLM warmup")
         let bosTokenId = llama_token_bos(model)
         var emptyData = [bosTokenId, eos]
-        llama_decode(context, llama_batch_get_one(&emptyData, 2, 0, 0))
+        llama_decode(context, llama_batch_get_one(&emptyData, 2))
         llama_kv_cache_clear(context)
     }
 
@@ -299,8 +299,6 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
-        var lastBatchTokenIndex = Int32(newTokens.count - 1)
-
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
@@ -310,8 +308,9 @@ final class LlamaContext {
                 candidateBuffer[i] = llama_token_data(id: Int32(i), logit: logits![i], p: 0)
             }
 
-            let newTokenId: llama_token = llama_sampler_sample(sampler, context, lastBatchTokenIndex)
-            lastBatchTokenIndex = 0
+            let newTokenId: llama_token = llama_sampler_sample(sampler, context, -1)
+
+            llama_sampler_accept(sampler, newTokenId)
 
             if llama_token_is_eog(model, newTokenId) {
                 log("Text ended with EOS ID \(newTokenId) - Llama")
