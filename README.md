@@ -7,7 +7,9 @@ _The wise cheese_
 
 Local ML voice chat using high-end models, aiming for a self contained, user-friendly out-of-the-box experience as much as possible.
 
-This is a work in progress with frequent updates; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk).
+This is a work in progress with frequent updates; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk) for macOS and visionOS.
+
+iOS TestFlights are being blocked by Apple for an undisclosed reason, but you can easily build and run an iOS version from this source if you like.
 
 |Selection|Full|Mini|
 |---------|----|----|
@@ -21,7 +23,7 @@ A light helper app which can run on an iPhone or device with not enough processi
 
 ## Currently supported models
 
-Emeltal offers a hand-picked list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of Llama 3 and Qwen large variants, which are capped at 16384 tokens) run at their maximum context size.
+Emeltal offers a curated list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of certain extremely large variants, which are capped at 16384 tokens) run at their maximum context size.
 
 #### Qwen Series
 - [Qwen 2.5 70b] https://huggingface.co/bartowski/Qwen2.5-Math-72B-Instruct-GGUF
