@@ -38,6 +38,8 @@ enum ActivationState {
 }
 
 enum AppMode: Equatable {
+    case startup, booting, warmup, loading(managers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
+
     static func == (lhs: Self, rhs: Self) -> Bool {
         switch lhs {
         case .startup:
@@ -79,8 +81,6 @@ enum AppMode: Equatable {
         }
         return false
     }
-
-    case startup, booting, warmup, loading(managers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
 
     var nominal: Bool {
         switch self {

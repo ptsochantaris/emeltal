@@ -3,35 +3,13 @@ import Foundation
 @MainActor
 @Observable
 final class AssetFetcher: NSObject, URLSessionDownloadDelegate, Identifiable {
-    enum Phase {
-        case boot, fetching(downloaded: Int64, expected: Int64), error(error: Error), done, cancelled
-
-        var isOngoing: Bool {
-            switch self {
-            case .boot, .fetching:
-                true
-            case .cancelled, .done, .error:
-                false
-            }
-        }
-
-        var shouldShowToUser: Bool {
-            switch self {
-            case .boot, .cancelled, .error, .fetching:
-                true
-            case .done:
-                false
-            }
-        }
-    }
-
     let id: String
     let model: Model
-    var phase: Phase
+    var phase: FetchPhase
 
     private var urlSession: URLSession!
     private let localModelPath: URL
-    private var builderDone: ((Phase) -> Void)?
+    private var builderDone: ((FetchPhase) -> Void)?
 
     init(fetching model: Model) {
         id = model.id
