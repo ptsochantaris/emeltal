@@ -78,6 +78,7 @@ struct AssetCell: View {
             .multilineTextAlignment(.center)
             .padding()
             .frame(minHeight: 0)
+            .opacity(model.memoryEstimate.warningBeforeStart == nil ? 1 : 0.6)
         }
         .onTapGesture {
             selected = model

@@ -17,23 +17,32 @@ final class ManagerViewModel {
         Model(category: .dolphin, variant: .dolphinMixtral),
         Model(category: .dolphin, variant: .dolphin70b),
         Model(category: .dolphin, variant: .dolphinTiny),
+
         Model(category: .creative, variant: .mythoMax),
         Model(category: .creative, variant: .neuralStory7b),
+
         Model(category: .coding, variant: .codestral),
         Model(category: .coding, variant: .dolphinCoder),
         Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .codeLlama70b),
         Model(category: .coding, variant: .everyoneCoder),
+
         Model(category: .samantha, variant: .samantha7b),
         Model(category: .samantha, variant: .samantha70b),
+
         Model(category: .llamas, variant: .llama3),
         Model(category: .llamas, variant: .llama3large),
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
+
         Model(category: .qwen, variant: .qwen2regular),
         Model(category: .qwen, variant: .qwen2large),
         Model(category: .qwen, variant: .qwen2small),
+
         Model(category: .experimental, variant: .supernovaMedius),
+        Model(category: .experimental, variant: .smol),
+        Model(category: .experimental, variant: .shuttle),
+
         Model(category: .system, variant: .whisper)
     ]
 

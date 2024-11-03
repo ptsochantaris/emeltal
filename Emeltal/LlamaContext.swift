@@ -47,7 +47,7 @@ final class LlamaContext {
         model_params.use_mlock = false
         model_params.use_mmap = true
 
-        let gpuUsage = asset.variant.usage
+        let gpuUsage = await asset.memoryEstimate
         model_params.n_gpu_layers = Int32(gpuUsage.layersUsed)
 
         let modelPath = await asset.localModelPath.path

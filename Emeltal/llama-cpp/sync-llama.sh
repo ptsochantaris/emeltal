@@ -28,8 +28,11 @@ cp\
  $LSRC/ggml/src/ggml.c\
  $LSRC/ggml/src/ggml-cpu-impl.h\
  $LSRC/ggml/include/ggml.h\
+ $LSRC/ggml/include/ggml-cpp.h\
+ $LSRC/ggml/include/ggml-blas.h\
  $LSRC/ggml/src/llamafile/sgemm.h\
  $LSRC/ggml/src/llamafile/sgemm.cpp\
+ $LSRC/ggml/src/ggml-blas.cpp\
  $LSRC/src/llama-impl.h\
  $LSRC/src/llama.cpp\
  $LSRC/include/llama.h\

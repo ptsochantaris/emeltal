@@ -24,18 +24,17 @@ struct AppStack: View {
 @main
 @MainActor
 struct EmeltalApp: App {
-
     var body: some Scene {
-#if canImport(AppKit)
-        Window("Emeltal", id: "Emeltal") {
-            AppStack()
-        }
-        .defaultSize(width: 1000, height: 1000)
-#else
-        WindowGroup("Emeltal") {
-            AppStack()
-        }
-        .defaultSize(width: 1000, height: 1000)
-#endif
+        #if canImport(AppKit)
+            Window("Emeltal", id: "Emeltal") {
+                AppStack()
+            }
+            .defaultSize(width: 1000, height: 1000)
+        #else
+            WindowGroup("Emeltal") {
+                AppStack()
+            }
+            .defaultSize(width: 1000, height: 1000)
+        #endif
     }
 }

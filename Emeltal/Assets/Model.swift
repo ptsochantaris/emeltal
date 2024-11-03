@@ -91,7 +91,7 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var displayable: Bool {
             switch self {
-            case .coding, .creative, .dolphin, .llamas, .qwen, .samantha, .experimental: true
+            case .coding, .creative, .dolphin, .experimental, .llamas, .qwen, .samantha: true
             case .system: false
             }
         }
@@ -118,7 +118,7 @@ final class Model: Hashable, Identifiable, Sendable {
         }
     }
 
-    struct GpuUsage {
+    struct MemoryEstimate {
         let layersUsed: Int64
         let layersTotal: Int64
         let offloadAsr: Bool
@@ -153,6 +153,14 @@ final class Model: Hashable, Identifiable, Sendable {
 
             return "Emeltal won't use Metal at all. It will work but will probably be slow"
         }
+
+        var warningBeforeStart: String? {
+            if excessBytes > 0 {
+                return "This model will not fit into your device's memory. You can try to run it, but most likely it will crash or run extremely slowly!"
+            }
+
+            return nil
+        }
     }
 
     enum Variant: Int, Identifiable, Codable, CaseIterable, Sendable {
@@ -177,7 +185,9 @@ final class Model: Hashable, Identifiable, Sendable {
              qwen2regular = 2500,
              qwen2large = 2600,
              qwen2small = 2700,
-             supernovaMedius = 3000
+             supernovaMedius = 3000,
+             smol = 3100,
+             shuttle = 3200
 
         var recommended: Bool {
             self == .qwen2regular
@@ -189,8 +199,8 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var macOnly: Bool {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .supernovaMedius: true
-            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b, .whisper: false
+            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .shuttle, .supernovaMedius: true
+            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b, .smol, .whisper: false
             }
         }
 
@@ -200,8 +210,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .samantha7b, .samantha70b: .vicuna
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
-            case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .whisper, .mythoMax: .alpaca
-            case .qwen2large, .qwen2regular, .qwen2small, .supernovaMedius, .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny: .chatml
+            case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
+            case .dolphin70b, .dolphinCoder, .dolphinMixtral, .dolphinTiny, .qwen2large, .qwen2regular, .qwen2small, .shuttle, .smol, .supernovaMedius: .chatml
             }
         }
 
@@ -209,7 +219,7 @@ final class Model: Hashable, Identifiable, Sendable {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen2large, .qwen2regular, .qwen2small, .supernovaMedius:
+            case .dolphin70b, .dolphinMixtral, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen2large, .qwen2regular, .qwen2small, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -238,15 +248,17 @@ final class Model: Hashable, Identifiable, Sendable {
                  .qwen2small,
                  .samantha7b,
                  .samantha70b,
+                 .smol,
                  .whisper:
                 0
             case .llama3,
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
-                 .supernovaMedius,
                  .qwen2large,
-                 .qwen2regular:
+                 .qwen2regular,
+                 .shuttle,
+                 .supernovaMedius:
                 16384
             }
         }
@@ -264,9 +276,11 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: 512
             case .llama3large: 5120
             case .dolphinTiny: 90
-            case .qwen2large: 4096
-            case .qwen2regular: 4096
+            case .qwen2large: 5120
+            case .qwen2regular: 5120
             case .supernovaMedius: 3072
+            case .smol: 1536
+            case .shuttle: 5120
             case .qwen2small: 1800
             case .mythoMax: 3200
             case .samantha70b: 1280
@@ -279,7 +293,7 @@ final class Model: Hashable, Identifiable, Sendable {
             return Int64((kvCache * 1_048_576).rounded(.up))
         }
 
-        var usage: GpuUsage {
+        var memoryEstimate: MemoryEstimate {
             let layerSizeM: Int64 = switch self {
             case .dolphinMixtral: 1000
             case .deepSeekCoder33: 460
@@ -303,6 +317,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .neuralStory7b: 180
             case .everyoneCoder: 460
             case .codestral: 320
+            case .smol: 60
+            case .shuttle: 600 // TODO:
             }
 
             let totalLayers: Int64 = switch self {
@@ -315,6 +331,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .whisper: 0
             case .dolphin70b: 81
             case .qwen2large: 81
+            case .smol: 25
+            case .shuttle: 81 // TODO:
             case .qwen2regular: 65
             case .supernovaMedius: 49
             case .qwen2small: 29
@@ -337,13 +355,13 @@ final class Model: Hashable, Identifiable, Sendable {
             let excessBytes = max(0, totalRequiredMemory - physicalMemory)
 
             guard let memoryBytes, asrBytes < memoryBytes.max else {
-                return GpuUsage(layersUsed: 0,
-                                layersTotal: totalLayers,
-                                offloadAsr: false,
-                                offloadKvCache: false,
-                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
-                                gpuUsageEstimateBytes: 0,
-                                excessBytes: excessBytes)
+                return MemoryEstimate(layersUsed: 0,
+                                      layersTotal: totalLayers,
+                                      offloadAsr: false,
+                                      offloadKvCache: false,
+                                      cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
+                                      gpuUsageEstimateBytes: 0,
+                                      excessBytes: excessBytes)
             }
 
             let maxVram = Int64(memoryBytes.max)
@@ -353,35 +371,35 @@ final class Model: Hashable, Identifiable, Sendable {
             let fittedLayerMemory = layersToFit * layerSize
 
             if layerCapacity == 0 {
-                return GpuUsage(layersUsed: 0,
-                                layersTotal: totalLayers,
-                                offloadAsr: true,
-                                offloadKvCache: false,
-                                cpuUsageEstimateBytes: fittedLayerMemory + kvBytes,
-                                gpuUsageEstimateBytes: asrBytes,
-                                excessBytes: excessBytes)
+                return MemoryEstimate(layersUsed: 0,
+                                      layersTotal: totalLayers,
+                                      offloadAsr: true,
+                                      offloadKvCache: false,
+                                      cpuUsageEstimateBytes: fittedLayerMemory + kvBytes,
+                                      gpuUsageEstimateBytes: asrBytes,
+                                      excessBytes: excessBytes)
             }
 
             let asrAndLayers = asrBytes + fittedLayerMemory
 
             if layersToFit < totalLayers {
-                return GpuUsage(layersUsed: layersToFit,
-                                layersTotal: totalLayers,
-                                offloadAsr: true,
-                                offloadKvCache: false,
-                                cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory - asrAndLayers),
-                                gpuUsageEstimateBytes: asrAndLayers,
-                                excessBytes: excessBytes)
+                return MemoryEstimate(layersUsed: layersToFit,
+                                      layersTotal: totalLayers,
+                                      offloadAsr: true,
+                                      offloadKvCache: false,
+                                      cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory - asrAndLayers),
+                                      gpuUsageEstimateBytes: asrAndLayers,
+                                      excessBytes: excessBytes)
             }
 
             let offLoadKv = maxVram - asrAndLayers > kvBytes
-            return GpuUsage(layersUsed: layersToFit,
-                            layersTotal: totalLayers,
-                            offloadAsr: true,
-                            offloadKvCache: offLoadKv,
-                            cpuUsageEstimateBytes: offLoadKv ? 0 : kvBytes,
-                            gpuUsageEstimateBytes: asrAndLayers + (offLoadKv ? kvBytes : 0),
-                            excessBytes: excessBytes)
+            return MemoryEstimate(layersUsed: layersToFit,
+                                  layersTotal: totalLayers,
+                                  offloadAsr: true,
+                                  offloadKvCache: offLoadKv,
+                                  cpuUsageEstimateBytes: offLoadKv ? 0 : kvBytes,
+                                  gpuUsageEstimateBytes: asrAndLayers + (offLoadKv ? kvBytes : 0),
+                                  excessBytes: excessBytes)
         }
 
         @MainActor
@@ -434,6 +452,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "1.1 GB"
             case .llama3compact: "2.8 GB"
             case .codestral: "18.3 GB"
+            case .smol: "1.5 GB"
+            case .shuttle: "47.5 GB"
             }
         }
 
@@ -459,13 +479,15 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta."
             case .codestral: "The state of the art code assistant from Mistral.AI"
             case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
+            case .shuttle: "Shuttle-3 is a fine-tuned version of Qwen, emulating the writing style of Claude 3 models and thoroughly trained on role-playing data."
+            case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .dolphin70b, .dolphinMixtral, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b, .supernovaMedius: 1024
+            case .dolphin70b, .dolphinMixtral, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .qwen2small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -562,6 +584,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct"
             case .llama3compact: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"
             case .supernovaMedius: "https://huggingface.co/arcee-ai/SuperNova-Medius"
+            case .smol: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"
+            case .shuttle: "https://huggingface.co/shuttleai/shuttle-3"
             }
             return URL(string: uri)!
         }
@@ -590,6 +614,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3compact: "Llama-3.2-3B-Instruct-Q6_K_L.gguf"
             case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
             case .supernovaMedius: "SuperNova-Medius-Q5_K_M.gguf"
+            case .smol: "SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
+            case .shuttle: "shuttle-3-Q4_K_M.gguf"
             }
 
             return emeltalRepo
@@ -622,6 +648,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "Llama 3.2 (Compact)"
             case .codestral: "Codestral"
             case .supernovaMedius: "Supernova Medius"
+            case .smol: "SmolLM 2"
+            case .shuttle: "Shuttle 3"
             }
         }
 
@@ -649,6 +677,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "v3.2, 1b params"
             case .supernovaMedius: "on LLama 3.1 405b & Qwen 2.5 14b"
             case .codestral: "22b params"
+            case .smol: "v2, 17b variant"
+            case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
             }
         }
 
@@ -676,6 +706,8 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "611A636C-59C0-451C-A435-FD6A9041DB37"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
             case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
+            case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
+            case .shuttle: "9044B741-783F-471B-8447-FB773AAEF051"
             }
         }
 
@@ -830,5 +862,13 @@ final class Model: Hashable, Identifiable, Sendable {
     func install() {
         let fetcher = AssetFetcher(fetching: self)
         status = .installing(fetcher)
+    }
+
+    private var cachedMemoryEstimate: MemoryEstimate?
+    var memoryEstimate: MemoryEstimate {
+        if let cachedMemoryEstimate { return cachedMemoryEstimate }
+        let calculated = variant.memoryEstimate
+        cachedMemoryEstimate = calculated
+        return calculated
     }
 }

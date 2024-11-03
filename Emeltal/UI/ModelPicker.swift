@@ -155,7 +155,7 @@ private struct Overrides: View {
 }
 
 private struct MemoryUse: View {
-    let memoryUse: Model.GpuUsage
+    let memoryUse: Model.MemoryEstimate
 
     var body: some View {
         if memoryUse.cpuUsageEstimateBytes > 0 || memoryUse.gpuUsageEstimateBytes > 0 {
@@ -221,6 +221,8 @@ private struct Buttons: View {
     @Binding var appPhase: AppStack.Phase
     let manager: ManagerViewModel
 
+    @State private var selectedFetcher: AssetFetcher?
+
     var body: some View {
         HStack {
             let selected = manager.selected
@@ -235,7 +237,9 @@ private struct Buttons: View {
 
             Spacer(minLength: 0)
 
-            MemoryUse(memoryUse: selected.variant.usage)
+            let usage = selected.memoryEstimate
+
+            MemoryUse(memoryUse: usage)
 
             Button(showOverrides ? "Use Defaults" : "Customize…") {
                 if showOverrides {
@@ -271,8 +275,11 @@ private struct Buttons: View {
 
             case let .installed(fetcher):
                 Button("Start") {
-                    let state = ConversationState(llm: fetcher, whisper: manager.whisper)
-                    appPhase = .conversation(state)
+                    if usage.warningBeforeStart == nil {
+                        proceed(with: fetcher)
+                    } else {
+                        selectedFetcher = fetcher
+                    }
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
@@ -283,6 +290,20 @@ private struct Buttons: View {
         .padding([.top, .bottom], 8)
         .padding([.leading, .trailing])
         .background(.white.opacity(0.2))
+        .confirmationDialog(selectedFetcher?.model.memoryEstimate.warningBeforeStart ?? "", isPresented: .init(get: { selectedFetcher != nil }, set: { _ in })) {
+            Button("Confirm") {
+                proceed(with: selectedFetcher)
+            }
+        }
+    }
+
+    private func proceed(with selected: AssetFetcher?) {
+        selectedFetcher = nil
+        guard let selected else {
+            return
+        }
+        let state = ConversationState(llm: selected, whisper: manager.whisper)
+        appPhase = .conversation(state)
     }
 }
 
