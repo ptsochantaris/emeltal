@@ -264,6 +264,9 @@ private struct Buttons: View {
                 Button("Cancel") {
                     selected.cancelInstall()
                 }
+                #if !os(visionOS)
+                .foregroundStyle(.black)
+                #endif
 
             case .available, .recommended:
                 Button("Install") {

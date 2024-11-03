@@ -58,7 +58,7 @@ final class ManagerViewModel {
         #if os(macOS)
             models.filter { $0.category == category }
         #else
-            models.filter { $0.category == category && (!$0.variant.macOnly) }
+            models.filter { $0.category == category && $0.variant.memoryEstimate.excessBytes == 0 }
         #endif
     }
 

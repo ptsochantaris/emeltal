@@ -197,13 +197,6 @@ final class Model: Hashable, Identifiable, Sendable {
             self != .whisper
         }
 
-        var macOnly: Bool {
-            switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder33, .dolphin70b, .dolphinCoder, .dolphinMixtral, .everyoneCoder, .llama3, .llama3large, .mythoMax, .neuralStory7b, .qwen2large, .qwen2regular, .samantha70b, .shuttle, .supernovaMedius: true
-            case .deepSeekCoder7, .dolphinTiny, .llama3compact, .llama3tiny, .qwen2small, .samantha7b, .smol, .whisper: false
-            }
-        }
-
         var format: Template.Format {
             switch self {
             case .codeLlama70b: .llamaLarge
@@ -677,7 +670,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: "v3.2, 1b params"
             case .supernovaMedius: "on LLama 3.1 405b & Qwen 2.5 14b"
             case .codestral: "22b params"
-            case .smol: "v2, 17b variant"
+            case .smol: "v2, 1.7b variant"
             case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
             }
         }
