@@ -14,8 +14,9 @@ final class ManagerViewModel {
     }
 
     let models = [
+        Model(category: .dolphin, variant: .dolphinNemo),
+        Model(category: .dolphin, variant: .dolphin72b),
         Model(category: .dolphin, variant: .dolphinMixtral),
-        Model(category: .dolphin, variant: .dolphin70b),
         Model(category: .dolphin, variant: .dolphinTiny),
 
         Model(category: .creative, variant: .mythoMax),
@@ -35,9 +36,10 @@ final class ManagerViewModel {
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
 
-        Model(category: .qwen, variant: .qwen2regular),
-        Model(category: .qwen, variant: .qwen2large),
-        Model(category: .qwen, variant: .qwen2small),
+        Model(category: .qwen, variant: .qwen25regular),
+        Model(category: .qwen, variant: .qwen25large),
+        Model(category: .qwen, variant: .qwen25medium),
+        Model(category: .qwen, variant: .qwen25small),
 
         Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .experimental, variant: .smol),

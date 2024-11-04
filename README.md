@@ -7,9 +7,7 @@ _The wise cheese_
 
 Local ML voice chat using high-end models, aiming for a self contained, user-friendly out-of-the-box experience as much as possible.
 
-This is a work in progress with frequent updates; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk) for macOS and visionOS.
-
-iOS TestFlights are being blocked by Apple for an undisclosed reason, but you can easily build and run an iOS version from this source if you like.
+This is a work in progress with frequent updates; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk) for macOS, iOS and visionOS.
 
 |Selection|Full|Mini|
 |---------|----|----|
@@ -26,13 +24,15 @@ A light helper app which can run on an iPhone or device with not enough processi
 Emeltal offers a curated list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of certain extremely large variants, which are capped at 16384 tokens) run at their maximum context size.
 
 #### Qwen Series
-- [Qwen 2.5 70b] https://huggingface.co/bartowski/Qwen2.5-Math-72B-Instruct-GGUF
-- [Qwen 2.5 32b] https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF
-- [Qwen 2.5 7b] https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF
+- [Qwen 2.5 72b] (https://huggingface.co/bartowski/Qwen2.5-72B-Instruct-GGUF)
+- [Qwen 2.5 32b] (https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF)
+- [Qwen 2.5 14b] (https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF)
+- [Qwen 2.5 7b] (https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF)
 
 #### Dolphin Series
-- [Dolphin 2.2 70b](https://huggingface.co/cognitivecomputations/dolphin-2.2-70b)
+- [Dolphin 2.9.2 on Qwen 2.5](https://huggingface.co/mradermacher/dolphin-2.9.2-qwen2-72b-i1-GGUF)
 - [Dolphin 2.7 on Mixtral](https://huggingface.co/cognitivecomputations/dolphin-2.7-mixtral-8x7b)
+- [Dolphin 2.9.3 on Mistral Nemo](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b-gguf)
 - [Dolphin 2.8.1 on TinyLlama](https://huggingface.co/cognitivecomputations/TinyDolphin-2.8-1.1b)
 
 #### Samantha Series
@@ -59,12 +59,13 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 
 #### Other
 - [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
+- [Shuttle 3](https://huggingface.co/shuttleai/shuttle-3)
+- [SmolLM 2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct)
 
 #### Voice Recognition
 - [Whisper](https://huggingface.co/ggerganov/whisper.cpp)
 
 ## Packages
-
 - Emeltal heavily relies on the [llama.cpp](https://github.com/ggerganov/llama.cpp) for LLM processing, and [whisper.cpp](https://github.com/ggerganov/whisper.cpp) for voice recognition.
 - Text rendering uses [Ink](https://github.com/JohnSundell/Ink) to convert between Markdown and HTML.
 - Uses my [PopTimer](https://github.com/ptsochantaris/pop-timer) for debouncing things.
