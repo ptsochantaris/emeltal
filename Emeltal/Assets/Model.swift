@@ -189,7 +189,8 @@ final class Model: Hashable, Identifiable, Sendable {
              qwen25small,
              supernovaMedius,
              smol,
-             shuttle
+             shuttle,
+             calme
 
         var recommended: Bool {
             self == .qwen25regular
@@ -206,7 +207,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
+            case .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .calme: .chatml
             }
         }
 
@@ -214,7 +215,7 @@ final class Model: Hashable, Identifiable, Sendable {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
                 "You are a helpful AI programming assistant."
-            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius:
+            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .calme:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -255,6 +256,7 @@ final class Model: Hashable, Identifiable, Sendable {
                  .qwen25medium,
                  .qwen25regular,
                  .shuttle,
+                 .calme,
                  .supernovaMedius:
                 16384
             }
@@ -274,6 +276,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: 512
             case .llama3large: 5120
             case .dolphinTiny: 90
+            case .calme: 5504
             case .qwen25large: 5120
             case .qwen25regular: 4096
             case .qwen25medium: 3072
@@ -303,6 +306,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .whisper: 1
             case .dolphin72b: 600
             case .dolphinNemo: 200
+            case .calme: 550
             case .qwen25large: 600
             case .qwen25regular: 310
             case .qwen25medium: 220
@@ -334,6 +338,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphin72b: 81
             case .smol: 25
             case .shuttle: 81
+            case .calme: 87
             case .qwen25large: 81
             case .qwen25regular: 65
             case .qwen25medium: 49
@@ -433,6 +438,7 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var sizeDescription: String {
             switch self {
+            case .calme: "47.0 GB"
             case .dolphin72b: "47.5 GB"
             case .dolphinNemo: "8.8 GB"
             case .dolphinMixtral: "32.2 GB"
@@ -487,13 +493,14 @@ final class Model: Hashable, Identifiable, Sendable {
             case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
             case .shuttle: "Shuttle-3 is a fine-tuned version of Qwen, emulating the writing style of Claude 3 models and thoroughly trained on role-playing data."
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
+            case .calme: "Derived from Qwen using a method that allegedly improves performance, and finetuned for chat. Currently top of the open-source benchmarks."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
+            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius, .calme: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -594,12 +601,13 @@ final class Model: Hashable, Identifiable, Sendable {
             case .supernovaMedius: "https://huggingface.co/arcee-ai/SuperNova-Medius"
             case .smol: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"
             case .shuttle: "https://huggingface.co/shuttleai/shuttle-3"
+            case .calme: "https://huggingface.co/MaziyarPanahi/calme-2.4-rys-78b"
             }
             return URL(string: uri)!
         }
 
-        var fetchUrl: URL {
-            let fileName = switch self {
+        var fileName: String {
+            switch self {
             case .dolphinMixtral: "dolphin-2.7-mixtral-8x7b.Q5_K_M.gguf"
             case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
             case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
@@ -626,8 +634,11 @@ final class Model: Hashable, Identifiable, Sendable {
             case .supernovaMedius: "SuperNova-Medius-Q5_K_M.gguf"
             case .smol: "SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
             case .shuttle: "shuttle-3-Q4_K_M.gguf"
+            case .calme: "calme-2.4-rys-78b.i1-Q4_K_S.gguf"
             }
+        }
 
+        var fetchUrl: URL {
             return emeltalRepo
                 .appendingPathComponent("resolve", conformingTo: .directory)
                 .appendingPathComponent("main", conformingTo: .directory)
@@ -662,6 +673,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .supernovaMedius: "Supernova Medius"
             case .smol: "SmolLM 2"
             case .shuttle: "Shuttle 3"
+            case .calme: "Calme 2.4"
             }
         }
 
@@ -693,6 +705,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral: "22b params"
             case .smol: "v2, 1.7b variant"
             case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
+            case .calme: "v2.4, on Qwen 2 78b"
             }
         }
 
@@ -724,6 +737,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
             case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
             case .shuttle: "9044B741-783F-471B-8447-FB773AAEF051"
+            case .calme: "5F0BEDAB-59B3-43B8-B4D7-65F9B16A8735"
             }
         }
 
@@ -830,7 +844,7 @@ final class Model: Hashable, Identifiable, Sendable {
         if !fm.fileExists(atPath: modelDir.path) {
             try! fm.createDirectory(at: modelDir, withIntermediateDirectories: true)
         }
-        return modelDir.appendingPathComponent(variant.fetchUrl.lastPathComponent)
+        return modelDir.appendingPathComponent(variant.fileName)
     }
 
     var localStatePath: URL {

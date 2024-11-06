@@ -44,6 +44,7 @@ final class ManagerViewModel {
         Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .experimental, variant: .smol),
         Model(category: .experimental, variant: .shuttle),
+        Model(category: .experimental, variant: .calme),
 
         Model(category: .system, variant: .whisper)
     ]
