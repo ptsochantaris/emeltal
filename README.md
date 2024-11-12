@@ -52,6 +52,7 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [Everyone Coder](https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base)
 - [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
 - [Codestral](https://huggingface.co/mistralai/Codestral-22B-v0.1)
+- [Qwen 2.5 Coder](https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF)
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)

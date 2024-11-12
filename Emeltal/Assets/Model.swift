@@ -172,6 +172,7 @@ final class Model: Hashable, Identifiable, Sendable {
              codestral,
              dolphinCoder,
              deepSeekCoder33,
+             qwen25coder,
              codeLlama70b,
              deepSeekCoder7,
              everyoneCoder,
@@ -207,15 +208,15 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .calme: .chatml
+            case .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
             }
         }
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .calme:
+            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -246,17 +247,18 @@ final class Model: Hashable, Identifiable, Sendable {
                  .smol,
                  .whisper:
                 0
-            case .dolphin72b,
+            case .calme,
+                 .dolphin72b,
                  .dolphinNemo,
                  .llama3,
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
+                 .qwen25coder,
                  .qwen25large,
                  .qwen25medium,
                  .qwen25regular,
                  .shuttle,
-                 .calme,
                  .supernovaMedius:
                 16384
             }
@@ -279,6 +281,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .calme: 5504
             case .qwen25large: 5120
             case .qwen25regular: 4096
+            case .qwen25coder: 4096
             case .qwen25medium: 3072
             case .supernovaMedius: 3072
             case .smol: 1536
@@ -309,6 +312,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .calme: 550
             case .qwen25large: 600
             case .qwen25regular: 310
+            case .qwen25coder: 430
             case .qwen25medium: 220
             case .qwen25small: 160
             case .supernovaMedius: 220
@@ -341,6 +345,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .calme: 87
             case .qwen25large: 81
             case .qwen25regular: 65
+            case .qwen25coder: 65
             case .qwen25medium: 49
             case .qwen25small: 29
             case .supernovaMedius: 49
@@ -449,6 +454,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinTiny: "0.9 GB"
             case .qwen25large: "47.5 GB"
             case .qwen25regular: "20.0 GB"
+            case .qwen25coder: "27.3 GB"
             case .qwen25medium: "11.0 GB"
             case .supernovaMedius: "10.5 GB"
             case .qwen25small: "4.5 GB"
@@ -479,6 +485,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinNemo: "The Dolhpin personality running on the Mistral Nemo base model."
             case .dolphinTiny: "The Doplhin chatbot running on the Tinyllama model, great for systems with constrained storage or processing requirements."
             case .qwen25large, .qwen25medium, .qwen25regular, .qwen25small: "A consistently well regarded all-round model by users and benchmarks."
+            case .qwen25coder: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .samantha70b: "A larger but slightly older version of the Samantha model."
             case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
@@ -499,8 +506,8 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var maxBatch: UInt32 {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder: 4096
-            case .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius, .calme: 1024
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder: 4096
+            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -508,7 +515,7 @@ final class Model: Hashable, Identifiable, Sendable {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder:
                 true
             default:
                 false
@@ -584,6 +591,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
             case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
             case .qwen25regular: "https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF"
+            case .qwen25coder: "https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF"
             case .qwen25large: "https://huggingface.co/bartowski/Qwen2.5-72B-Instruct-GGUF"
             case .qwen25medium: "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF"
             case .qwen25small: "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF"
@@ -618,6 +626,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinNemo: "dolphin-2.9.3-mistral-nemo-12b.Q5_K_M.gguf"
             case .qwen25regular: "Qwen2.5-32B-Instruct-Q4_K_M.gguf"
             case .qwen25large: "Qwen2.5-72B-Instruct-Q4_K_M.gguf"
+            case .qwen25coder: "Qwen2.5-Coder-32B-Instruct-Q6_K_L.gguf"
             case .qwen25medium: "Qwen2.5-14B-Instruct-Q5_K_L.gguf"
             case .qwen25small: "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
             case .codeLlama70b: "CodeLlama-70b-Instruct-hf-Q5_K_M.gguf"
@@ -639,7 +648,7 @@ final class Model: Hashable, Identifiable, Sendable {
         }
 
         var fetchUrl: URL {
-            return emeltalRepo
+            emeltalRepo
                 .appendingPathComponent("resolve", conformingTo: .directory)
                 .appendingPathComponent("main", conformingTo: .directory)
                 .appendingPathComponent(fileName)
@@ -651,6 +660,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinNemo: "Dolphin Nemo"
             case .deepSeekCoder33: "DeepSeek Coder"
             case .deepSeekCoder7: "DeepSeek Coder (Compact)"
+            case .qwen25coder: "Qwen 2.5 Coder"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Voice Recognition"
             case .dolphin72b: "Dolphin (Large)"
@@ -689,6 +699,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinNemo: "v2.9.3 on Mistral Nemo 12b"
             case .qwen25large: "v2.5, 72b variant"
             case .qwen25regular: "v2.5, 32b variant"
+            case .qwen25coder: "v2.5, 32b variant"
             case .qwen25medium: "v2.5, 14b variant"
             case .qwen25small: "v2.5, 7b variant"
             case .codeLlama70b: "70b HF variant, on Llama2"
@@ -720,6 +731,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .dolphinNemo: "006EFFA0-CFCA-4EB9-87C0-2F07BB0EB4CE"
             case .qwen25regular: "7D602BDC-DB4E-4DD1-8FC3-0A6A173B38DE"
             case .qwen25medium: "AC9644D5-E5FA-4804-B247-BB4DF21C88C7"
+            case .qwen25coder: "ED72B569-DD85-40B0-B41A-6E1FA33B18B0"
             case .qwen25large: "56D9FEFF-788B-4319-9C01-564110C5275A"
             case .qwen25small: "50911087-9A0E-467B-AF5C-18132840C33D"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
