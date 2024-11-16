@@ -58,10 +58,11 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
 - [Neural Story](https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story)
 
-#### Other
+#### Other & Experimental
 - [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
 - [Shuttle 3](https://huggingface.co/shuttleai/shuttle-3)
 - [SmolLM 2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct)
+- [Athene V2](https://huggingface.co/Nexusflow/Athene-V2-Chat)
 
 #### Voice Recognition
 - [Whisper](https://huggingface.co/ggerganov/whisper.cpp)

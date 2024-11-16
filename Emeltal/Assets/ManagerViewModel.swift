@@ -42,6 +42,7 @@ final class ManagerViewModel {
         Model(category: .qwen, variant: .qwen25medium),
         Model(category: .qwen, variant: .qwen25small),
 
+        Model(category: .experimental, variant: .athene),
         Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .experimental, variant: .smol),
         Model(category: .experimental, variant: .shuttle),

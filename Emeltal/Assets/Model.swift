@@ -191,6 +191,7 @@ final class Model: Hashable, Identifiable, Sendable {
              supernovaMedius,
              smol,
              shuttle,
+             athene,
              calme
 
         var recommended: Bool {
@@ -208,7 +209,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
+            case .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .athene: .chatml
             }
         }
 
@@ -216,7 +217,7 @@ final class Model: Hashable, Identifiable, Sendable {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius:
+            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .athene:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -259,6 +260,7 @@ final class Model: Hashable, Identifiable, Sendable {
                  .qwen25medium,
                  .qwen25regular,
                  .shuttle,
+                 .athene,
                  .supernovaMedius:
                 16384
             }
@@ -283,6 +285,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .qwen25regular: 4096
             case .qwen25coder: 4096
             case .qwen25medium: 3072
+            case .athene: 5120
             case .supernovaMedius: 3072
             case .smol: 1536
             case .shuttle: 5120
@@ -315,6 +318,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .qwen25coder: 430
             case .qwen25medium: 220
             case .qwen25small: 160
+            case .athene: 620
             case .supernovaMedius: 220
             case .codeLlama70b: 610
             case .llama3large: 620
@@ -359,6 +363,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .llama3tiny: 16
             case .llama3compact: 29
             case .codestral: 57
+            case .athene: 81
             }
 
             let asrBytes: Int64 = 1_000_000_000
@@ -471,6 +476,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral: "18.3 GB"
             case .smol: "1.5 GB"
             case .shuttle: "47.5 GB"
+            case .athene: "48.3 GB"
             }
         }
 
@@ -501,13 +507,14 @@ final class Model: Hashable, Identifiable, Sendable {
             case .shuttle: "Shuttle-3 is a fine-tuned version of Qwen, emulating the writing style of Claude 3 models and thoroughly trained on role-playing data."
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
             case .calme: "Derived from Qwen using a method that allegedly improves performance, and finetuned for chat. Currently top of the open-source benchmarks."
+            case .athene: "Athene is based on Qwen and seems to have promise, with very high benchmark results, even above Nemotron Llama."
             }
         }
 
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder: 4096
-            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
+            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius, .athene: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
@@ -610,6 +617,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .smol: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"
             case .shuttle: "https://huggingface.co/shuttleai/shuttle-3"
             case .calme: "https://huggingface.co/MaziyarPanahi/calme-2.4-rys-78b"
+            case .athene: "https://huggingface.co/bartowski/Athene-V2-Chat-GGUF"
             }
             return URL(string: uri)!
         }
@@ -644,6 +652,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .smol: "SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
             case .shuttle: "shuttle-3-Q4_K_M.gguf"
             case .calme: "calme-2.4-rys-78b.i1-Q4_K_S.gguf"
+            case .athene: "Athene-V2-Chat-Q4_K_L.gguf"
             }
         }
 
@@ -684,6 +693,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .smol: "SmolLM 2"
             case .shuttle: "Shuttle 3"
             case .calme: "Calme 2.4"
+            case .athene: "Athene V2"
             }
         }
 
@@ -717,6 +727,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .smol: "v2, 1.7b variant"
             case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
             case .calme: "v2.4, on Qwen 2 78b"
+            case .athene: "v2, on Qwen 2.5 72b"
             }
         }
 
@@ -750,6 +761,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
             case .shuttle: "9044B741-783F-471B-8447-FB773AAEF051"
             case .calme: "5F0BEDAB-59B3-43B8-B4D7-65F9B16A8735"
+            case .athene: "87D0BDE7-55EE-4349-9428-18FAACB524EC"
             }
         }
 
