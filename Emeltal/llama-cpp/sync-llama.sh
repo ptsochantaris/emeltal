@@ -17,22 +17,31 @@ cp\
  $LSRC/ggml/include/ggml-backend.h\
  $LSRC/ggml/src/ggml-backend.cpp\
  $LSRC/ggml/src/ggml-impl.h\
- $LSRC/ggml/include/ggml-metal.h\
- $LSRC/ggml/src/ggml-metal.m\
- $LSRC/ggml/src/ggml-metal.metal\
+ $LSRC/ggml/src/ggml-metal/ggml-metal.metal\
+ $LSRC/ggml/src/ggml-backend-reg.cpp\
  $LSRC/ggml/src/ggml-quants.c\
  $LSRC/ggml/src/ggml-quants.h\
  $LSRC/ggml/src/ggml-common.h\
  $LSRC/ggml/src/ggml-aarch64.c\
  $LSRC/ggml/src/ggml-aarch64.h\
  $LSRC/ggml/src/ggml.c\
- $LSRC/ggml/src/ggml-cpu-impl.h\
+ $LSRC/ggml/src/ggml-threading.h\
+ $LSRC/ggml/src/ggml-threading.cpp\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu.c\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu.cpp\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu-aarch64.h\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu-aarch64.c\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu-quants.h\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu-quants.c\
+ $LSRC/ggml/src/ggml-cpu/ggml-cpu-impl.h\
+ $LSRC/ggml/src/ggml-cpu/llamafile/sgemm.h\
+ $LSRC/ggml/src/ggml-cpu/llamafile/sgemm.cpp\
  $LSRC/ggml/include/ggml.h\
  $LSRC/ggml/include/ggml-cpp.h\
  $LSRC/ggml/include/ggml-blas.h\
- $LSRC/ggml/src/llamafile/sgemm.h\
- $LSRC/ggml/src/llamafile/sgemm.cpp\
- $LSRC/ggml/src/ggml-blas.cpp\
+ $LSRC/ggml/include/ggml-cpu.h\
+ $LSRC/ggml/include/ggml-metal.h\
+ $LSRC/ggml/src/ggml-blas/ggml-blas.cpp\
  $LSRC/src/llama-impl.h\
  $LSRC/src/llama.cpp\
  $LSRC/include/llama.h\

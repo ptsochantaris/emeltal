@@ -4,6 +4,8 @@
 #include "coreml/whisper-encoder.h"
 #endif
 
+#include "ggml-cpu.h"
+
 #ifdef GGML_USE_METAL
 #include "ggml-metal.h"
 #endif
@@ -3164,7 +3166,7 @@ static bool log_mel_spectrogram(
         std::vector<std::thread> workers(n_threads - 1);
         for (int iw = 0; iw < n_threads - 1; ++iw) {
             workers[iw] = std::thread(
-                    log_mel_spectrogram_worker_thread, iw + 1, hann, samples_padded,
+                    log_mel_spectrogram_worker_thread, iw + 1, hann, std::cref(samples_padded),
                     n_samples + stage_2_pad, frame_size, frame_step, n_threads,
                     std::cref(filters), std::ref(mel));
         }
@@ -4186,6 +4188,19 @@ whisper_token whisper_token_transcribe(struct whisper_context * ctx) {
     return ctx->vocab.token_transcribe;
 }
 
+struct whisper_timings * whisper_get_timings(struct whisper_context * ctx) {
+    if (ctx->state == nullptr) {
+        return nullptr;
+    }
+    whisper_timings * timings = new whisper_timings;
+    timings->sample_ms = 1e-3f * ctx->state->t_sample_us / std::max(1, ctx->state->n_sample);
+    timings->encode_ms = 1e-3f * ctx->state->t_encode_us / std::max(1, ctx->state->n_encode);
+    timings->decode_ms = 1e-3f * ctx->state->t_decode_us / std::max(1, ctx->state->n_decode);
+    timings->batchd_ms = 1e-3f * ctx->state->t_batchd_us / std::max(1, ctx->state->n_batchd);
+    timings->prompt_ms = 1e-3f * ctx->state->t_prompt_us / std::max(1, ctx->state->n_prompt);
+    return timings;
+}
+
 void whisper_print_timings(struct whisper_context * ctx) {
     const int64_t t_end_us = ggml_time_us();
 
@@ -4247,24 +4262,6 @@ const char * whisper_print_system_info(void) {
     static std::string s;
 
     s  = "";
-    s += "AVX = "       + std::to_string(ggml_cpu_has_avx())       + " | ";
-    s += "AVX2 = "      + std::to_string(ggml_cpu_has_avx2())      + " | ";
-    s += "AVX512 = "    + std::to_string(ggml_cpu_has_avx512())    + " | ";
-    s += "FMA = "       + std::to_string(ggml_cpu_has_fma())       + " | ";
-    s += "NEON = "      + std::to_string(ggml_cpu_has_neon())      + " | ";
-    s += "ARM_FMA = "   + std::to_string(ggml_cpu_has_arm_fma())   + " | ";
-    s += "METAL = "     + std::to_string(ggml_cpu_has_metal())     + " | ";
-    s += "F16C = "      + std::to_string(ggml_cpu_has_f16c())      + " | ";
-    s += "FP16_VA = "   + std::to_string(ggml_cpu_has_fp16_va())   + " | ";
-    s += "WASM_SIMD = " + std::to_string(ggml_cpu_has_wasm_simd()) + " | ";
-    s += "BLAS = "      + std::to_string(ggml_cpu_has_blas())      + " | ";
-    s += "SSE3 = "      + std::to_string(ggml_cpu_has_sse3())      + " | ";
-    s += "SSSE3 = "     + std::to_string(ggml_cpu_has_ssse3())     + " | ";
-    s += "VSX = "       + std::to_string(ggml_cpu_has_vsx())       + " | ";
-    s += "CUDA = "      + std::to_string(ggml_cpu_has_cuda())      + " | ";
-    s += "COREML = "    + std::to_string(whisper_has_coreml())     + " | ";
-    s += "OPENVINO = "  + std::to_string(whisper_has_openvino())   + " | ";
-    s += "CANN = "      + std::to_string(ggml_cpu_has_cann())             ;
     return s.c_str();
 }
 
@@ -7391,6 +7388,7 @@ static void whisper_exp_compute_token_level_timestamps_dtw(
 void whisper_log_set(ggml_log_callback log_callback, void * user_data) {
     g_state.log_callback = log_callback ? log_callback : whisper_log_callback_default;
     g_state.log_callback_user_data = user_data;
+    ggml_log_set(g_state.log_callback, g_state.log_callback_user_data);
 }
 
 GGML_ATTRIBUTE_FORMAT(2, 3)

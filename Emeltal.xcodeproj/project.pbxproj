@@ -70,6 +70,12 @@
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A090F72CB46F0700468E93 /* ManagerViewModel.swift */; };
 		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
+		16B8644D2CE8EAE700AC5905 /* ggml-threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B8644C2CE8EAE700AC5905 /* ggml-threading.cpp */; };
+		16B8644F2CE8EBE300AC5905 /* ggml-cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 16B8644E2CE8EBE300AC5905 /* ggml-cpu.c */; settings = {COMPILER_FLAGS = "-fno-finite-math-only"; }; };
+		16B864522CE8EC6B00AC5905 /* ggml-cpu-quants.c in Sources */ = {isa = PBXBuildFile; fileRef = 16B864512CE8EC6A00AC5905 /* ggml-cpu-quants.c */; };
+		16B864532CE8EC6B00AC5905 /* ggml-cpu-aarch64.c in Sources */ = {isa = PBXBuildFile; fileRef = 16B864502CE8EC6A00AC5905 /* ggml-cpu-aarch64.c */; };
+		16B864552CE8EE5400AC5905 /* ggml-cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B864542CE8EE5400AC5905 /* ggml-cpu.cpp */; };
+		16B864572CE8EEB700AC5905 /* ggml-backend-reg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B864562CE8EEB700AC5905 /* ggml-backend-reg.cpp */; };
 		16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D762B7402DD00781F78 /* SectionCell.swift */; };
 		16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D782B742F0100781F78 /* SectionCarousel.swift */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
@@ -191,6 +197,13 @@
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16A090F72CB46F0700468E93 /* ManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerViewModel.swift; sourceTree = "<group>"; };
 		16AF9D8D2B8238100064B66C /* UTF8Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTF8Builder.swift; sourceTree = "<group>"; };
+		16B8644B2CE8E75C00AC5905 /* sync-llama.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "sync-llama.sh"; sourceTree = "<group>"; };
+		16B8644C2CE8EAE700AC5905 /* ggml-threading.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-threading.cpp"; sourceTree = "<group>"; };
+		16B8644E2CE8EBE300AC5905 /* ggml-cpu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-cpu.c"; sourceTree = "<group>"; };
+		16B864502CE8EC6A00AC5905 /* ggml-cpu-aarch64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-cpu-aarch64.c"; sourceTree = "<group>"; };
+		16B864512CE8EC6A00AC5905 /* ggml-cpu-quants.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-cpu-quants.c"; sourceTree = "<group>"; };
+		16B864542CE8EE5400AC5905 /* ggml-cpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-cpu.cpp"; sourceTree = "<group>"; };
+		16B864562CE8EEB700AC5905 /* ggml-backend-reg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-backend-reg.cpp"; sourceTree = "<group>"; };
 		16C23D762B7402DD00781F78 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 		16C23D782B742F0100781F78 /* SectionCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCarousel.swift; sourceTree = "<group>"; };
 		16C57E922B2D357000A6A6C5 /* MicStart.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MicStart.caf; path = Emeltal/Audio/MicStart.caf; sourceTree = SOURCE_ROOT; };
@@ -241,20 +254,26 @@
 			children = (
 				161A60DA2C5169F500069736 /* ggml-aarch64.c */,
 				161A60DC2C5169F500069736 /* ggml-alloc.c */,
+				16B8644E2CE8EBE300AC5905 /* ggml-cpu.c */,
 				161A60E62C5169F500069736 /* ggml-quants.c */,
 				161A61182C516CB000069736 /* ggml.c */,
 				162AB7152CB059D3008A72D7 /* ggml-backend.cpp */,
+				16B864542CE8EE5400AC5905 /* ggml-cpu.cpp */,
 				163AE30E2CD79BE000AE6DA9 /* ggml-blas.cpp */,
+				16B8644C2CE8EAE700AC5905 /* ggml-threading.cpp */,
 				161A60EA2C5169F500069736 /* llama-grammar.cpp */,
 				161A60ED2C5169F500069736 /* llama-sampling.cpp */,
 				161A60EF2C5169F500069736 /* llama-vocab.cpp */,
 				161A60E82C5169F500069736 /* llama.cpp */,
 				161A60F12C5169F500069736 /* sgemm.cpp */,
+				16B864562CE8EEB700AC5905 /* ggml-backend-reg.cpp */,
 				161A60F52C5169F500069736 /* unicode-data.cpp */,
 				161A60F32C5169F500069736 /* unicode.cpp */,
 				161A60F72C5169F500069736 /* whisper.cpp */,
 				161A60D92C5169F500069736 /* ggml-aarch64.h */,
 				161A60DB2C5169F500069736 /* ggml-alloc.h */,
+				16B864502CE8EC6A00AC5905 /* ggml-cpu-aarch64.c */,
+				16B864512CE8EC6A00AC5905 /* ggml-cpu-quants.c */,
 				161A60DF2C5169F500069736 /* ggml-backend-impl.h */,
 				161A60DD2C5169F500069736 /* ggml-backend.h */,
 				163AE30D2CD79BE000AE6DA9 /* ggml-blas.h */,
@@ -275,6 +294,7 @@
 				161A60F62C5169F500069736 /* whisper.h */,
 				161A60E32C5169F500069736 /* ggml-metal.m */,
 				161A60E42C5169F500069736 /* ggml-metal.metal */,
+				16B8644B2CE8E75C00AC5905 /* sync-llama.sh */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";
@@ -545,9 +565,12 @@
 				162AB7162CB059D3008A72D7 /* ggml-backend.cpp in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */,
+				16B864572CE8EEB700AC5905 /* ggml-backend-reg.cpp in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ConversationView.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
 				16C58DF22B34E4B700006CC2 /* CommonGlobals.swift in Sources */,
+				16B864522CE8EC6B00AC5905 /* ggml-cpu-quants.c in Sources */,
+				16B864532CE8EC6B00AC5905 /* ggml-cpu-aarch64.c in Sources */,
 				165D9E872CB5C41300AAE9FB /* Model.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
@@ -563,13 +586,16 @@
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
 				168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
+				16B8644D2CE8EAE700AC5905 /* ggml-threading.cpp in Sources */,
 				167B9D2B2B572036006711B9 /* Turn.swift in Sources */,
+				16B864552CE8EE5400AC5905 /* ggml-cpu.cpp in Sources */,
 				1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
 				16905E4C2B2E0D6D006B4EC8 /* AssetFetcher.swift in Sources */,
 				16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */,
 				161A60F92C5169F500069736 /* llama-vocab.cpp in Sources */,
 				161A60FA2C5169F500069736 /* llama-sampling.cpp in Sources */,
+				16B8644F2CE8EBE300AC5905 /* ggml-cpu.c in Sources */,
 				161A60FC2C5169F500069736 /* ggml-quants.c in Sources */,
 				163AE3112CD7EEB200AE6DA9 /* FetchPhase.swift in Sources */,
 				161A60FD2C5169F500069736 /* llama.cpp in Sources */,
@@ -673,6 +699,7 @@
 					"ACCELERATE_LAPACK_ILP64=1",
 					"GGML_SOFT_MAX_ACCELERATE=1",
 					"GGML_USE_BLAS=1",
+					"GGML_BLAS_USE_ACCELERATE=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -749,6 +776,7 @@
 					"ACCELERATE_LAPACK_ILP64=1",
 					"GGML_SOFT_MAX_ACCELERATE=1",
 					"GGML_USE_BLAS=1",
+					"GGML_BLAS_USE_ACCELERATE=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

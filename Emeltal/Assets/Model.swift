@@ -209,7 +209,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .codestral, .neuralStory7b: .mistral
             case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .athene: .chatml
+            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
             }
         }
 
@@ -217,7 +217,7 @@ final class Model: Hashable, Identifiable, Sendable {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius, .athene:
+            case .athene, .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -248,7 +248,8 @@ final class Model: Hashable, Identifiable, Sendable {
                  .smol,
                  .whisper:
                 0
-            case .calme,
+            case .athene,
+                 .calme,
                  .dolphin72b,
                  .dolphinNemo,
                  .llama3,
@@ -260,7 +261,6 @@ final class Model: Hashable, Identifiable, Sendable {
                  .qwen25medium,
                  .qwen25regular,
                  .shuttle,
-                 .athene,
                  .supernovaMedius:
                 16384
             }
@@ -514,7 +514,7 @@ final class Model: Hashable, Identifiable, Sendable {
         var maxBatch: UInt32 {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder: 4096
-            case .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius, .athene: 1024
+            case .athene, .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
             case .dolphinTiny: 256
             case .whisper: 0
             }
