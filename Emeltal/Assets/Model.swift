@@ -511,15 +511,6 @@ final class Model: Hashable, Identifiable, Sendable {
             }
         }
 
-        var maxBatch: UInt32 {
-            switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder: 4096
-            case .athene, .calme, .dolphin72b, .dolphinMixtral, .dolphinNemo, .llama3, .llama3compact, .llama3large, .llama3tiny, .mythoMax, .neuralStory7b, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .samantha7b, .samantha70b, .shuttle, .smol, .supernovaMedius: 1024
-            case .dolphinTiny: 256
-            case .whisper: 0
-            }
-        }
-
         var isCodingLLm: Bool {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .qwen25coder:

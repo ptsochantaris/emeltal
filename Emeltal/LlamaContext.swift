@@ -80,7 +80,6 @@ final class LlamaContext {
 
         var ctx_params = llama_context_default_params()
         ctx_params.n_ctx = asset.variant.contextSize
-        ctx_params.n_batch = asset.variant.maxBatch
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
         ctx_params.flash_attn = true
@@ -242,8 +241,7 @@ final class LlamaContext {
         let maxTokens = max(128, textLen)
         var newTokens = [llama_token](repeating: 0, count: Int(maxTokens))
         let tokenisedCount = llama_tokenize(model, text, textLen, &newTokens, maxTokens, false, true)
-        let newTokenLimit = Int(min(asset.variant.maxBatch, UInt32(tokenisedCount)))
-        return Array(newTokens.prefix(newTokenLimit))
+        return Array(newTokens.prefix(Int(tokenisedCount)))
     }
 
     var turnCount: Int {
