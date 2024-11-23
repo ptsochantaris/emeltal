@@ -48,7 +48,7 @@ final class LlamaContext {
         model_params.use_mmap = true
 
         let gpuUsage = await asset.memoryEstimate
-        model_params.n_gpu_layers = Int32(gpuUsage.layersUsed)
+        model_params.n_gpu_layers = Int32(gpuUsage.layersOffloaded)
 
         let modelPath = await asset.localModelPath.path
         guard let model = llama_load_model_from_file(modelPath, model_params) else {

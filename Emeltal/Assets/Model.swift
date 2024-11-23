@@ -119,7 +119,7 @@ final class Model: Hashable, Identifiable, Sendable {
     }
 
     struct MemoryEstimate {
-        let layersUsed: Int64
+        let layersOffloaded: Int64
         let layersTotal: Int64
         let offloadAsr: Bool
         let offloadKvCache: Bool
@@ -136,14 +136,17 @@ final class Model: Hashable, Identifiable, Sendable {
                 return nil
             }
 
-            if layersUsed > 0, layersTotal > 0 {
-                let ratio = Float(layersUsed) / Float(layersTotal)
+            if layersOffloaded > 0, layersTotal > 0 {
+                if layersOffloaded == layersTotal - 1 {
+                    return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache and output layer"
+                }
+                let ratio = Float(layersOffloaded) / Float(layersTotal)
                 if ratio == 1 {
                     return "This model fit all \(layersTotal) layers in Metal but will use the CPU for the KV cache"
                 } else if ratio > 0.8 {
-                    return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat"
+                    return "This model will fit \(layersOffloaded) of \(layersTotal) layers in Metal. It will work but may be slow for real-time chat"
                 } else {
-                    return "This model will fit \(layersUsed) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat"
+                    return "This model will fit \(layersOffloaded) of \(layersTotal) layers in Metal. It will work but may be very slow for real-time chat"
                 }
             }
 
@@ -318,10 +321,10 @@ final class Model: Hashable, Identifiable, Sendable {
             case .qwen25coder: 430
             case .qwen25medium: 220
             case .qwen25small: 160
-            case .athene: 620
+            case .athene: 580
             case .supernovaMedius: 220
             case .codeLlama70b: 610
-            case .llama3large: 620
+            case .llama3large: 600
             case .llama3: 195
             case .llama3compact: 100
             case .llama3tiny: 70
@@ -342,7 +345,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .deepSeekCoder7: 31
             case .dolphinTiny: 23
             case .mythoMax: 41
-            case .whisper: 0
+            case .whisper: 1
             case .dolphin72b: 81
             case .smol: 25
             case .shuttle: 81
@@ -366,58 +369,105 @@ final class Model: Hashable, Identifiable, Sendable {
             case .athene: 81
             }
 
-            let asrBytes: Int64 = 1_000_000_000
             let layerSize = layerSizeM * 1_000_000
-            let totalRequiredMemory = (totalLayers * layerSize) + asrBytes + kvBytes
-            let physicalMemory = Int64(ProcessInfo.processInfo.physicalMemory)
-            let excessBytes = max(0, totalRequiredMemory - physicalMemory)
 
-            guard let memoryBytes, asrBytes < memoryBytes.max else {
-                return MemoryEstimate(layersUsed: 0,
+            let outputLayerSize: Int64 = switch self {
+            case .athene: 5_000_000_000
+            case .llama3large: 5_000_000_000
+            case .whisper: 0
+            default: layerSize
+            }
+
+            guard let memoryBytes else {
+                return MemoryEstimate(layersOffloaded: 0,
                                       layersTotal: totalLayers,
                                       offloadAsr: false,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory),
+                                      cpuUsageEstimateBytes: 0,
                                       gpuUsageEstimateBytes: 0,
-                                      excessBytes: excessBytes)
+                                      excessBytes: 0)
             }
 
-            let maxVram = Int64(memoryBytes.max)
-            let possibleLayers = Float(maxVram - asrBytes) / Float(layerSize)
-            let layerCapacity = max(0, Int64(possibleLayers.rounded(.down)))
-            let layersToFit = min(layerCapacity, totalLayers)
-            let fittedLayerMemory = layersToFit * layerSize
+            let asrBytes: Int64 = 1_000_000_000
+            var components: [Int64] = [asrBytes] + (0 ..< totalLayers - 1).map { _ in layerSize } + [outputLayerSize, kvBytes]
+            var cpuBound = [Int64]()
 
-            if layerCapacity == 0 {
-                return MemoryEstimate(layersUsed: 0,
+            let everythingInGpu = components.reduce(0, +)
+            if everythingInGpu < memoryBytes.max {
+                return MemoryEstimate(layersOffloaded: totalLayers,
+                                      layersTotal: totalLayers,
+                                      offloadAsr: true,
+                                      offloadKvCache: true,
+                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      gpuUsageEstimateBytes: everythingInGpu,
+                                      excessBytes: 0)
+            }
+
+            if let last = components.last { cpuBound.append(last) }
+            components = components.dropLast()
+
+            let minusKv = components.reduce(0, +)
+            if minusKv < memoryBytes.max {
+                return MemoryEstimate(layersOffloaded: totalLayers,
                                       layersTotal: totalLayers,
                                       offloadAsr: true,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: fittedLayerMemory + kvBytes,
-                                      gpuUsageEstimateBytes: asrBytes,
-                                      excessBytes: excessBytes)
+                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      gpuUsageEstimateBytes: minusKv,
+                                      excessBytes: 0)
             }
 
-            let asrAndLayers = asrBytes + fittedLayerMemory
+            if let last = components.last { cpuBound.append(last) }
+            components = components.dropLast()
 
-            if layersToFit < totalLayers {
-                return MemoryEstimate(layersUsed: layersToFit,
+            let minusOutputLayer = components.reduce(0, +)
+            if minusOutputLayer < memoryBytes.max {
+                return MemoryEstimate(layersOffloaded: totalLayers - 1,
                                       layersTotal: totalLayers,
                                       offloadAsr: true,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: min(physicalMemory, totalRequiredMemory - asrAndLayers),
-                                      gpuUsageEstimateBytes: asrAndLayers,
-                                      excessBytes: excessBytes)
+                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      gpuUsageEstimateBytes: minusOutputLayer,
+                                      excessBytes: 0)
             }
 
-            let offLoadKv = maxVram - asrAndLayers > kvBytes
-            return MemoryEstimate(layersUsed: layersToFit,
+            for layer in 0 ..< (totalLayers - 1) {
+                if let last = components.last { cpuBound.append(last) }
+                components = components.dropLast()
+
+                let minusLayer = components.reduce(0, +)
+                if minusLayer < memoryBytes.max {
+                    return MemoryEstimate(layersOffloaded: totalLayers - 1 - layer,
+                                          layersTotal: totalLayers,
+                                          offloadAsr: true,
+                                          offloadKvCache: false,
+                                          cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                          gpuUsageEstimateBytes: minusLayer,
+                                          excessBytes: 0)
+                }
+            }
+
+            if let last = components.last { cpuBound.append(last) }
+            components = components.dropLast()
+
+            let totalCpuUse = cpuBound.reduce(0, +)
+            if totalCpuUse < memoryBytes.systemTotal {
+                return MemoryEstimate(layersOffloaded: 0,
+                                      layersTotal: totalLayers,
+                                      offloadAsr: false,
+                                      offloadKvCache: false,
+                                      cpuUsageEstimateBytes: totalCpuUse,
+                                      gpuUsageEstimateBytes: 0,
+                                      excessBytes: 0)
+            }
+
+            return MemoryEstimate(layersOffloaded: 0,
                                   layersTotal: totalLayers,
-                                  offloadAsr: true,
-                                  offloadKvCache: offLoadKv,
-                                  cpuUsageEstimateBytes: offLoadKv ? 0 : kvBytes,
-                                  gpuUsageEstimateBytes: asrAndLayers + (offLoadKv ? kvBytes : 0),
-                                  excessBytes: excessBytes)
+                                  offloadAsr: false,
+                                  offloadKvCache: false,
+                                  cpuUsageEstimateBytes: totalCpuUse,
+                                  gpuUsageEstimateBytes: 0,
+                                  excessBytes: totalCpuUse - Int64(memoryBytes.systemTotal))
         }
 
         @MainActor
