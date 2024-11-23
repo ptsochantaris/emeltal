@@ -127,6 +127,29 @@ final class Model: Hashable, Identifiable, Sendable {
         let gpuUsageEstimateBytes: Int64
         let excessBytes: Int64
 
+        init(layersOffloaded: Int64, layersTotal: Int64, offloadAsr: Bool, offloadKvCache: Bool, nonOffloadedEstimateBytes: Int64, gpuUsageEstimateBytes: Int64, totalSystemBytes: UInt64, unifiedMemory: Bool) {
+            self.layersOffloaded = layersOffloaded
+            self.layersTotal = layersTotal
+            self.offloadAsr = offloadAsr
+            self.offloadKvCache = offloadKvCache
+            self.gpuUsageEstimateBytes = gpuUsageEstimateBytes
+
+            let totalSystemBytes = Int64(totalSystemBytes)
+            if unifiedMemory {
+                let available = totalSystemBytes - gpuUsageEstimateBytes
+                if nonOffloadedEstimateBytes < available {
+                    cpuUsageEstimateBytes = nonOffloadedEstimateBytes
+                    excessBytes = 0
+                } else {
+                    cpuUsageEstimateBytes = available
+                    excessBytes = nonOffloadedEstimateBytes - available
+                }
+            } else {
+                cpuUsageEstimateBytes = totalSystemBytes
+                excessBytes = max(0, nonOffloadedEstimateBytes - totalSystemBytes)
+            }
+        }
+
         var warningMessage: String? {
             if excessBytes > 0 {
                 return "This model will not fit into memory. It will run but extremely slowly, as data will need paging"
@@ -375,7 +398,7 @@ final class Model: Hashable, Identifiable, Sendable {
             case .athene: 5_000_000_000
             case .llama3large: 5_000_000_000
             case .whisper: 0
-            default: layerSize
+            default: layerSize * 2 // catch-all
             }
 
             guard let memoryBytes else {
@@ -383,9 +406,10 @@ final class Model: Hashable, Identifiable, Sendable {
                                       layersTotal: totalLayers,
                                       offloadAsr: false,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: 0,
+                                      nonOffloadedEstimateBytes: 0,
                                       gpuUsageEstimateBytes: 0,
-                                      excessBytes: 0)
+                                      totalSystemBytes: 0,
+                                      unifiedMemory: false)
             }
 
             let asrBytes: Int64 = 1_000_000_000
@@ -398,9 +422,10 @@ final class Model: Hashable, Identifiable, Sendable {
                                       layersTotal: totalLayers,
                                       offloadAsr: true,
                                       offloadKvCache: true,
-                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: everythingInGpu,
-                                      excessBytes: 0)
+                                      totalSystemBytes: memoryBytes.systemTotal,
+                                      unifiedMemory: memoryBytes.unifiedMemory)
             }
 
             if let last = components.last { cpuBound.append(last) }
@@ -412,9 +437,10 @@ final class Model: Hashable, Identifiable, Sendable {
                                       layersTotal: totalLayers,
                                       offloadAsr: true,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: minusKv,
-                                      excessBytes: 0)
+                                      totalSystemBytes: memoryBytes.systemTotal,
+                                      unifiedMemory: memoryBytes.unifiedMemory)
             }
 
             if let last = components.last { cpuBound.append(last) }
@@ -426,9 +452,10 @@ final class Model: Hashable, Identifiable, Sendable {
                                       layersTotal: totalLayers,
                                       offloadAsr: true,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                      nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: minusOutputLayer,
-                                      excessBytes: 0)
+                                      totalSystemBytes: memoryBytes.systemTotal,
+                                      unifiedMemory: memoryBytes.unifiedMemory)
             }
 
             for layer in 0 ..< (totalLayers - 1) {
@@ -441,9 +468,10 @@ final class Model: Hashable, Identifiable, Sendable {
                                           layersTotal: totalLayers,
                                           offloadAsr: true,
                                           offloadKvCache: false,
-                                          cpuUsageEstimateBytes: cpuBound.reduce(0, +),
+                                          nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                           gpuUsageEstimateBytes: minusLayer,
-                                          excessBytes: 0)
+                                          totalSystemBytes: memoryBytes.systemTotal,
+                                          unifiedMemory: memoryBytes.unifiedMemory)
                 }
             }
 
@@ -456,18 +484,20 @@ final class Model: Hashable, Identifiable, Sendable {
                                       layersTotal: totalLayers,
                                       offloadAsr: false,
                                       offloadKvCache: false,
-                                      cpuUsageEstimateBytes: totalCpuUse,
+                                      nonOffloadedEstimateBytes: totalCpuUse,
                                       gpuUsageEstimateBytes: 0,
-                                      excessBytes: 0)
+                                      totalSystemBytes: memoryBytes.systemTotal,
+                                      unifiedMemory: memoryBytes.unifiedMemory)
             }
 
             return MemoryEstimate(layersOffloaded: 0,
                                   layersTotal: totalLayers,
                                   offloadAsr: false,
                                   offloadKvCache: false,
-                                  cpuUsageEstimateBytes: totalCpuUse,
+                                  nonOffloadedEstimateBytes: totalCpuUse,
                                   gpuUsageEstimateBytes: 0,
-                                  excessBytes: totalCpuUse - Int64(memoryBytes.systemTotal))
+                                  totalSystemBytes: memoryBytes.systemTotal,
+                                  unifiedMemory: memoryBytes.unifiedMemory)
         }
 
         @MainActor
