@@ -7,8 +7,8 @@ struct Genie: View {
     let show: Bool
 
     var body: some View {
-        TimelineView(.animation(paused: !show)) { timeline in
-            let elapsedTime = startTime.distance(to: timeline.date)
+        TimelineView(.animation(minimumInterval: 0.034, paused: !show)) {
+            let elapsedTime = startTime.distance(to: $0.date)
             EllipticalGradient(colors: [.black.opacity(0.1), .clear], center: .center, startRadiusFraction: 0, endRadiusFraction: 0.5)
                 .visualEffect { content, proxy in
                     content
@@ -36,7 +36,7 @@ struct ShimmerBackground: View {
 
     var body: some View {
         GeometryReader { _ in
-            TimelineView(.animation(paused: !show)) {
+            TimelineView(.animation(minimumInterval: 0.05, paused: !show)) {
                 let elapsedTime = startTime.distance(to: $0.date)
                 Rectangle()
                     .visualEffect { content, proxy in

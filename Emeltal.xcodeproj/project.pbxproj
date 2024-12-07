@@ -35,6 +35,11 @@
 		165D9E872CB5C41300AAE9FB /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165D9E862CB5C41300AAE9FB /* Model.swift */; };
 		167382E82D0481BE002353D2 /* ggml-cpu-aarch64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167382E72D0481BE002353D2 /* ggml-cpu-aarch64.cpp */; };
 		167382EB2D048233002353D2 /* ggml-cpu-traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */; };
+		167382EF2D04887D002353D2 /* Variant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382EE2D04887D002353D2 /* Variant.swift */; };
+		167382F12D0488A2002353D2 /* Params.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382F02D0488A2002353D2 /* Params.swift */; };
+		167382F32D0488BA002353D2 /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382F22D0488BA002353D2 /* Status.swift */; };
+		167382F52D0488D1002353D2 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382F42D0488D1002353D2 /* Category.swift */; };
+		167382F72D0488ED002353D2 /* MemoryEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382F62D0488ED002353D2 /* MemoryEstimate.swift */; };
 		1677AF2B2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2C2B60391500C11138 /* highlight.js in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2A2B60391500C11138 /* highlight.js */; };
 		1677AF2E2B60397400C11138 /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 1677AF2D2B60397400C11138 /* style.css */; };
@@ -151,6 +156,11 @@
 		167382E72D0481BE002353D2 /* ggml-cpu-aarch64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-cpu-aarch64.cpp"; sourceTree = "<group>"; };
 		167382E92D048233002353D2 /* ggml-cpu-traits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-cpu-traits.h"; sourceTree = "<group>"; };
 		167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-cpu-traits.cpp"; sourceTree = "<group>"; };
+		167382EE2D04887D002353D2 /* Variant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variant.swift; sourceTree = "<group>"; };
+		167382F02D0488A2002353D2 /* Params.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Params.swift; sourceTree = "<group>"; };
+		167382F22D0488BA002353D2 /* Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Status.swift; sourceTree = "<group>"; };
+		167382F42D0488D1002353D2 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		167382F62D0488ED002353D2 /* MemoryEstimate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEstimate.swift; sourceTree = "<group>"; };
 		1677AF2A2B60391500C11138 /* highlight.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.js; sourceTree = "<group>"; };
 		1677AF2D2B60397400C11138 /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		1677AF302B6039B400C11138 /* log.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = log.html; sourceTree = "<group>"; };
@@ -331,6 +341,11 @@
 		168F56042B331BD8007CADC1 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				167382F62D0488ED002353D2 /* MemoryEstimate.swift */,
+				167382F42D0488D1002353D2 /* Category.swift */,
+				167382F22D0488BA002353D2 /* Status.swift */,
+				167382F02D0488A2002353D2 /* Params.swift */,
+				167382EE2D04887D002353D2 /* Variant.swift */,
 				165D9E862CB5C41300AAE9FB /* Model.swift */,
 				16A090F72CB46F0700468E93 /* ManagerViewModel.swift */,
 				16905E4B2B2E0D6D006B4EC8 /* AssetFetcher.swift */,
@@ -611,6 +626,7 @@
 				16B558482CF133FC00A7F8C8 /* ggml-metal.metal in Sources */,
 				16B558492CF133FC00A7F8C8 /* ggml-backend.cpp in Sources */,
 				16B5584A2CF133FC00A7F8C8 /* ggml-blas.cpp in Sources */,
+				167382F32D0488BA002353D2 /* Status.swift in Sources */,
 				16B5584B2CF133FC00A7F8C8 /* llama-vocab.cpp in Sources */,
 				16B5584C2CF133FC00A7F8C8 /* ggml-alloc.c in Sources */,
 				16B5584D2CF133FC00A7F8C8 /* whisper.cpp in Sources */,
@@ -629,6 +645,7 @@
 				16578A342B18CA820038A680 /* Speaker.swift in Sources */,
 				1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
+				167382EF2D04887D002353D2 /* Variant.swift in Sources */,
 				16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ConversationView.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
@@ -645,11 +662,14 @@
 				16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
+				167382F52D0488D1002353D2 /* Category.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
 				168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				167B9D2B2B572036006711B9 /* Turn.swift in Sources */,
+				167382F72D0488ED002353D2 /* MemoryEstimate.swift in Sources */,
 				1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */,
+				167382F12D0488A2002353D2 /* Params.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
 				16905E4C2B2E0D6D006B4EC8 /* AssetFetcher.swift in Sources */,
 				16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */,

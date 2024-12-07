@@ -331,10 +331,12 @@ struct ModelPicker: View {
 
             Buttons(showOverrides: $showOverrides, appPhase: $appPhase, manager: manager)
         }
+        #if canImport(AppKit)
         .background {
             ShimmerBackground(show: $visible)
                 .ignoresSafeArea()
         }
+        #endif
         .navigationTitle("Select an ML model")
         .foregroundStyle(.white)
         .toolbarTitleDisplayMode(.inline)
