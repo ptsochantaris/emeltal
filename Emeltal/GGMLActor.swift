@@ -15,7 +15,7 @@ import Foundation
         }
 
         deinit {
-            log("GGMLActor deinit")
+            log("GGMLActor executor deinit")
         }
     }
 
@@ -24,5 +24,9 @@ import Foundation
 
     nonisolated var unownedExecutor: UnownedSerialExecutor {
         Self.sharedUnownedExecutor
+    }
+
+    deinit {
+        log("GGMLActor deinit")
     }
 }

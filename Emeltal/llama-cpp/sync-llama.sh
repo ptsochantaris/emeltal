@@ -1,3 +1,5 @@
+echo ">>> Pulling latest Llama and Whisper repos"
+
 CURRENT=`pwd`
 LSRC=~/llama.cpp
 WSRC=~/whisper.cpp
@@ -10,6 +12,8 @@ git pull
 
 cd $CURRENT
 
+echo ">>> Copying files"
+
 cp -r\
  $LSRC/ggml/src/ggml-alloc.c\
  $LSRC/ggml/include/ggml-alloc.h\
@@ -21,8 +25,6 @@ cp -r\
  $LSRC/ggml/src/ggml-quants.c\
  $LSRC/ggml/src/ggml-quants.h\
  $LSRC/ggml/src/ggml-common.h\
- $LSRC/ggml/src/ggml-aarch64.c\
- $LSRC/ggml/src/ggml-aarch64.h\
  $LSRC/ggml/src/ggml.c\
  $LSRC/ggml/src/ggml-threading.h\
  $LSRC/ggml/src/ggml-threading.cpp\
@@ -52,3 +54,9 @@ cp -r\
  $WSRC/src/whisper.cpp\
  $WSRC/include/whisper.h\
  .
+
+echo ">>> Cleaning up cmake files"
+
+find . -type f \( -name "*.txt" -o -name "*.cmake" \) -exec rm -f {} +
+
+echo ">>> Done"

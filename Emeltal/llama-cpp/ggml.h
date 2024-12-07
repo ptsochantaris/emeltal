@@ -384,12 +384,15 @@ extern "C" {
         GGML_TYPE_F64     = 28,
         GGML_TYPE_IQ1_M   = 29,
         GGML_TYPE_BF16    = 30,
-        GGML_TYPE_Q4_0_4_4 = 31,
-        GGML_TYPE_Q4_0_4_8 = 32,
-        GGML_TYPE_Q4_0_8_8 = 33,
+        // GGML_TYPE_Q4_0_4_4 = 31, support has been removed from gguf files
+        // GGML_TYPE_Q4_0_4_8 = 32,
+        // GGML_TYPE_Q4_0_8_8 = 33,
         GGML_TYPE_TQ1_0   = 34,
         GGML_TYPE_TQ2_0   = 35,
-        GGML_TYPE_COUNT,
+        // GGML_TYPE_IQ4_NL_4_4 = 36,
+        // GGML_TYPE_IQ4_NL_4_8 = 37,
+        // GGML_TYPE_IQ4_NL_8_8 = 38,
+        GGML_TYPE_COUNT   = 39,
     };
 
     // precision
@@ -430,9 +433,6 @@ extern "C" {
         GGML_FTYPE_MOSTLY_IQ4_XS  = 22, // except 1d tensors
         GGML_FTYPE_MOSTLY_IQ1_M   = 23, // except 1d tensors
         GGML_FTYPE_MOSTLY_BF16    = 24, // except 1d tensors
-        GGML_FTYPE_MOSTLY_Q4_0_4_4 = 25, // except 1d tensors
-        GGML_FTYPE_MOSTLY_Q4_0_4_8 = 26, // except 1d tensors
-        GGML_FTYPE_MOSTLY_Q4_0_8_8 = 27, // except 1d tensors
     };
 
     // available tensor operations:
@@ -496,6 +496,7 @@ extern "C" {
         GGML_OP_POOL_2D_BACK,
         GGML_OP_UPSCALE, // nearest interpolate
         GGML_OP_PAD,
+        GGML_OP_PAD_REFLECT_1D,
         GGML_OP_ARANGE,
         GGML_OP_TIMESTEP_EMBEDDING,
         GGML_OP_ARGSORT,
@@ -1692,6 +1693,13 @@ extern "C" {
             int                  p2,
             int                  p3);
 
+    // pad each dimension with reflection: [a, b, c, d] -> [b, a, b, c, d, c]
+    GGML_API struct ggml_tensor * ggml_pad_reflect_1d(
+            struct ggml_context * ctx,
+            struct ggml_tensor  * a,
+            int                   p0,
+            int                   p1);
+
     // Ref: https://github.com/CompVis/stable-diffusion/blob/main/ldm/modules/diffusionmodules/util.py#L151
     // timesteps: [N,]
     // return: [N, dim]
@@ -2194,11 +2202,19 @@ extern "C" {
     GGML_API size_t gguf_get_meta_size(const struct gguf_context * ctx);
     GGML_API void   gguf_get_meta_data(const struct gguf_context * ctx, void * data);
 
-#ifdef  __cplusplus
-// restrict not standard in C++
-#define GGML_RESTRICT
+#ifdef __cplusplus
+    // restrict not standard in C++
+#    if defined(__GNUC__)
+#        define GGML_RESTRICT __restrict__
+#    elif defined(__clang__)
+#        define GGML_RESTRICT __restrict
+#    elif defined(_MSC_VER)
+#        define GGML_RESTRICT __restrict
+#    else
+#        define GGML_RESTRICT
+#    endif
 #else
-#define GGML_RESTRICT restrict
+#    define GGML_RESTRICT restrict
 #endif
     typedef void (*ggml_to_float_t)  (const void  * GGML_RESTRICT x, float * GGML_RESTRICT y, int64_t k);
     typedef void (*ggml_from_float_t)(const float * GGML_RESTRICT x, void  * GGML_RESTRICT y, int64_t k);
@@ -2214,6 +2230,37 @@ extern "C" {
     };
 
     GGML_API const struct ggml_type_traits * ggml_get_type_traits(enum ggml_type type);
+
+    // ggml threadpool
+    // TODO: currently, only a few functions are in the base ggml API, while the rest are in the CPU backend
+    // the goal should be to create an API that other backends can use move everything to the ggml base
+
+    // scheduling priorities
+    enum ggml_sched_priority {
+        GGML_SCHED_PRIO_NORMAL,
+        GGML_SCHED_PRIO_MEDIUM,
+        GGML_SCHED_PRIO_HIGH,
+        GGML_SCHED_PRIO_REALTIME
+    };
+
+    // threadpool params
+    // Use ggml_threadpool_params_default() or ggml_threadpool_params_init() to populate the defaults
+    struct ggml_threadpool_params {
+        bool                cpumask[GGML_MAX_N_THREADS]; // mask of cpu cores (all-zeros means use default affinity settings)
+        int                 n_threads;                   // number of threads
+        enum ggml_sched_priority prio;                   // thread priority
+        uint32_t            poll;                        // polling level (0 - no polling, 100 - aggressive polling)
+        bool                strict_cpu;                  // strict cpu placement
+        bool                paused;                      // start in paused state
+    };
+
+    struct ggml_threadpool;     // forward declaration, see ggml.c
+
+    typedef struct ggml_threadpool * ggml_threadpool_t;
+
+    GGML_API struct ggml_threadpool_params ggml_threadpool_params_default(int n_threads);
+    GGML_API void                          ggml_threadpool_params_init   (struct ggml_threadpool_params * p, int n_threads);
+    GGML_API bool                          ggml_threadpool_params_match  (const struct ggml_threadpool_params * p0, const struct ggml_threadpool_params * p1);
 
 #ifdef  __cplusplus
 }
