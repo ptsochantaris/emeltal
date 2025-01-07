@@ -51,7 +51,7 @@ final class LlamaContext {
         model_params.n_gpu_layers = Int32(gpuUsage.layersOffloaded)
 
         let modelPath = await asset.localModelPath.path
-        guard let model = llama_load_model_from_file(modelPath, model_params) else {
+        guard let model = llama_model_load_from_file(modelPath, model_params) else {
             throw .message("Could not initialise context")
         }
 
@@ -116,7 +116,7 @@ final class LlamaContext {
             llama_sampler_chain_add(newSampler, llama_sampler_init_greedy())
         }
 
-        llama_sampler_chain_add(newSampler, llama_sampler_init_penalties(0, 0, 0, 0, params.repeatPenatly, params.frequencyPenatly, params.presentPenatly, false, false))
+        llama_sampler_init_penalties(Int32(params.repeatCheckPenalty), params.repeatPenatly, params.frequencyPenatly, params.presentPenatly)
 
         let seed = UInt32.random(in: UInt32.min ..< UInt32.max)
         llama_sampler_chain_add(newSampler, llama_sampler_init_dist(seed))
@@ -168,7 +168,7 @@ final class LlamaContext {
     func shutdown() {
         llama_sampler_free(sampler)
         llama_free(context)
-        llama_free_model(model)
+        llama_model_free(model)
         llama_backend_free()
         candidateBuffer.deallocate()
     }

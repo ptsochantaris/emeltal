@@ -461,6 +461,14 @@ extension Model {
             1
         }
 
+        private var defaultRepeatCheckPenalty: Int {
+            if isCodingLLm {
+                0
+            } else {
+                64
+            }
+        }
+
         var quoteTag: String? {
             switch self {
             default: nil
@@ -659,7 +667,7 @@ extension Model {
                    repeatPenatly: defaultRepeatPenatly,
                    frequencyPenatly: defaultFrequencyPenalty,
                    presentPenatly: defaultPresentPenalty,
-                   version: Params.currentVersion)
+                   repeatCheckPenalty: defaultRepeatCheckPenalty)
         }
     }
 }

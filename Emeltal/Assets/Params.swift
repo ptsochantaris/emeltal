@@ -2,8 +2,6 @@ import Foundation
 
 extension Model {
     struct Params: Codable, Sendable {
-        static let currentVersion = 4
-
         enum Descriptors {
             struct Descriptor {
                 let title: String
@@ -20,6 +18,7 @@ extension Model {
             static let repeatPenatly = Descriptor(title: "Repeat Penalty", min: 1, max: 4, disabled: 1)
             static let frequencyPenatly = Descriptor(title: "Frequency Penalty", min: 0, max: 4, disabled: 0)
             static let presentPenatly = Descriptor(title: "Presence Penalty", min: 1, max: 4, disabled: 1)
+            static let repeatCheckPenalty = Descriptor(title: "Repeat Count Check", min: 0, max: 256, disabled: 0)
         }
 
         var topK: Int
@@ -31,7 +30,7 @@ extension Model {
         var repeatPenatly: Float
         var frequencyPenatly: Float
         var presentPenatly: Float
-        var version: Int?
+        var repeatCheckPenalty: Int
 
         static var empty: Params {
             Params(topK: 0,
@@ -42,7 +41,8 @@ extension Model {
                    temperatureExponent: 0,
                    repeatPenatly: 0,
                    frequencyPenatly: 0,
-                   presentPenatly: 0)
+                   presentPenatly: 0,
+                   repeatCheckPenalty: 0)
         }
     }
 }

@@ -119,8 +119,8 @@ private struct Overrides: View {
             }
 
             HStack(alignment: .top, spacing: 30) {
+                let params = manager.selected.params
                 VStack(spacing: 10) {
-                    let params = manager.selected.params
                     HStack(spacing: 10) {
                         let hasTemp = params.temperature != Model.Params.Descriptors.temperature.disabled
                         let hasRange = hasTemp && params.temperatureRange != Model.Params.Descriptors.temperatureRange.disabled
@@ -142,7 +142,12 @@ private struct Overrides: View {
                 }
 
                 VStack(spacing: 10) {
-                    FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
+                    HStack {
+                        FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
+
+                        IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)
+                            .opacity(params.repeatCheckPenalty != Int(Model.Params.Descriptors.repeatCheckPenalty.disabled) ? 1.0 : 0.5)
+                    }
                     FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $manager.selected.params.frequencyPenatly)
                     FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $manager.selected.params.presentPenatly)
                 }

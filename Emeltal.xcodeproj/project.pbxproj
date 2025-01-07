@@ -111,6 +111,19 @@
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
+		16FCFAD82D2DD357008AD758 /* llama-kv-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */; };
+		16FCFAD92D2DD357008AD758 /* llama-hparams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */; };
+		16FCFADA2D2DD357008AD758 /* llama-context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD32D2DD357008AD758 /* llama-context.cpp */; };
+		16FCFADB2D2DD357008AD758 /* llama-cparams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */; };
+		16FCFADC2D2DD357008AD758 /* llama-chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD22D2DD357008AD758 /* llama-chat.cpp */; };
+		16FCFADD2D2DD357008AD758 /* llama-model-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */; };
+		16FCFADF2D2DD393008AD758 /* llama-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFADE2D2DD393008AD758 /* llama-model.cpp */; };
+		16FCFAE12D2DD3FE008AD758 /* llama-impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */; };
+		16FCFAE42D2DD52A008AD758 /* llama-mmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAE32D2DD52A008AD758 /* llama-mmap.cpp */; };
+		16FCFAE72D2DD5DD008AD758 /* gguf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAE62D2DD5DD008AD758 /* gguf.cpp */; };
+		16FCFAE92D2DD62D008AD758 /* llama-batch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAE82D2DD62D008AD758 /* llama-batch.cpp */; };
+		16FCFAED2D2DD6CA008AD758 /* llama-arch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAEC2D2DD6CA008AD758 /* llama-arch.cpp */; };
+		16FCFAF02D2DD704008AD758 /* llama-adapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAEF2D2DD704008AD758 /* llama-adapter.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -240,6 +253,24 @@
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
+		16FCFAD22D2DD357008AD758 /* llama-chat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-chat.cpp"; sourceTree = "<group>"; };
+		16FCFAD32D2DD357008AD758 /* llama-context.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-context.cpp"; sourceTree = "<group>"; };
+		16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-cparams.cpp"; sourceTree = "<group>"; };
+		16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-hparams.cpp"; sourceTree = "<group>"; };
+		16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache.cpp"; sourceTree = "<group>"; };
+		16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-model-loader.cpp"; sourceTree = "<group>"; };
+		16FCFADE2D2DD393008AD758 /* llama-model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-model.cpp"; sourceTree = "<group>"; };
+		16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-impl.cpp"; sourceTree = "<group>"; };
+		16FCFAE22D2DD52A008AD758 /* llama-mmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-mmap.h"; sourceTree = "<group>"; };
+		16FCFAE32D2DD52A008AD758 /* llama-mmap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-mmap.cpp"; sourceTree = "<group>"; };
+		16FCFAE52D2DD5DD008AD758 /* gguf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gguf.h; sourceTree = "<group>"; };
+		16FCFAE62D2DD5DD008AD758 /* gguf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gguf.cpp; sourceTree = "<group>"; };
+		16FCFAE82D2DD62D008AD758 /* llama-batch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-batch.cpp"; sourceTree = "<group>"; };
+		16FCFAEA2D2DD637008AD758 /* llama-batch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-batch.h"; sourceTree = "<group>"; };
+		16FCFAEB2D2DD6CA008AD758 /* llama-arch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-arch.h"; sourceTree = "<group>"; };
+		16FCFAEC2D2DD6CA008AD758 /* llama-arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-arch.cpp"; sourceTree = "<group>"; };
+		16FCFAEE2D2DD704008AD758 /* llama-adapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-adapter.h"; sourceTree = "<group>"; };
+		16FCFAEF2D2DD704008AD758 /* llama-adapter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-adapter.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -400,9 +431,6 @@
 		16B558412CF133FC00A7F8C8 /* llama-cpp */ = {
 			isa = PBXGroup;
 			children = (
-				16B558092CF133FC00A7F8C8 /* ggml-blas */,
-				16B558172CF133FC00A7F8C8 /* ggml-cpu */,
-				16B5581C2CF133FC00A7F8C8 /* ggml-metal */,
 				16B5581D2CF133FC00A7F8C8 /* ggml.h */,
 				16B5581E2CF133FC00A7F8C8 /* ggml.c */,
 				16B558212CF133FC00A7F8C8 /* ggml-alloc.h */,
@@ -412,20 +440,41 @@
 				16B558252CF133FC00A7F8C8 /* ggml-backend-impl.h */,
 				16B558262CF133FC00A7F8C8 /* ggml-backend-reg.cpp */,
 				16B558272CF133FC00A7F8C8 /* ggml-blas.h */,
+				16B558092CF133FC00A7F8C8 /* ggml-blas */,
 				16B558282CF133FC00A7F8C8 /* ggml-common.h */,
 				16B558292CF133FC00A7F8C8 /* ggml-cpp.h */,
 				16B5582A2CF133FC00A7F8C8 /* ggml-cpu.h */,
+				16B558172CF133FC00A7F8C8 /* ggml-cpu */,
 				16B5582B2CF133FC00A7F8C8 /* ggml-impl.h */,
 				16B5582C2CF133FC00A7F8C8 /* ggml-metal.h */,
+				16B5581C2CF133FC00A7F8C8 /* ggml-metal */,
 				16B5582D2CF133FC00A7F8C8 /* ggml-quants.h */,
 				16B5582E2CF133FC00A7F8C8 /* ggml-quants.c */,
 				16B5582F2CF133FC00A7F8C8 /* ggml-threading.h */,
 				16B558302CF133FC00A7F8C8 /* ggml-threading.cpp */,
+				16FCFAE52D2DD5DD008AD758 /* gguf.h */,
+				16FCFAE62D2DD5DD008AD758 /* gguf.cpp */,
 				16B558312CF133FC00A7F8C8 /* llama.h */,
 				16B558322CF133FC00A7F8C8 /* llama.cpp */,
+				16FCFAEE2D2DD704008AD758 /* llama-adapter.h */,
+				16FCFAEF2D2DD704008AD758 /* llama-adapter.cpp */,
+				16FCFAEB2D2DD6CA008AD758 /* llama-arch.h */,
+				16FCFAEC2D2DD6CA008AD758 /* llama-arch.cpp */,
+				16FCFAEA2D2DD637008AD758 /* llama-batch.h */,
+				16FCFAE82D2DD62D008AD758 /* llama-batch.cpp */,
+				16FCFAD22D2DD357008AD758 /* llama-chat.cpp */,
+				16FCFAD32D2DD357008AD758 /* llama-context.cpp */,
+				16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */,
 				16B558332CF133FC00A7F8C8 /* llama-grammar.h */,
 				16B558342CF133FC00A7F8C8 /* llama-grammar.cpp */,
+				16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */,
 				16B558352CF133FC00A7F8C8 /* llama-impl.h */,
+				16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */,
+				16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */,
+				16FCFADE2D2DD393008AD758 /* llama-model.cpp */,
+				16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */,
+				16FCFAE22D2DD52A008AD758 /* llama-mmap.h */,
+				16FCFAE32D2DD52A008AD758 /* llama-mmap.cpp */,
 				16B558362CF133FC00A7F8C8 /* llama-sampling.h */,
 				16B558372CF133FC00A7F8C8 /* llama-sampling.cpp */,
 				16B558382CF133FC00A7F8C8 /* llama-vocab.h */,
@@ -544,7 +593,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -615,8 +664,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16FCFAF02D2DD704008AD758 /* llama-adapter.cpp in Sources */,
 				16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */,
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
+				16FCFAE72D2DD5DD008AD758 /* gguf.cpp in Sources */,
 				16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */,
 				16B558432CF133FC00A7F8C8 /* ggml-cpu.c in Sources */,
 				16B558442CF133FC00A7F8C8 /* ggml-cpu.cpp in Sources */,
@@ -646,6 +697,7 @@
 				1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */,
 				163EF0552B31B6EB00565F49 /* AssetCell.swift in Sources */,
 				167382EF2D04887D002353D2 /* Variant.swift in Sources */,
+				16FCFAE12D2DD3FE008AD758 /* llama-impl.cpp in Sources */,
 				16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */,
 				1608DB6E2B151B4F00FFFB09 /* ConversationView.swift in Sources */,
 				168A96A72B42F66E00BE67EF /* IdealVoicePrompt.swift in Sources */,
@@ -653,14 +705,23 @@
 				165D9E872CB5C41300AAE9FB /* Model.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
+				16FCFAD82D2DD357008AD758 /* llama-kv-cache.cpp in Sources */,
+				16FCFAD92D2DD357008AD758 /* llama-hparams.cpp in Sources */,
+				16FCFADA2D2DD357008AD758 /* llama-context.cpp in Sources */,
+				16FCFADB2D2DD357008AD758 /* llama-cparams.cpp in Sources */,
+				16FCFADC2D2DD357008AD758 /* llama-chat.cpp in Sources */,
+				16FCFADD2D2DD357008AD758 /* llama-model-loader.cpp in Sources */,
 				16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */,
 				16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */,
+				16FCFAE42D2DD52A008AD758 /* llama-mmap.cpp in Sources */,
 				16578A322B18CA5A0038A680 /* ConversationState.swift in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
+				16FCFAED2D2DD6CA008AD758 /* llama-arch.cpp in Sources */,
 				167382EB2D048233002353D2 /* ggml-cpu-traits.cpp in Sources */,
 				16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */,
 				16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
+				16FCFAE92D2DD62D008AD758 /* llama-batch.cpp in Sources */,
 				163EF0532B31B6C500565F49 /* ModelPicker.swift in Sources */,
 				167382F52D0488D1002353D2 /* Category.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
@@ -669,6 +730,7 @@
 				167B9D2B2B572036006711B9 /* Turn.swift in Sources */,
 				167382F72D0488ED002353D2 /* MemoryEstimate.swift in Sources */,
 				1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */,
+				16FCFADF2D2DD393008AD758 /* llama-model.cpp in Sources */,
 				167382F12D0488A2002353D2 /* Params.swift in Sources */,
 				160189862B1A026B0012B315 /* Mic.swift in Sources */,
 				16905E4C2B2E0D6D006B4EC8 /* AssetFetcher.swift in Sources */,

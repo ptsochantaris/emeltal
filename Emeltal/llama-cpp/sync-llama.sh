@@ -32,15 +32,39 @@ cp -r\
  $LSRC/ggml/include/ggml-cpp.h\
  $LSRC/ggml/include/ggml-blas.h\
  $LSRC/ggml/include/ggml-cpu.h\
+ $LSRC/ggml/include/gguf.h\
+ $LSRC/ggml/src/gguf.cpp\
  $LSRC/ggml/src/ggml-cpu\
  $LSRC/ggml/src/ggml-metal\
  $LSRC/ggml/include/ggml-metal.h\
  $LSRC/ggml/include/ggml-cpu.h\
  $LSRC/ggml/src/ggml-threading.h\
  $LSRC/ggml/src/ggml-blas\
+ $LSRC/src/llama-chat.h\
+ $LSRC/src/llama-chat.cpp\
+ $LSRC/src/llama-context.h\
+ $LSRC/src/llama-context.cpp\
+ $LSRC/src/llama-batch.h\
+ $LSRC/src/llama-batch.cpp\
+ $LSRC/src/llama-cparams.h\
+ $LSRC/src/llama-cparams.cpp\
+ $LSRC/src/llama-hparams.h\
+ $LSRC/src/llama-hparams.cpp\
+ $LSRC/src/llama-adapter.h\
+ $LSRC/src/llama-adapter.cpp\
+ $LSRC/src/llama-kv-cache.h\
+ $LSRC/src/llama-kv-cache.cpp\
+ $LSRC/src/llama-model.h\
+ $LSRC/src/llama-model.cpp\
+ $LSRC/src/llama-model-loader.h\
+ $LSRC/src/llama-model-loader.cpp\
+ $LSRC/src/llama-arch.h\
+ $LSRC/src/llama-arch.cpp\
+ $LSRC/src/llama-mmap.h\
+ $LSRC/src/llama-mmap.cpp\
  $LSRC/src/llama-impl.h\
+ $LSRC/src/llama-impl.cpp\
  $LSRC/src/llama.cpp\
- $LSRC/include/llama.h\
  $LSRC/src/llama-vocab.h\
  $LSRC/src/llama-vocab.cpp\
  $LSRC/src/llama-grammar.h\
@@ -51,6 +75,7 @@ cp -r\
  $LSRC/src/unicode.cpp\
  $LSRC/src/unicode-data.h\
  $LSRC/src/unicode-data.cpp\
+ $LSRC/include/llama.h\
  $WSRC/src/whisper.cpp\
  $WSRC/include/whisper.h\
  .

@@ -47,7 +47,7 @@ final class WhisperContext {
         params.no_timestamps = true
         params.no_context = true
         params.suppress_blank = true
-        params.suppress_non_speech_tokens = true
+        params.suppress_nst = true
         params.language = enCString
         params.single_segment = true
         params.temperature = 0.4
