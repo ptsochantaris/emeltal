@@ -13,6 +13,7 @@ extension String {
 @GGMLActor
 final class LlamaContext {
     private let model: OpaquePointer
+    private let vocab: OpaquePointer
     private let n_vocab: Int32
     private let candidateBuffer: UnsafeMutableBufferPointer<llama_token_data>
     private let context: OpaquePointer
@@ -56,16 +57,17 @@ final class LlamaContext {
         }
 
         self.model = model
-        n_vocab = llama_n_vocab(model)
+        vocab = llama_model_get_vocab(model)
+        n_vocab = llama_vocab_n_tokens(vocab)
 
-        if llama_add_bos_token(model) {
-            let bosTokenId = llama_token_bos(model)
-            bosToken = String(cString: llama_token_get_text(model, bosTokenId))
+        if llama_vocab_get_add_bos(vocab) {
+            let bosTokenId = llama_vocab_bos(vocab)
+            bosToken = String(cString: llama_vocab_get_text(vocab, bosTokenId))
         } else {
             bosToken = ""
         }
 
-        eosTokenIds = asset.variant.eosOverrides ?? [llama_token_eos(model)]
+        eosTokenIds = asset.variant.eosOverrides ?? [llama_vocab_eos(vocab)]
 
         if let quote = asset.variant.quoteTag {
             quotes = ("<\(quote)>", "</\(quote)>")
@@ -86,7 +88,7 @@ final class LlamaContext {
         ctx_params.logits_all = true
         ctx_params.offload_kqv = gpuUsage.offloadKvCache
 
-        guard let newContext = llama_new_context_with_model(model, ctx_params) else {
+        guard let newContext = llama_init_from_model(model, ctx_params) else {
             throw .message("Could not initialise context")
         }
 
@@ -130,7 +132,7 @@ final class LlamaContext {
     private func emptyWarmup() {
         guard let eos = eosTokenIds.first else { return }
         log("LLM warmup")
-        let bosTokenId = llama_token_bos(model)
+        let bosTokenId = llama_vocab_bos(vocab)
         var emptyData = [bosTokenId, eos]
         llama_decode(context, llama_batch_get_one(&emptyData, 2))
         llama_kv_cache_clear(context)
@@ -240,7 +242,7 @@ final class LlamaContext {
         let textLen = Int32(text.utf8.count)
         let maxTokens = max(128, textLen)
         var newTokens = [llama_token](repeating: 0, count: Int(maxTokens))
-        let tokenisedCount = llama_tokenize(model, text, textLen, &newTokens, maxTokens, false, true)
+        let tokenisedCount = llama_tokenize(vocab, text, textLen, &newTokens, maxTokens, false, true)
         return Array(newTokens.prefix(Int(tokenisedCount)))
     }
 
@@ -310,7 +312,7 @@ final class LlamaContext {
 
             llama_sampler_accept(sampler, newTokenId)
 
-            if llama_token_is_eog(model, newTokenId) {
+            if llama_vocab_is_eog(vocab, newTokenId) {
                 log("Text ended with EOS ID \(newTokenId) - Llama")
                 break
             }
@@ -320,7 +322,7 @@ final class LlamaContext {
                 break
             }
 
-            let written = Int(llama_token_to_piece(model, newTokenId, wordBuffer, 1024, 0, true))
+            let written = Int(llama_token_to_piece(vocab, newTokenId, wordBuffer, 1024, 0, true))
             if written > 0 {
                 var outputString = ""
                 for byteIndex in 0 ..< written {
