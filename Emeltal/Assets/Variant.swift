@@ -31,7 +31,8 @@ extension Model {
              smol,
              shuttle,
              athene,
-             calme
+             calme,
+             dsro70
 
         var recommended: Bool {
             self == .qwen25regular
@@ -46,7 +47,7 @@ extension Model {
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
             case .codestral, .neuralStory7b: .mistral
-            case .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
+            case .llama3, .llama3compact, .llama3large, .llama3tiny, .dsro70: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
             case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinMixtral, .dolphinNemo, .dolphinTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
             }
@@ -64,7 +65,7 @@ extension Model {
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .dolphinCoder:
                 "You are DolphinCoder, a helpful AI programming assistant."
-            case .whisper:
+            case .whisper, .dsro70:
                 ""
             }
         }
@@ -100,6 +101,7 @@ extension Model {
                  .qwen25medium,
                  .qwen25regular,
                  .shuttle,
+                 .dsro70,
                  .supernovaMedius:
                 16384
             }
@@ -135,7 +137,9 @@ extension Model {
             case .neuralStory7b: 4096
             case .everyoneCoder: 4096
             case .dolphinCoder: 1280
+            case .dsro70: 5120
             case .whisper: 0
+
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
         }
@@ -171,6 +175,7 @@ extension Model {
             case .codestral: 320
             case .smol: 60
             case .shuttle: 600
+            case .dsro70: 535
             }
 
             let totalLayers: Int64 = switch self {
@@ -203,13 +208,15 @@ extension Model {
             case .llama3compact: 29
             case .codestral: 57
             case .athene: 81
+            case .dsro70: 81
+
             }
 
             let layerSize = layerSizeM * 1_000_000
 
             let outputLayerSize: Int64 = switch self {
             case .athene: 5_000_000_000
-            case .llama3large: 5_000_000_000
+            case .llama3large, .dsro70: 5_000_000_000
             case .whisper: 0
             default: layerSize * 2 // catch-all
             }
@@ -370,6 +377,7 @@ extension Model {
             case .smol: "1.5 GB"
             case .shuttle: "47.5 GB"
             case .athene: "48.3 GB"
+            case .dsro70: "42.5 GB"
             }
         }
 
@@ -401,6 +409,7 @@ extension Model {
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
             case .calme: "Derived from Qwen using a method that allegedly improves performance, and finetuned for chat. Currently top of the open-source benchmarks."
             case .athene: "Athene is based on Qwen and seems to have promise, with very high benchmark results, even above Nemotron Llama."
+            case .dsro70: "Distill of DeepSeek R1 on the Llama 70b model"
             }
         }
 
@@ -510,6 +519,7 @@ extension Model {
             case .shuttle: "https://huggingface.co/shuttleai/shuttle-3"
             case .calme: "https://huggingface.co/MaziyarPanahi/calme-2.4-rys-78b"
             case .athene: "https://huggingface.co/bartowski/Athene-V2-Chat-GGUF"
+            case .dsro70: "https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5"
             }
             return URL(string: uri)!
         }
@@ -545,6 +555,7 @@ extension Model {
             case .shuttle: "shuttle-3-Q4_K_M.gguf"
             case .calme: "calme-2.4-rys-78b.i1-Q4_K_S.gguf"
             case .athene: "Athene-V2-Chat-Q4_K_L.gguf"
+            case .dsro70: "DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf"
             }
         }
 
@@ -586,6 +597,7 @@ extension Model {
             case .shuttle: "Shuttle 3"
             case .calme: "Calme 2.4"
             case .athene: "Athene V2"
+            case .dsro70: "Deepseek R1 Distill"
             }
         }
 
@@ -620,6 +632,7 @@ extension Model {
             case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
             case .calme: "v2.4, on Qwen 2 78b"
             case .athene: "v2, on Qwen 2.5 72b"
+            case .dsro70: "R1, on Llama 70b"
             }
         }
 
@@ -654,6 +667,7 @@ extension Model {
             case .shuttle: "9044B741-783F-471B-8447-FB773AAEF051"
             case .calme: "5F0BEDAB-59B3-43B8-B4D7-65F9B16A8735"
             case .athene: "87D0BDE7-55EE-4349-9428-18FAACB524EC"
+            case .dsro70: "0E1DA288-951A-45AE-841D-4F8F2F451801"
             }
         }
 

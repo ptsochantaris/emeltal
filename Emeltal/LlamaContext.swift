@@ -153,7 +153,7 @@ final class LlamaContext {
             turns = try JSONDecoder().decode([Turn].self, from: infoData)
         } else {
             let initial = template.text(for: .initial)
-            if initial.isEmpty {
+            if initial.isEmpty || template.systemText == nil {
                 log("No system prompt")
                 emptyWarmup()
             } else {
@@ -299,6 +299,8 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
+        var inQuote = false
+
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
@@ -309,8 +311,6 @@ final class LlamaContext {
             }
 
             let newTokenId: llama_token = llama_sampler_sample(sampler, context, -1)
-
-            llama_sampler_accept(sampler, newTokenId)
 
             if llama_vocab_is_eog(vocab, newTokenId) {
                 log("Text ended with EOS ID \(newTokenId) - Llama")
@@ -341,9 +341,19 @@ final class LlamaContext {
                     log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
                     if let quotes {
                         if outputString == quotes.0 {
-                            outputString = "<div class='additional-info'>"
+                            if inQuote {
+                                log("Warning, got quote token while already in quote, ignoring")
+                            } else {
+                                outputString = "<div class='additional-info'>"
+                                inQuote = true
+                            }
                         } else if outputString == quotes.1 {
-                            outputString = "</div>"
+                            if inQuote {
+                                outputString = "</div>"
+                                inQuote = false
+                            } else {
+                                log("Warning, got quote ending token while not in quote, ignoring")
+                            }
                         }
                     }
 
