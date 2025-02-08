@@ -14,10 +14,12 @@ final class ManagerViewModel {
     }
 
     let models = [
+        Model(category: .dolphin, variant: .dolphinThreeR1),
+        Model(category: .dolphin, variant: .dolphinThree8b),
+        Model(category: .dolphin, variant: .dolphinThree3b),
+        Model(category: .dolphin, variant: .dolphinThreeTiny),
         Model(category: .dolphin, variant: .dolphinNemo),
         Model(category: .dolphin, variant: .dolphin72b),
-        Model(category: .dolphin, variant: .dolphinMixtral),
-        Model(category: .dolphin, variant: .dolphinTiny),
 
         Model(category: .creative, variant: .mythoMax),
         Model(category: .creative, variant: .neuralStory7b),
