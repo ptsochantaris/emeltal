@@ -29,6 +29,7 @@ extension Model {
              qwen25large,
              qwen25medium,
              qwen25small,
+             qwenQwQ32,
              supernovaMedius,
              smol,
              shuttle,
@@ -51,7 +52,7 @@ extension Model {
             case .codestral, .neuralStory7b: .mistral
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius: .chatml
+            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
             }
         }
 
@@ -59,7 +60,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -105,6 +106,7 @@ extension Model {
                  .qwen25large,
                  .qwen25medium,
                  .qwen25regular,
+                 .qwenQwQ32,
                  .shuttle,
                  .supernovaMedius:
                 16384
@@ -128,6 +130,7 @@ extension Model {
             case .qwen25regular: 4096
             case .qwen25coder: 4096
             case .qwen25medium: 3072
+            case .qwenQwQ32: 4096
             case .athene: 5120
             case .supernovaMedius: 3072
             case .smol: 1536
@@ -160,6 +163,7 @@ extension Model {
             case .dolphinNemo: 200
             case .calme: 550
             case .qwen25large: 600
+            case .qwenQwQ32: 380
             case .qwen25regular: 310
             case .qwen25coder: 430
             case .qwen25medium: 220
@@ -201,6 +205,7 @@ extension Model {
             case .qwen25coder: 65
             case .qwen25medium: 49
             case .qwen25small: 29
+            case .qwenQwQ32: 65
             case .supernovaMedius: 49
             case .codeLlama70b: 81
             case .samantha70b: 81
@@ -388,6 +393,7 @@ extension Model {
             case .dolphinThreeTiny: "1.4 GB"
             case .dolphinThree3b: "2.7 GB"
             case .dolphinThree8b: "5.8 GB"
+            case .qwenQwQ32: "23.8 GB"
             }
         }
 
@@ -399,6 +405,7 @@ extension Model {
             case .dolphin72b: "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
             case .dolphinNemo: "The Dolhpin personality running on the Mistral Nemo base model."
+            case .qwenQwQ32: "An evolution of the Qwen model that, at least on benchmarks, offers a very high quality of reasoning. It will display its thinking process by default."
             case .qwen25large, .qwen25medium, .qwen25regular, .qwen25small: "A consistently well regarded all-round model by users and benchmarks."
             case .qwen25coder: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
@@ -435,15 +442,25 @@ extension Model {
         }
 
         private var defaultTopK: Int {
-            90
+            if case .qwenQwQ32 = self {
+                40
+            } else {
+                90
+            }
         }
 
         private var defaultTopP: Float {
-            0.9
+            if case .qwenQwQ32 = self {
+                0.95
+            } else {
+                0.9
+            }
         }
 
         private var defaultTemperature: Float {
-            if isCodingLLm {
+            if case .qwenQwQ32 = self {
+                0.6
+            } else if isCodingLLm {
                 0.1
             } else {
                 0.7
@@ -451,7 +468,9 @@ extension Model {
         }
 
         private var defaultTemperatureRange: Float {
-            if isCodingLLm {
+            if case .qwenQwQ32 = self {
+                0
+            } else if isCodingLLm {
                 0
             } else {
                 0.2
@@ -492,6 +511,7 @@ extension Model {
 
         var quoteTag: String? {
             switch self {
+            case .qwenQwQ32: "think"
             default: nil
             }
         }
@@ -515,6 +535,7 @@ extension Model {
             case .qwen25large: "https://huggingface.co/bartowski/Qwen2.5-72B-Instruct-GGUF"
             case .qwen25medium: "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF"
             case .qwen25small: "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF"
+            case .qwenQwQ32: "https://huggingface.co/bartowski/Qwen_QwQ-32B-GGUF"
             case .dolphin72b: "https://huggingface.co/mradermacher/dolphin-2.9.2-qwen2-72b-i1-GGUF"
             case .dolphinNemo: "https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b-gguf"
             case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
@@ -551,6 +572,7 @@ extension Model {
             case .qwen25coder: "Qwen2.5-Coder-32B-Instruct-Q6_K_L.gguf"
             case .qwen25medium: "Qwen2.5-14B-Instruct-Q5_K_L.gguf"
             case .qwen25small: "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
+            case .qwenQwQ32: "Qwen_QwQ-32B-Q5_K_L.gguf"
             case .codeLlama70b: "CodeLlama-70b-Instruct-hf-Q5_K_M.gguf"
             case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
             case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
@@ -587,6 +609,7 @@ extension Model {
             case .dolphinNemo: "Dolphin Nemo"
             case .deepSeekCoder33: "DeepSeek Coder"
             case .deepSeekCoder7: "DeepSeek Coder (Compact)"
+            case .qwenQwQ32: "Qwen QwQ"
             case .qwen25coder: "Qwen 2.5 Coder"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Voice Recognition"
@@ -627,6 +650,7 @@ extension Model {
             case .whisper: "Large v3 Turbo"
             case .dolphin72b: "v2.9.2 on Qwen 2.5 72b"
             case .dolphinNemo: "v2.9.3 on Mistral Nemo 12b"
+            case .qwenQwQ32: "32b params"
             case .qwen25large: "v2.5, 72b variant"
             case .qwen25regular: "v2.5, 32b variant"
             case .qwen25coder: "v2.5, 32b variant"
@@ -690,6 +714,7 @@ extension Model {
             case .dolphinThreeTiny: "9B7C2BEB-18AE-4AE7-8979-869EB93E7538"
             case .dolphinThree3b: "FB9A0C29-596F-455E-A7D1-FCD96DB4E10D"
             case .dolphinThree8b: "9DD1221B-3574-4A21-9BD9-F3D4DE54BCE3"
+            case .qwenQwQ32: "EFB122A6-E3FE-4EDF-82FF-12AB4236DA95"
             }
         }
 

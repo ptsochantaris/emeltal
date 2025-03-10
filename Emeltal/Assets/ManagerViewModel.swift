@@ -39,6 +39,7 @@ final class ManagerViewModel {
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
 
+        Model(category: .qwen, variant: .qwenQwQ32),
         Model(category: .qwen, variant: .qwen25regular),
         Model(category: .qwen, variant: .qwen25large),
         Model(category: .qwen, variant: .qwen25medium),
