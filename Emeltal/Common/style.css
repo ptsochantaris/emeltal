@@ -63,9 +63,10 @@ td > code {
     baseline-shift: 0.1;
 }
 
-.additional-info {
+think {
     font-size: small;
     opacity: 60%;
     margin-top: 14pt;
     margin-bottom: 8pt;
+    display: block;
 }

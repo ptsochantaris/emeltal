@@ -20,7 +20,6 @@ final class LlamaContext {
     private let sampler: UnsafeMutablePointer<llama_sampler>
     private var turns: [Turn]
     private let eosTokenIds: Set<Int32>
-    private let quotes: (String, String)?
 
     let n_ctx: UInt32
     let bosToken: String
@@ -68,12 +67,6 @@ final class LlamaContext {
         }
 
         eosTokenIds = asset.variant.eosOverrides ?? [llama_vocab_eos(vocab)]
-
-        if let quote = asset.variant.quoteTag {
-            quotes = ("<\(quote)>", "</\(quote)>")
-        } else {
-            quotes = nil
-        }
 
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
@@ -339,23 +332,6 @@ final class LlamaContext {
 
                 if !outputString.isEmpty {
                     log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
-                    if let quotes {
-                        if outputString == quotes.0 {
-                            if inQuote {
-                                log("Warning, got quote token while already in quote, ignoring")
-                            } else {
-                                outputString = "<div class='additional-info'>"
-                                inQuote = true
-                            }
-                        } else if outputString == quotes.1 {
-                            if inQuote {
-                                outputString = "</div>"
-                                inQuote = false
-                            } else {
-                                log("Warning, got quote ending token while not in quote, ignoring")
-                            }
-                        }
-                    }
 
                     if failsafeStopDetector == nil {
                         continuation.yield(outputString)

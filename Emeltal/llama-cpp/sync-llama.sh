@@ -33,6 +33,7 @@ cp -r\
  $LSRC/ggml/include/ggml-blas.h\
  $LSRC/ggml/include/ggml-cpu.h\
  $LSRC/ggml/include/gguf.h\
+ $LSRC/ggml/src/ggml-common.h\
  $LSRC/ggml/src/gguf.cpp\
  $LSRC/ggml/src/ggml-cpu\
  $LSRC/ggml/src/ggml-metal\

@@ -509,13 +509,6 @@ extension Model {
             }
         }
 
-        var quoteTag: String? {
-            switch self {
-            case .qwenQwQ32: "think"
-            default: nil
-            }
-        }
-
         var emeltalRepo: URL {
             URL(string: "https://huggingface.co/acertainbru/emeltal-collection")!
         }
