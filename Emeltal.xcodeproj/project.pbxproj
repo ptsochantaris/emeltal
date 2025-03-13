@@ -17,6 +17,9 @@
 		1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCB2B45E110002D0A91 /* ServerConnector.swift */; };
 		1626DBCE2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */; };
 		1626DBCF2B45E320002D0A91 /* EmeltalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */; };
+		162EB20C2D831408008D2FF2 /* llama-graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 162EB20B2D831408008D2FF2 /* llama-graph.cpp */; };
+		162EB20F2D83144F008D2FF2 /* llama-io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 162EB20E2D83144F008D2FF2 /* llama-io.cpp */; };
+		162EB2122D83148E008D2FF2 /* llama-memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 162EB2112D83148E008D2FF2 /* llama-memory.cpp */; };
 		163AE3112CD7EEB200AE6DA9 /* FetchPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AE3102CD7EEB200AE6DA9 /* FetchPhase.swift */; };
 		163AE3122CD7EEB200AE6DA9 /* FetchPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AE3102CD7EEB200AE6DA9 /* FetchPhase.swift */; };
 		163AE3142CD7F19000AE6DA9 /* AssetFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163AE3132CD7F19000AE6DA9 /* AssetFetcher.swift */; };
@@ -151,6 +154,12 @@
 		1626DBC92B45E0EF002D0A91 /* ClientConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientConnector.swift; sourceTree = "<group>"; };
 		1626DBCB2B45E110002D0A91 /* ServerConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConnector.swift; sourceTree = "<group>"; };
 		1626DBCD2B45E320002D0A91 /* EmeltalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmeltalProtocol.swift; sourceTree = "<group>"; };
+		162EB20A2D831408008D2FF2 /* llama-graph.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-graph.h"; sourceTree = "<group>"; };
+		162EB20B2D831408008D2FF2 /* llama-graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-graph.cpp"; sourceTree = "<group>"; };
+		162EB20D2D83144F008D2FF2 /* llama-io.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-io.h"; sourceTree = "<group>"; };
+		162EB20E2D83144F008D2FF2 /* llama-io.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-io.cpp"; sourceTree = "<group>"; };
+		162EB2102D83148E008D2FF2 /* llama-memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-memory.h"; sourceTree = "<group>"; };
+		162EB2112D83148E008D2FF2 /* llama-memory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-memory.cpp"; sourceTree = "<group>"; };
 		163AE3102CD7EEB200AE6DA9 /* FetchPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchPhase.swift; sourceTree = "<group>"; };
 		163AE3132CD7F19000AE6DA9 /* AssetFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetFetcher.swift; sourceTree = "<group>"; };
 		163EF0522B31B6C500565F49 /* ModelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelPicker.swift; sourceTree = "<group>"; };
@@ -467,14 +476,20 @@
 				16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */,
 				16B558332CF133FC00A7F8C8 /* llama-grammar.h */,
 				16B558342CF133FC00A7F8C8 /* llama-grammar.cpp */,
+				162EB20A2D831408008D2FF2 /* llama-graph.h */,
+				162EB20B2D831408008D2FF2 /* llama-graph.cpp */,
 				16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */,
 				16B558352CF133FC00A7F8C8 /* llama-impl.h */,
 				16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */,
+				162EB20D2D83144F008D2FF2 /* llama-io.h */,
+				162EB20E2D83144F008D2FF2 /* llama-io.cpp */,
 				16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */,
-				16FCFADE2D2DD393008AD758 /* llama-model.cpp */,
-				16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */,
+				162EB2102D83148E008D2FF2 /* llama-memory.h */,
+				162EB2112D83148E008D2FF2 /* llama-memory.cpp */,
 				16FCFAE22D2DD52A008AD758 /* llama-mmap.h */,
 				16FCFAE32D2DD52A008AD758 /* llama-mmap.cpp */,
+				16FCFADE2D2DD393008AD758 /* llama-model.cpp */,
+				16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */,
 				16B558362CF133FC00A7F8C8 /* llama-sampling.h */,
 				16B558372CF133FC00A7F8C8 /* llama-sampling.cpp */,
 				16B558382CF133FC00A7F8C8 /* llama-vocab.h */,
@@ -666,6 +681,7 @@
 			files = (
 				16FCFAF02D2DD704008AD758 /* llama-adapter.cpp in Sources */,
 				16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */,
+				162EB20C2D831408008D2FF2 /* llama-graph.cpp in Sources */,
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
 				16FCFAE72D2DD5DD008AD758 /* gguf.cpp in Sources */,
 				16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */,
@@ -675,6 +691,8 @@
 				16B558472CF133FC00A7F8C8 /* llama-grammar.cpp in Sources */,
 				167382E82D0481BE002353D2 /* ggml-cpu-aarch64.cpp in Sources */,
 				16B558482CF133FC00A7F8C8 /* ggml-metal.metal in Sources */,
+				162EB2122D83148E008D2FF2 /* llama-memory.cpp in Sources */,
+				162EB20F2D83144F008D2FF2 /* llama-io.cpp in Sources */,
 				16B558492CF133FC00A7F8C8 /* ggml-backend.cpp in Sources */,
 				16B5584A2CF133FC00A7F8C8 /* ggml-blas.cpp in Sources */,
 				167382F32D0488BA002353D2 /* Status.swift in Sources */,

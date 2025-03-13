@@ -43,6 +43,12 @@ cp -r\
  $LSRC/ggml/src/ggml-blas\
  $LSRC/src/llama-chat.h\
  $LSRC/src/llama-chat.cpp\
+ $LSRC/src/llama-io.h\
+ $LSRC/src/llama-io.cpp\
+ $LSRC/src/llama-memory.h\
+ $LSRC/src/llama-memory.cpp\
+ $LSRC/src/llama-graph.h\
+ $LSRC/src/llama-graph.cpp\
  $LSRC/src/llama-context.h\
  $LSRC/src/llama-context.cpp\
  $LSRC/src/llama-batch.h\

@@ -35,6 +35,10 @@ extension Model {
              shuttle,
              athene,
              calme,
+             gemma327,
+             gemma312,
+             gemma34,
+             gemma31,
              dsro70
 
         var recommended: Bool {
@@ -53,6 +57,7 @@ extension Model {
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
             case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
+            case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             }
         }
 
@@ -60,7 +65,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -98,6 +103,10 @@ extension Model {
                  .dolphinThreeR1,
                  .dolphinThreeTiny,
                  .dsro70,
+                 .gemma31,
+                 .gemma34,
+                 .gemma312,
+                 .gemma327,
                  .llama3,
                  .llama3compact,
                  .llama3large,
@@ -115,6 +124,10 @@ extension Model {
 
         var kvBytes: Int64 {
             let kvCache: Double = switch self {
+            case .gemma31: 416
+            case .gemma34: 2176
+            case .gemma312: 6144
+            case .gemma327: 7936
             case .codeLlama70b: 640
             case .deepSeekCoder33: 3968
             case .deepSeekCoder7: 1920
@@ -187,6 +200,10 @@ extension Model {
             case .dolphinThreeTiny: 54
             case .dolphinThree3b: 76
             case .dolphinThree8b: 174
+            case .gemma31: 45
+            case .gemma34: 83
+            case .gemma312: 160
+            case .gemma327: 270
             }
 
             let totalLayers: Int64 = switch self {
@@ -223,6 +240,10 @@ extension Model {
             case .dolphinThreeTiny: 29
             case .dolphinThree3b: 37
             case .dolphinThree8b: 33
+            case .gemma31: 27
+            case .gemma34: 35
+            case .gemma312: 49
+            case .gemma327: 63
             }
 
             let layerSize = layerSizeM * 1_000_000
@@ -394,6 +415,10 @@ extension Model {
             case .dolphinThree3b: "2.7 GB"
             case .dolphinThree8b: "5.8 GB"
             case .qwenQwQ32: "23.8 GB"
+            case .gemma31: "0.8 GB"
+            case .gemma34: "2.5 GB"
+            case .gemma312: "7.3 GB"
+            case .gemma327: "16.6 GB"
             }
         }
 
@@ -429,6 +454,7 @@ extension Model {
             case .dolphinThreeTiny: "The smallest and lightest version of Dolphin."
             case .dolphinThree3b: "A compact simplified version of Dolphin for low memory environments."
             case .dolphinThree8b: "The \"regular\" Dolphin model, a great default starting point for lower memory systems."
+            case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
             }
         }
 
@@ -548,6 +574,10 @@ extension Model {
             case .dolphinThree3b: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-3b-GGUF"
             case .dolphinThree8b: "https://huggingface.co/cognitivecomputations/Dolphin3.0-Llama3.1-8B-GGUF"
             case .dolphinThreeR1: "https://huggingface.co/bartowski/cognitivecomputations_Dolphin3.0-R1-Mistral-24B-GGUF"
+            case .gemma31: "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF"
+            case .gemma34: "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF"
+            case .gemma312: "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF"
+            case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF"
             }
             return URL(string: uri)!
         }
@@ -587,6 +617,10 @@ extension Model {
             case .dolphinThreeTiny: "Dolphin3.0-Qwen2.5-1.5B-Q6_K_L.gguf"
             case .dolphinThree3b: "Dolphin3.0-Qwen2.5-3b-Q6_K_L.gguf"
             case .dolphinThree8b: "Dolphin3.0-Llama3.1-8B-Q5_K_M.gguf"
+            case .gemma31: "gemma-3-1b-it-Q4_K_M.gguf"
+            case .gemma34: "gemma-3-4b-it-Q4_K_M.gguf"
+            case .gemma312: "gemma-3-12b-it-Q4_K_M.gguf"
+            case .gemma327: "gemma-3-27b-it-Q4_K_M.gguf"
             }
         }
 
@@ -632,6 +666,10 @@ extension Model {
             case .dolphinThreeTiny: "Dolphin 3 Tiny"
             case .dolphinThree3b: "Dolphin 3 Compact"
             case .dolphinThree8b: "Dolphin 3"
+            case .gemma31: "Gemma 3 Tiny"
+            case .gemma34: "Gemma 3 Compact"
+            case .gemma312: "Gemma 3 Small"
+            case .gemma327: "Gemma 3 Regular"
             }
         }
 
@@ -641,8 +679,6 @@ extension Model {
             case .deepSeekCoder7: "v1.5, on Llama2"
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3 Turbo"
-            case .dolphin72b: "v2.9.2 on Qwen 2.5 72b"
-            case .dolphinNemo: "v2.9.3 on Mistral Nemo 12b"
             case .qwenQwQ32: "32b params"
             case .qwen25large: "v2.5, 72b variant"
             case .qwen25regular: "v2.5, 32b variant"
@@ -654,7 +690,6 @@ extension Model {
             case .samantha7b: "v1.1, on WestLake"
             case .everyoneCoder: "v2, on DeepSeekCoder 33b"
             case .neuralStory7b: "on Mistral-Instruct 0.2"
-            case .dolphinCoder: "on StarCoder2 15b"
             case .llama3large: "v3.3, finetuned, 70b params"
             case .llama3: "v3.1, 8b params"
             case .llama3compact: "v3.2, 3b params"
@@ -666,10 +701,17 @@ extension Model {
             case .calme: "v2.4, on Qwen 2 78b"
             case .athene: "v2, on Qwen 2.5 72b"
             case .dsro70: "R1, on Llama 70b"
+            case .dolphin72b: "v2.9.2 on Qwen 2.5 72b"
+            case .dolphinNemo: "v2.9.3 on Mistral Nemo 12b"
+            case .dolphinCoder: "on StarCoder2 15b"
             case .dolphinThreeTiny: "v3, on Qwen 2.5 1.5b"
             case .dolphinThree3b: "v3, on Qwen 2.5 3b"
             case .dolphinThree8b: "v3, on Llama 3.1 8b"
             case .dolphinThreeR1: "v3, on Mistral 24b & R1 dataset"
+            case .gemma31: "v3, 1b params"
+            case .gemma34: "v3, 4b params"
+            case .gemma312: "v3, 12b params"
+            case .gemma327: "v3, 27b params"
             }
         }
 
@@ -708,6 +750,10 @@ extension Model {
             case .dolphinThree3b: "FB9A0C29-596F-455E-A7D1-FCD96DB4E10D"
             case .dolphinThree8b: "9DD1221B-3574-4A21-9BD9-F3D4DE54BCE3"
             case .qwenQwQ32: "EFB122A6-E3FE-4EDF-82FF-12AB4236DA95"
+            case .gemma31: "B858AFEE-A5AD-4101-9063-C6A559119F1D"
+            case .gemma34: "61F39A7E-BF26-4A01-9A9F-0220E77A4BF5"
+            case .gemma312: "484668C7-1E34-4E39-927C-29D9BD20690A"
+            case .gemma327: "3927111B-0409-4082-91C5-0ABE347285B4"
             }
         }
 

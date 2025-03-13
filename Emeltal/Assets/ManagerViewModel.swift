@@ -45,6 +45,11 @@ final class ManagerViewModel {
         Model(category: .qwen, variant: .qwen25medium),
         Model(category: .qwen, variant: .qwen25small),
 
+        Model(category: .gemma, variant: .gemma327),
+        Model(category: .gemma, variant: .gemma312),
+        Model(category: .gemma, variant: .gemma34),
+        Model(category: .gemma, variant: .gemma31),
+
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),
         Model(category: .experimental, variant: .supernovaMedius),
