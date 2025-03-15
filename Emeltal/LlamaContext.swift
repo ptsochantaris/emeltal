@@ -292,10 +292,6 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
-        if template.manuallyAppendThinkTag {
-            continuation.yield("<think>")
-        }
-
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
