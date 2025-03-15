@@ -39,6 +39,7 @@ llama_context::llama_context(
     cparams.flash_attn       = params.flash_attn;
     cparams.no_perf          = params.no_perf;
     cparams.pooling_type     = params.pooling_type;
+    cparams.warmup           = false;
 
     cparams.n_ctx            = params.n_ctx           == 0    ? hparams.n_ctx_train           : params.n_ctx;
     cparams.rope_freq_base   = params.rope_freq_base  == 0.0f ? hparams.rope_freq_base_train  : params.rope_freq_base;
@@ -442,10 +443,10 @@ ggml_tensor * llama_context::build_rope_shift(
         ggml_tensor * cur,
         ggml_tensor * shift,
         ggml_tensor * factors,
+              float   freq_base,
+              float   freq_scale,
         ggml_backend_buffer * bbuf) const {
     const auto & n_ctx_orig = cparams.n_ctx_orig_yarn;
-    const auto & freq_base  = cparams.rope_freq_base;
-    const auto & freq_scale = cparams.rope_freq_scale;
 
     const auto & yarn_ext_factor  = cparams.yarn_ext_factor;
     const auto & yarn_attn_factor = cparams.yarn_attn_factor;
@@ -537,6 +538,13 @@ llm_graph_result_ptr llama_context::build_kv_self_shift(
         const int64_t n_head_kv    = hparams.n_head_kv(il);
         const int64_t n_embd_k_gqa = hparams.n_embd_k_gqa(il);
 
+        const bool is_swa = hparams.is_swa(il);
+
+        // note: the swa rope params could become part of the cparams in the future
+        //       if we decide to make them configurable, like the non-sliding ones
+        const float freq_base_l  = is_swa ? hparams.rope_freq_base_train_swa  : cparams.rope_freq_base;
+        const float freq_scale_l = is_swa ? hparams.rope_freq_scale_train_swa : cparams.rope_freq_scale;
+
         ggml_tensor * rope_factors = kv_self->cbs.get_rope_factors(n_ctx_per_seq(), il);
 
         ggml_tensor * k =
@@ -546,7 +554,7 @@ llm_graph_result_ptr llama_context::build_kv_self_shift(
                 ggml_row_size(kv_self->k_l[il]->type, n_embd_k_gqa),
                 0);
 
-        ggml_tensor * cur = build_rope_shift(ctx0, k, inp->k_shift, rope_factors, kv_self->k_l[il]->buffer);
+        ggml_tensor * cur = build_rope_shift(ctx0, k, inp->k_shift, rope_factors, freq_base_l, freq_scale_l, kv_self->k_l[il]->buffer);
 
         ggml_build_forward_expand(gf, cur);
     }
@@ -939,6 +947,12 @@ void llama_context::set_causal_attn(bool value) {
     LLAMA_LOG_DEBUG("%s: value = %d\n", __func__, value);
 
     cparams.causal_attn = value;
+}
+
+void llama_context::set_warmup(bool value) {
+    LLAMA_LOG_DEBUG("%s: value = %d\n", __func__, value);
+
+    cparams.warmup = value;
 }
 
 void llama_context::set_adapter_lora(
@@ -1587,7 +1601,7 @@ void llama_context::output_reorder() {
 //
 
 int32_t llama_context::graph_max_nodes() const {
-    return std::max<int32_t>(8192, 5*model.n_tensors());
+    return std::max<int32_t>(65536, 5*model.n_tensors());
 }
 
 ggml_cgraph * llama_context::graph_init() {
@@ -2363,6 +2377,10 @@ void llama_set_embeddings(llama_context * ctx, bool embeddings) {
 
 void llama_set_causal_attn(llama_context * ctx, bool causal_attn) {
     ctx->set_causal_attn(causal_attn);
+}
+
+void llama_set_warmup(llama_context * ctx, bool warmup) {
+    ctx->set_warmup(warmup);
 }
 
 void llama_synchronize(llama_context * ctx) {

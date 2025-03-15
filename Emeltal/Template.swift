@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, llamaLarge, mistral, vicuna, gemma, llama3
+        case alpaca, chatml, llamaLarge, mistral, vicuna, gemma, llama3, chatmlThink
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .mistral: false
-            case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .vicuna: true
+            case .alpaca, .chatml, .chatmlThink, .gemma, .llama3, .llamaLarge, .vicuna: true
             }
         }
 
@@ -77,7 +77,7 @@ struct Template {
             case .cancel: ""
             }
 
-        case .chatml:
+        case .chatml, .chatmlThink:
             switch step {
             case .initial: "<|im_start|>system\n"
             case .turn: "<|im_start|>user\n"
@@ -152,6 +152,16 @@ struct Template {
             case .cancel: "<|im_end|>\n"
             }
 
+        case .chatmlThink:
+            switch step {
+            case .initial:
+                "<|im_end|>\n"
+            case .turn:
+                "<|im_end|>\n<|im_start|>assistant\n<think>"
+            case .cancel:
+                "<|im_end|>\n"
+            }
+
         case .alpaca:
             switch step {
             case .initial: ""
@@ -161,12 +171,19 @@ struct Template {
         }
     }
 
+    var manuallyAppendThinkTag: Bool {
+        switch format {
+        case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .mistral, .vicuna: false
+        case .chatmlThink: true
+        }
+    }
+
     var failsafeStop: String? {
         switch format {
         case .gemma, .llama3, .llamaLarge, .mistral, .vicuna:
             nil
 
-        case .chatml:
+        case .chatml, .chatmlThink:
             "<|im_start|>user\n"
 
         case .alpaca:

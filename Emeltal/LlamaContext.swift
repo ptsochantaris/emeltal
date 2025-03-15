@@ -292,7 +292,9 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
-        var inQuote = false
+        if template.manuallyAppendThinkTag {
+            continuation.yield("<think>")
+        }
 
         while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
@@ -322,11 +324,12 @@ final class LlamaContext {
                     let byte = wordBuffer[byteIndex]
                     switch utf8Builder.parseByte(byte) {
                     case .moreRequired:
-                        log("Byte: \(newTokenId) / '\(byte)' - building unicode grapheme")
+                        // log("Byte: \(newTokenId) / '\(byte)' - building unicode grapheme")
+                        break
 
                     case let .result(completeString):
                         outputString.append(completeString)
-                        log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
+                        // log("Byte: \(newTokenId) / '\(completeString)' / [\(byte)] - completed unicode grapheme")
                     }
                 }
 

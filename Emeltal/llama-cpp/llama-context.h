@@ -64,6 +64,7 @@ struct llama_context {
 
     void set_embeddings (bool value);
     void set_causal_attn(bool value);
+    void set_warmup(bool value);
 
     void set_adapter_lora(
             llama_adapter_lora * adapter,
@@ -168,6 +169,8 @@ private:
         ggml_tensor * cur,
         ggml_tensor * shift,
         ggml_tensor * factors,
+              float   freq_base,
+              float   freq_scale,
         ggml_backend_buffer * bbuf) const;
 
     llm_graph_result_ptr build_kv_self_shift(
