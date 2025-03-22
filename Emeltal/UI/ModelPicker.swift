@@ -93,21 +93,34 @@ private struct SelectionGrid: View {
 private struct Overrides: View {
     @Bindable var manager: ManagerViewModel
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     var body: some View {
         VStack(spacing: 24) {
             if manager.selected.variant.format.acceptsSystemPrompt {
-                VStack {
-                    HStack(alignment: .bottom) {
+                VStack(alignment: .leading) {
+                    if horizontalSizeClass == .compact {
                         Text("System Prompt")
                             .padding(.top, 3)
-
-                        Spacer()
 
                         Text("(applies when creating, or after resetting, a conversation)")
                             .foregroundStyle(.secondary)
                             .font(.caption2)
+                    } else {
+                        HStack(alignment: .bottom) {
+                            Text("System Prompt")
+                                .padding(.top, 3)
+
+                            Spacer()
+
+                            Text("(applies when creating, or after resetting, a conversation)")
+                                .foregroundStyle(.secondary)
+                                .font(.caption2)
+                        }
                     }
+
                     TextField("System Prompt", text: $manager.selected.params.systemPrompt, axis: .vertical)
+                        .frame(minHeight: 44)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding([.top, .bottom], 4)
                         .padding([.leading, .trailing], 7)
@@ -116,40 +129,79 @@ private struct Overrides: View {
                                 .stroke(.secondary)
                         }
                 }
+                .multilineTextAlignment(.leading)
             }
 
-            HStack(alignment: .top, spacing: 30) {
-                let params = manager.selected.params
-                VStack(spacing: 10) {
-                    HStack(spacing: 10) {
-                        let hasTemp = params.temperature != Model.Params.Descriptors.temperature.disabled
-                        let hasRange = hasTemp && params.temperatureRange != Model.Params.Descriptors.temperatureRange.disabled
-                        FloatRow(descriptor: Model.Params.Descriptors.temperature, value: $manager.selected.params.temperature)
-                            .opacity(hasTemp ? 1.0 : 0.5)
+            let params = manager.selected.params
 
-                        FloatRow(descriptor: Model.Params.Descriptors.temperatureRange, value: $manager.selected.params.temperatureRange)
-                            .opacity(hasRange ? 1.0 : 0.5)
+            if horizontalSizeClass == .compact {
+                VStack {
+                    VStack(spacing: 10) {
+                        HStack(spacing: 10) {
+                            let hasTemp = params.temperature != Model.Params.Descriptors.temperature.disabled
+                            let hasRange = hasTemp && params.temperatureRange != Model.Params.Descriptors.temperatureRange.disabled
+                            FloatRow(descriptor: Model.Params.Descriptors.temperature, value: $manager.selected.params.temperature)
+                                .opacity(hasTemp ? 1.0 : 0.5)
 
-                        FloatRow(descriptor: Model.Params.Descriptors.temperatureExponent, value: $manager.selected.params.temperatureExponent)
-                            .opacity(hasRange ? 1.0 : 0.5)
+                            FloatRow(descriptor: Model.Params.Descriptors.temperatureRange, value: $manager.selected.params.temperatureRange)
+                                .opacity(hasRange ? 1.0 : 0.5)
+
+                            FloatRow(descriptor: Model.Params.Descriptors.temperatureExponent, value: $manager.selected.params.temperatureExponent)
+                                .opacity(hasRange ? 1.0 : 0.5)
+                        }
+
+                        FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
+                            .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
+
+                        IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
+                            .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
                     }
 
-                    FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
-                        .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
+                    VStack(spacing: 10) {
+                        HStack {
+                            FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
 
-                    IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
-                        .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
+                            IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)
+                                .opacity(params.repeatCheckPenalty != Int(Model.Params.Descriptors.repeatCheckPenalty.disabled) ? 1.0 : 0.5)
+                        }
+                        FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $manager.selected.params.frequencyPenatly)
+                        FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $manager.selected.params.presentPenatly)
+                    }
                 }
 
-                VStack(spacing: 10) {
-                    HStack {
-                        FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
+            } else {
+                HStack(alignment: .top, spacing: 30) {
+                    VStack(spacing: 10) {
+                        HStack(spacing: 10) {
+                            let hasTemp = params.temperature != Model.Params.Descriptors.temperature.disabled
+                            let hasRange = hasTemp && params.temperatureRange != Model.Params.Descriptors.temperatureRange.disabled
+                            FloatRow(descriptor: Model.Params.Descriptors.temperature, value: $manager.selected.params.temperature)
+                                .opacity(hasTemp ? 1.0 : 0.5)
 
-                        IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)
-                            .opacity(params.repeatCheckPenalty != Int(Model.Params.Descriptors.repeatCheckPenalty.disabled) ? 1.0 : 0.5)
+                            FloatRow(descriptor: Model.Params.Descriptors.temperatureRange, value: $manager.selected.params.temperatureRange)
+                                .opacity(hasRange ? 1.0 : 0.5)
+
+                            FloatRow(descriptor: Model.Params.Descriptors.temperatureExponent, value: $manager.selected.params.temperatureExponent)
+                                .opacity(hasRange ? 1.0 : 0.5)
+                        }
+
+                        FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
+                            .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
+
+                        IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
+                            .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
                     }
-                    FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $manager.selected.params.frequencyPenatly)
-                    FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $manager.selected.params.presentPenatly)
+
+                    VStack(spacing: 10) {
+                        HStack {
+                            FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
+
+                            IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)
+                                .opacity(params.repeatCheckPenalty != Int(Model.Params.Descriptors.repeatCheckPenalty.disabled) ? 1.0 : 0.5)
+                        }
+                        FloatRow(descriptor: Model.Params.Descriptors.frequencyPenatly, value: $manager.selected.params.frequencyPenatly)
+                        FloatRow(descriptor: Model.Params.Descriptors.presentPenatly, value: $manager.selected.params.presentPenatly)
+                    }
                 }
             }
         }
@@ -159,24 +211,53 @@ private struct Overrides: View {
     }
 }
 
+private struct MemoryUseLabel: View {
+    let memoryUse: Model.MemoryEstimate
+
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    var body: some View {
+        if horizontalSizeClass == .compact {
+            Group {
+                if let warningMessage = memoryUse.warningMessage {
+                    Text(warningMessage)
+                        .foregroundColor(.white)
+                } else {
+                    Text("Estimated Memory Use")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .multilineTextAlignment(.center)
+            .font(.caption)
+
+        } else {
+            Group {
+                if let warningMessage = memoryUse.warningMessage {
+                    Text(warningMessage)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: 250)
+                } else {
+                    Text("Estimated Memory Use")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: 70)
+                }
+            }
+            .multilineTextAlignment(.trailing)
+        }
+    }
+}
+
 private struct MemoryUse: View {
     let memoryUse: Model.MemoryEstimate
+
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         if memoryUse.cpuUsageEstimateBytes > 0 || memoryUse.gpuUsageEstimateBytes > 0 {
             HStack {
-                Group {
-                    if let warningMessage = memoryUse.warningMessage {
-                        Text(warningMessage)
-                            .foregroundColor(.white)
-                            .frame(width: 250, alignment: .trailing)
-                    } else {
-                        Text("Estimated Memory Use")
-                            .foregroundStyle(.secondary)
-                            .frame(width: 70, alignment: .trailing)
-                    }
+                if horizontalSizeClass == .regular {
+                    MemoryUseLabel(memoryUse: memoryUse)
                 }
-                .multilineTextAlignment(.trailing)
 
                 Group {
                     if memoryUse.gpuUsageEstimateBytes > 0 {
@@ -228,70 +309,78 @@ private struct Buttons: View {
 
     @State private var selectedFetcher: AssetFetcher?
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     var body: some View {
-        HStack {
+        VStack {
             let selected = manager.selected
-            if case .installed = selected.status {
-                Button("Uninstall") {
-                    selected.unInstall()
-                }
-                #if !os(visionOS)
-                .foregroundStyle(.black)
-                #endif
-            }
-
-            Spacer(minLength: 0)
-
             let usage = selected.memoryEstimate
 
-            MemoryUse(memoryUse: usage)
-
-            Button(showOverrides ? "Use Defaults" : "Customize…") {
-                if showOverrides {
-                    withAnimation {
-                        selected.resetToDefaults()
-                    }
-                } else {
-                    withAnimation {
-                        showOverrides = true
-                    }
-                }
+            if horizontalSizeClass == .compact {
+                MemoryUseLabel(memoryUse: usage)
             }
-            #if !os(visionOS)
-            .foregroundStyle(.black)
-            #endif
 
-            switch selected.status {
-            case .checking, .notReady:
-                EmptyView()
-
-            case .installing:
-                Button("Cancel") {
-                    selected.cancelInstall()
+            HStack {
+                if case .installed = selected.status {
+                    Button("Uninstall") {
+                        selected.unInstall()
+                    }
+                    #if !os(visionOS)
+                    .foregroundStyle(.black)
+                    #endif
                 }
-                #if !os(visionOS)
-                .foregroundStyle(.black)
-                #endif
 
-            case .available, .recommended:
-                Button("Install") {
-                    selected.install()
-                }
-                #if !os(visionOS)
-                .foregroundStyle(.black)
-                #endif
+                Spacer(minLength: 0)
 
-            case let .installed(fetcher):
-                Button("Start") {
-                    if usage.warningBeforeStart == nil {
-                        proceed(with: fetcher)
+                MemoryUse(memoryUse: usage)
+
+                Button(showOverrides ? "Use Defaults" : "Customize…") {
+                    if showOverrides {
+                        withAnimation {
+                            selected.resetToDefaults()
+                        }
                     } else {
-                        selectedFetcher = fetcher
+                        withAnimation {
+                            showOverrides = true
+                        }
                     }
                 }
                 #if !os(visionOS)
                 .foregroundStyle(.black)
                 #endif
+
+                switch selected.status {
+                case .checking, .notReady:
+                    EmptyView()
+
+                case .installing:
+                    Button("Cancel") {
+                        selected.cancelInstall()
+                    }
+                    #if !os(visionOS)
+                    .foregroundStyle(.black)
+                    #endif
+
+                case .available, .recommended:
+                    Button("Install") {
+                        selected.install()
+                    }
+                    #if !os(visionOS)
+                    .foregroundStyle(.black)
+                    #endif
+
+                case let .installed(fetcher):
+                    Button("Start") {
+                        if usage.warningBeforeStart == nil {
+                            proceed(with: fetcher)
+                        } else {
+                            selectedFetcher = fetcher
+                        }
+                    }
+                    #if !os(visionOS)
+                    .foregroundStyle(.black)
+                    #endif
+                }
             }
         }
         .buttonStyle(.borderedProminent)
@@ -328,20 +417,29 @@ struct ModelPicker: View {
     var body: some View {
         VStack(spacing: 0) {
             SelectionGrid(showingOverrides: showOverrides, manager: manager)
+                .overlay {
+                    if showOverrides {
+                        Color.black.opacity(0.3)
+                            .transition(.opacity)
+                            .onTapGesture {
+                                withAnimation {
+                                    showOverrides = false
+                                }
+                            }
+                    }
+                }
 
             if showOverrides {
                 Overrides(manager: manager)
-                    .transition(.move(edge: .bottom))
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
             Buttons(showOverrides: $showOverrides, appPhase: $appPhase, manager: manager)
         }
-        #if canImport(AppKit)
         .background {
             ShimmerBackground(show: $visible)
                 .ignoresSafeArea()
         }
-        #endif
         .navigationTitle("Select an ML model")
         .foregroundStyle(.white)
         .toolbarTitleDisplayMode(.inline)
