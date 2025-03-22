@@ -24,12 +24,12 @@ final class ManagerViewModel {
         Model(category: .creative, variant: .mythoMax),
         Model(category: .creative, variant: .neuralStory7b),
 
-        Model(category: .coding, variant: .olympicCoder),
         Model(category: .coding, variant: .qwen25coder),
         Model(category: .coding, variant: .codestral),
         Model(category: .coding, variant: .dolphinCoder),
         Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .codeLlama70b),
+        Model(category: .coding, variant: .olympicCoder),
         Model(category: .coding, variant: .everyoneCoder),
 
         Model(category: .samantha, variant: .samantha7b),
@@ -51,6 +51,7 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma34),
         Model(category: .gemma, variant: .gemma31),
 
+        Model(category: .experimental, variant: .mistral2503),
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),
         Model(category: .experimental, variant: .supernovaMedius),

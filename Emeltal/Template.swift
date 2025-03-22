@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, llamaLarge, mistral, vicuna, gemma, llama3
+        case alpaca, chatml, llamaLarge, mistral, mistralNew, vicuna, gemma, llama3
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .mistral: false
-            case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .vicuna: true
+            case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .mistralNew, .vicuna: true
             }
         }
 
@@ -107,6 +107,13 @@ struct Template {
             case .initial, .turn: " [INST] "
             case .cancel: ""
             }
+
+        case .mistralNew:
+            switch step {
+            case .initial: "[SYSTEM_PROMPT]"
+            case .turn: " [INST] "
+            case .cancel: ""
+            }
         }
     }
 
@@ -128,6 +135,13 @@ struct Template {
         case .mistral:
             switch step {
             case .initial, .turn: " [/INST] "
+            case .cancel: ""
+            }
+
+        case .mistralNew:
+            switch step {
+            case .initial: "[/SYSTEM_PROMPT]"
+            case .turn: " [/INST] "
             case .cancel: ""
             }
 
@@ -163,7 +177,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .llama3, .llamaLarge, .mistral, .vicuna:
+        case .gemma, .llama3, .llamaLarge, .mistral, .mistralNew, .vicuna:
             nil
 
         case .chatml:

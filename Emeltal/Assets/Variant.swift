@@ -40,7 +40,8 @@ extension Model {
              gemma34,
              gemma31,
              dsro70,
-             olympicCoder
+             olympicCoder,
+             mistral2503
 
         var recommended: Bool {
             self == .qwen25regular
@@ -55,9 +56,10 @@ extension Model {
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
             case .codestral, .neuralStory7b: .mistral
+            case .mistral2503: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius, .olympicCoder: .chatml
+            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             }
         }
@@ -66,7 +68,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .llama3, .llama3compact, .llama3large, .llama3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .llama3, .llama3compact, .llama3large, .llama3tiny, .mistral2503, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -113,6 +115,7 @@ extension Model {
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
+                 .mistral2503,
                  .qwen25coder,
                  .qwen25large,
                  .qwen25medium,
@@ -163,6 +166,7 @@ extension Model {
             case .dolphinThree8b: 2048
             case .dolphinThreeR1: 2560
             case .olympicCoder: 8192
+            case .mistral2503: 2560
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -208,6 +212,7 @@ extension Model {
             case .gemma312: 160
             case .gemma327: 270
             case .olympicCoder: 380
+            case .mistral2503: 480
             }
 
             let totalLayers: Int64 = switch self {
@@ -249,6 +254,7 @@ extension Model {
             case .gemma312: 49
             case .gemma327: 63
             case .olympicCoder: 65
+            case .mistral2503: 41
             }
 
             let layerSize = layerSizeM * 1_000_000
@@ -425,6 +431,7 @@ extension Model {
             case .gemma312: "7.3 GB"
             case .gemma327: "16.6 GB"
             case .olympicCoder: "23.8 GB"
+            case .mistral2503: "19.7 GB"
             }
         }
 
@@ -462,6 +469,7 @@ extension Model {
             case .dolphinThree8b: "The \"regular\" Dolphin model, a great default starting point for lower memory systems."
             case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
             case .olympicCoder: "Achieves strong performance on competitive coding benchmarks such as LiveCodeBench and 2024 IOI"
+            case .mistral2503: "Multilingual and very knowledge-dense model by Mistral"
             }
         }
 
@@ -586,6 +594,7 @@ extension Model {
             case .gemma312: "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF"
             case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF"
             case .olympicCoder: "https://huggingface.co/bartowski/open-r1_OlympicCoder-32B-GGUF"
+            case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF"
             }
             return URL(string: uri)!
         }
@@ -630,6 +639,7 @@ extension Model {
             case .gemma312: "gemma-3-12b-it-Q4_K_M.gguf"
             case .gemma327: "gemma-3-27b-it-Q4_K_M.gguf"
             case .olympicCoder: "open-r1_OlympicCoder-32B-Q5_K_L.gguf"
+            case .mistral2503: "mistralai_Mistral-Small-3.1-24B-Instruct-2503-Q6_K_L.gguf"
             }
         }
 
@@ -680,6 +690,7 @@ extension Model {
             case .gemma312: "Gemma 3 Small"
             case .gemma327: "Gemma 3 Regular"
             case .olympicCoder: "Olympic Coder"
+            case .mistral2503: "Mistral 2503"
             }
         }
 
@@ -723,6 +734,7 @@ extension Model {
             case .gemma312: "v3, 12b variant"
             case .gemma327: "v3, 27b params"
             case .olympicCoder: "32b params"
+            case .mistral2503: "v2503, 27b params"
             }
         }
 
@@ -766,6 +778,7 @@ extension Model {
             case .gemma312: "484668C7-1E34-4E39-927C-29D9BD20690A"
             case .gemma327: "3927111B-0409-4082-91C5-0ABE347285B4"
             case .olympicCoder: "3E4CB40A-1E49-440B-B91C-11B23E6BDCBE"
+            case .mistral2503: "AB57FC85-01E6-4673-97A6-E33C94CFCC94"
             }
         }
 
