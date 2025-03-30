@@ -53,10 +53,10 @@ final actor AudioEngineManager {
 
     private lazy var engineShutdown = PopTimer(timeInterval: 1) { [weak self] in
         guard let self else { return }
-        if engine.isRunning {
+        if await engine.isRunning {
             log("Pausing audio engine")
-            engine.stop()
-            engine.prepare()
+            await engine.stop()
+            await engine.prepare()
         } else {
             // log("Audio engine already paused")
         }

@@ -650,6 +650,13 @@ extension Model {
                 .appendingPathComponent(fileName)
         }
 
+        var eosManual: String? {
+            switch self {
+            case .samantha7b: "</s>"
+            default: nil
+            }
+        }
+
         var displayName: String {
             switch self {
             case .dolphinNemo: "Dolphin Nemo"

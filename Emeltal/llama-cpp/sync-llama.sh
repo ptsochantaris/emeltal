@@ -84,6 +84,7 @@ cp -r\
  $LSRC/src/unicode-data.cpp\
  $LSRC/include/llama.h\
  $WSRC/src/whisper.cpp\
+ $WSRC/src/whisper-arch.h\
  $WSRC/include/whisper.h\
  .
 

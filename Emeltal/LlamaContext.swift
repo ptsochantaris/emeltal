@@ -23,14 +23,18 @@ final class LlamaContext {
 
     let n_ctx: UInt32
     let bosToken: String
+    let eosManual: String?
     let asset: Model
 
     func clearAllTokens() {
         turns.removeAll()
-        llama_kv_cache_clear(context)
+        llama_kv_self_clear(context)
     }
 
     func save(to url: URL) throws {
+        llama_kv_self_defrag(context)
+        llama_kv_self_update(context)
+
         let llmStatePath = url.appendingPathComponent("llmState.bin").path.cString(using: .utf8)
         llama_state_save_file(context, llmStatePath, nil, 0)
 
@@ -67,6 +71,7 @@ final class LlamaContext {
         }
 
         eosTokenIds = asset.variant.eosOverrides ?? [llama_vocab_eos(vocab)]
+        eosManual = asset.variant.eosManual
 
         let mem = UnsafeMutablePointer<llama_token_data>.allocate(capacity: Int(n_vocab))
         candidateBuffer = UnsafeMutableBufferPointer(start: mem, count: Int(n_vocab))
@@ -128,7 +133,7 @@ final class LlamaContext {
         let bosTokenId = llama_vocab_bos(vocab)
         var emptyData = [bosTokenId, eos]
         llama_decode(context, llama_batch_get_one(&emptyData, 2))
-        llama_kv_cache_clear(context)
+        llama_kv_self_clear(context)
     }
 
     func restoreStateIfNeeded(from statePath: URL, template: Template) throws {
@@ -224,8 +229,8 @@ final class LlamaContext {
             let evictStart = Int32(turns.first!.length)
             let evictEnd = evictStart + evictedCount
 
-            llama_kv_cache_seq_rm(context, 0, evictStart, evictEnd)
-            llama_kv_cache_seq_add(context, 0, evictEnd, -1, -evictedCount)
+            llama_kv_self_seq_rm(context, 0, evictStart, evictEnd)
+            llama_kv_self_seq_add(context, 0, evictEnd, -1, -evictedCount)
 
             log("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
         }
@@ -292,7 +297,7 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
-        while allTokensCount <= n_ctx, !Task.isCancelled {
+        sentence: while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
             }
@@ -330,6 +335,11 @@ final class LlamaContext {
                 }
 
                 if !outputString.isEmpty {
+                    if outputString == eosManual {
+                        log("Text ended with EOS String: \(outputString)")
+                        break sentence
+                    }
+
                     log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
 
                     if failsafeStopDetector == nil {
@@ -387,8 +397,6 @@ final class LlamaContext {
         }
 
         continuation.finish()
-        llama_kv_cache_defrag(context)
-        llama_kv_cache_update(context)
     }
 
     private func wordBufferBytes(_ len: Int) -> String {

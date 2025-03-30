@@ -63,6 +63,8 @@
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
 		16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A090F72CB46F0700468E93 /* ManagerViewModel.swift */; };
+		16A5D9212D9950C5006B35EC /* unary-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A5D9202D9950C5006B35EC /* unary-ops.cpp */; };
+		16A5D9242D9951E0006B35EC /* binary-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A5D9232D9951E0006B35EC /* binary-ops.cpp */; };
 		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
 		16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B558372CF133FC00A7F8C8 /* llama-sampling.cpp */; };
 		16B558432CF133FC00A7F8C8 /* ggml-cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 16B558102CF133FC00A7F8C8 /* ggml-cpu.c */; settings = {COMPILER_FLAGS = "-fno-finite-math-only"; }; };
@@ -197,6 +199,10 @@
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
 		16A090F72CB46F0700468E93 /* ManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerViewModel.swift; sourceTree = "<group>"; };
+		16A5D91F2D9950C5006B35EC /* unary-ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "unary-ops.h"; sourceTree = "<group>"; };
+		16A5D9202D9950C5006B35EC /* unary-ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "unary-ops.cpp"; sourceTree = "<group>"; };
+		16A5D9222D9951E0006B35EC /* binary-ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "binary-ops.h"; sourceTree = "<group>"; };
+		16A5D9232D9951E0006B35EC /* binary-ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "binary-ops.cpp"; sourceTree = "<group>"; };
 		16AF9D8D2B8238100064B66C /* UTF8Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTF8Builder.swift; sourceTree = "<group>"; };
 		16B558082CF133FC00A7F8C8 /* ggml-blas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-blas.cpp"; sourceTree = "<group>"; };
 		16B5580C2CF133FC00A7F8C8 /* sgemm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sgemm.h; sourceTree = "<group>"; };
@@ -413,16 +419,20 @@
 		16B558172CF133FC00A7F8C8 /* ggml-cpu */ = {
 			isa = PBXGroup;
 			children = (
+				16A5D9222D9951E0006B35EC /* binary-ops.h */,
+				16A5D9232D9951E0006B35EC /* binary-ops.cpp */,
 				16B558102CF133FC00A7F8C8 /* ggml-cpu.c */,
 				16B558112CF133FC00A7F8C8 /* ggml-cpu.cpp */,
 				16B558122CF133FC00A7F8C8 /* ggml-cpu-aarch64.h */,
 				167382E72D0481BE002353D2 /* ggml-cpu-aarch64.cpp */,
-				167382E92D048233002353D2 /* ggml-cpu-traits.h */,
-				167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */,
 				16B558142CF133FC00A7F8C8 /* ggml-cpu-impl.h */,
 				16B558152CF133FC00A7F8C8 /* ggml-cpu-quants.h */,
 				16B558162CF133FC00A7F8C8 /* ggml-cpu-quants.c */,
+				167382E92D048233002353D2 /* ggml-cpu-traits.h */,
+				167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */,
 				16B5580E2CF133FC00A7F8C8 /* llamafile */,
+				16A5D91F2D9950C5006B35EC /* unary-ops.h */,
+				16A5D9202D9950C5006B35EC /* unary-ops.cpp */,
 			);
 			path = "ggml-cpu";
 			sourceTree = "<group>";
@@ -608,7 +618,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -687,6 +697,7 @@
 				16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */,
 				16B558432CF133FC00A7F8C8 /* ggml-cpu.c in Sources */,
 				16B558442CF133FC00A7F8C8 /* ggml-cpu.cpp in Sources */,
+				16A5D9212D9950C5006B35EC /* unary-ops.cpp in Sources */,
 				16B558452CF133FC00A7F8C8 /* unicode-data.cpp in Sources */,
 				16B558472CF133FC00A7F8C8 /* llama-grammar.cpp in Sources */,
 				167382E82D0481BE002353D2 /* ggml-cpu-aarch64.cpp in Sources */,
@@ -697,6 +708,7 @@
 				16B5584A2CF133FC00A7F8C8 /* ggml-blas.cpp in Sources */,
 				167382F32D0488BA002353D2 /* Status.swift in Sources */,
 				16B5584B2CF133FC00A7F8C8 /* llama-vocab.cpp in Sources */,
+				16A5D9242D9951E0006B35EC /* binary-ops.cpp in Sources */,
 				16B5584C2CF133FC00A7F8C8 /* ggml-alloc.c in Sources */,
 				16B5584D2CF133FC00A7F8C8 /* whisper.cpp in Sources */,
 				16B5584E2CF133FC00A7F8C8 /* llama.cpp in Sources */,
@@ -829,13 +841,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = X727JSJUGJ;
 				EAGER_LINKING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"ACCELERATE_NEW_LAPACK=1",
@@ -853,6 +866,7 @@
 					"GGML_USE_METAL=1",
 					"GGML_USE_BLAS=1",
 					"GGML_USE_CPU=1",
+					"GGML_USE_CPU_AARCH64=1",
 					"NDEBUG=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
@@ -916,13 +930,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = X727JSJUGJ;
 				EAGER_LINKING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ACCELERATE_NEW_LAPACK=1",
 					"ACCELERATE_LAPACK_ILP64=1",
@@ -939,6 +954,7 @@
 					"GGML_USE_METAL=1",
 					"GGML_USE_BLAS=1",
 					"GGML_USE_CPU=1",
+					"GGML_USE_CPU_AARCH64=1",
 					"NDEBUG=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
@@ -974,7 +990,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1023,7 +1038,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1067,7 +1081,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1107,7 +1120,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X727JSJUGJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
