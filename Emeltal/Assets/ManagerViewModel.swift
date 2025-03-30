@@ -51,6 +51,7 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma34),
         Model(category: .gemma, variant: .gemma31),
 
+        Model(category: .experimental, variant: .llamaNemotron),
         Model(category: .experimental, variant: .mistral2503),
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),

@@ -41,7 +41,8 @@ extension Model {
              gemma31,
              dsro70,
              olympicCoder,
-             mistral2503
+             mistral2503,
+             llamaNemotron
 
         var recommended: Bool {
             self == .qwen25regular
@@ -57,7 +58,7 @@ extension Model {
             case .samantha7b, .samantha70b: .vicuna
             case .codestral, .neuralStory7b: .mistral
             case .mistral2503: .mistralNew
-            case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
+            case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
             case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
@@ -68,7 +69,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .llama3, .llama3compact, .llama3large, .llama3tiny, .mistral2503, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -115,6 +116,7 @@ extension Model {
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
+                 .llamaNemotron,
                  .mistral2503,
                  .qwen25coder,
                  .qwen25large,
@@ -143,6 +145,7 @@ extension Model {
             case .llama3compact: 1792
             case .llama3tiny: 512
             case .llama3large: 5120
+            case .llamaNemotron: 3136
             case .calme: 5504
             case .qwen25large: 5120
             case .qwen25regular: 4096
@@ -191,6 +194,7 @@ extension Model {
             case .athene: 580
             case .supernovaMedius: 220
             case .codeLlama70b: 610
+            case .llamaNemotron: 520
             case .llama3large: 600
             case .llama3: 195
             case .llama3compact: 100
@@ -238,6 +242,7 @@ extension Model {
             case .samantha7b: 33
             case .neuralStory7b: 33
             case .everyoneCoder: 63
+            case .llamaNemotron: 81
             case .llama3large: 81
             case .llama3: 33
             case .llama3tiny: 16
@@ -416,6 +421,7 @@ extension Model {
             case .llama3: "6.6 GB"
             case .llama3tiny: "1.1 GB"
             case .llama3compact: "2.8 GB"
+            case .llamaNemotron: "50.0 GB"
             case .codestral: "18.3 GB"
             case .smol: "1.5 GB"
             case .shuttle: "47.5 GB"
@@ -470,6 +476,7 @@ extension Model {
             case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
             case .olympicCoder: "Achieves strong performance on competitive coding benchmarks such as LiveCodeBench and 2024 IOI"
             case .mistral2503: "Multilingual and very knowledge-dense model by Mistral"
+            case .llamaNemotron: "NVIDIA's reasoning model that is post trained for reasoning, human chat preferences, and tasks"
             }
         }
 
@@ -595,6 +602,7 @@ extension Model {
             case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF"
             case .olympicCoder: "https://huggingface.co/bartowski/open-r1_OlympicCoder-32B-GGUF"
             case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF"
+            case .llamaNemotron: "https://huggingface.co/bartowski/nvidia_Llama-3_3-Nemotron-Super-49B-v1-GGUF"
             }
             return URL(string: uri)!
         }
@@ -640,6 +648,7 @@ extension Model {
             case .gemma327: "gemma-3-27b-it-Q4_K_M.gguf"
             case .olympicCoder: "open-r1_OlympicCoder-32B-Q5_K_L.gguf"
             case .mistral2503: "mistralai_Mistral-Small-3.1-24B-Instruct-2503-Q6_K_L.gguf"
+            case .llamaNemotron: "nvidia_Llama-3_3-Nemotron-Super-49B-v1-Q6_K.gguf"
             }
         }
 
@@ -681,6 +690,7 @@ extension Model {
             case .llama3: "Llama 3.1 (Regular)"
             case .llama3compact: "Llama 3.2 (Small)"
             case .llama3tiny: "Llama 3.2 (Compact)"
+            case .llamaNemotron: "LLama 3.3 Nemotron"
             case .codestral: "Codestral"
             case .supernovaMedius: "Supernova Medius"
             case .smol: "SmolLM 2"
@@ -742,6 +752,7 @@ extension Model {
             case .gemma327: "v3, 27b params"
             case .olympicCoder: "32b params"
             case .mistral2503: "v2503, 27b params"
+            case .llamaNemotron: "v1, on Llama 3.3 70b"
             }
         }
 
@@ -768,6 +779,7 @@ extension Model {
             case .llama3: "2F547D7D-612B-4BA0-A42E-B17392346FA0"
             case .llama3compact: "8EBC25F2-8F1D-492E-8A55-9B67AFB3AA89"
             case .llama3tiny: "611A636C-59C0-451C-A435-FD6A9041DB37"
+            case .llamaNemotron: "D057894C-FFCD-4F1A-B195-222E68759D73"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
             case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
             case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
