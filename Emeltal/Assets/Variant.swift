@@ -195,7 +195,7 @@ extension Model {
             case .supernovaMedius: 220
             case .codeLlama70b: 610
             case .llamaNemotron: 520
-            case .llama3large: 600
+            case .llama3large: 605
             case .llama3: 195
             case .llama3compact: 100
             case .llama3tiny: 70
@@ -206,7 +206,7 @@ extension Model {
             case .codestral: 320
             case .smol: 60
             case .shuttle: 600
-            case .dsro70: 535
+            case .dsro70: 500
             case .dolphinThreeR1: 430
             case .dolphinThreeTiny: 54
             case .dolphinThree3b: 76
