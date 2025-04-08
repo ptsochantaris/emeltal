@@ -110,6 +110,8 @@
 		16C58E0D2B3655D300006CC2 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
+		16C8C26B2DA581E3008332A6 /* ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C8C26A2DA581E3008332A6 /* ops.cpp */; };
+		16C8C26E2DA58206008332A6 /* vec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C8C26D2DA58206008332A6 /* vec.cpp */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C992B5C1DDF0056E9FB /* Ink */; };
 		16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C9B2B5C1DE50056E9FB /* Ink */; };
@@ -263,6 +265,10 @@
 		16C58DFD2B351C6E00006CC2 /* AppMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMode.swift; sourceTree = "<group>"; };
 		16C58E082B35D72500006CC2 /* ModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeView.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		16C8C2692DA581E3008332A6 /* ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ops.h; sourceTree = "<group>"; };
+		16C8C26A2DA581E3008332A6 /* ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ops.cpp; sourceTree = "<group>"; };
+		16C8C26C2DA58206008332A6 /* vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
+		16C8C26D2DA58206008332A6 /* vec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vec.cpp; sourceTree = "<group>"; };
 		16D332342B6117C5009009A7 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
@@ -419,20 +425,24 @@
 		16B558172CF133FC00A7F8C8 /* ggml-cpu */ = {
 			isa = PBXGroup;
 			children = (
-				16A5D9222D9951E0006B35EC /* binary-ops.h */,
-				16A5D9232D9951E0006B35EC /* binary-ops.cpp */,
+				16B558162CF133FC00A7F8C8 /* ggml-cpu-quants.c */,
 				16B558102CF133FC00A7F8C8 /* ggml-cpu.c */,
-				16B558112CF133FC00A7F8C8 /* ggml-cpu.cpp */,
-				16B558122CF133FC00A7F8C8 /* ggml-cpu-aarch64.h */,
+				16A5D9232D9951E0006B35EC /* binary-ops.cpp */,
 				167382E72D0481BE002353D2 /* ggml-cpu-aarch64.cpp */,
+				167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */,
+				16B558112CF133FC00A7F8C8 /* ggml-cpu.cpp */,
+				16C8C26A2DA581E3008332A6 /* ops.cpp */,
+				16A5D9202D9950C5006B35EC /* unary-ops.cpp */,
+				16C8C26D2DA58206008332A6 /* vec.cpp */,
+				16A5D9222D9951E0006B35EC /* binary-ops.h */,
+				16B558122CF133FC00A7F8C8 /* ggml-cpu-aarch64.h */,
 				16B558142CF133FC00A7F8C8 /* ggml-cpu-impl.h */,
 				16B558152CF133FC00A7F8C8 /* ggml-cpu-quants.h */,
-				16B558162CF133FC00A7F8C8 /* ggml-cpu-quants.c */,
 				167382E92D048233002353D2 /* ggml-cpu-traits.h */,
-				167382EA2D048233002353D2 /* ggml-cpu-traits.cpp */,
-				16B5580E2CF133FC00A7F8C8 /* llamafile */,
+				16C8C2692DA581E3008332A6 /* ops.h */,
 				16A5D91F2D9950C5006B35EC /* unary-ops.h */,
-				16A5D9202D9950C5006B35EC /* unary-ops.cpp */,
+				16C8C26C2DA58206008332A6 /* vec.h */,
+				16B5580E2CF133FC00A7F8C8 /* llamafile */,
 			);
 			path = "ggml-cpu";
 			sourceTree = "<group>";
@@ -749,6 +759,8 @@
 				16FCFAED2D2DD6CA008AD758 /* llama-arch.cpp in Sources */,
 				167382EB2D048233002353D2 /* ggml-cpu-traits.cpp in Sources */,
 				16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */,
+				16C8C26E2DA58206008332A6 /* vec.cpp in Sources */,
+				16C8C26B2DA581E3008332A6 /* ops.cpp in Sources */,
 				16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */,
 				16905E502B2E5190006B4EC8 /* Template.swift in Sources */,
 				16FCFAE92D2DD62D008AD758 /* llama-batch.cpp in Sources */,
@@ -859,9 +871,11 @@
 					"GGML_BLAS_VENDOR=Apple",
 					"GGML_CPU=1",
 					"GGML_CPU_AARCH64=1",
+					"GGML_LASX=1",
+					"GGML_LSX=1",
 					"GGML_METAL=1",
 					"GGML_METAL_NDEBUG=1",
-					"GGML_SOFT_MAX_ACCELERATE=1",
+					"GGML_METAL_USE_BF16=1",
 					"GGML_USE_ACCELERATE=1",
 					"GGML_USE_METAL=1",
 					"GGML_USE_BLAS=1",
@@ -880,6 +894,8 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MERGED_BINARY_TYPE = automatic;
+				MTLLINKER_FLAGS = "";
+				MTL_COMPILER_FLAGS = "-DGGML_METAL_USE_BF16=1";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = NO;
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Emeltal/llama-cpp/**";
@@ -947,9 +963,11 @@
 					"GGML_BLAS_VENDOR=Apple",
 					"GGML_CPU=1",
 					"GGML_CPU_AARCH64=1",
+					"GGML_LASX=1",
+					"GGML_LSX=1",
 					"GGML_METAL=1",
 					"GGML_METAL_NDEBUG=1",
-					"GGML_SOFT_MAX_ACCELERATE=1",
+					"GGML_METAL_USE_BF16=1",
 					"GGML_USE_ACCELERATE=1",
 					"GGML_USE_METAL=1",
 					"GGML_USE_BLAS=1",
@@ -969,6 +987,8 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MERGED_BINARY_TYPE = automatic;
+				MTLLINKER_FLAGS = "";
+				MTL_COMPILER_FLAGS = "-DGGML_METAL_USE_BF16=1";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = NO;
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Emeltal/llama-cpp/**";

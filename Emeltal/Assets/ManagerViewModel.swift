@@ -35,6 +35,7 @@ final class ManagerViewModel {
         Model(category: .samantha, variant: .samantha7b),
         Model(category: .samantha, variant: .samantha70b),
 
+        Model(category: .llamas, variant: .llama4scout),
         Model(category: .llamas, variant: .llama3),
         Model(category: .llamas, variant: .llama3large),
         Model(category: .llamas, variant: .llama3compact),

@@ -50,6 +50,7 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [Gemma 3 1b](https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF)
 
 #### Llama Series
+- [Llama 4 Scout](https://huggingface.co/unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF)
 - [Llama 3.1 70b](https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct)
 - [Llama 3.1 8b](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct)
 - [Llama 3.2 3b](https://huggingface.co/meta-llama/Meta-Llama-3.2-8B-Instruct)

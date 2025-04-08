@@ -21,6 +21,7 @@ extension Model {
              samantha70b,
              whisper,
              neuralStory7b,
+             llama4scout,
              llama3,
              llama3large,
              llama3compact,
@@ -59,6 +60,7 @@ extension Model {
             case .codestral, .neuralStory7b: .mistral
             case .mistral2503: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
+            case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
             case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
@@ -77,7 +79,7 @@ extension Model {
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .dolphinCoder:
                 "You are DolphinCoder, a helpful AI programming assistant."
-            case .dsro70, .whisper:
+            case .dsro70, .llama4scout, .whisper:
                 ""
             }
         }
@@ -116,6 +118,7 @@ extension Model {
                  .llama3compact,
                  .llama3large,
                  .llama3tiny,
+                 .llama4scout,
                  .llamaNemotron,
                  .mistral2503,
                  .qwen25coder,
@@ -145,6 +148,7 @@ extension Model {
             case .llama3compact: 1792
             case .llama3tiny: 512
             case .llama3large: 5120
+            case .llama4scout: 3072
             case .llamaNemotron: 3136
             case .calme: 5504
             case .qwen25large: 5120
@@ -196,6 +200,7 @@ extension Model {
             case .codeLlama70b: 610
             case .llamaNemotron: 520
             case .llama3large: 605
+            case .llama4scout: 880
             case .llama3: 195
             case .llama3compact: 100
             case .llama3tiny: 70
@@ -244,6 +249,7 @@ extension Model {
             case .everyoneCoder: 63
             case .llamaNemotron: 81
             case .llama3large: 81
+            case .llama4scout: 49
             case .llama3: 33
             case .llama3tiny: 16
             case .llama3compact: 29
@@ -265,8 +271,7 @@ extension Model {
             let layerSize = layerSizeM * 1_000_000
 
             let outputLayerSize: Int64 = switch self {
-            case .athene: 5_000_000_000
-            case .dsro70, .llama3large: 5_000_000_000
+            case .athene, .dsro70, .llama3large: 5_000_000_000
             case .whisper: 0
             default: layerSize * 2 // catch-all
             }
@@ -418,6 +423,7 @@ extension Model {
             case .neuralStory7b: "6.0 GB"
             case .dolphinCoder: "13.1 GB"
             case .llama3large: "48.7 GB"
+            case .llama4scout: "42.6 GB"
             case .llama3: "6.6 GB"
             case .llama3tiny: "1.1 GB"
             case .llama3compact: "2.8 GB"
@@ -459,6 +465,7 @@ extension Model {
             case .neuralStory7b: "This fine-tune has been tailored to provide detailed and creative responses in the context of narrative, and optimised for short story telling."
             case .dolphinCoder: "The Dolphin personality applied to the very powerful StarCoder2 model."
             case .llama3large: "The largest and most recent version of the Llama-3 model."
+            case .llama4scout: "A significantly quantised version of Llama 4 Scout."
             case .llama3: "The regular version of the latest Llama-3 model from Meta."
             case .llama3compact: "A compact, edge-optimised version of the Llama-3 model from Meta."
             case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta."
@@ -506,7 +513,9 @@ extension Model {
         }
 
         private var defaultTemperature: Float {
-            if case .qwenQwQ32 = self {
+            if case .llama4scout = self {
+                0.6
+            } else if case .qwenQwQ32 = self {
                 0.6
             } else if isCodingLLm {
                 0.1
@@ -603,6 +612,7 @@ extension Model {
             case .olympicCoder: "https://huggingface.co/bartowski/open-r1_OlympicCoder-32B-GGUF"
             case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF"
             case .llamaNemotron: "https://huggingface.co/bartowski/nvidia_Llama-3_3-Nemotron-Super-49B-v1-GGUF"
+            case .llama4scout: "https://huggingface.co/unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF"
             }
             return URL(string: uri)!
         }
@@ -628,6 +638,7 @@ extension Model {
             case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
             case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
             case .llama3large: "Llama-3.3-70B-Instruct-Q5_K_S.gguf"
+            case .llama4scout: "Llama-4-Scout-17B-16E-Instruct-UD-Q2_K_XL.gguf"
             case .llama3: "Meta-Llama-3.1-8B-Instruct-Q6_K.gguf"
             case .llama3tiny: "Llama-3.2-1B-Instruct-Q6_K_L.gguf"
             case .llama3compact: "Llama-3.2-3B-Instruct-Q6_K_L.gguf"
@@ -691,6 +702,7 @@ extension Model {
             case .llama3compact: "Llama 3.2 (Small)"
             case .llama3tiny: "Llama 3.2 (Compact)"
             case .llamaNemotron: "LLama 3.3 Nemotron"
+            case .llama4scout: "Llama 4 Scout"
             case .codestral: "Codestral"
             case .supernovaMedius: "Supernova Medius"
             case .smol: "SmolLM 2"
@@ -729,6 +741,7 @@ extension Model {
             case .everyoneCoder: "v2, on DeepSeekCoder 33b"
             case .neuralStory7b: "on Mistral-Instruct 0.2"
             case .llama3large: "v3.3, finetuned, 70b params"
+            case .llama4scout: "v4, 109b params"
             case .llama3: "v3.1, 8b params"
             case .llama3compact: "v3.2, 3b params"
             case .llama3tiny: "v3.2, 1b params"
@@ -798,6 +811,7 @@ extension Model {
             case .gemma327: "3927111B-0409-4082-91C5-0ABE347285B4"
             case .olympicCoder: "3E4CB40A-1E49-440B-B91C-11B23E6BDCBE"
             case .mistral2503: "AB57FC85-01E6-4673-97A6-E33C94CFCC94"
+            case .llama4scout: "EE521F32-CD7E-49B8-845D-BB3464C729A1"
             }
         }
 
