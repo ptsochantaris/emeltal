@@ -107,5 +107,14 @@ final class ManagerViewModel {
             log("Removing stale state dir: \(file)")
             try? fm.removeItem(at: appDocumentsUrl.appendingPathComponent(file))
         }
+
+        /*
+         Task {
+             // TODO: remove!
+             for model in models.sorted(by: { $0.memoryEstimate.gpuUsageEstimateBytes < $1.memoryEstimate.gpuUsageEstimateBytes }) where model.category.displayable {
+                 await model.sanityCheckEstimates(whisper: whisper)
+             }
+         }
+          */
     }
 }

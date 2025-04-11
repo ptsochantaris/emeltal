@@ -181,47 +181,47 @@ extension Model {
 
         var memoryEstimate: MemoryEstimate {
             let layerSizeM: Int64 = switch self {
+            case .llama3tiny: 87
+            case .gemma31: 60
+            case .smol: 72
+            case .dolphinThreeTiny: 66
+            case .dolphinThree3b: 86
+            case .llama3compact: 112
+            case .gemma34: 92
+            case .dolphinThree8b: 186
+            case .qwen25small: 166
             case .deepSeekCoder33: 460
-            case .dolphinCoder: 320
-            case .deepSeekCoder7: 180
+            case .dolphinCoder: 318
+            case .deepSeekCoder7: 182
             case .mythoMax: 260
             case .whisper: 1
-            case .dolphin72b: 600
+            case .dolphin72b: 590
             case .dolphinNemo: 200
-            case .calme: 550
-            case .qwen25large: 600
-            case .qwenQwQ32: 380
-            case .qwen25regular: 310
-            case .qwen25coder: 430
-            case .qwen25medium: 220
-            case .qwen25small: 160
-            case .athene: 580
-            case .supernovaMedius: 220
-            case .codeLlama70b: 610
-            case .llamaNemotron: 520
-            case .llama3large: 605
-            case .llama4scout: 880
-            case .llama3: 195
-            case .llama3compact: 100
-            case .llama3tiny: 70
-            case .samantha70b: 605
-            case .samantha7b: 160
-            case .neuralStory7b: 180
-            case .everyoneCoder: 460
+            case .calme: 544
+            case .qwen25large: 590
+            case .qwenQwQ32: 370
+            case .qwen25regular: 304
+            case .qwen25coder: 423
+            case .qwen25medium: 218
+            case .athene: 567
+            case .supernovaMedius: 222
+            case .codeLlama70b: 601
+            case .llamaNemotron: 517
+            case .llama3large: 566
+            case .llama4scout: 883
+            case .llama3: 199
+            case .samantha70b: 601
+            case .samantha7b: 161
+            case .neuralStory7b: 184
+            case .everyoneCoder: 440
             case .codestral: 320
-            case .smol: 60
-            case .shuttle: 600
-            case .dsro70: 500
-            case .dolphinThreeR1: 430
-            case .dolphinThreeTiny: 54
-            case .dolphinThree3b: 76
-            case .dolphinThree8b: 174
-            case .gemma31: 45
-            case .gemma34: 83
-            case .gemma312: 160
-            case .gemma327: 270
-            case .olympicCoder: 380
-            case .mistral2503: 480
+            case .shuttle: 590
+            case .dsro70: 487
+            case .dolphinThreeR1: 424
+            case .gemma312: 164
+            case .gemma327: 272
+            case .olympicCoder: 370
+            case .mistral2503: 482
             }
 
             let totalLayers: Int64 = switch self {
@@ -287,7 +287,7 @@ extension Model {
                                       unifiedMemory: false)
             }
 
-            let asrBytes: Int64 = 1_000_000_000
+            let asrBytes: Int64 = 700_000_000
             var components: [Int64] = [asrBytes] + (0 ..< totalLayers - 1).map { _ in layerSize } + [outputLayerSize, kvBytes]
             var cpuBound = [Int64]()
 
@@ -383,7 +383,7 @@ extension Model {
                     memoryFormatter.string(fromByteCount: Int64(memoryBytes.systemTotal)))
         }
 
-        private var memoryBytes: (unifiedMemory: Bool, used: Int64, max: Int64, systemTotal: UInt64)? {
+        var memoryBytes: (unifiedMemory: Bool, used: Int64, max: Int64, systemTotal: UInt64)? {
             guard let currentDevice = MTLCreateSystemDefaultDevice() else {
                 log("Failed to get the system's default Metal device.")
                 return nil

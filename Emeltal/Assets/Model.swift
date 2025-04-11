@@ -150,4 +150,26 @@ final class Model: Hashable, Identifiable, Sendable {
         cachedMemoryEstimate = calculated
         return calculated
     }
+
+    func sanityCheckEstimates(whisper: AssetFetcher) async {
+        guard case let .installed(fetcher) = status else {
+            return
+        }
+
+        let state = ConversationState(llm: fetcher, whisper: whisper)
+        while state.statusMessage != nil {
+            try? await Task.sleep(for: .seconds(0.2))
+        }
+        if let (_, used, _, _) = variant.memoryBytes {
+            let usedString = memoryFormatter.string(fromByteCount: used)
+            let estimated = memoryEstimate.gpuUsageEstimateBytes
+            let estimatedString = memoryFormatter.string(fromByteCount: estimated)
+            let diff = estimated - used
+            let diffString = memoryFormatter.string(fromByteCount: diff)
+            let warning = diff < 1000 ? "WARNING" : ""
+            print(">> Model \(variant), estimated GPU usage: \(estimatedString), actual: \(usedString), diff: \(diffString) \(warning)")
+        }
+
+        await state.shutdown()
+    }
 }
