@@ -166,11 +166,19 @@ final class LlamaContext {
     }
 
     func shutdown() {
-        llama_sampler_free(sampler)
-        llama_free(context)
-        llama_model_free(model)
-        llama_backend_free()
-        candidateBuffer.deallocate()
+        guard let predictionTask else {
+            return
+        }
+
+        predictionTask.cancel()
+        Task {
+            await predictionTask.value
+            llama_sampler_free(sampler)
+            llama_free(context)
+            llama_model_free(model)
+            llama_backend_free()
+            candidateBuffer.deallocate()
+        }
     }
 
     deinit {

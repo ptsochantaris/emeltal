@@ -38,7 +38,7 @@ enum ActivationState {
 }
 
 enum AppMode: Equatable {
-    case startup, booting, warmup, loading(managers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying
+    case startup, booting, warmup, loading(managers: [AssetFetcher]), waiting, listening(state: Mic.State), noting, thinking, replying, shutdown
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         switch lhs {
@@ -78,6 +78,10 @@ enum AppMode: Equatable {
             if case .waiting = rhs {
                 return true
             }
+        case .shutdown:
+            if case .shutdown = rhs {
+                return true
+            }
         }
         return false
     }
@@ -86,7 +90,7 @@ enum AppMode: Equatable {
         switch self {
         case .listening, .replying, .waiting:
             true
-        case .booting, .loading, .noting, .startup, .thinking, .warmup:
+        case .booting, .loading, .noting, .shutdown, .startup, .thinking, .warmup:
             false
         }
     }
@@ -122,6 +126,8 @@ enum AppMode: Equatable {
             self = .waiting
         case 9:
             self = .warmup
+        case 10:
+            self = .shutdown
         default:
             return nil
         }
@@ -129,7 +135,7 @@ enum AppMode: Equatable {
 
     var iconImageName: String {
         switch self {
-        case .booting, .loading, .startup, .warmup: "hourglass.circle"
+        case .booting, .loading, .shutdown, .startup, .warmup: "hourglass.circle"
         case .noting, .waiting: "circle"
         case .listening: "waveform.circle"
         case .thinking: "ellipsis.circle"
@@ -165,6 +171,8 @@ enum AppMode: Equatable {
             data[0] = 8
         case .warmup:
             data[0] = 9
+        case .shutdown:
+            data[0] = 10
         }
         return data
     }
@@ -179,7 +187,7 @@ enum AppMode: Equatable {
             Task {
                 await speaker.play(effect: .endListening)
             }
-        case .booting, .loading, .replying, .startup, .thinking, .waiting, .warmup:
+        case .booting, .loading, .replying, .shutdown, .startup, .thinking, .waiting, .warmup:
             break
         }
     }
@@ -188,14 +196,14 @@ enum AppMode: Equatable {
         switch self {
         case .noting, .replying, .thinking:
             true
-        case .booting, .listening, .loading, .startup, .waiting, .warmup:
+        case .booting, .listening, .loading, .shutdown, .startup, .waiting, .warmup:
             false
         }
     }
 
     var showAlwaysOn: Bool {
         switch self {
-        case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
+        case .booting, .loading, .noting, .replying, .shutdown, .startup, .thinking, .warmup:
             false
         case .listening, .waiting:
             Mic.havePermission
@@ -206,7 +214,7 @@ enum AppMode: Equatable {
         switch self {
         case .listening, .replying, .waiting:
             Mic.havePermission
-        case .booting, .loading, .noting, .startup, .thinking, .warmup:
+        case .booting, .loading, .noting, .shutdown, .startup, .thinking, .warmup:
             false
         }
     }

@@ -14,7 +14,7 @@ struct ModeView: View {
         ZStack {
             let mode = modeProvider.mode
             switch mode {
-            case .booting, .loading, .startup, .warmup:
+            case .booting, .loading, .shutdown, .startup, .warmup:
                 ProgressView()
                     .colorScheme(.dark)
 

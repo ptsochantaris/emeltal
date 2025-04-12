@@ -127,6 +127,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
     func shutdown() async {
         log("Shutting down app state…")
+        mode = .shutdown
         micObservation?.cancel()
         connectionStateObservation.cancel()
         await remote.shutdown()
@@ -370,7 +371,7 @@ final class ConversationState: Identifiable, ModeProvider {
     func send() {
         let text = multiLineText.trimmingCharacters(in: .whitespacesAndNewlines)
         switch mode {
-        case .booting, .listening, .loading, .replying, .startup, .thinking, .warmup:
+        case .booting, .listening, .loading, .replying, .shutdown, .startup, .thinking, .warmup:
             return
 
         case .noting, .waiting:

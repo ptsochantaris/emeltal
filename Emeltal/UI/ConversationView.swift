@@ -74,8 +74,7 @@ struct ConversationView: View {
                 #endif
                     .focused($focusEntryField)
                     .onSubmit { [weak state] in
-                        guard let state else { return }
-                        if state.mode == .waiting {
+                        if let state, state.mode == .waiting {
                             state.send()
                         }
                     }
