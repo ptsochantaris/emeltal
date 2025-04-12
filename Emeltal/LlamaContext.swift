@@ -165,20 +165,13 @@ final class LlamaContext {
         }
     }
 
-    func shutdown() {
-        guard let predictionTask else {
-            return
-        }
-
-        predictionTask.cancel()
-        Task {
-            await predictionTask.value
-            llama_sampler_free(sampler)
-            llama_free(context)
-            llama_model_free(model)
-            llama_backend_free()
-            candidateBuffer.deallocate()
-        }
+    func shutdown() async {
+        await cancelIfNeeded()
+        llama_sampler_free(sampler)
+        llama_free(context)
+        llama_model_free(model)
+        llama_backend_free()
+        candidateBuffer.deallocate()
     }
 
     deinit {
@@ -256,7 +249,7 @@ final class LlamaContext {
         turns.count
     }
 
-    struct FailsafeStopDetector {
+    private struct FailsafeStopDetector {
         enum Result {
             case possible, detected, notDetected(pending: [Character])
         }

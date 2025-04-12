@@ -59,6 +59,7 @@ struct ConversationView: View {
 
                 TextField("Hold \"↓\" to speak, or enter your message here", text: $state.multiLineText)
                     .textFieldStyle(.plain)
+                    .onAppear { focusEntryField = true }
                 #if os(visionOS)
                     .padding(22)
                     .background(.ultraThinMaterial)
@@ -73,15 +74,12 @@ struct ConversationView: View {
                     .padding(.horizontal, spacing)
                 #endif
                     .focused($focusEntryField)
-                    .onSubmit { [weak state] in
-                        if let state, state.mode == .waiting {
-                            state.send()
-                        }
+                    .onSubmit {
+                        state.sendTextFromUI()
                     }
             }
             .toolbar {
-                Button { [weak state] in
-                    guard let state else { return }
+                Button {
                     state.textOnly.toggle()
                 } label: {
                     HStack(spacing: 0) {

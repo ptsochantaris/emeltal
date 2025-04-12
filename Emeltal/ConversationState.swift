@@ -94,6 +94,10 @@ final class ConversationState: Identifiable, ModeProvider {
     var shouldPromptForIdealVoice = false
 
     func reset() async throws {
+        guard mode.nominal else {
+            return
+        }
+
         mode = .warmup
         await llamaContext?.cancelIfNeeded()
         await speaker?.cancelIfNeeded()
@@ -104,6 +108,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     let model: Model
+    var queueTask: Task<Void, Never>?
 
     init(llm: AssetFetcher, whisper: AssetFetcher) {
         id = llm.model.id
@@ -123,11 +128,28 @@ final class ConversationState: Identifiable, ModeProvider {
                 fatalError(error.localizedDescription)
             }
         }
+
+        queueTask = Task { [weak self] in
+            guard let self else { return }
+            for await text in queue.stream {
+                guard await waitForReply() else {
+                    break
+                }
+
+                withAnimation {
+                    mode = .thinking
+                }
+
+                await complete(text: text)
+            }
+            log("Input queue task ended")
+        }
     }
 
     func shutdown() async {
         log("Shutting down app state…")
         mode = .shutdown
+        queueTask?.cancel()
         micObservation?.cancel()
         connectionStateObservation.cancel()
         await remote.shutdown()
@@ -279,8 +301,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
             case .textInput:
                 if let textData = nibble.data, let text = String(data: textData, encoding: .utf8) {
-                    multiLineText = text
-                    send()
+                    send(input: text)
                 }
 
             case .recordedSpeech:
@@ -368,27 +389,31 @@ final class ConversationState: Identifiable, ModeProvider {
         }
     }
 
-    func send() {
-        let text = multiLineText.trimmingCharacters(in: .whitespacesAndNewlines)
-        switch mode {
-        case .booting, .listening, .loading, .replying, .shutdown, .startup, .thinking, .warmup:
-            return
+    private var queue = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
+    func sendTextFromUI() {
+        send(input: multiLineText)
+        multiLineText = ""
+    }
 
-        case .noting, .waiting:
-            break
+    private func send(input text: String) {
+        let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !text.isEmpty {
+            queue.continuation.yield(text)
         }
+    }
 
-        if text.isEmpty {
-            shouldWaitOrListen()
-            return
-        }
+    private func waitForReply() async -> Bool {
+        while true {
+            switch mode {
+            case .shutdown:
+                return false
 
-        withAnimation {
-            mode = .thinking
-            multiLineText = ""
-        }
-        Task.detached(priority: .userInitiated) {
-            await self.complete(text: text)
+            case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
+                try? await Task.sleep(for: .seconds(0.1))
+
+            case .listening, .waiting:
+                return true
+            }
         }
     }
 
@@ -419,8 +444,7 @@ final class ConversationState: Identifiable, ModeProvider {
             }
             let result = try? await Task.detached(priority: .userInitiated) { try await whisperContext.transcribe(samples: samples).trimmingCharacters(in: .whitespacesAndNewlines) }.value
             if let result, result.count > 1 {
-                multiLineText = result
-                send()
+                send(input: result)
 
             } else {
                 log("Transcription too short, will ignore it")
