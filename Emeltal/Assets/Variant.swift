@@ -181,19 +181,19 @@ extension Model {
 
         var memoryEstimate: MemoryEstimate {
             let layerSizeM: Int64 = switch self {
-            case .llama3tiny: 87
-            case .gemma31: 60
-            case .smol: 72
-            case .dolphinThreeTiny: 66
-            case .dolphinThree3b: 86
-            case .llama3compact: 112
-            case .gemma34: 92
-            case .dolphinThree8b: 186
-            case .qwen25small: 166
+            case .llama3tiny: 93
+            case .gemma31: 63
+            case .dolphinThreeTiny: 68
+            case .smol: 76
+            case .dolphinThree3b: 87
+            case .llama3compact: 113
+            case .gemma34: 94
+            case .dolphinThree8b: 187
+            case .qwen25small: 168
             case .deepSeekCoder33: 460
             case .dolphinCoder: 318
-            case .deepSeekCoder7: 182
-            case .mythoMax: 260
+            case .deepSeekCoder7: 184
+            case .mythoMax: 261
             case .whisper: 1
             case .dolphin72b: 590
             case .dolphinNemo: 200
@@ -203,16 +203,16 @@ extension Model {
             case .qwen25regular: 304
             case .qwen25coder: 423
             case .qwen25medium: 218
-            case .athene: 567
+            case .athene: 568
+            case .llama3large: 568
             case .supernovaMedius: 222
             case .codeLlama70b: 601
             case .llamaNemotron: 517
-            case .llama3large: 566
-            case .llama4scout: 883
+            case .llama4scout: 884
             case .llama3: 199
-            case .samantha70b: 601
-            case .samantha7b: 161
-            case .neuralStory7b: 184
+            case .samantha70b: 605
+            case .samantha7b: 163
+            case .neuralStory7b: 186
             case .everyoneCoder: 440
             case .codestral: 320
             case .shuttle: 590
@@ -221,7 +221,7 @@ extension Model {
             case .gemma312: 164
             case .gemma327: 272
             case .olympicCoder: 370
-            case .mistral2503: 482
+            case .mistral2503: 483
             }
 
             let totalLayers: Int64 = switch self {
@@ -268,7 +268,7 @@ extension Model {
             case .mistral2503: 41
             }
 
-            let layerSize = layerSizeM * 1_000_000
+            let layerSize = (layerSizeM + 4) * 1_000_000
 
             let outputLayerSize: Int64 = switch self {
             case .athene, .dsro70, .llama3large: 5_000_000_000
@@ -287,7 +287,7 @@ extension Model {
                                       unifiedMemory: false)
             }
 
-            let asrBytes: Int64 = 700_000_000
+            let asrBytes: Int64 = 900_000_000
             var components: [Int64] = [asrBytes] + (0 ..< totalLayers - 1).map { _ in layerSize } + [outputLayerSize, kvBytes]
             var cpuBound = [Int64]()
 
