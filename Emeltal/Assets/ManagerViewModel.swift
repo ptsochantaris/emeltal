@@ -52,6 +52,8 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma34),
         Model(category: .gemma, variant: .gemma31),
 
+        Model(category: .experimental, variant: .glm4),
+        Model(category: .experimental, variant: .glmz1),
         Model(category: .experimental, variant: .llamaNemotron),
         Model(category: .experimental, variant: .mistral2503),
         Model(category: .experimental, variant: .dsro70),
@@ -66,9 +68,9 @@ final class ManagerViewModel {
 
     init() {
         selected = if let id = Persisted.selectedAssetId {
-            models.first { $0.id == id } ?? models.first!
+            models.first { $0.id == id } ?? models[0]
         } else {
-            models.first!
+            models[0]
         }
     }
 
