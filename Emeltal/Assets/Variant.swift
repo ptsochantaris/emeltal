@@ -66,8 +66,7 @@ extension Model {
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
             case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
-            case .glm4: .glm
-            case .glmz1: .glmThink
+            case .glm4, .glmz1: .glm
             }
         }
 

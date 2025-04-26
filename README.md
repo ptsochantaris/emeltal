@@ -70,6 +70,8 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [Neural Story](https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story)
 
 #### Other & Experimental
+- [THUD GLM 4](https://huggingface.co/THUDM/GLM-4-32B-0414)
+- [THUD GLM Z1](https://huggingface.co/THUDM/GLM-Z1-32B-0414)
 - [Nvidia Llama Nemo](https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1)
 - [DeepSeek R1 Distill on Llama](https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5)
 - [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
