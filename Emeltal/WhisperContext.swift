@@ -55,14 +55,18 @@ final class WhisperContext {
     }()
 
     func transcribe(samples: [Float]) throws -> String {
-        log("Transcribing audio")
+        log("Transcribing audio: \(samples.count) samples")
         try samples.withUnsafeBufferPointer { floats in
             if whisper_full(context, params, floats.baseAddress, Int32(floats.count)) < 0 {
                 throw EmeltalError.message("Failed to run the whisper model")
             }
         }
-        return (0 ..< whisper_full_n_segments(context)).map {
-            String(cString: whisper_full_get_segment_text(context, $0))
+        let segmentCount = whisper_full_n_segments(context)
+        let result = (0 ..< segmentCount).map {
+            log("Transcribing segment \($0 + 1) of \(segmentCount)")
+            return String(cString: whisper_full_get_segment_text(context, $0))
         }.joined()
+        log("Transcribing done: '\(result)'")
+        return result
     }
 }

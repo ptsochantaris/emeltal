@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, llamaLarge, mistral, mistralNew, vicuna, gemma, llama3, llama4, glm
+        case alpaca, chatml, chatmlNoThink, llamaLarge, mistral, mistralNew, vicuna, gemma, llama3, llama4, glm
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .llama4, .mistral: false
-            case .alpaca, .chatml, .gemma, .llama3, .llamaLarge, .mistralNew, .vicuna, .glm: true
+            case .alpaca, .chatml, .chatmlNoThink, .gemma, .glm, .llama3, .llamaLarge, .mistralNew, .vicuna: true
             }
         }
 
@@ -90,7 +90,7 @@ struct Template {
             case .cancel: ""
             }
 
-        case .chatml:
+        case .chatml, .chatmlNoThink:
             switch step {
             case .initial: "<|im_start|>system\n"
             case .turn: "<|im_start|>user\n"
@@ -194,6 +194,13 @@ struct Template {
             case .cancel: "<|im_end|>\n"
             }
 
+        case .chatmlNoThink:
+            switch step {
+            case .initial: "<|im_end|>\n"
+            case .turn: "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+            case .cancel: "<|im_end|>\n"
+            }
+
         case .alpaca:
             switch step {
             case .initial: ""
@@ -205,10 +212,10 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna, .glm:
+        case .gemma, .glm, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna:
             nil
 
-        case .chatml:
+        case .chatml, .chatmlNoThink:
             "<|im_start|>user\n"
 
         case .alpaca:

@@ -98,7 +98,9 @@ final class ConversationState: Identifiable, ModeProvider {
             return
         }
 
-        mode = .warmup
+        withAnimation {
+            mode = .warmup
+        }
         await llamaContext?.cancelIfNeeded()
         await speaker?.cancelIfNeeded()
         await llamaContext?.clearAllTokens()
@@ -137,7 +139,7 @@ final class ConversationState: Identifiable, ModeProvider {
                 }
 
                 withAnimation {
-                    mode = .thinking
+                    mode = .processingPrompt
                 }
 
                 await complete(text: text)
@@ -274,7 +276,9 @@ final class ConversationState: Identifiable, ModeProvider {
 
         template = llm.model.mlTemplate(in: llamaContext!)
 
-        mode = .warmup
+        withAnimation {
+            mode = .warmup
+        }
         statusMessage = "Warming Up"
 
         try await chatInit(hasSavedState: hasSavedState)
@@ -408,10 +412,10 @@ final class ConversationState: Identifiable, ModeProvider {
             case .shutdown:
                 return false
 
-            case .booting, .loading, .noting, .replying, .startup, .thinking, .warmup:
+            case .booting, .loading, .processingPrompt, .replying, .startup, .transcribing, .warmup:
                 try? await Task.sleep(for: .seconds(0.1))
 
-            case .listening, .waiting:
+            case .listening, .transcribingDone, .waiting:
                 return true
             }
         }
@@ -440,9 +444,10 @@ final class ConversationState: Identifiable, ModeProvider {
 
         if samples.count > 8000 {
             withAnimation {
-                mode = .noting
+                mode = .transcribing
             }
             let result = try? await Task.detached(priority: .userInitiated) { try await whisperContext.transcribe(samples: samples).trimmingCharacters(in: .whitespacesAndNewlines) }.value
+            mode = .transcribingDone
             if let result, result.count > 1 {
                 send(input: result)
 

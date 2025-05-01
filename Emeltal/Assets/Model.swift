@@ -168,7 +168,7 @@ final class Model: Hashable, Identifiable, Sendable {
             let usedString = memoryFormatter.string(fromByteCount: used)
             let diff = estimated - used
             let diffString = memoryFormatter.string(fromByteCount: diff)
-            let warning: String = if diff < 200_000_000 {
+            let warning = if diff < 200_000_000 {
                 "** SMALL **"
             } else if diff > 700_000_000 {
                 "** LARGE **"

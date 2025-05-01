@@ -42,13 +42,13 @@ struct ModeView: View {
                         .opacity(0.4)
                 }
 
-            case .thinking:
+            case .processingPrompt, .transcribingDone:
                 Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .symbolEffect(.variableColor)
 
-            case .noting:
+            case .transcribing:
                 Image(systemName: mode.iconImageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
