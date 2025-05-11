@@ -40,8 +40,11 @@ final class ManagerViewModel {
         Model(category: .llamas, variant: .llama3large),
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
+        Model(category: .llamas, variant: .llamaNemotron),
 
-        Model(category: .qwen, variant: .qwen3),
+        Model(category: .qwen, variant: .qwen3compact),
+        Model(category: .qwen, variant: .qwen3regular),
+        Model(category: .qwen, variant: .qwen3tiny),
         Model(category: .qwen, variant: .qwen25regular),
         Model(category: .qwen, variant: .qwen25large),
         Model(category: .qwen, variant: .qwen25medium),
@@ -53,9 +56,9 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma34),
         Model(category: .gemma, variant: .gemma31),
 
-        Model(category: .experimental, variant: .glm4),
-        Model(category: .experimental, variant: .glmz1),
-        Model(category: .experimental, variant: .llamaNemotron),
+        Model(category: .glm, variant: .glm4),
+        Model(category: .glm, variant: .glmz1),
+
         Model(category: .experimental, variant: .mistral2503),
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),

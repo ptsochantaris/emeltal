@@ -4,7 +4,7 @@ extension Model {
     enum Category: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case qwen, dolphin, samantha, coding, creative, gemma, llamas, system, experimental
+        case qwen, dolphin, samantha, coding, creative, gemma, llamas, glm, system, experimental
 
         var title: String {
             switch self {
@@ -16,13 +16,14 @@ extension Model {
             case .llamas: "Llamas"
             case .system: "Internal"
             case .gemma: "Gemma"
+            case .glm: "GLM"
             case .experimental: "Experimental"
             }
         }
 
         var displayable: Bool {
             switch self {
-            case .coding, .creative, .dolphin, .experimental, .gemma, .llamas, .qwen, .samantha: true
+            case .coding, .creative, .dolphin, .experimental, .gemma, .llamas, .qwen, .samantha, .glm: true
             case .system: false
             }
         }
@@ -45,6 +46,8 @@ extension Model {
                 "Experimental models that are interesting for different reasons - merges, novelty value, or have a very specific use case."
             case .gemma:
                 "Google claims Gemma 3 is the most natural chatbot in its size category."
+            case .glm:
+                "ChatGLM is made by the THUDM group at Tsinghua University and is quite good at logic and coding tasks."
             case .system:
                 ""
             }
