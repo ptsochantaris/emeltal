@@ -83,7 +83,6 @@ final class LlamaContext {
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
         ctx_params.flash_attn = true
-        ctx_params.logits_all = true
         ctx_params.offload_kqv = gpuUsage.offloadKvCache
 
         guard let newContext = llama_init_from_model(model, ctx_params) else {
