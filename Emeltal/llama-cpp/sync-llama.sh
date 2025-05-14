@@ -33,6 +33,8 @@ cp -r\
  $LSRC/ggml/include/ggml-blas.h\
  $LSRC/ggml/include/ggml-cpu.h\
  $LSRC/ggml/include/gguf.h\
+ $LSRC/ggml/include/ggml-opt.h\
+ $LSRC/ggml/src/ggml-opt.cpp\
  $LSRC/ggml/src/ggml-common.h\
  $LSRC/ggml/src/gguf.cpp\
  $LSRC/ggml/src/ggml-cpu\
@@ -65,6 +67,8 @@ cp -r\
  $LSRC/src/llama-model.cpp\
  $LSRC/src/llama-model-loader.h\
  $LSRC/src/llama-model-loader.cpp\
+ $LSRC/src/llama-model-saver.h\
+ $LSRC/src/llama-model-saver.cpp\
  $LSRC/src/llama-arch.h\
  $LSRC/src/llama-arch.cpp\
  $LSRC/src/llama-mmap.h\

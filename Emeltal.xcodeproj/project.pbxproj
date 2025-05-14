@@ -65,6 +65,8 @@
 		16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A090F72CB46F0700468E93 /* ManagerViewModel.swift */; };
 		16A5D9212D9950C5006B35EC /* unary-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A5D9202D9950C5006B35EC /* unary-ops.cpp */; };
 		16A5D9242D9951E0006B35EC /* binary-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A5D9232D9951E0006B35EC /* binary-ops.cpp */; };
+		16A82B5E2DD50E5E002FC4FE /* ggml-opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */; };
+		16A82B622DD50E8D002FC4FE /* llama-model-saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */; };
 		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
 		16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B558372CF133FC00A7F8C8 /* llama-sampling.cpp */; };
 		16B558432CF133FC00A7F8C8 /* ggml-cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 16B558102CF133FC00A7F8C8 /* ggml-cpu.c */; settings = {COMPILER_FLAGS = "-fno-finite-math-only"; }; };
@@ -205,6 +207,10 @@
 		16A5D9202D9950C5006B35EC /* unary-ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "unary-ops.cpp"; sourceTree = "<group>"; };
 		16A5D9222D9951E0006B35EC /* binary-ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "binary-ops.h"; sourceTree = "<group>"; };
 		16A5D9232D9951E0006B35EC /* binary-ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "binary-ops.cpp"; sourceTree = "<group>"; };
+		16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-opt.cpp"; sourceTree = "<group>"; };
+		16A82B5F2DD50E6A002FC4FE /* ggml-opt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-opt.h"; sourceTree = "<group>"; };
+		16A82B602DD50E87002FC4FE /* llama-model-saver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-model-saver.h"; sourceTree = "<group>"; };
+		16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-model-saver.cpp"; sourceTree = "<group>"; };
 		16AF9D8D2B8238100064B66C /* UTF8Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTF8Builder.swift; sourceTree = "<group>"; };
 		16B558082CF133FC00A7F8C8 /* ggml-blas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-blas.cpp"; sourceTree = "<group>"; };
 		16B5580C2CF133FC00A7F8C8 /* sgemm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sgemm.h; sourceTree = "<group>"; };
@@ -479,10 +485,14 @@
 				16B5581C2CF133FC00A7F8C8 /* ggml-metal */,
 				16B5582D2CF133FC00A7F8C8 /* ggml-quants.h */,
 				16B5582E2CF133FC00A7F8C8 /* ggml-quants.c */,
+				16A82B5F2DD50E6A002FC4FE /* ggml-opt.h */,
+				16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */,
 				16B5582F2CF133FC00A7F8C8 /* ggml-threading.h */,
 				16B558302CF133FC00A7F8C8 /* ggml-threading.cpp */,
 				16FCFAE52D2DD5DD008AD758 /* gguf.h */,
 				16FCFAE62D2DD5DD008AD758 /* gguf.cpp */,
+				16A82B602DD50E87002FC4FE /* llama-model-saver.h */,
+				16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */,
 				16B558312CF133FC00A7F8C8 /* llama.h */,
 				16B558322CF133FC00A7F8C8 /* llama.cpp */,
 				16FCFAEE2D2DD704008AD758 /* llama-adapter.h */,
@@ -720,6 +730,7 @@
 				16B5584B2CF133FC00A7F8C8 /* llama-vocab.cpp in Sources */,
 				16A5D9242D9951E0006B35EC /* binary-ops.cpp in Sources */,
 				16B5584C2CF133FC00A7F8C8 /* ggml-alloc.c in Sources */,
+				16A82B622DD50E8D002FC4FE /* llama-model-saver.cpp in Sources */,
 				16B5584D2CF133FC00A7F8C8 /* whisper.cpp in Sources */,
 				16B5584E2CF133FC00A7F8C8 /* llama.cpp in Sources */,
 				16B5584F2CF133FC00A7F8C8 /* unicode.cpp in Sources */,
@@ -768,6 +779,7 @@
 				167382F52D0488D1002353D2 /* Category.swift in Sources */,
 				163EF05E2B31B80800565F49 /* ManagerRow.swift in Sources */,
 				168F57AF2B443EC6003A1190 /* MessageLog.swift in Sources */,
+				16A82B5E2DD50E5E002FC4FE /* ggml-opt.cpp in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				167B9D2B2B572036006711B9 /* Turn.swift in Sources */,
 				167382F72D0488ED002353D2 /* MemoryEstimate.swift in Sources */,
