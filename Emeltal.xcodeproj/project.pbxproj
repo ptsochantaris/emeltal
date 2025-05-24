@@ -91,6 +91,7 @@
 		16B5585B2CF133FC00A7F8C8 /* sync-llama.sh in Resources */ = {isa = PBXBuildFile; fileRef = 16B5583A2CF133FC00A7F8C8 /* sync-llama.sh */; };
 		16C23D772B7402DD00781F78 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D762B7402DD00781F78 /* SectionCell.swift */; };
 		16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C23D782B742F0100781F78 /* SectionCarousel.swift */; };
+		16C241892DE1AC2A00635CAC /* HTMLString in Frameworks */ = {isa = PBXBuildFile; productRef = 16C241882DE1AC2A00635CAC /* HTMLString */; };
 		16C57E942B2D357100A6A6C5 /* MicStart.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E922B2D357000A6A6C5 /* MicStart.caf */; };
 		16C57E952B2D357100A6A6C5 /* MicStop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 16C57E932B2D357000A6A6C5 /* MicStop.caf */; };
 		16C58DDD2B34701200006CC2 /* EmellinkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C58DDC2B34701200006CC2 /* EmellinkApp.swift */; };
@@ -305,6 +306,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16C241892DE1AC2A00635CAC /* HTMLString in Frameworks */,
 				16C58E102B37688000006CC2 /* PopTimer in Frameworks */,
 				16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */,
 				1608DB932B151C4600FFFB09 /* Metal.framework in Frameworks */,
@@ -604,6 +606,7 @@
 			packageProductDependencies = (
 				16C58E0F2B37688000006CC2 /* PopTimer */,
 				16DF6C992B5C1DDF0056E9FB /* Ink */,
+				16C241882DE1AC2A00635CAC /* HTMLString */,
 			);
 			productName = Safespace;
 			productReference = 1608DB682B151B4F00FFFB09 /* Emeltal.app */;
@@ -661,6 +664,7 @@
 			packageReferences = (
 				16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */,
 				16DF6C982B5C1D7D0056E9FB /* XCRemoteSwiftPackageReference "Ink" */,
+				16C241872DE1AC2900635CAC /* XCRemoteSwiftPackageReference "HTMLString" */,
 			);
 			productRefGroup = 1608DB692B151B4F00FFFB09 /* Products */;
 			projectDirPath = "";
@@ -1219,6 +1223,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		16C241872DE1AC2900635CAC /* XCRemoteSwiftPackageReference "HTMLString" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alexaubry/HTMLString";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.1;
+			};
+		};
 		16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ptsochantaris/pop-timer";
@@ -1238,6 +1250,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		16C241882DE1AC2A00635CAC /* HTMLString */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C241872DE1AC2900635CAC /* XCRemoteSwiftPackageReference "HTMLString" */;
+			productName = HTMLString;
+		};
 		16C58E0F2B37688000006CC2 /* PopTimer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 16C58E0E2B37688000006CC2 /* XCRemoteSwiftPackageReference "pop-timer" */;

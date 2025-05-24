@@ -48,7 +48,8 @@ extension Model {
              mistral2503,
              llamaNemotron,
              glm4,
-             glmz1
+             glmz1,
+             am1
 
         var recommended: Bool {
             self == .qwen25regular
@@ -67,7 +68,7 @@ extension Model {
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
+            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius, .am1: .chatml
             case .qwen3regular, .qwen3compact, .qwen3tiny: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             case .glm4, .glmz1: .glm
@@ -86,8 +87,18 @@ extension Model {
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .dolphinCoder:
                 "You are DolphinCoder, a helpful AI programming assistant."
+            case .am1:
+                "You are a helpful assistant. To answer the user's question, you first think about the reasoning process and then provide the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answer here </answer>."
             case .dsro70, .llama4scout, .whisper:
                 ""
+            }
+        }
+
+        var muteTokens: Set<String>? {
+            if case .am1 = self {
+                ["answer"]
+            } else {
+                nil
             }
         }
 
@@ -139,6 +150,7 @@ extension Model {
                  .qwen25regular,
                  .qwenQwQ32,
                  .shuttle,
+                 .am1,
                  .supernovaMedius:
                 16384
             }
@@ -165,6 +177,7 @@ extension Model {
             case .calme: 5504
             case .qwen25large: 5120
             case .qwen3regular: 4096
+            case .am1: 4096
             case .qwen3compact: 2304
             case .qwen3tiny: 1024
             case .qwen25regular: 4096
@@ -217,6 +230,7 @@ extension Model {
             case .qwen25large: 590
             case .qwenQwQ32: 370
             case .qwen3regular: 370
+            case .am1: 360
             case .qwen3tiny: 68
             case .qwen3compact: 170
             case .qwen25regular: 304
@@ -256,6 +270,7 @@ extension Model {
             case .shuttle: 81
             case .calme: 87
             case .qwen3regular: 65
+            case .am1: 65
             case .qwen3compact: 37
             case .qwen3tiny: 29
             case .qwen25large: 81
@@ -472,6 +487,7 @@ extension Model {
             case .olympicCoder: "23.8 GB"
             case .mistral2503: "19.7 GB"
             case .glm4, .glmz1: "23.7 GB"
+            case .am1: "23.3 GB"
             }
         }
 
@@ -485,6 +501,7 @@ extension Model {
             case .dolphinNemo: "The Dolhpin personality running on the Mistral Nemo base model."
             case .qwenQwQ32: "An evolution of the Qwen model that, at least on benchmarks, offers a very high quality of reasoning. It will display its thinking process by default."
             case .qwen3regular, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwen3compact, .qwen3tiny: "A consistently well regarded all-round model by users and benchmarks."
+            case .am1: "Strong performance on reasoning benchmarks, comparable to larger MoE models. Aims to be one of the best dense models at its size."
             case .qwen25coder: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .samantha70b: "A larger but slightly older version of the Samantha model."
@@ -632,6 +649,7 @@ extension Model {
             case .qwen3regular: "https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF"
             case .qwen3compact: "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF"
             case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF"
+            case .am1: "https://huggingface.co/a-m-team/AM-Thinking-v1-gguf"
             }
             return URL(string: uri)!
         }
@@ -684,6 +702,7 @@ extension Model {
             case .glmz1: "THUDM_GLM-Z1-32B-0414-Q5_K_L.gguf"
             case .qwen3regular: "Qwen_Qwen3-32B-Q5_K_L.gguf"
             case .qwen3compact: "Qwen_Qwen3-8B-Q5_K_L.gguf"
+            case .am1: "AM-Thinking-v1.Q5_K_M.gguf"
             }
         }
 
@@ -749,6 +768,7 @@ extension Model {
             case .mistral2503: "Mistral 2503"
             case .glm4: "GLM 4"
             case .glmz1: "GLM Z1"
+            case .am1: "AM‑Thinking"
             }
         }
 
@@ -765,6 +785,7 @@ extension Model {
             case .qwen25medium: "v2.5, 14b variant"
             case .qwen25small: "v2.5, 7b variant"
             case .qwen3regular: "30b params"
+            case .am1: "v1, on Qwen2.5 32b"
             case .qwen3compact: "8b params"
             case .qwen3tiny: "0.6b params"
             case .codeLlama70b: "70b HF variant, on Llama2"
@@ -851,6 +872,7 @@ extension Model {
             case .qwen3regular: "DCEF523D-74C7-465D-A81E-2018B588B8D9"
             case .qwen3compact: "89CF3A8B-8A9F-46AC-93AB-540C51E4FFB7"
             case .qwen3tiny: "172F84EA-02C3-4CC7-8130-BBF282452EB2"
+            case .am1: "22D9BBAB-8F6D-4217-852D-CE284F3E8F34"
             }
         }
 

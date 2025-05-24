@@ -2,6 +2,7 @@ import AVFoundation
 import Foundation
 import Network
 import SwiftUI
+import HTMLString
 
 @MainActor
 @Observable
@@ -348,7 +349,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     private func chatInit(hasSavedState: Bool) async throws {
-        if !hasSavedState, let systemText = template.systemText {
+        if !hasSavedState, let systemText = template.systemText?.addingUnicodeEntities() {
             messageLog = MessageLog(string: "> *\"\(systemText)\"*\n")
         }
 
@@ -466,18 +467,17 @@ final class ConversationState: Identifiable, ModeProvider {
             return
         }
 
-        let sanitisedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        appendToMessageLog("\n#### \(sanitisedText)\n")
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        appendToMessageLog("\n#### \(trimmedText.addingUnicodeEntities())\n")
 
         let index = await max(0, llamaContext.turnCount - 1)
-        let stream = await llamaContext.process(text: sanitisedText, template: template, turnIndex: index)
+        let stream = await llamaContext.process(text: trimmedText, template: template, turnIndex: index)
 
         var sentenceBuffer = ""
         var inQuote = false
         var started = false
         var backtickCount = 0
         for await fragment in stream {
-            // log(fragment)
             if !started {
                 withAnimation {
                     mode = .replying

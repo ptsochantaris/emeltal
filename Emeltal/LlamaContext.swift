@@ -297,6 +297,34 @@ final class LlamaContext {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
+        var tagBuffer: String?
+        let muteTags = asset.variant.muteTokens?.flatMap { [$0, "/\($0)"] }
+
+        func output(_ out: String) {
+            if let muteTags {
+                for char in out {
+                    if let buffer = tagBuffer {
+                        if char == ">" {
+                            if muteTags.contains(buffer) {
+                                log("Trimmed tag: \(buffer)")
+                            } else {
+                                continuation.yield("<\(buffer)>")
+                            }
+                            tagBuffer = nil
+                        } else {
+                            tagBuffer?.append(char)
+                        }
+                    } else if char == "<" {
+                        tagBuffer = ""
+                    } else {
+                        continuation.yield(String(char))
+                    }
+                }
+            } else {
+                continuation.yield(out)
+            }
+        }
+
         sentence: while allTokensCount <= n_ctx, !Task.isCancelled {
             if logits == nil {
                 fatalError()
@@ -343,7 +371,7 @@ final class LlamaContext {
                     log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
 
                     if failsafeStopDetector == nil {
-                        continuation.yield(outputString)
+                        output(outputString)
 
                     } else { // Scan for failsafe terminator
                         var detected = false
@@ -361,7 +389,7 @@ final class LlamaContext {
                         }
                         if !finalChars.isEmpty {
                             let out = String(finalChars)
-                            continuation.yield(out)
+                            output(out)
                         }
                         if detected {
                             log("Text ended with failsafe: [\(failsafeStopDetector?.text ?? "")]")
@@ -382,6 +410,11 @@ final class LlamaContext {
             logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
 
             await Task.yield()
+        }
+
+        if let buffer = tagBuffer {
+            continuation.yield(buffer)
+            tagBuffer = nil
         }
 
         log("Turn was \(currentTurn.length) tokens long, took \(-start.timeIntervalSinceNow) sec")

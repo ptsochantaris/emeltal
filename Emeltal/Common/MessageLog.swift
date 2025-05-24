@@ -71,6 +71,8 @@ extension WebView {
         }
 
         init() {
+            log("Coordinator init")
+
             let logView = Bundle.main.url(forResource: "log", withExtension: "html")!
             let config = WKWebViewConfiguration()
             config.suppressesIncrementalRendering = true

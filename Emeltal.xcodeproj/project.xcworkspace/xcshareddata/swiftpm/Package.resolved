@@ -1,6 +1,15 @@
 {
-  "originHash" : "09e66415fea0d144ea5cc0757c7b0e070178b99058f8b3a133a7d7dd86ec0535",
+  "originHash" : "b64637a55d117767800ae5e6eb4581eb1661f72841971f8744468fa71e3c5a92",
   "pins" : [
+    {
+      "identity" : "htmlstring",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alexaubry/HTMLString",
+      "state" : {
+        "revision" : "04613a3b0f40a91e554b5174c0a10657f1a26357",
+        "version" : "6.0.1"
+      }
+    },
     {
       "identity" : "ink",
       "kind" : "remoteSourceControl",
