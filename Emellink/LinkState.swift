@@ -8,7 +8,7 @@ final class AssetManager {}
 
 @MainActor
 @Observable
-final class LinkState: ModeProvider {
+final class LinkState: ModeProvider, ConversationHandler {
     private let remote = ClientConnector()
     private let speaker = try! Speaker()
     private let mic = Mic()
@@ -16,7 +16,7 @@ final class LinkState: ModeProvider {
     private var connectionStateObservation: Task<Void, Never>!
     private var micObservation: Task<Void, Never>!
 
-    var messageLog = MessageLog(string: "")
+    let messageLog = MessageLog()
     var multiLineText = ""
     var shouldPromptForIdealVoice = false
     var connectionState = EmeltalConnector.State.boot
@@ -248,9 +248,9 @@ final class LinkState: ModeProvider {
 
             case .textInitial:
                 if let textData = nibble.data, textData.count > 1, let text = String(data: textData, encoding: .utf8) {
-                    messageLog = MessageLog(string: text)
+                    messageLog.setHistory(text)
                 } else {
-                    messageLog = MessageLog(string: "")
+                    messageLog.setHistory("")
                 }
 
             case .textDiff:

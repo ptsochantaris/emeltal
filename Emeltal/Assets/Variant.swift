@@ -68,8 +68,8 @@ extension Model {
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
-            case .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius, .am1: .chatml
-            case .qwen3regular, .qwen3compact, .qwen3tiny: .chatmlNoThink
+            case .am1, .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .olympicCoder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
+            case .qwen3compact, .qwen3regular, .qwen3tiny: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             case .glm4, .glmz1: .glm
             }
@@ -79,7 +79,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen3regular, .qwen3compact, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -121,7 +121,8 @@ extension Model {
                  .smol,
                  .whisper:
                 0
-            case .athene,
+            case .am1,
+                 .athene,
                  .calme,
                  .dolphin72b,
                  .dolphinNemo,
@@ -141,8 +142,8 @@ extension Model {
                  .llama4scout,
                  .llamaNemotron,
                  .mistral2503,
-                 .qwen3regular,
                  .qwen3compact,
+                 .qwen3regular,
                  .qwen3tiny,
                  .qwen25coder,
                  .qwen25large,
@@ -150,7 +151,6 @@ extension Model {
                  .qwen25regular,
                  .qwenQwQ32,
                  .shuttle,
-                 .am1,
                  .supernovaMedius:
                 16384
             }
@@ -500,7 +500,7 @@ extension Model {
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
             case .dolphinNemo: "The Dolhpin personality running on the Mistral Nemo base model."
             case .qwenQwQ32: "An evolution of the Qwen model that, at least on benchmarks, offers a very high quality of reasoning. It will display its thinking process by default."
-            case .qwen3regular, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwen3compact, .qwen3tiny: "A consistently well regarded all-round model by users and benchmarks."
+            case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small: "A consistently well regarded all-round model by users and benchmarks."
             case .am1: "Strong performance on reasoning benchmarks, comparable to larger MoE models. Aims to be one of the best dense models at its size."
             case .qwen25coder: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."

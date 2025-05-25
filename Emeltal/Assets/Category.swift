@@ -23,7 +23,7 @@ extension Model {
 
         var displayable: Bool {
             switch self {
-            case .coding, .creative, .dolphin, .experimental, .gemma, .llamas, .qwen, .samantha, .glm: true
+            case .coding, .creative, .dolphin, .experimental, .gemma, .glm, .llamas, .qwen, .samantha: true
             case .system: false
             }
         }

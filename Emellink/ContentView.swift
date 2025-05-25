@@ -35,7 +35,7 @@ struct ContentView: View {
 
         } detail: {
             VStack(spacing: 0) {
-                WebView(messageLog: state.messageLog)
+                WebView(handler: state)
                     .navigationBarBackButtonHidden()
                     .toolbar {
                         #if os(iOS) || os(visionOS)

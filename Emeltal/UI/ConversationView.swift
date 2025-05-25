@@ -40,7 +40,7 @@ struct ConversationView: View {
                                 .padding(.top, spacing)
                         }
 
-                        WebView(messageLog: state.messageLog)
+                        WebView(handler: state)
                     }
 
                     SideBar(state: state, focusEntryField: $focusEntryField)
@@ -93,9 +93,6 @@ struct ConversationView: View {
                 let ready = state.mode.nominal
 
                 Button {
-                    Task {
-                        await state.shutdown()
-                    }
                     appPhase = .selection
                 } label: {
                     HStack(spacing: 0) {

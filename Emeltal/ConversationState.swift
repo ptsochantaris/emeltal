@@ -1,12 +1,12 @@
 import AVFoundation
 import Foundation
+import HTMLString
 import Network
 import SwiftUI
-import HTMLString
 
 @MainActor
 @Observable
-final class ConversationState: Identifiable, ModeProvider {
+final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
     let id: String
 
     var multiLineText = ""
@@ -33,7 +33,7 @@ final class ConversationState: Identifiable, ModeProvider {
         }
     }
 
-    var messageLog = MessageLog(path: nil)
+    let messageLog = MessageLog()
 
     var mode: AppMode = .startup {
         didSet {
@@ -150,7 +150,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     func shutdown() async {
-        log("Shutting down app state…")
+        log("Shutting down conversation state…")
         mode = .shutdown
         queueTask?.cancel()
         micObservation?.cancel()
@@ -159,6 +159,7 @@ final class ConversationState: Identifiable, ModeProvider {
         await speaker?.shutdown()
         await llamaContext?.shutdown()
         await whisperContext?.shutdown()
+        messageLog.shutdown()
     }
 
     deinit {
@@ -244,7 +245,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
         let hasSavedState = FileManager.default.fileExists(atPath: textPath.path)
         if hasSavedState {
-            messageLog = MessageLog(path: textPath)
+            messageLog.setHistory(from: textPath)
         }
 
         let ctxs = Task.detached {
@@ -298,7 +299,7 @@ final class ConversationState: Identifiable, ModeProvider {
                 await remote.send(.appActivationState, content: activationState.data)
                 await remote.send(.appMode, content: mode.data)
 
-                let allText = messageLog.history + messageLog.newText
+                let allText = await messageLog.allText
                 sendMessageLog(value: allText, initial: true)
 
             case .requestReset:
@@ -350,7 +351,7 @@ final class ConversationState: Identifiable, ModeProvider {
 
     private func chatInit(hasSavedState: Bool) async throws {
         if !hasSavedState, let systemText = template.systemText?.addingUnicodeEntities() {
-            messageLog = MessageLog(string: "> *\"\(systemText)\"*\n")
+            messageLog.setHistory("> *\"\(systemText)\"*\n")
         }
 
         try await llamaContext?.restoreStateIfNeeded(from: statePath, template: template)
@@ -539,7 +540,7 @@ final class ConversationState: Identifiable, ModeProvider {
     }
 
     func save() async throws {
-        if messageLog.isEmpty {
+        if await messageLog.isEmpty {
             let fm = FileManager.default
             if fm.fileExists(atPath: textPath.path) {
                 try fm.removeItem(at: textPath)
@@ -550,7 +551,7 @@ final class ConversationState: Identifiable, ModeProvider {
         } else {
             messageLog.commitNewText()
             await remote.send(.responseDone, content: emptyData)
-            try messageLog.save(to: textPath)
+            try await messageLog.save(to: textPath)
             try await llamaContext?.save(to: statePath)
             log("Saved state to \(statePath.path)")
         }
