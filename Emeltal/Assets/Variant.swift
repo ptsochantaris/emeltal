@@ -52,7 +52,7 @@ extension Model {
              am1
 
         var recommended: Bool {
-            self == .qwen25regular
+            self == .qwen3regular
         }
 
         var displayable: Bool {

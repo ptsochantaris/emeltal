@@ -61,8 +61,8 @@ cp -r\
  $LSRC/src/llama-hparams.cpp\
  $LSRC/src/llama-adapter.h\
  $LSRC/src/llama-adapter.cpp\
- $LSRC/src/llama-kv-cache.h\
- $LSRC/src/llama-kv-cache.cpp\
+ $LSRC/src/llama-kv-*.h\
+ $LSRC/src/llama-kv-*.cpp\
  $LSRC/src/llama-model.h\
  $LSRC/src/llama-model.cpp\
  $LSRC/src/llama-model-loader.h\

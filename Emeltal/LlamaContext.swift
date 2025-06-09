@@ -28,13 +28,13 @@ final class LlamaContext {
 
     func clearAllTokens() {
         turns.removeAll()
-        llama_kv_self_clear(context)
+
+        if let kv = llama_get_memory(context) {
+            llama_memory_clear(kv, true)
+        }
     }
 
     func save(to url: URL) throws {
-        llama_kv_self_defrag(context)
-        llama_kv_self_update(context)
-
         let llmStatePath = url.appendingPathComponent("llmState.bin").path.cString(using: .utf8)
         llama_state_save_file(context, llmStatePath, nil, 0)
 
@@ -132,7 +132,9 @@ final class LlamaContext {
         let bosTokenId = llama_vocab_bos(vocab)
         var emptyData = [bosTokenId, eos]
         llama_decode(context, llama_batch_get_one(&emptyData, 2))
-        llama_kv_self_clear(context)
+        if let kv = llama_get_memory(context) {
+            llama_memory_clear(kv, true)
+        }
     }
 
     func restoreStateIfNeeded(from statePath: URL, template: Template) throws {
@@ -187,11 +189,11 @@ final class LlamaContext {
         }
     }
 
-    func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<String> {
+    func process(text: String, template: Template, turnIndex: Int) -> AsyncStream<Character> {
         let promptText = template.text(for: .turn(text: text, index: turnIndex))
         log("Prompt: \(promptText)\n")
 
-        let prediction = AsyncStream.makeStream(of: String.self, bufferingPolicy: .unbounded)
+        let prediction = AsyncStream.makeStream(of: Character.self, bufferingPolicy: .unbounded)
         predictionTask = Task {
             await process(initialText: promptText, to: prediction.continuation, template: template)
             predictionTask = nil
@@ -226,13 +228,20 @@ final class LlamaContext {
 
             turns.removeAll { idsToEvict.contains($0.id) }
 
-            let evictStart = Int32(turns.first!.length)
-            let evictEnd = evictStart + evictedCount
-
-            llama_kv_self_seq_rm(context, 0, evictStart, evictEnd)
-            llama_kv_self_seq_add(context, 0, evictEnd, -1, -evictedCount)
+            if let firstTurn = turns.first {
+                let evictStart = Int32(firstTurn.length)
+                evictKvTokens(at: evictStart, length: evictedCount)
+            }
 
             log("\nDropping \(evictedCount) tokens from the top of the context to make space for new ones. Tokens remaining after trim: \(allTokensCount)")
+        }
+    }
+
+    private func evictKvTokens(at evictStart: Int32, length: Int32) {
+        if let kv = llama_get_memory(context) {
+            let evictEnd = evictStart + length
+            llama_memory_seq_rm(kv, 0, evictStart, evictEnd)
+            llama_memory_seq_add(kv, 0, evictEnd, -1, -length)
         }
     }
 
@@ -279,7 +288,7 @@ final class LlamaContext {
 
     private nonisolated(unsafe) let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
 
-    private func process(initialText: String, to continuation: AsyncStream<String>.Continuation, template: Template) async {
+    private func process(initialText: String, to continuation: AsyncStream<Character>.Continuation, template: Template) async {
         let start = Date.now
 
         let newTokens = tokenize(text: initialText)
@@ -292,36 +301,57 @@ final class LlamaContext {
         turns.append(currentTurn)
 
         var utf8Builder = UTF8Builder()
+
         var failsafeStopDetector: FailsafeStopDetector?
         if let failsafeStop = template.failsafeStop {
             failsafeStopDetector = FailsafeStopDetector(text: failsafeStop)
         }
 
+        var inThinkSection = false
         var tagBuffer: String?
         let muteTags = asset.variant.muteTokens?.flatMap { [$0, "/\($0)"] }
 
         func output(_ out: String) {
-            if let muteTags {
-                for char in out {
-                    if let buffer = tagBuffer {
-                        if char == ">" {
-                            if muteTags.contains(buffer) {
-                                log("Trimmed tag: \(buffer)")
-                            } else {
-                                continuation.yield("<\(buffer)>")
-                            }
-                            tagBuffer = nil
+            for char in out {
+                if let buffer = tagBuffer {
+                    if char == ">" {
+                        if let muteTags, muteTags.contains(buffer) {
+                            log("Trimmed tag: \(buffer)")
                         } else {
-                            tagBuffer?.append(char)
+                            continuation.yield("<")
+                            log("Detected tag: \(buffer)")
+                            switch buffer {
+                            case "think":
+                                inThinkSection = true
+                            case "/think":
+                                inThinkSection = false
+                            default:
+                                break
+                            }
+                            for c in buffer {
+                                continuation.yield(c)
+                            }
+                            continuation.yield(">")
                         }
-                    } else if char == "<" {
-                        tagBuffer = ""
+                        tagBuffer = nil
                     } else {
-                        continuation.yield(String(char))
+                        tagBuffer?.append(char)
+
+                        // Tag is too long
+                        if buffer.count > 10 {
+                            continuation.yield("<")
+                            for c in buffer {
+                                continuation.yield(c)
+                            }
+                            continuation.yield(char)
+                            tagBuffer = nil
+                        }
                     }
+                } else if char == "<" {
+                    tagBuffer = ""
+                } else {
+                    continuation.yield(char)
                 }
-            } else {
-                continuation.yield(out)
             }
         }
 
@@ -367,7 +397,9 @@ final class LlamaContext {
                         log("Text ended with EOS String: \(outputString)")
                         break sentence
                     }
+                }
 
+                if !outputString.isEmpty {
                     log("Fragment: \(newTokenId) / '\(outputString)' / \(wordBufferBytes(written))")
 
                     if failsafeStopDetector == nil {
@@ -407,14 +439,24 @@ final class LlamaContext {
 
             ensureCacheSpace(toFit: 1)
 
-            logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount)
+            logits = currentTurn.appendAndPredict(token: newTokenId, in: context, pos: allTokensCount, inThink: inThinkSection)
 
             await Task.yield()
         }
 
         if let buffer = tagBuffer {
-            continuation.yield(buffer)
+            for c in buffer {
+                continuation.yield(c)
+            }
             tagBuffer = nil
+        }
+
+        if let hadThinkBlock = currentTurn.thinkBlockRange {
+            log("Think block in turn \(currentTurn.id), logit range: \(hadThinkBlock), will trim related tokens from context")
+            let currentTurnStart = turns.dropLast().reduce(0) { $0 + $1.length }
+            let kvStart = Int32(currentTurnStart + hadThinkBlock.lowerBound)
+            let kvLength = Int32(hadThinkBlock.startIndex.distance(to: hadThinkBlock.endIndex))
+            evictKvTokens(at: kvStart, length: kvLength)
         }
 
         log("Turn was \(currentTurn.length) tokens long, took \(-start.timeIntervalSinceNow) sec")

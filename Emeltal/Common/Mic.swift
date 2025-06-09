@@ -74,7 +74,7 @@ final actor Mic {
 
     func warmup() async {
         try? await start(detectVoice: false)
-        _ = try? await stop(temporary: false)
+        _ = try? await stop()
         log("Mic warmup done")
     }
 
@@ -92,12 +92,14 @@ final actor Mic {
     private var tapState = TapState.none
     private var engineInUse = false
     private func isUsingEngine(_ using: Bool) async throws {
-        let oldState = engineInUse
+        if engineInUse == using {
+            return
+        }
         engineInUse = using
         // state updated, can go async from here
-        if !oldState, using {
+        if using {
             try await AudioEngineManager.shared.willUseEngine()
-        } else if oldState, !using {
+        } else {
             await AudioEngineManager.shared.doneUsingEngine()
         }
     }
@@ -301,31 +303,29 @@ final actor Mic {
         }
     }
 
-    func stop(temporary: Bool) async throws -> [Float] {
-        switch runState {
-        case .stopped:
-            return []
+    private func flushBuffer(temporary: Bool) -> [Float] {
+        let ret = buffer
+        buffer.removeAll()
+        log("Mic \(temporary ? "paused" : "stopped"), have \(ret.count) samples to flush")
+        return ret
+    }
 
-        case .paused:
-            if temporary {
-                return []
-            }
-
-        case .recording:
-            break
+    func pause() async throws -> [Float] {
+        if runState == .recording {
+            await removeTap()
+            runState = .paused
         }
 
-        await removeTap()
-        if temporary {
-            runState = .paused
-        } else {
+        return flushBuffer(temporary: true)
+    }
+
+    func stop() async throws -> [Float] {
+        if runState != .stopped {
+            await removeTap()
             runState = .stopped
             try await isUsingEngine(false)
         }
 
-        let ret = buffer
-        buffer.removeAll()
-        log("Mic stopped, have \(ret.count) samples, temporary: \(temporary)")
-        return ret
+        return flushBuffer(temporary: false)
     }
 }

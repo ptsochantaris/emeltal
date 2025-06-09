@@ -319,8 +319,14 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
                 await endMic(processOutput: true)
 
             case .buttonTap:
-                await speaker?.cancelIfNeeded()
-                await llamaContext?.cancelIfNeeded()
+                if mode == .waiting {
+                    if activationState == .button {
+                        mode = .listening(state: .quiet(prefixBuffer: []))
+                    }
+                } else {
+                    await speaker?.cancelIfNeeded()
+                    await llamaContext?.cancelIfNeeded()
+                }
 
             case .toggleListeningMode:
                 if activationState == .voiceActivated {
@@ -435,7 +441,7 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
     }
 
     private func endMic(processOutput: Bool) async {
-        guard let whisperContext, let samples = try? await mic.stop(temporary: false) else {
+        guard let whisperContext, let samples = try? await mic.stop() else {
             return
         }
 
@@ -478,33 +484,51 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
         var inQuote = false
         var started = false
         var backtickCount = 0
-        for await fragment in stream {
-            if !started {
-                withAnimation {
-                    mode = .replying
-                }
-                started = true
-            }
-            for c in fragment.enumerated() {
-                if c.element == "`" {
-                    backtickCount += 1
-                    if backtickCount == 3 {
-                        backtickCount = 0
-                        inQuote.toggle()
-                    }
-                } else {
-                    backtickCount = 0
-                }
-            }
 
-            appendToMessageLog(fragment)
-            sentenceBuffer += fragment
+        var streamBatch = ""
+
+        func processStreamBatch() async {
+            if streamBatch.isEmpty {
+                return
+            }
+            appendToMessageLog(streamBatch)
+            sentenceBuffer += streamBatch
+            streamBatch = ""
             if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, mode.nominal {
                 let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
                 await handleText(sentence, inQuote: inQuote)
                 sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
             }
         }
+
+        var lastFlush = Date.now
+        for await c in stream {
+            if !started {
+                withAnimation {
+                    mode = .replying
+                }
+                started = true
+            }
+
+            if c == "`" {
+                backtickCount += 1
+                if backtickCount == 3 {
+                    backtickCount = 0
+                    inQuote.toggle()
+                }
+            } else {
+                backtickCount = 0
+            }
+
+            streamBatch.append(c)
+
+            if Date.now.timeIntervalSince(lastFlush) > 0.2 {
+                await processStreamBatch()
+                lastFlush = .now
+            }
+        }
+
+        await processStreamBatch()
 
         if mode.nominal {
             if !sentenceBuffer.isEmpty {

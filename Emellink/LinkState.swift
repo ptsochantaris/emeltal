@@ -167,16 +167,19 @@ final class LinkState: ModeProvider, ConversationHandler {
     }
 
     private func endMic(sendData: Bool) async {
+        let floats = if remoteActivationState == .voiceActivated {
+            try? await mic.pause()
+        } else {
+            try? await mic.stop()
+        }
         if sendData {
-            if let floats = try? await mic.stop(temporary: remoteActivationState == .voiceActivated), floats.count > 100 {
+            if let floats, floats.count > 100 {
                 let speech = floats.withUnsafeBytes { floatPointer in
                     Data(bytes: floatPointer.baseAddress!, count: floatPointer.count)
                 }
                 await remote.send(.recordedSpeech, content: speech)
             }
             await remote.send(.recordedSpeechDone, content: emptyData)
-        } else {
-            _ = try? await mic.stop(temporary: remoteActivationState == .voiceActivated)
         }
     }
 

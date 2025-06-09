@@ -3,6 +3,7 @@ import Foundation
 final class Turn: Codable {
     let id: llama_seq_id
     var length = 0
+    var thinkBlockRange: Range<Int>?
 
     enum CodingKeys: CodingKey {
         case id
@@ -12,6 +13,8 @@ final class Turn: Codable {
     init(id: llama_seq_id) {
         self.id = id
     }
+
+    private var thinkStart: Int?
 
     func append(tokens: [llama_token], in context: OpaquePointer, andPredict: Bool, offset: Int) -> UnsafeMutablePointer<Float>? {
         let promptCount = tokens.count
@@ -53,7 +56,19 @@ final class Turn: Codable {
     }()
 
     @GGMLActor
-    func appendAndPredict(token: llama_token, in context: OpaquePointer, pos: Int) -> UnsafeMutablePointer<Float> {
+    func appendAndPredict(token: llama_token, in context: OpaquePointer, pos: Int, inThink: Bool) -> UnsafeMutablePointer<Float> {
+        if inThink {
+            if thinkStart == nil {
+                thinkStart = length
+            }
+        } else {
+            if let lastStart = thinkStart {
+                thinkStart = nil
+                let range = lastStart ..< (length + 1)
+                thinkBlockRange = range
+            }
+        }
+
         // print("+\(pos):[\(token)] ", terminator: "")
         Self.singleTokenBatch.token[0] = token
         Self.singleTokenBatch.pos[0] = Int32(pos)

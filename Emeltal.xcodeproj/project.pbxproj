@@ -115,13 +115,15 @@
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
 		16C8C26B2DA581E3008332A6 /* ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C8C26A2DA581E3008332A6 /* ops.cpp */; };
 		16C8C26E2DA58206008332A6 /* vec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C8C26D2DA58206008332A6 /* vec.cpp */; };
+		16CB8E802DF5A39400D79825 /* llama-kv-cache-unified.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */; };
+		16CB8E852DF5A45400D79825 /* llama-kv-cache-recurrent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16CB8E822DF5A45400D79825 /* llama-kv-cache-recurrent.cpp */; };
+		16CB8E862DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C992B5C1DDF0056E9FB /* Ink */; };
 		16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C9B2B5C1DE50056E9FB /* Ink */; };
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
-		16FCFAD82D2DD357008AD758 /* llama-kv-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */; };
 		16FCFAD92D2DD357008AD758 /* llama-hparams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */; };
 		16FCFADA2D2DD357008AD758 /* llama-context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD32D2DD357008AD758 /* llama-context.cpp */; };
 		16FCFADB2D2DD357008AD758 /* llama-cparams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */; };
@@ -276,6 +278,12 @@
 		16C8C26A2DA581E3008332A6 /* ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ops.cpp; sourceTree = "<group>"; };
 		16C8C26C2DA58206008332A6 /* vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 		16C8C26D2DA58206008332A6 /* vec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vec.cpp; sourceTree = "<group>"; };
+		16CB8E7E2DF5A39400D79825 /* llama-kv-cache-unified.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-kv-cache-unified.h"; sourceTree = "<group>"; };
+		16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-unified.cpp"; sourceTree = "<group>"; };
+		16CB8E812DF5A45400D79825 /* llama-kv-cache-recurrent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-kv-cache-recurrent.h"; sourceTree = "<group>"; };
+		16CB8E822DF5A45400D79825 /* llama-kv-cache-recurrent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-recurrent.cpp"; sourceTree = "<group>"; };
+		16CB8E832DF5A45400D79825 /* llama-kv-cache-unified-iswa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-kv-cache-unified-iswa.h"; sourceTree = "<group>"; };
+		16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-unified-iswa.cpp"; sourceTree = "<group>"; };
 		16D332342B6117C5009009A7 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
@@ -285,7 +293,6 @@
 		16FCFAD32D2DD357008AD758 /* llama-context.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-context.cpp"; sourceTree = "<group>"; };
 		16FCFAD42D2DD357008AD758 /* llama-cparams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-cparams.cpp"; sourceTree = "<group>"; };
 		16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-hparams.cpp"; sourceTree = "<group>"; };
-		16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache.cpp"; sourceTree = "<group>"; };
 		16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-model-loader.cpp"; sourceTree = "<group>"; };
 		16FCFADE2D2DD393008AD758 /* llama-model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-model.cpp"; sourceTree = "<group>"; };
 		16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-impl.cpp"; sourceTree = "<group>"; };
@@ -485,16 +492,14 @@
 				16B5582B2CF133FC00A7F8C8 /* ggml-impl.h */,
 				16B5582C2CF133FC00A7F8C8 /* ggml-metal.h */,
 				16B5581C2CF133FC00A7F8C8 /* ggml-metal */,
-				16B5582D2CF133FC00A7F8C8 /* ggml-quants.h */,
-				16B5582E2CF133FC00A7F8C8 /* ggml-quants.c */,
 				16A82B5F2DD50E6A002FC4FE /* ggml-opt.h */,
 				16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */,
+				16B5582D2CF133FC00A7F8C8 /* ggml-quants.h */,
+				16B5582E2CF133FC00A7F8C8 /* ggml-quants.c */,
 				16B5582F2CF133FC00A7F8C8 /* ggml-threading.h */,
 				16B558302CF133FC00A7F8C8 /* ggml-threading.cpp */,
 				16FCFAE52D2DD5DD008AD758 /* gguf.h */,
 				16FCFAE62D2DD5DD008AD758 /* gguf.cpp */,
-				16A82B602DD50E87002FC4FE /* llama-model-saver.h */,
-				16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */,
 				16B558312CF133FC00A7F8C8 /* llama.h */,
 				16B558322CF133FC00A7F8C8 /* llama.cpp */,
 				16FCFAEE2D2DD704008AD758 /* llama-adapter.h */,
@@ -515,13 +520,20 @@
 				16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */,
 				162EB20D2D83144F008D2FF2 /* llama-io.h */,
 				162EB20E2D83144F008D2FF2 /* llama-io.cpp */,
-				16FCFAD62D2DD357008AD758 /* llama-kv-cache.cpp */,
+				16CB8E812DF5A45400D79825 /* llama-kv-cache-recurrent.h */,
+				16CB8E822DF5A45400D79825 /* llama-kv-cache-recurrent.cpp */,
+				16CB8E7E2DF5A39400D79825 /* llama-kv-cache-unified.h */,
+				16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */,
+				16CB8E832DF5A45400D79825 /* llama-kv-cache-unified-iswa.h */,
+				16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */,
 				162EB2102D83148E008D2FF2 /* llama-memory.h */,
 				162EB2112D83148E008D2FF2 /* llama-memory.cpp */,
 				16FCFAE22D2DD52A008AD758 /* llama-mmap.h */,
 				16FCFAE32D2DD52A008AD758 /* llama-mmap.cpp */,
 				16FCFADE2D2DD393008AD758 /* llama-model.cpp */,
 				16FCFAD72D2DD357008AD758 /* llama-model-loader.cpp */,
+				16A82B602DD50E87002FC4FE /* llama-model-saver.h */,
+				16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */,
 				16B558362CF133FC00A7F8C8 /* llama-sampling.h */,
 				16B558372CF133FC00A7F8C8 /* llama-sampling.cpp */,
 				16B558382CF133FC00A7F8C8 /* llama-vocab.h */,
@@ -641,7 +653,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -722,6 +734,8 @@
 				16B558432CF133FC00A7F8C8 /* ggml-cpu.c in Sources */,
 				16B558442CF133FC00A7F8C8 /* ggml-cpu.cpp in Sources */,
 				16A5D9212D9950C5006B35EC /* unary-ops.cpp in Sources */,
+				16CB8E852DF5A45400D79825 /* llama-kv-cache-recurrent.cpp in Sources */,
+				16CB8E862DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp in Sources */,
 				16B558452CF133FC00A7F8C8 /* unicode-data.cpp in Sources */,
 				16B558472CF133FC00A7F8C8 /* llama-grammar.cpp in Sources */,
 				167382E82D0481BE002353D2 /* ggml-cpu-aarch64.cpp in Sources */,
@@ -760,10 +774,10 @@
 				165D9E872CB5C41300AAE9FB /* Model.swift in Sources */,
 				16C58DEF2B34C11800006CC2 /* EmeltalConnector.swift in Sources */,
 				16C58E092B35D72500006CC2 /* ModeView.swift in Sources */,
-				16FCFAD82D2DD357008AD758 /* llama-kv-cache.cpp in Sources */,
 				16FCFAD92D2DD357008AD758 /* llama-hparams.cpp in Sources */,
 				16FCFADA2D2DD357008AD758 /* llama-context.cpp in Sources */,
 				16FCFADB2D2DD357008AD758 /* llama-cparams.cpp in Sources */,
+				16CB8E802DF5A39400D79825 /* llama-kv-cache-unified.cpp in Sources */,
 				16FCFADC2D2DD357008AD758 /* llama-chat.cpp in Sources */,
 				16FCFADD2D2DD357008AD758 /* llama-model-loader.cpp in Sources */,
 				16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */,
@@ -872,6 +886,7 @@
 				DEVELOPMENT_TEAM = X727JSJUGJ;
 				EAGER_LINKING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
