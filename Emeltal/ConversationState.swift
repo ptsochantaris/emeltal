@@ -481,28 +481,36 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
         let index = await max(0, llamaContext.turnCount - 1)
         let stream = await llamaContext.process(text: trimmedText, template: template, turnIndex: index)
 
-        var sentenceBuffer = ""
         var inQuote = false
         var started = false
         var backtickCount = 0
 
-        var streamBatch = ""
+        var phraseBatch = ""
+        var displayBatch = ""
 
-        func processStreamBatch() async {
-            if streamBatch.isEmpty {
+        var lastDisplayFlush = Date.now
+
+        func processPhraseBatch() async {
+            if phraseBatch.isEmpty {
                 return
             }
-            appendToMessageLog(streamBatch)
-            sentenceBuffer += streamBatch
-            streamBatch = ""
-            if let range = sentenceBuffer.ranges(of: #/[\.|\!|\?|\n|\r|\,|\;\:]\s/#).first, mode.nominal {
-                let sentence = String(sentenceBuffer[sentenceBuffer.startIndex ..< range.upperBound])
-                await handleText(sentence, inQuote: inQuote)
-                sentenceBuffer = String(sentenceBuffer[range.upperBound ..< sentenceBuffer.endIndex])
-            }
+            let batch = phraseBatch
+            phraseBatch = ""
+            await handleText(batch, inQuote: inQuote)
         }
 
-        var lastFlush = Date.now
+        func processDisplayBatch() async {
+            if displayBatch.isEmpty {
+                return
+            }
+            let batch = displayBatch
+            displayBatch = ""
+            appendToMessageLog(batch)
+            lastDisplayFlush = .now
+        }
+
+        var potentialSentenceEnd = false
+
         for await c in stream {
             if !started {
                 withAnimation {
@@ -511,36 +519,63 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
                 started = true
             }
 
+            var flushDisplay = Date.now.timeIntervalSince(lastDisplayFlush) > 0.3
+            var flushPhrase = false
+            var quoteFlip = false
+
             if c == "`" {
                 backtickCount += 1
                 if backtickCount == 3 {
                     backtickCount = 0
-                    inQuote.toggle()
+                    quoteFlip = true
+                    flushPhrase = true
                 }
             } else {
                 backtickCount = 0
+
+                switch c {
+                case ",", ";", ":", "!", "?", ".", "\n", "\r":
+                    potentialSentenceEnd = true
+                default:
+                    if c.isWhitespace {
+                        flushDisplay = true
+                        if potentialSentenceEnd {
+                            flushPhrase = true
+                        }
+                    }
+                    potentialSentenceEnd = false
+                }
             }
 
-            streamBatch.append(c)
+            displayBatch.append(c)
+            phraseBatch.append(c)
 
-            if Date.now.timeIntervalSince(lastFlush) > 0.2 {
-                await processStreamBatch()
-                lastFlush = .now
+            if mode.nominal {
+                if flushDisplay {
+                    flushDisplay = false
+                    await processDisplayBatch()
+                }
+                if flushPhrase {
+                    flushPhrase = false
+                    await processPhraseBatch()
+                }
+                if quoteFlip {
+                    inQuote.toggle()
+                }
             }
         }
 
-        await processStreamBatch()
-
-        if mode.nominal {
-            if !sentenceBuffer.isEmpty {
-                await handleText(sentenceBuffer, inQuote: inQuote)
-            }
-            appendToMessageLog("\n")
-
-            try? await save()
-            await speaker?.waitForCompletion()
-            shouldWaitOrListen()
+        guard mode.nominal else {
+            return
         }
+
+        await processDisplayBatch()
+        await processPhraseBatch()
+        appendToMessageLog("\n")
+
+        try? await save()
+        await speaker?.waitForCompletion()
+        shouldWaitOrListen()
     }
 
     private func handleText(_ text: String, inQuote: Bool) async {
