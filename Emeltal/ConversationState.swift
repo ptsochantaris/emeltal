@@ -295,15 +295,16 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
             case .appActivationState, .appMode, .heartbeat, .responseDone, .spokenSentence, .textDiff, .textInitial, .unknown:
                 break
 
+            case .requestReset:
+                try? await reset()
+                fallthrough // to hello
+
             case .hello:
                 await remote.send(.appActivationState, content: activationState.data)
                 await remote.send(.appMode, content: mode.data)
 
                 let allText = await messageLog.allText
                 sendMessageLog(value: allText, initial: true)
-
-            case .requestReset:
-                try? await reset()
 
             case .textInput:
                 if let textData = nibble.data, let text = String(data: textData, encoding: .utf8) {

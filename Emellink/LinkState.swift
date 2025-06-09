@@ -158,6 +158,10 @@ final class LinkState: ModeProvider, ConversationHandler {
     func requestReset() {
         Task {
             await remote.send(.requestReset, content: emptyData)
+
+            await speaker.cancelIfNeeded()
+            _ = try? await mic.stop()
+            messageLog.reset()
         }
     }
 
