@@ -22,12 +22,10 @@ cp -r\
  $LSRC/ggml/src/ggml-backend.cpp\
  $LSRC/ggml/src/ggml-impl.h\
  $LSRC/ggml/src/ggml-backend-reg.cpp\
- $LSRC/ggml/src/ggml-quants.c\
- $LSRC/ggml/src/ggml-quants.h\
+ $LSRC/ggml/src/ggml-quants.*\
  $LSRC/ggml/src/ggml-common.h\
  $LSRC/ggml/src/ggml.c\
- $LSRC/ggml/src/ggml-threading.h\
- $LSRC/ggml/src/ggml-threading.cpp\
+ $LSRC/ggml/src/ggml-threading.*\
  $LSRC/ggml/include/ggml.h\
  $LSRC/ggml/include/ggml-cpp.h\
  $LSRC/ggml/include/ggml-blas.h\
@@ -47,45 +45,26 @@ cp -r\
  $LSRC/src/llama-chat.cpp\
  $LSRC/src/llama-io.h\
  $LSRC/src/llama-io.cpp\
- $LSRC/src/llama-memory.h\
- $LSRC/src/llama-memory.cpp\
- $LSRC/src/llama-graph.h\
- $LSRC/src/llama-graph.cpp\
- $LSRC/src/llama-context.h\
- $LSRC/src/llama-context.cpp\
- $LSRC/src/llama-batch.h\
- $LSRC/src/llama-batch.cpp\
- $LSRC/src/llama-cparams.h\
- $LSRC/src/llama-cparams.cpp\
- $LSRC/src/llama-hparams.h\
- $LSRC/src/llama-hparams.cpp\
- $LSRC/src/llama-adapter.h\
- $LSRC/src/llama-adapter.cpp\
- $LSRC/src/llama-kv-*.h\
- $LSRC/src/llama-kv-*.cpp\
- $LSRC/src/llama-model.h\
- $LSRC/src/llama-model.cpp\
- $LSRC/src/llama-model-loader.h\
- $LSRC/src/llama-model-loader.cpp\
- $LSRC/src/llama-model-saver.h\
- $LSRC/src/llama-model-saver.cpp\
- $LSRC/src/llama-arch.h\
- $LSRC/src/llama-arch.cpp\
- $LSRC/src/llama-mmap.h\
- $LSRC/src/llama-mmap.cpp\
- $LSRC/src/llama-impl.h\
- $LSRC/src/llama-impl.cpp\
+ $LSRC/src/llama-memory*\
+ $LSRC/src/llama-graph.*\
+ $LSRC/src/llama-context.*\
+ $LSRC/src/llama-batch.*\
+ $LSRC/src/llama-cparams.*\
+ $LSRC/src/llama-hparams.*\
+ $LSRC/src/llama-adapter.*\
+ $LSRC/src/llama-kv-*\
+ $LSRC/src/llama-model.*\
+ $LSRC/src/llama-model-loader.*\
+ $LSRC/src/llama-model-saver.*\
+ $LSRC/src/llama-arch.*\
+ $LSRC/src/llama-mmap.*\
+ $LSRC/src/llama-impl.*\
  $LSRC/src/llama.cpp\
- $LSRC/src/llama-vocab.h\
- $LSRC/src/llama-vocab.cpp\
- $LSRC/src/llama-grammar.h\
- $LSRC/src/llama-grammar.cpp\
- $LSRC/src/llama-sampling.h\
- $LSRC/src/llama-sampling.cpp\
- $LSRC/src/unicode.h\
- $LSRC/src/unicode.cpp\
- $LSRC/src/unicode-data.h\
- $LSRC/src/unicode-data.cpp\
+ $LSRC/src/llama-vocab.*\
+ $LSRC/src/llama-grammar.*\
+ $LSRC/src/llama-sampling.*\
+ $LSRC/src/unicode.*\
+ $LSRC/src/unicode-data.*\
  $LSRC/include/llama.h\
  $WSRC/src/whisper.cpp\
  $WSRC/src/whisper-arch.h\

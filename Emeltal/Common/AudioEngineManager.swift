@@ -38,9 +38,14 @@ final actor AudioEngineManager {
         log("Audio engine instantiated")
     }
 
-    private var count = 0
+    private var count = 0 {
+        didSet {
+            log(String(format: "Audio engine in use: %d", count))
+        }
+    }
 
     func willUseEngine() throws {
+        count += 1
         engineShutdown.abort()
         if engine.isRunning {
             // log("Audio engine already running")
@@ -48,7 +53,6 @@ final actor AudioEngineManager {
             log("Starting audio engine")
             try engine.start()
         }
-        count += 1
     }
 
     private lazy var engineShutdown = PopTimer(timeInterval: 1) { [weak self] in
