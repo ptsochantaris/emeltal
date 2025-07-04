@@ -49,7 +49,8 @@ extension Model {
              llamaNemotron,
              glm4,
              glmz1,
-             am1
+             am1,
+             magistral
 
         var recommended: Bool {
             self == .qwen3regular
@@ -64,7 +65,7 @@ extension Model {
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
             case .codestral, .neuralStory7b: .mistral
-            case .mistral2503: .mistralNew
+            case .mistral2503, .magistral: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
@@ -79,7 +80,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius, .magistral:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -142,6 +143,7 @@ extension Model {
                  .llama4scout,
                  .llamaNemotron,
                  .mistral2503,
+                 .magistral,
                  .qwen3compact,
                  .qwen3regular,
                  .qwen3tiny,
@@ -183,6 +185,7 @@ extension Model {
             case .qwen25regular: 4096
             case .qwen25coder: 4096
             case .qwen25medium: 3072
+            case .magistral: 2560
             case .qwenQwQ32: 4096
             case .athene: 5120
             case .supernovaMedius: 3072
@@ -255,6 +258,7 @@ extension Model {
             case .gemma327: 272
             case .olympicCoder: 370
             case .mistral2503: 483
+            case .magistral: 483
             case .glm4, .glmz1: 380
             }
 
@@ -278,6 +282,7 @@ extension Model {
             case .qwen25coder: 65
             case .qwen25medium: 49
             case .qwen25small: 29
+            case .magistral: 41
             case .qwenQwQ32: 65
             case .supernovaMedius: 49
             case .codeLlama70b: 81
@@ -488,6 +493,7 @@ extension Model {
             case .mistral2503: "19.7 GB"
             case .glm4, .glmz1: "23.7 GB"
             case .am1: "23.3 GB"
+            case .magistral: "19.7 GB"
             }
         }
 
@@ -531,6 +537,7 @@ extension Model {
             case .llamaNemotron: "NVIDIA's reasoning model that is post trained for reasoning, human chat preferences, and tasks."
             case .glm4: "High performance model that claims equivalent performance to R1 and GPT."
             case .glmz1: "This is the same as the 4 model but extended with explicit thinking display and processing."
+            case .magistral: "An extension of Mistral 2503, with added reasoning capabilities, undergoing SFT from Magistral Medium traces and RL on top."
             }
         }
 
@@ -552,7 +559,12 @@ extension Model {
         }
 
         private var defaultTemperature: Float {
-            isCodingLLm ? 0.1 : 0.6
+            switch self {
+            case .magistral:
+                0.7
+            default:
+                isCodingLLm ? 0.1 : 0.6
+            }
         }
 
         private var defaultTemperatureRange: Float {
@@ -650,6 +662,7 @@ extension Model {
             case .qwen3compact: "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF"
             case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF"
             case .am1: "https://huggingface.co/a-m-team/AM-Thinking-v1-gguf"
+            case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
             }
             return URL(string: uri)!
         }
@@ -703,6 +716,7 @@ extension Model {
             case .qwen3regular: "Qwen_Qwen3-32B-Q5_K_L.gguf"
             case .qwen3compact: "Qwen_Qwen3-8B-Q5_K_L.gguf"
             case .am1: "AM-Thinking-v1.Q5_K_M.gguf"
+            case .magistral: "mistralai_Magistral-Small-2506-Q6_K_L.gguf"
             }
         }
 
@@ -769,6 +783,7 @@ extension Model {
             case .glm4: "GLM 4"
             case .glmz1: "GLM Z1"
             case .am1: "AM‑Thinking"
+            case .magistral: "Magistral 2506"
             }
         }
 
@@ -821,6 +836,7 @@ extension Model {
             case .llamaNemotron: "v1, on Llama 3.3 70b"
             case .glm4: "32b params"
             case .glmz1: "32b params"
+            case .magistral: "24b params, on Mistral 2503"
             }
         }
 
@@ -873,6 +889,7 @@ extension Model {
             case .qwen3compact: "89CF3A8B-8A9F-46AC-93AB-540C51E4FFB7"
             case .qwen3tiny: "172F84EA-02C3-4CC7-8130-BBF282452EB2"
             case .am1: "22D9BBAB-8F6D-4217-852D-CE284F3E8F34"
+            case .magistral: "BEFA3CE3-3DF7-41EA-B297-7841DA3C647A"
             }
         }
 
