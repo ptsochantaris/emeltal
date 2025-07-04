@@ -124,7 +124,7 @@ final actor Mic {
 
     private static let transcriptionSampleRate = 16000
     private static let micBufferSize: UInt32 = 8192
-    private static let fft = FFT(bufferSize: Int(micBufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: transcriptionSampleRate)
+    private nonisolated(unsafe) static let fft = FFT(bufferSize: Int(micBufferSize), minFrequency: 1500, maxFrequency: 3500, numberOfBands: 1, windowType: .none, sampleRate: transcriptionSampleRate)
     private static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: Double(transcriptionSampleRate), channels: 1, interleaved: true)!
     private static let outputFrames = AVAudioFrameCount(outputFormat.sampleRate)
 
@@ -211,7 +211,7 @@ final actor Mic {
             }
 
             var error: NSError?
-            var reported = AVAudioConverterInputStatus.haveData
+            nonisolated(unsafe) var reported = AVAudioConverterInputStatus.haveData
             converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
                 outStatus.pointee = reported
                 reported = .noDataNow

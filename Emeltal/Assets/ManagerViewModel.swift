@@ -59,6 +59,8 @@ final class ManagerViewModel {
         Model(category: .glm, variant: .glm4),
         Model(category: .glm, variant: .glmz1),
 
+        Model(category: .apple, variant: .sage),
+
         Model(category: .experimental, variant: .am1),
         Model(category: .experimental, variant: .magistral),
         Model(category: .experimental, variant: .mistral2503),

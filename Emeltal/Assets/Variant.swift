@@ -50,7 +50,8 @@ extension Model {
              glm4,
              glmz1,
              am1,
-             magistral
+             magistral,
+             sage
 
         var recommended: Bool {
             self == .qwen3regular
@@ -64,8 +65,8 @@ extension Model {
             switch self {
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
-            case .codestral, .neuralStory7b: .mistral
-            case .mistral2503, .magistral: .mistralNew
+            case .codestral, .neuralStory7b, .sage: .mistral
+            case .magistral, .mistral2503: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .mythoMax, .whisper: .alpaca
@@ -80,7 +81,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius, .magistral:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .sage, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -117,6 +118,7 @@ extension Model {
                  .neuralStory7b,
                  .olympicCoder,
                  .qwen25small,
+                 .sage,
                  .samantha7b,
                  .samantha70b,
                  .smol,
@@ -142,8 +144,8 @@ extension Model {
                  .llama3tiny,
                  .llama4scout,
                  .llamaNemotron,
-                 .mistral2503,
                  .magistral,
+                 .mistral2503,
                  .qwen3compact,
                  .qwen3regular,
                  .qwen3tiny,
@@ -180,6 +182,7 @@ extension Model {
             case .qwen25large: 5120
             case .qwen3regular: 4096
             case .am1: 4096
+            case .sage: 4096
             case .qwen3compact: 2304
             case .qwen3tiny: 1024
             case .qwen25regular: 4096
@@ -260,6 +263,7 @@ extension Model {
             case .mistral2503: 483
             case .magistral: 483
             case .glm4, .glmz1: 380
+            case .sage: 930
             }
 
             let totalLayers: Int64 = switch self {
@@ -310,6 +314,7 @@ extension Model {
             case .olympicCoder: 65
             case .mistral2503: 41
             case .glm4, .glmz1: 62
+            case .sage: 31
             }
 
             let layerSize = (layerSizeM + 4) * 1_000_000
@@ -494,6 +499,7 @@ extension Model {
             case .glm4, .glmz1: "23.7 GB"
             case .am1: "23.3 GB"
             case .magistral: "19.7 GB"
+            case .sage: "28.5 GB"
             }
         }
 
@@ -521,6 +527,7 @@ extension Model {
             case .llama3compact: "A compact, edge-optimised version of the Llama-3 model from Meta."
             case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta."
             case .codestral: "The state of the art code assistant from Mistral.AI"
+            case .sage: "A state of the art Apple model focusing on empathy and emptional intelligence."
             case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
             case .shuttle: "Shuttle-3 is a fine-tuned version of Qwen, emulating the writing style of Claude 3 models and thoroughly trained on role-playing data."
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
@@ -663,6 +670,7 @@ extension Model {
             case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF"
             case .am1: "https://huggingface.co/a-m-team/AM-Thinking-v1-gguf"
             case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
+            case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF"
             }
             return URL(string: uri)!
         }
@@ -717,6 +725,7 @@ extension Model {
             case .qwen3compact: "Qwen_Qwen3-8B-Q5_K_L.gguf"
             case .am1: "AM-Thinking-v1.Q5_K_M.gguf"
             case .magistral: "mistralai_Magistral-Small-2506-Q6_K_L.gguf"
+            case .sage: "sage-ft-mixtral-8x7b-q4_k_m.gguf"
             }
         }
 
@@ -784,6 +793,7 @@ extension Model {
             case .glmz1: "GLM Z1"
             case .am1: "AM‑Thinking"
             case .magistral: "Magistral 2506"
+            case .sage: "Sage"
             }
         }
 
@@ -837,6 +847,7 @@ extension Model {
             case .glm4: "32b params"
             case .glmz1: "32b params"
             case .magistral: "24b params, on Mistral 2503"
+            case .sage: "on Mixtral MoE 8x7b"
             }
         }
 
@@ -890,6 +901,7 @@ extension Model {
             case .qwen3tiny: "172F84EA-02C3-4CC7-8130-BBF282452EB2"
             case .am1: "22D9BBAB-8F6D-4217-852D-CE284F3E8F34"
             case .magistral: "BEFA3CE3-3DF7-41EA-B297-7841DA3C647A"
+            case .sage: "4A3A6C15-6B0B-4FE0-9DE5-F3E37B8C0852"
             }
         }
 
