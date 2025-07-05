@@ -4,7 +4,7 @@ extension Model {
     enum Category: Int, CaseIterable, Identifiable {
         var id: Int { rawValue }
 
-        case qwen, dolphin, samantha, coding, creative, gemma, llamas, glm, system, experimental, apple
+        case qwen, dolphin, samantha, coding, creative, gemma, llamas, mistrals, apple, glm, system, experimental
 
         var title: String {
             switch self {
@@ -18,13 +18,14 @@ extension Model {
             case .gemma: "Gemma"
             case .glm: "GLM"
             case .apple: "Apple"
+            case .mistrals: "Mistral"
             case .experimental: "Experimental"
             }
         }
 
         var displayable: Bool {
             switch self {
-            case .apple, .coding, .creative, .dolphin, .experimental, .gemma, .glm, .llamas, .qwen, .samantha: true
+            case .apple, .coding, .creative, .dolphin, .experimental, .gemma, .glm, .llamas, .mistrals, .qwen, .samantha: true
             case .system: false
             }
         }
@@ -39,6 +40,8 @@ extension Model {
                 "Models that can help with creative activities, such as writing. More will be added soon."
             case .samantha:
                 "The \"sister\" of Dolphin, Samantha is a data set which produces models based on the premise they are sentient, and emotionally supportive of the user."
+            case .mistrals:
+                "Mistral models have proven over time to be dependable and consistently used as the base of many other models."
             case .qwen:
                 "The Qwen models are consistently rated both highly in benchmarks and by users."
             case .llamas:

@@ -65,7 +65,8 @@ extension Model {
             switch self {
             case .codeLlama70b: .llamaLarge
             case .samantha7b, .samantha70b: .vicuna
-            case .codestral, .neuralStory7b, .sage: .mistral
+            case .sage: .llama2
+            case .codestral, .neuralStory7b: .mistral
             case .magistral, .mistral2503: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
@@ -245,7 +246,7 @@ extension Model {
             case .athene: 568
             case .llama3large: 568
             case .supernovaMedius: 222
-            case .codeLlama70b: 601
+            case .codeLlama70b: 610
             case .llamaNemotron: 517
             case .llama4scout: 884
             case .llama3: 199
@@ -263,7 +264,7 @@ extension Model {
             case .mistral2503: 483
             case .magistral: 483
             case .glm4, .glmz1: 380
-            case .sage: 930
+            case .sage: 860
             }
 
             let totalLayers: Int64 = switch self {
@@ -548,6 +549,13 @@ extension Model {
             }
         }
 
+        var emotionBlockHandlingRequired: Bool {
+            switch self {
+            case .sage: true
+            default: false
+            }
+        }
+
         var isCodingLLm: Bool {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .everyoneCoder, .olympicCoder, .qwen25coder:
@@ -567,7 +575,7 @@ extension Model {
 
         private var defaultTemperature: Float {
             switch self {
-            case .magistral:
+            case .magistral, .sage:
                 0.7
             default:
                 isCodingLLm ? 0.1 : 0.6
@@ -575,12 +583,15 @@ extension Model {
         }
 
         private var defaultTemperatureRange: Float {
-            if case .qwenQwQ32 = self {
-                0
-            } else if isCodingLLm {
-                0
-            } else {
-                0.2
+            if isCodingLLm {
+                return 0
+            }
+
+            switch self {
+            case .qwenQwQ32, .sage:
+                return 0
+            default:
+                return 0.2
             }
         }
 

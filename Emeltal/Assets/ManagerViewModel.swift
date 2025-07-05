@@ -27,6 +27,7 @@ final class ManagerViewModel {
         Model(category: .coding, variant: .qwen25coder),
         Model(category: .coding, variant: .codestral),
         Model(category: .coding, variant: .dolphinCoder),
+        Model(category: .coding, variant: .deepSeekCoder33),
         Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .codeLlama70b),
         Model(category: .coding, variant: .olympicCoder),
@@ -35,18 +36,18 @@ final class ManagerViewModel {
         Model(category: .samantha, variant: .samantha7b),
         Model(category: .samantha, variant: .samantha70b),
 
-        Model(category: .llamas, variant: .llama4scout),
-        Model(category: .llamas, variant: .llama3),
         Model(category: .llamas, variant: .llama3large),
+        Model(category: .llamas, variant: .llama3),
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
+        Model(category: .llamas, variant: .llama4scout),
         Model(category: .llamas, variant: .llamaNemotron),
 
-        Model(category: .qwen, variant: .qwen3compact),
         Model(category: .qwen, variant: .qwen3regular),
+        Model(category: .qwen, variant: .qwen3compact),
         Model(category: .qwen, variant: .qwen3tiny),
-        Model(category: .qwen, variant: .qwen25regular),
         Model(category: .qwen, variant: .qwen25large),
+        Model(category: .qwen, variant: .qwen25regular),
         Model(category: .qwen, variant: .qwen25medium),
         Model(category: .qwen, variant: .qwen25small),
         Model(category: .qwen, variant: .qwenQwQ32),
@@ -61,9 +62,10 @@ final class ManagerViewModel {
 
         Model(category: .apple, variant: .sage),
 
+        Model(category: .mistrals, variant: .magistral),
+        Model(category: .mistrals, variant: .mistral2503),
+
         Model(category: .experimental, variant: .am1),
-        Model(category: .experimental, variant: .magistral),
-        Model(category: .experimental, variant: .mistral2503),
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),
         Model(category: .experimental, variant: .supernovaMedius),

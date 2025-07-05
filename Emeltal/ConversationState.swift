@@ -470,6 +470,33 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
         }
     }
 
+    private func filterEmotionBlocks(stream: AsyncStream<Character>) -> AsyncStream<Character> {
+        guard model.variant.emotionBlockHandlingRequired else {
+            return stream
+        }
+
+        let outStream = AsyncStream.makeStream(of: Character.self, bufferingPolicy: .unbounded)
+        Task {
+            var inBracket = false
+            for await c in stream {
+                if inBracket {
+                    if c == "]" || c == "}" {
+                        inBracket = false
+                        outStream.continuation.yield("\n")
+                    }
+                } else {
+                    if c == "[" || c == "{" {
+                        inBracket = true
+                    } else {
+                        outStream.continuation.yield(c)
+                    }
+                }
+            }
+            outStream.continuation.finish()
+        }
+        return outStream.stream
+    }
+
     func complete(text: String) async {
         guard let llamaContext else {
             return
@@ -511,7 +538,9 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
 
         var potentialSentenceEnd = false
 
-        for await c in stream {
+        let finalStream = filterEmotionBlocks(stream: stream)
+
+        for await c in finalStream {
             if !started {
                 withAnimation {
                     mode = .replying

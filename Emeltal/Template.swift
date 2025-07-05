@@ -6,24 +6,20 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, chatmlNoThink, llamaLarge, mistral, mistralNew, vicuna, gemma, llama3, llama4, glm
+        case alpaca, chatml, chatmlNoThink, llamaLarge, mistral, mistralNew, vicuna, gemma, llama2, llama3, llama4, glm
 
         var acceptsSystemPrompt: Bool {
             switch self {
-            case .llama4, .mistral: false
+            case .llama2, .llama4, .mistral: false
             case .alpaca, .chatml, .chatmlNoThink, .gemma, .glm, .llama3, .llamaLarge, .mistralNew, .vicuna: true
             }
-        }
-
-        var blockBosToken: Bool {
-            false
         }
     }
 
     init(format: Format, system: String, bosToken: String) {
         self.format = format
         self.system = system
-        self.bosToken = format.blockBosToken ? "" : bosToken
+        self.bosToken = bosToken
     }
 
     func text(for step: Step) -> String {
@@ -32,9 +28,9 @@ struct Template {
         return switch step {
         case .initial:
             if let systemText {
-                "\(bosToken)\(prefix)\(systemText)\(suffix)"
+                "\(prefix)\(systemText)\(suffix)"
             } else {
-                "\(bosToken)"
+                ""
             }
         case let .turn(text, _):
             "\(prefix)\(text)\(suffix)"
@@ -65,14 +61,14 @@ struct Template {
 
         case .gemma:
             switch step {
-            case .initial: "<start_of_turn>system\n"
+            case .initial: "\(bosToken)<start_of_turn>system\n"
             case .cancel: ""
-            case .turn: "<start_of_turn>user\n"
+            case .turn: "\(bosToken)<start_of_turn>user\n"
             }
 
         case .llama3:
             switch step {
-            case .initial: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+            case .initial: "\(bosToken)<|start_header_id|>system<|end_header_id|>\n\n"
             case .turn: "<|start_header_id|>user<|end_header_id|>\n\n"
             case .cancel: ""
             }
@@ -86,13 +82,14 @@ struct Template {
 
         case .llama4:
             switch step {
-            case .initial, .turn: "<|header_start|>user<|header_end|>\n\n"
+            case .initial: "\(bosToken)<|header_start|>user<|header_end|>\n\n"
+            case .turn: "<|header_start|>user<|header_end|>\n\n"
             case .cancel: ""
             }
 
         case .chatml, .chatmlNoThink:
             switch step {
-            case .initial: "<|im_start|>system\n"
+            case .initial: "\(bosToken)<|im_start|>system\n"
             case .turn: "<|im_start|>user\n"
             case .cancel: ""
             }
@@ -100,30 +97,34 @@ struct Template {
         case .alpaca:
             switch step {
             case .cancel, .initial: ""
-            case let .turn(_, index):
-                if index == 0 {
-                    "\n\n### Instruction:\n\n"
-                } else {
-                    "<s>\n\n### Instruction:\n\n"
-                }
+            case .turn:
+                "### Instruction:\n"
             }
 
         case .llamaLarge:
             switch step {
-            case .initial: "Source: system\n\n "
+            case .initial: "\(bosToken)Source: system\n\n "
             case .turn: "Source: user\n\n "
             case .cancel: ""
             }
 
+        case .llama2:
+            switch step {
+            case .initial: bosToken
+            case let .turn(_, index): index == 0 ? "\(bosToken)[INST] " : "\n\(bosToken)[INST] "
+            case .cancel: "</s>\n"
+            }
+
         case .mistral:
             switch step {
-            case .initial, .turn: " [INST] "
+            case .initial: "\(bosToken)[INST] "
+            case .turn: " [INST] "
             case .cancel: ""
             }
 
         case .mistralNew:
             switch step {
-            case .initial: "[SYSTEM_PROMPT]"
+            case .initial: "\(bosToken)[SYSTEM_PROMPT]"
             case .turn: " [INST] "
             case .cancel: ""
             }
@@ -156,6 +157,13 @@ struct Template {
             case .initial: "[/SYSTEM_PROMPT]"
             case .turn: " [/INST] "
             case .cancel: ""
+            }
+
+        case .llama2:
+            switch step {
+            case .cancel: ""
+            case .initial: "\n<</SYS>>\n\n"
+            case .turn: " [/INST] "
             }
 
         case .llama3:
@@ -204,7 +212,7 @@ struct Template {
         case .alpaca:
             switch step {
             case .initial: ""
-            case .turn: "\n\n### Response:\n\n"
+            case .turn: "\n\n### Response:\n"
             case .cancel: "\n\n"
             }
         }
@@ -212,7 +220,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .glm, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna:
+        case .gemma, .glm, .llama2, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna:
             nil
 
         case .chatml, .chatmlNoThink:

@@ -366,13 +366,10 @@ final class LlamaContext {
 
             let newTokenId: llama_token = llama_sampler_sample(sampler, context, -1)
 
-            if llama_vocab_is_eog(vocab, newTokenId) {
-                log("Text ended with EOS ID \(newTokenId) - Llama")
-                break
-            }
-
-            if eosTokenIds.contains(newTokenId) {
-                log("Text ended with EOS ID \(newTokenId) - Emeltal")
+            if llama_vocab_is_eog(vocab, newTokenId) || eosTokenIds.contains(newTokenId) {
+                log("Text ended with EOS ID \(newTokenId)")
+                ensureCacheSpace(toFit: 1)
+                _ = currentTurn.append(tokens: [newTokenId], in: context, andPredict: false, offset: allTokensCount)
                 break
             }
 
