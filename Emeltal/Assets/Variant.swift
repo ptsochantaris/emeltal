@@ -1,6 +1,8 @@
 import Foundation
 import Metal
 
+let memoryFormatter = ByteCountFormatStyle(style: .binary, allowedUnits: .all, spellsOutZero: true, includesActualByteCount: false, locale: .autoupdatingCurrent)
+
 extension Model {
     enum Variant: Identifiable {
         case dolphinThreeR1,
@@ -264,7 +266,7 @@ extension Model {
             case .mistral2503: 483
             case .magistral: 483
             case .glm4, .glmz1: 380
-            case .sage: 860
+            case .sage: 960
             }
 
             let totalLayers: Int64 = switch self {
@@ -315,7 +317,7 @@ extension Model {
             case .olympicCoder: 65
             case .mistral2503: 41
             case .glm4, .glmz1: 62
-            case .sage: 31
+            case .sage: 32
             }
 
             let layerSize = (layerSizeM + 4) * 1_000_000
@@ -333,11 +335,10 @@ extension Model {
                                       offloadKvCache: false,
                                       nonOffloadedEstimateBytes: 0,
                                       gpuUsageEstimateBytes: 0,
-                                      totalSystemBytes: 0,
-                                      unifiedMemory: false)
+                                      totalSystemBytes: 0)
             }
 
-            let asrBytes: Int64 = 900_000_000
+            let asrBytes: Int64 = 1_000_000_000
             var components: [Int64] = [asrBytes] + (0 ..< totalLayers - 1).map { _ in layerSize } + [outputLayerSize, kvBytes]
             var cpuBound = [Int64]()
 
@@ -349,8 +350,7 @@ extension Model {
                                       offloadKvCache: true,
                                       nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: everythingInGpu,
-                                      totalSystemBytes: memoryBytes.systemTotal,
-                                      unifiedMemory: memoryBytes.unifiedMemory)
+                                      totalSystemBytes: memoryBytes.systemTotal)
             }
 
             if let last = components.last { cpuBound.append(last) }
@@ -364,8 +364,7 @@ extension Model {
                                       offloadKvCache: false,
                                       nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: minusKv,
-                                      totalSystemBytes: memoryBytes.systemTotal,
-                                      unifiedMemory: memoryBytes.unifiedMemory)
+                                      totalSystemBytes: memoryBytes.systemTotal)
             }
 
             if let last = components.last { cpuBound.append(last) }
@@ -379,8 +378,7 @@ extension Model {
                                       offloadKvCache: false,
                                       nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                       gpuUsageEstimateBytes: minusOutputLayer,
-                                      totalSystemBytes: memoryBytes.systemTotal,
-                                      unifiedMemory: memoryBytes.unifiedMemory)
+                                      totalSystemBytes: memoryBytes.systemTotal)
             }
 
             for layer in 0 ..< (totalLayers - 1) {
@@ -395,8 +393,7 @@ extension Model {
                                           offloadKvCache: false,
                                           nonOffloadedEstimateBytes: cpuBound.reduce(0, +),
                                           gpuUsageEstimateBytes: minusLayer,
-                                          totalSystemBytes: memoryBytes.systemTotal,
-                                          unifiedMemory: memoryBytes.unifiedMemory)
+                                          totalSystemBytes: memoryBytes.systemTotal)
                 }
             }
 
@@ -411,8 +408,7 @@ extension Model {
                                       offloadKvCache: false,
                                       nonOffloadedEstimateBytes: totalCpuUse,
                                       gpuUsageEstimateBytes: 0,
-                                      totalSystemBytes: memoryBytes.systemTotal,
-                                      unifiedMemory: memoryBytes.unifiedMemory)
+                                      totalSystemBytes: memoryBytes.systemTotal)
             }
 
             return MemoryEstimate(layersOffloaded: 0,
@@ -421,25 +417,22 @@ extension Model {
                                   offloadKvCache: false,
                                   nonOffloadedEstimateBytes: totalCpuUse,
                                   gpuUsageEstimateBytes: 0,
-                                  totalSystemBytes: memoryBytes.systemTotal,
-                                  unifiedMemory: memoryBytes.unifiedMemory)
+                                  totalSystemBytes: memoryBytes.systemTotal)
         }
 
-        @MainActor
         var memoryStrings: (used: String, max: String, system: String)? {
             guard let memoryBytes else { return nil }
-            return (memoryFormatter.string(fromByteCount: memoryBytes.used),
-                    memoryFormatter.string(fromByteCount: memoryBytes.max),
-                    memoryFormatter.string(fromByteCount: Int64(memoryBytes.systemTotal)))
+            return (memoryFormatter.format(memoryBytes.used),
+                    memoryFormatter.format(memoryBytes.max),
+                    memoryFormatter.format(Int64(memoryBytes.systemTotal)))
         }
 
-        var memoryBytes: (unifiedMemory: Bool, used: Int64, max: Int64, systemTotal: UInt64)? {
+        var memoryBytes: (used: Int64, max: Int64, systemTotal: UInt64)? {
             guard let currentDevice = MTLCreateSystemDefaultDevice() else {
                 log("Failed to get the system's default Metal device.")
                 return nil
             }
-            return (currentDevice.hasUnifiedMemory,
-                    Int64(currentDevice.currentAllocatedSize),
+            return (Int64(currentDevice.currentAllocatedSize),
                     Int64(currentDevice.recommendedMaxWorkingSetSize),
                     ProcessInfo.processInfo.physicalMemory)
         }

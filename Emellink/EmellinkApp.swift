@@ -1,7 +1,6 @@
 import SwiftUI
 
 @main
-@MainActor
 struct EmeltermApp: App {
     private let state = LinkState()
 

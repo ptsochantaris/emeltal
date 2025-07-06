@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 struct SideBar: View {
     let state: ConversationState
     @FocusState.Binding var focusEntryField: Bool

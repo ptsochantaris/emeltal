@@ -10,7 +10,7 @@ extension Model {
         let gpuUsageEstimateBytes: Int64
         let excessBytes: Int64
 
-        init(layersOffloaded: Int64, layersTotal: Int64, offloadAsr: Bool, offloadKvCache: Bool, nonOffloadedEstimateBytes: Int64, gpuUsageEstimateBytes: Int64, totalSystemBytes: UInt64, unifiedMemory: Bool) {
+        init(layersOffloaded: Int64, layersTotal: Int64, offloadAsr: Bool, offloadKvCache: Bool, nonOffloadedEstimateBytes: Int64, gpuUsageEstimateBytes: Int64, totalSystemBytes: UInt64) {
             self.layersOffloaded = layersOffloaded
             self.layersTotal = layersTotal
             self.offloadAsr = offloadAsr
@@ -18,18 +18,13 @@ extension Model {
             self.gpuUsageEstimateBytes = gpuUsageEstimateBytes
 
             let totalSystemBytes = Int64(totalSystemBytes)
-            if unifiedMemory {
-                let available = totalSystemBytes - gpuUsageEstimateBytes
-                if nonOffloadedEstimateBytes < available {
-                    cpuUsageEstimateBytes = nonOffloadedEstimateBytes
-                    excessBytes = 0
-                } else {
-                    cpuUsageEstimateBytes = available
-                    excessBytes = nonOffloadedEstimateBytes - available
-                }
+            let available = totalSystemBytes - gpuUsageEstimateBytes
+            if nonOffloadedEstimateBytes < available {
+                cpuUsageEstimateBytes = nonOffloadedEstimateBytes
+                excessBytes = 0
             } else {
-                cpuUsageEstimateBytes = totalSystemBytes
-                excessBytes = max(0, nonOffloadedEstimateBytes - totalSystemBytes)
+                cpuUsageEstimateBytes = available
+                excessBytes = nonOffloadedEstimateBytes - available
             }
         }
 

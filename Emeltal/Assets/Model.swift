@@ -157,17 +157,17 @@ final class Model: Hashable, Identifiable, Sendable {
         }
 
         let estimated = memoryEstimate.gpuUsageEstimateBytes
-        let estimatedString = memoryFormatter.string(fromByteCount: estimated)
+        let estimatedString = memoryFormatter.format(estimated)
         print(">> Model \(variant), estimated GPU usage: \(estimatedString)")
 
         let state = ConversationState(llm: fetcher, whisper: whisper)
         while state.statusMessage != nil {
             try? await Task.sleep(for: .seconds(0.2))
         }
-        if let (_, used, _, _) = variant.memoryBytes {
-            let usedString = memoryFormatter.string(fromByteCount: used)
+        if let (used, _, _) = variant.memoryBytes {
+            let usedString = memoryFormatter.format(used)
             let diff = estimated - used
-            let diffString = memoryFormatter.string(fromByteCount: diff)
+            let diffString = memoryFormatter.format(diff)
             let warning = if diff < 200_000_000 {
                 "** SMALL **"
             } else if diff > 700_000_000 {

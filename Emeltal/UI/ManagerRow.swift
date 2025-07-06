@@ -1,9 +1,10 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 struct ManagerRow: View {
     let manager: AssetFetcher
+
+    private static let fileFormatter = ByteCountFormatStyle(style: .file, allowedUnits: .all, spellsOutZero: true, includesActualByteCount: false, locale: .autoupdatingCurrent)
 
     var body: some View {
         HStack {
@@ -17,8 +18,8 @@ struct ManagerRow: View {
                     Text("**\(manager.model.variant.displayName)** error: \(error.localizedDescription)")
                 case let .fetching(downloaded, expected):
                     let progress: Double = (Double(downloaded) / Double(expected))
-                    let downloadedString = sizeFormatter.string(fromByteCount: downloaded)
-                    let totalString = sizeFormatter.string(fromByteCount: expected)
+                    let downloadedString = Self.fileFormatter.format(downloaded)
+                    let totalString = Self.fileFormatter.format(expected)
                     HStack(alignment: .top) {
                         Text("**\(manager.model.variant.displayName)**")
                         Spacer()

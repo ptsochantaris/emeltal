@@ -22,7 +22,6 @@ struct AppStack: View {
 }
 
 @main
-@MainActor
 struct EmeltalApp: App {
     var body: some Scene {
         #if canImport(AppKit)

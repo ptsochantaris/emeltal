@@ -1,7 +1,6 @@
 import AVFoundation
 import SwiftUI
 
-@MainActor
 struct ConversationView: View {
     @Binding var appPhase: AppStack.Phase
 
