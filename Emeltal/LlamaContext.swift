@@ -311,24 +311,65 @@ final class LlamaContext {
         var tagBuffer: String?
         let muteTags = asset.variant.muteTokens?.flatMap { [$0, "/\($0)"] }
 
+        let isHarmony = asset.variant.format == .harmony
+        var inSentenceHeader = false
+        var harmonyChannel = ""
+
+        func processTag(_ tag: String) -> String {
+            log("Detected tag: \(tag)")
+
+            if isHarmony {
+                switch tag {
+                case "|channel|", "|start|":
+                    inSentenceHeader = true
+                    harmonyChannel = ""
+                    return ""
+
+                case "|message|":
+                    inSentenceHeader = false
+                    return harmonyChannel == "analysis" ? "think" : ""
+
+                case "|end|":
+                    inSentenceHeader = false
+                    let c = harmonyChannel
+                    harmonyChannel = ""
+                    return c == "analysis" ? "/think" : ""
+
+                default:
+                    break
+                }
+            }
+
+            if let muteTags, muteTags.contains(tag) {
+                log("Trimmed tag: \(tag)")
+                return ""
+            }
+
+            /*
+             <|channel|>analysis<|message|>User says "Hello". That's a greeting. We should respond appropriately.<|end|>
+
+             <|start|>assistant<|channel|>final<|message|>Hello! How can I help you today?
+             */
+
+            switch tag {
+            case "think":
+                inThinkSection = true
+            case "/think":
+                inThinkSection = false
+            default:
+                break
+            }
+            return tag
+        }
+
         func output(_ out: String) {
             for char in out {
                 if let buffer = tagBuffer {
                     if char == ">" {
-                        if let muteTags, muteTags.contains(buffer) {
-                            log("Trimmed tag: \(buffer)")
-                        } else {
+                        let tag = processTag(buffer)
+                        if !tag.isEmpty {
                             continuation.yield("<")
-                            log("Detected tag: \(buffer)")
-                            switch buffer {
-                            case "think":
-                                inThinkSection = true
-                            case "/think":
-                                inThinkSection = false
-                            default:
-                                break
-                            }
-                            for c in buffer {
+                            for c in tag {
                                 continuation.yield(c)
                             }
                             continuation.yield(">")
@@ -338,7 +379,7 @@ final class LlamaContext {
                         tagBuffer?.append(char)
 
                         // Tag is too long
-                        if buffer.count > 10 {
+                        if buffer.count > 16 {
                             continuation.yield("<")
                             for c in buffer {
                                 continuation.yield(c)
@@ -349,6 +390,8 @@ final class LlamaContext {
                     }
                 } else if char == "<" {
                     tagBuffer = ""
+                } else if inSentenceHeader {
+                    harmonyChannel.append(char)
                 } else {
                     continuation.yield(char)
                 }

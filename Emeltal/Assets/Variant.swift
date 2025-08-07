@@ -53,6 +53,7 @@ extension Model {
              glmz1,
              am1,
              magistral,
+             gptOpenSmall,
              sage
 
         var recommended: Bool {
@@ -77,6 +78,7 @@ extension Model {
             case .qwen3compact, .qwen3regular, .qwen3tiny: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             case .glm4, .glmz1: .glm
+            case .gptOpenSmall: .harmony
             }
         }
 
@@ -84,7 +86,7 @@ extension Model {
             switch self {
             case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .everyoneCoder, .olympicCoder, .qwen25coder:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .sage, .shuttle, .smol, .supernovaMedius:
+            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .sage, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -117,6 +119,7 @@ extension Model {
                  .everyoneCoder,
                  .glm4,
                  .glmz1,
+                 .gptOpenSmall,
                  .mythoMax,
                  .neuralStory7b,
                  .olympicCoder,
@@ -176,6 +179,7 @@ extension Model {
             case .codestral: 7168
             case .dolphinNemo: 3072
             case .llama3: 2048
+            case .gptOpenSmall: 3072
             case .llama3compact: 1792
             case .llama3tiny: 512
             case .llama3large: 5120
@@ -226,6 +230,7 @@ extension Model {
             case .dolphinThree3b: 87
             case .llama3compact: 113
             case .gemma34: 94
+            case .gptOpenSmall: 620
             case .dolphinThree8b: 187
             case .qwen25small: 168
             case .deepSeekCoder33: 460
@@ -274,6 +279,7 @@ extension Model {
             case .dolphinCoder: 41
             case .deepSeekCoder33: 63
             case .deepSeekCoder7: 31
+            case .gptOpenSmall: 25
             case .mythoMax: 41
             case .whisper: 1
             case .dolphin72b: 81
@@ -494,6 +500,7 @@ extension Model {
             case .am1: "23.3 GB"
             case .magistral: "19.7 GB"
             case .sage: "28.5 GB"
+            case .gptOpenSmall: "12.1 GB"
             }
         }
 
@@ -539,6 +546,7 @@ extension Model {
             case .glm4: "High performance model that claims equivalent performance to R1 and GPT."
             case .glmz1: "This is the same as the 4 model but extended with explicit thinking display and processing."
             case .magistral: "An extension of Mistral 2503, with added reasoning capabilities, undergoing SFT from Magistral Medium traces and RL on top."
+            case .gptOpenSmall: "OpenAI's open-weight language model."
             }
         }
 
@@ -675,12 +683,14 @@ extension Model {
             case .am1: "https://huggingface.co/a-m-team/AM-Thinking-v1-gguf"
             case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
             case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF"
+            case .gptOpenSmall: "https://huggingface.co/lmstudio-community/gpt-oss-20b-GGUF"
             }
             return URL(string: uri)!
         }
 
         var fileName: String {
             switch self {
+            case .gptOpenSmall: "gpt-oss-20b-MXFP4.gguf"
             case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
             case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
             case .mythoMax: "mythomax-l2-13b.Q6_K.gguf"
@@ -798,6 +808,7 @@ extension Model {
             case .am1: "AM‑Thinking"
             case .magistral: "Magistral 2506"
             case .sage: "Sage"
+            case .gptOpenSmall: "OpenAI GPT Open Weight"
             }
         }
 
@@ -852,6 +863,7 @@ extension Model {
             case .glmz1: "32b params"
             case .magistral: "24b params, on Mistral 2503"
             case .sage: "on Mixtral MoE 8x7b"
+            case .gptOpenSmall: "v1, 20b params"
             }
         }
 
@@ -906,6 +918,7 @@ extension Model {
             case .am1: "22D9BBAB-8F6D-4217-852D-CE284F3E8F34"
             case .magistral: "BEFA3CE3-3DF7-41EA-B297-7841DA3C647A"
             case .sage: "4A3A6C15-6B0B-4FE0-9DE5-F3E37B8C0852"
+            case .gptOpenSmall: "67A142D7-D2DA-4FBC-8E06-39E4D2CC4E54"
             }
         }
 

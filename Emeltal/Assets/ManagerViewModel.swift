@@ -65,6 +65,7 @@ final class ManagerViewModel {
         Model(category: .mistrals, variant: .magistral),
         Model(category: .mistrals, variant: .mistral2503),
 
+        Model(category: .experimental, variant: .gptOpenSmall),
         Model(category: .experimental, variant: .am1),
         Model(category: .experimental, variant: .dsro70),
         Model(category: .experimental, variant: .athene),
