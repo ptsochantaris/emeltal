@@ -49,6 +49,7 @@ cp -r\
  $LSRC/src/llama-graph.*\
  $LSRC/src/llama-context.*\
  $LSRC/src/llama-batch.*\
+ $LSRC/src/llama-graph.*\
  $LSRC/src/llama-cparams.*\
  $LSRC/src/llama-hparams.*\
  $LSRC/src/llama-adapter.*\

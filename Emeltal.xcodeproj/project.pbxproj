@@ -123,11 +123,11 @@
 		16C58E0D2B3655D300006CC2 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16C58E102B37688000006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E0F2B37688000006CC2 /* PopTimer */; };
 		16C58E122B37688D00006CC2 /* PopTimer in Frameworks */ = {isa = PBXBuildFile; productRef = 16C58E112B37688D00006CC2 /* PopTimer */; };
-		16CB8E802DF5A39400D79825 /* llama-kv-cache-unified.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */; };
-		16CB8E862DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */; };
 		16D86BE82B20917C00DAE806 /* Emeltal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16D86BE72B20917C00DAE806 /* Emeltal.metal */; };
 		16DF6C9A2B5C1DDF0056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C992B5C1DDF0056E9FB /* Ink */; };
 		16DF6C9C2B5C1DE50056E9FB /* Ink in Frameworks */ = {isa = PBXBuildFile; productRef = 16DF6C9B2B5C1DE50056E9FB /* Ink */; };
+		16DFC4122E591AD4000DF6DA /* llama-kv-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16DFC4102E591AD4000DF6DA /* llama-kv-cache.cpp */; };
+		16DFC4132E591AD4000DF6DA /* llama-kv-cache-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16DFC4112E591AD4000DF6DA /* llama-kv-cache-iswa.cpp */; };
 		16F9EF182B3D55C600AD56CC /* LinkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF172B3D55C600AD56CC /* LinkState.swift */; };
 		16F9EF282B3D67EB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
 		16F9EF292B3D67FB00AD56CC /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */; };
@@ -302,13 +302,11 @@
 		16C58DFD2B351C6E00006CC2 /* AppMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMode.swift; sourceTree = "<group>"; };
 		16C58E082B35D72500006CC2 /* ModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeView.swift; sourceTree = "<group>"; };
 		16C794402B2F43D60052B707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		16CB8E7E2DF5A39400D79825 /* llama-kv-cache-unified.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-kv-cache-unified.h"; sourceTree = "<group>"; };
-		16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-unified.cpp"; sourceTree = "<group>"; };
-		16CB8E832DF5A45400D79825 /* llama-kv-cache-unified-iswa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-kv-cache-unified-iswa.h"; sourceTree = "<group>"; };
-		16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-unified-iswa.cpp"; sourceTree = "<group>"; };
 		16D332342B6117C5009009A7 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		16D332352B6117C5009009A7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		16D86BE72B20917C00DAE806 /* Emeltal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Emeltal.metal; sourceTree = "<group>"; };
+		16DFC4102E591AD4000DF6DA /* llama-kv-cache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache.cpp"; sourceTree = "<group>"; };
+		16DFC4112E591AD4000DF6DA /* llama-kv-cache-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-kv-cache-iswa.cpp"; sourceTree = "<group>"; };
 		16F9EF172B3D55C600AD56CC /* LinkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkState.swift; sourceTree = "<group>"; };
 		16F9EF272B3D67EB00AD56CC /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 		16FCFAD22D2DD357008AD758 /* llama-chat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-chat.cpp"; sourceTree = "<group>"; };
@@ -561,8 +559,8 @@
 				16FCFAD52D2DD357008AD758 /* llama-hparams.cpp */,
 				16FCFAE02D2DD3FE008AD758 /* llama-impl.cpp */,
 				162EB20E2D83144F008D2FF2 /* llama-io.cpp */,
-				16CB8E842DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp */,
-				16CB8E7F2DF5A39400D79825 /* llama-kv-cache-unified.cpp */,
+				16DFC4112E591AD4000DF6DA /* llama-kv-cache-iswa.cpp */,
+				16DFC4102E591AD4000DF6DA /* llama-kv-cache.cpp */,
 				16A6F3ED2E1301030078D603 /* llama-memory-hybrid.cpp */,
 				16A6F3EF2E1301030078D603 /* llama-memory-recurrent.cpp */,
 				162EB2112D83148E008D2FF2 /* llama-memory.cpp */,
@@ -597,8 +595,6 @@
 				162EB20A2D831408008D2FF2 /* llama-graph.h */,
 				16B558352CF133FC00A7F8C8 /* llama-impl.h */,
 				162EB20D2D83144F008D2FF2 /* llama-io.h */,
-				16CB8E832DF5A45400D79825 /* llama-kv-cache-unified-iswa.h */,
-				16CB8E7E2DF5A39400D79825 /* llama-kv-cache-unified.h */,
 				16A6F3EC2E1301030078D603 /* llama-memory-hybrid.h */,
 				16A6F3EE2E1301030078D603 /* llama-memory-recurrent.h */,
 				162EB2102D83148E008D2FF2 /* llama-memory.h */,
@@ -612,8 +608,8 @@
 				16B5583F2CF133FC00A7F8C8 /* whisper.h */,
 				16B5583A2CF133FC00A7F8C8 /* sync-llama.sh */,
 				16A6F44A2E1301880078D603 /* ggml-blas */,
-				16A6F44E2E1301880078D603 /* ggml-metal */,
 				16A6F42C2E1301790078D603 /* ggml-cpu */,
+				16A6F44E2E1301880078D603 /* ggml-metal */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";
@@ -722,7 +718,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -816,7 +812,6 @@
 				163EF0622B31D0CD00565F49 /* SideBar.swift in Sources */,
 				16FCFAE72D2DD5DD008AD758 /* gguf.cpp in Sources */,
 				16B558422CF133FC00A7F8C8 /* llama-sampling.cpp in Sources */,
-				16CB8E862DF5A45400D79825 /* llama-kv-cache-unified-iswa.cpp in Sources */,
 				16B558452CF133FC00A7F8C8 /* unicode-data.cpp in Sources */,
 				16B558472CF133FC00A7F8C8 /* llama-grammar.cpp in Sources */,
 				162EB2122D83148E008D2FF2 /* llama-memory.cpp in Sources */,
@@ -853,7 +848,6 @@
 				16A6F3F12E1301030078D603 /* llama-memory-recurrent.cpp in Sources */,
 				16FCFADA2D2DD357008AD758 /* llama-context.cpp in Sources */,
 				16FCFADB2D2DD357008AD758 /* llama-cparams.cpp in Sources */,
-				16CB8E802DF5A39400D79825 /* llama-kv-cache-unified.cpp in Sources */,
 				16FCFADC2D2DD357008AD758 /* llama-chat.cpp in Sources */,
 				16FCFADD2D2DD357008AD758 /* llama-model-loader.cpp in Sources */,
 				16C23D792B742F0100781F78 /* SectionCarousel.swift in Sources */,
@@ -876,6 +870,8 @@
 				16A82B5E2DD50E5E002FC4FE /* ggml-opt.cpp in Sources */,
 				163EF0602B31B8BF00565F49 /* EmeltalApp.swift in Sources */,
 				167B9D2B2B572036006711B9 /* Turn.swift in Sources */,
+				16DFC4122E591AD4000DF6DA /* llama-kv-cache.cpp in Sources */,
+				16DFC4132E591AD4000DF6DA /* llama-kv-cache-iswa.cpp in Sources */,
 				167382F72D0488ED002353D2 /* MemoryEstimate.swift in Sources */,
 				1626DBCC2B45E110002D0A91 /* ServerConnector.swift in Sources */,
 				16FCFADF2D2DD393008AD758 /* llama-model.cpp in Sources */,
@@ -925,7 +921,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1008,6 +1003,7 @@
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Emeltal/llama-cpp/**";
 				MTL_OPTIMIZATION_LEVEL = "-O3";
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -1019,7 +1015,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1100,6 +1095,7 @@
 				MTL_FAST_MATH = NO;
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Emeltal/llama-cpp/**";
 				MTL_OPTIMIZATION_LEVEL = "-O3";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
@@ -1117,8 +1113,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Emeltal/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -1165,8 +1166,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Emeltal/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -1208,8 +1214,12 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1247,8 +1257,12 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Emellink/Emellink.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
