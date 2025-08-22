@@ -12,6 +12,7 @@ extension Model {
 
             static let topK = Descriptor(title: "Top-K", min: 0, max: 200, disabled: 0)
             static let topP = Descriptor(title: "Top-P", min: 0, max: 2, disabled: 0)
+            static let minP = Descriptor(title: "Min-P", min: 0, max: 1, disabled: 0.1)
             static let temperature = Descriptor(title: "Temperature", min: 0, max: 2, disabled: 0)
             static let temperatureRange = Descriptor(title: "Range", min: 0, max: 1, disabled: 0)
             static let temperatureExponent = Descriptor(title: "Exponent", min: 1, max: 4, disabled: 0)
@@ -23,6 +24,7 @@ extension Model {
 
         var topK: Int
         var topP: Float
+        var minP: Float
         var systemPrompt: String
         var temperature: Float
         var temperatureRange: Float
@@ -35,6 +37,7 @@ extension Model {
         static var empty: Params {
             Params(topK: 0,
                    topP: 0,
+                   minP: 0,
                    systemPrompt: "",
                    temperature: 0,
                    temperatureRange: 0,

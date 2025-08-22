@@ -97,7 +97,7 @@ private struct Overrides: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            if manager.selected.variant.format.acceptsSystemPrompt {
+            if manager.selected.variant.acceptsSystemPrompt {
                 VStack(alignment: .leading) {
                     if horizontalSizeClass == .compact {
                         Text("System Prompt")
@@ -150,15 +150,20 @@ private struct Overrides: View {
                                 .opacity(hasRange ? 1.0 : 0.5)
                         }
 
-                        FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
-                            .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
-
                         IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
                             .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
+
+                        HStack(spacing: 10) {
+                            FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
+                                .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
+
+                            FloatRow(descriptor: Model.Params.Descriptors.minP, value: $manager.selected.params.minP)
+                                .opacity(params.minP != Model.Params.Descriptors.minP.disabled ? 1.0 : 0.5)
+                        }
                     }
 
                     VStack(spacing: 10) {
-                        HStack {
+                        HStack(spacing: 10) {
                             FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
 
                             IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)
@@ -185,15 +190,20 @@ private struct Overrides: View {
                                 .opacity(hasRange ? 1.0 : 0.5)
                         }
 
-                        FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
-                            .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
-
                         IntRow(descriptor: Model.Params.Descriptors.topK, value: $manager.selected.params.topK)
                             .opacity(params.topK != Int(Model.Params.Descriptors.topK.disabled) ? 1.0 : 0.5)
+
+                        HStack(spacing: 10) {
+                            FloatRow(descriptor: Model.Params.Descriptors.topP, value: $manager.selected.params.topP)
+                                .opacity(params.topP != Model.Params.Descriptors.topP.disabled ? 1.0 : 0.5)
+
+                            FloatRow(descriptor: Model.Params.Descriptors.minP, value: $manager.selected.params.minP)
+                                .opacity(params.minP != Model.Params.Descriptors.minP.disabled ? 1.0 : 0.5)
+                        }
                     }
 
                     VStack(spacing: 10) {
-                        HStack {
+                        HStack(spacing: 10) {
                             FloatRow(descriptor: Model.Params.Descriptors.repeatPenatly, value: $manager.selected.params.repeatPenatly)
 
                             IntRow(descriptor: Model.Params.Descriptors.repeatCheckPenalty, value: $manager.selected.params.repeatCheckPenalty)

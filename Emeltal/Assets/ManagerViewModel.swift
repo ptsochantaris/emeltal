@@ -24,14 +24,13 @@ final class ManagerViewModel {
         Model(category: .creative, variant: .mythoMax),
         Model(category: .creative, variant: .neuralStory7b),
 
+        Model(category: .coding, variant: .qwen3coder),
         Model(category: .coding, variant: .qwen25coder),
         Model(category: .coding, variant: .codestral),
         Model(category: .coding, variant: .dolphinCoder),
         Model(category: .coding, variant: .deepSeekCoder33),
         Model(category: .coding, variant: .deepSeekCoder7),
         Model(category: .coding, variant: .codeLlama70b),
-        Model(category: .coding, variant: .olympicCoder),
-        Model(category: .coding, variant: .everyoneCoder),
 
         Model(category: .samantha, variant: .samantha7b),
         Model(category: .samantha, variant: .samantha70b),

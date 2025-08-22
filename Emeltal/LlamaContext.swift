@@ -105,6 +105,10 @@ final class LlamaContext {
             llama_sampler_chain_add(newSampler, llama_sampler_init_top_p(params.topP, 1))
         }
 
+        if params.minP != Model.Params.Descriptors.minP.disabled {
+            llama_sampler_chain_add(newSampler, llama_sampler_init_min_p(params.minP, 1))
+        }
+
         if params.temperature > 0 {
             if params.temperatureRange > 0 {
                 llama_sampler_chain_add(newSampler, llama_sampler_init_temp_ext(params.temperature, params.temperatureRange, params.temperatureExponent))
@@ -152,7 +156,7 @@ final class LlamaContext {
             turns = try JSONDecoder().decode([Turn].self, from: infoData)
         } else {
             let initial = template.text(for: .initial)
-            if initial.isEmpty || template.systemText == nil {
+            if initial.isEmpty || template.systemTextIfApplicable == nil {
                 log("No system prompt")
                 emptyWarmup()
             } else {

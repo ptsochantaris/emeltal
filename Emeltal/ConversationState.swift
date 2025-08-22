@@ -357,7 +357,7 @@ final class ConversationState: Identifiable, ModeProvider, ConversationHandler {
     }
 
     private func chatInit(hasSavedState: Bool) async throws {
-        if !hasSavedState, let systemText = template.systemText?.addingUnicodeEntities() {
+        if !hasSavedState, let systemText = template.systemTextIfApplicable?.addingUnicodeEntities() {
             messageLog.setHistory("> *\"\(systemText)\"*\n")
         }
 

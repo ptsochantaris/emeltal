@@ -57,13 +57,13 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [Llama 3.2 1b](https://huggingface.co/meta-llama/Meta-Llama-3.2-8B-Instruct)
 
 #### Coding
+- [Qwen 3.0 Coder](https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF)
+- [Qwen 2.5 Coder](https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF)
 - [Dolphin Coder](https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b)
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
-- [Everyone Coder](https://huggingface.co/rombodawg/Everyone-Coder-33b-v2-Base)
 - [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
 - [Codestral](https://huggingface.co/mistralai/Codestral-22B-v0.1)
-- [Qwen 2.5 Coder](https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF)
 
 #### Creative
 - [MythoMax 13b](https://huggingface.co/Gryphe/MythoMax-L2-13b)
