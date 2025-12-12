@@ -22,13 +22,32 @@ llama_kv_cache_iswa::llama_kv_cache_iswa(
                  uint32_t   kv_size,
                  uint32_t   n_seq_max,
                  uint32_t   n_ubatch,
-                 uint32_t   n_pad) : hparams(model.hparams), unified(unified) {
-    llama_kv_cache::layer_filter_cb filter_base = [&](int32_t il) { return !model.hparams.is_swa(il); };
-    llama_kv_cache::layer_filter_cb filter_swa  = [&](int32_t il) { return  model.hparams.is_swa(il); };
+                 uint32_t   n_pad,
+    const layer_filter_cb & filter,
+    const  layer_reuse_cb & reuse) : hparams(model.hparams), unified(unified) {
+
+    // chain filters
+    const layer_filter_cb filter_base = [&](int32_t il) {
+        if (filter && !filter(il)) {
+            return false;
+        }
+
+        return !model.hparams.is_swa(il);
+    };
+
+    const layer_filter_cb filter_swa  = [&](int32_t il) {
+        if (filter && !filter(il)) {
+            return false;
+        }
+
+        return  model.hparams.is_swa(il);
+    };
 
     const uint32_t size_base = kv_size;
 
-    uint32_t size_swa = std::min(size_base, GGML_PAD(hparams.n_swa*(unified ? n_seq_max : 1) + n_ubatch, n_pad));
+    // note: the SWA cache is always padded to 256 for performance
+    //       https://github.com/ggml-org/llama.cpp/issues/17037
+    uint32_t size_swa = GGML_PAD(std::min(size_base, hparams.n_swa*(unified ? n_seq_max : 1) + n_ubatch), 256);
 
     // when using full-size SWA cache, we set the SWA cache size to be equal to the base cache size
     if (swa_full) {
@@ -41,16 +60,16 @@ llama_kv_cache_iswa::llama_kv_cache_iswa(
     LLAMA_LOG_INFO("%s: creating non-SWA KV cache, size = %u cells\n", __func__, size_base);
 
     kv_base = std::make_unique<llama_kv_cache>(
-            model, std::move(filter_base), type_k, type_v,
+            model, type_k, type_v,
             v_trans, offload, unified, size_base, n_seq_max, n_pad,
-            0, LLAMA_SWA_TYPE_NONE);
+            0, LLAMA_SWA_TYPE_NONE, filter_base, reuse);
 
     LLAMA_LOG_INFO("%s: creating     SWA KV cache, size = %u cells\n", __func__, size_swa);
 
     kv_swa = std::make_unique<llama_kv_cache>(
-            model, std::move(filter_swa), type_k, type_v,
+            model, type_k, type_v,
             v_trans, offload, unified, size_swa, n_seq_max, n_pad,
-            hparams.n_swa, hparams.swa_type);
+            hparams.n_swa, hparams.swa_type, filter_swa, reuse);
 }
 
 void llama_kv_cache_iswa::clear(bool data) {
@@ -94,6 +113,14 @@ llama_pos llama_kv_cache_iswa::seq_pos_min(llama_seq_id seq_id) const {
 
 llama_pos llama_kv_cache_iswa::seq_pos_max(llama_seq_id seq_id) const {
     return kv_swa->seq_pos_max(seq_id);
+}
+
+std::map<ggml_backend_buffer_type_t, size_t> llama_kv_cache_iswa::memory_breakdown() const {
+    std::map<ggml_backend_buffer_type_t, size_t> mb = kv_base->memory_breakdown();
+    for (const auto & buft_size : kv_swa->memory_breakdown()) {
+        mb[buft_size.first] += buft_size.second;
+    }
+    return mb;
 }
 
 llama_memory_context_ptr llama_kv_cache_iswa::init_batch(llama_batch_allocr & balloc, uint32_t n_ubatch, bool embd_all) {
@@ -195,7 +222,7 @@ bool llama_kv_cache_iswa::get_can_shift() const {
 }
 
 void llama_kv_cache_iswa::state_write(llama_io_write_i & io, llama_seq_id seq_id, llama_state_seq_flags flags) const {
-    if ((flags & LLAMA_STATE_SEQ_FLAGS_SWA_ONLY) == 0) {
+    if ((flags & LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) == 0) {
         kv_base->state_write(io, seq_id, flags);
     }
 
@@ -203,7 +230,7 @@ void llama_kv_cache_iswa::state_write(llama_io_write_i & io, llama_seq_id seq_id
 }
 
 void llama_kv_cache_iswa::state_read(llama_io_read_i & io, llama_seq_id seq_id, llama_state_seq_flags flags) {
-    if ((flags & LLAMA_STATE_SEQ_FLAGS_SWA_ONLY) == 0) {
+    if ((flags & LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) == 0) {
         kv_base->state_read(io, seq_id, flags);
     }
 

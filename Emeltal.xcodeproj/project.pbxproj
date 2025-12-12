@@ -35,6 +35,112 @@
 		16578A322B18CA5A0038A680 /* ConversationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A312B18CA5A0038A680 /* ConversationState.swift */; };
 		16578A342B18CA820038A680 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A332B18CA820038A680 /* Speaker.swift */; };
 		16578A392B1924B80038A680 /* WhisperContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16578A382B1924B80038A680 /* WhisperContext.swift */; };
+		1658488A2EEC3D2A00C64E4E /* chatglm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848312EEC3D2A00C64E4E /* chatglm.cpp */; };
+		1658488B2EEC3D2A00C64E4E /* qwen2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848702EEC3D2A00C64E4E /* qwen2.cpp */; };
+		1658488C2EEC3D2A00C64E4E /* bloom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482F2EEC3D2A00C64E4E /* bloom.cpp */; };
+		1658488D2EEC3D2A00C64E4E /* deepseek.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848382EEC3D2A00C64E4E /* deepseek.cpp */; };
+		1658488E2EEC3D2A00C64E4E /* llama-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848592EEC3D2A00C64E4E /* llama-iswa.cpp */; };
+		1658488F2EEC3D2A00C64E4E /* dbrx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848362EEC3D2A00C64E4E /* dbrx.cpp */; };
+		165848902EEC3D2A00C64E4E /* t5-dec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848852EEC3D2A00C64E4E /* t5-dec.cpp */; };
+		165848912EEC3D2A00C64E4E /* arcee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848272EEC3D2A00C64E4E /* arcee.cpp */; };
+		165848922EEC3D2A00C64E4E /* plm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486E2EEC3D2A00C64E4E /* plm.cpp */; };
+		165848932EEC3D2A00C64E4E /* starcoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848832EEC3D2A00C64E4E /* starcoder.cpp */; };
+		165848942EEC3D2A00C64E4E /* gemma-embedding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848432EEC3D2A00C64E4E /* gemma-embedding.cpp */; };
+		165848952EEC3D2A00C64E4E /* grovemoe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484F2EEC3D2A00C64E4E /* grovemoe.cpp */; };
+		165848962EEC3D2A00C64E4E /* minimax-m2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658485C2EEC3D2A00C64E4E /* minimax-m2.cpp */; };
+		165848972EEC3D2A00C64E4E /* qwen3vl-moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848772EEC3D2A00C64E4E /* qwen3vl-moe.cpp */; };
+		165848982EEC3D2A00C64E4E /* gemma2-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848442EEC3D2A00C64E4E /* gemma2-iswa.cpp */; };
+		165848992EEC3D2A00C64E4E /* arctic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848282EEC3D2A00C64E4E /* arctic.cpp */; };
+		1658489A2EEC3D2A00C64E4E /* openelm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848672EEC3D2A00C64E4E /* openelm.cpp */; };
+		1658489B2EEC3D2A00C64E4E /* mamba.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658485A2EEC3D2A00C64E4E /* mamba.cpp */; };
+		1658489C2EEC3D2A00C64E4E /* granite-hybrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484C2EEC3D2A00C64E4E /* granite-hybrid.cpp */; };
+		1658489D2EEC3D2A00C64E4E /* refact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848782EEC3D2A00C64E4E /* refact.cpp */; };
+		1658489E2EEC3D2A00C64E4E /* bitnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482E2EEC3D2A00C64E4E /* bitnet.cpp */; };
+		1658489F2EEC3D2A00C64E4E /* llada-moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848572EEC3D2A00C64E4E /* llada-moe.cpp */; };
+		165848A02EEC3D2A00C64E4E /* openai-moe-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848662EEC3D2A00C64E4E /* openai-moe-iswa.cpp */; };
+		165848A12EEC3D2A00C64E4E /* rnd1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848792EEC3D2A00C64E4E /* rnd1.cpp */; };
+		165848A22EEC3D2A00C64E4E /* rwkv6qwen2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487C2EEC3D2A00C64E4E /* rwkv6qwen2.cpp */; };
+		165848A32EEC3D2A00C64E4E /* deepseek2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848392EEC3D2A00C64E4E /* deepseek2.cpp */; };
+		165848A42EEC3D2A00C64E4E /* qwen3moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848742EEC3D2A00C64E4E /* qwen3moe.cpp */; };
+		165848A52EEC3D2A00C64E4E /* neo-bert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848622EEC3D2A00C64E4E /* neo-bert.cpp */; };
+		165848A62EEC3D2A00C64E4E /* baichuan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482A2EEC3D2A00C64E4E /* baichuan.cpp */; };
+		165848A72EEC3D2A00C64E4E /* nemotron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848602EEC3D2A00C64E4E /* nemotron.cpp */; };
+		165848A82EEC3D2A00C64E4E /* starcoder2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848842EEC3D2A00C64E4E /* starcoder2.cpp */; };
+		165848A92EEC3D2A00C64E4E /* qwen3next.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848752EEC3D2A00C64E4E /* qwen3next.cpp */; };
+		165848AA2EEC3D2A00C64E4E /* jais.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848532EEC3D2A00C64E4E /* jais.cpp */; };
+		165848AB2EEC3D2A00C64E4E /* deci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848372EEC3D2A00C64E4E /* deci.cpp */; };
+		165848AC2EEC3D2A00C64E4E /* command-r.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848352EEC3D2A00C64E4E /* command-r.cpp */; };
+		165848AD2EEC3D2A00C64E4E /* gemma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848422EEC3D2A00C64E4E /* gemma.cpp */; };
+		165848AE2EEC3D2A00C64E4E /* exaone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483E2EEC3D2A00C64E4E /* exaone.cpp */; };
+		165848AF2EEC3D2A00C64E4E /* afmoe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848252EEC3D2A00C64E4E /* afmoe.cpp */; };
+		165848B02EEC3D2A00C64E4E /* falcon-h1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848412EEC3D2A00C64E4E /* falcon-h1.cpp */; };
+		165848B12EEC3D2A00C64E4E /* grok.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484E2EEC3D2A00C64E4E /* grok.cpp */; };
+		165848B22EEC3D2A00C64E4E /* cogvlm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848332EEC3D2A00C64E4E /* cogvlm.cpp */; };
+		165848B32EEC3D2A00C64E4E /* qwen2moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848712EEC3D2A00C64E4E /* qwen2moe.cpp */; };
+		165848B42EEC3D2A00C64E4E /* bailingmoe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482B2EEC3D2A00C64E4E /* bailingmoe.cpp */; };
+		165848B52EEC3D2A00C64E4E /* llada.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848562EEC3D2A00C64E4E /* llada.cpp */; };
+		165848B62EEC3D2A00C64E4E /* bert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482D2EEC3D2A00C64E4E /* bert.cpp */; };
+		165848B72EEC3D2A00C64E4E /* bailingmoe2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658482C2EEC3D2A00C64E4E /* bailingmoe2.cpp */; };
+		165848B82EEC3D2A00C64E4E /* plamo2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486D2EEC3D2A00C64E4E /* plamo2.cpp */; };
+		165848B92EEC3D2A00C64E4E /* wavtokenizer-dec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848872EEC3D2A00C64E4E /* wavtokenizer-dec.cpp */; };
+		165848BA2EEC3D2A00C64E4E /* seed-oss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487F2EEC3D2A00C64E4E /* seed-oss.cpp */; };
+		165848BB2EEC3D2A00C64E4E /* jamba.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848542EEC3D2A00C64E4E /* jamba.cpp */; };
+		165848BC2EEC3D2A00C64E4E /* graph-context-mamba.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484D2EEC3D2A00C64E4E /* graph-context-mamba.cpp */; };
+		165848BD2EEC3D2A00C64E4E /* rwkv7-base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487E2EEC3D2A00C64E4E /* rwkv7-base.cpp */; };
+		165848BE2EEC3D2A00C64E4E /* hunyuan-moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848512EEC3D2A00C64E4E /* hunyuan-moe.cpp */; };
+		165848BF2EEC3D2A00C64E4E /* falcon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848402EEC3D2A00C64E4E /* falcon.cpp */; };
+		165848C02EEC3D2A00C64E4E /* dots1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483A2EEC3D2A00C64E4E /* dots1.cpp */; };
+		165848C12EEC3D2A00C64E4E /* gptneox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484A2EEC3D2A00C64E4E /* gptneox.cpp */; };
+		165848C22EEC3D2A00C64E4E /* rwkv7.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487D2EEC3D2A00C64E4E /* rwkv7.cpp */; };
+		165848C32EEC3D2A00C64E4E /* cohere2-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848342EEC3D2A00C64E4E /* cohere2-iswa.cpp */; };
+		165848C42EEC3D2A00C64E4E /* apertus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848262EEC3D2A00C64E4E /* apertus.cpp */; };
+		165848C52EEC3D2A00C64E4E /* pangu-embedded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848692EEC3D2A00C64E4E /* pangu-embedded.cpp */; };
+		165848C62EEC3D2A00C64E4E /* olmoe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848652EEC3D2A00C64E4E /* olmoe.cpp */; };
+		165848C72EEC3D2A00C64E4E /* rwkv6-base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487B2EEC3D2A00C64E4E /* rwkv6-base.cpp */; };
+		165848C82EEC3D2A00C64E4E /* lfm2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848552EEC3D2A00C64E4E /* lfm2.cpp */; };
+		165848C92EEC3D2A00C64E4E /* orion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848682EEC3D2A00C64E4E /* orion.cpp */; };
+		165848CA2EEC3D2A00C64E4E /* chameleon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848302EEC3D2A00C64E4E /* chameleon.cpp */; };
+		165848CB2EEC3D2A00C64E4E /* plamo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486C2EEC3D2A00C64E4E /* plamo.cpp */; };
+		165848CC2EEC3D2A00C64E4E /* glm4-moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848482EEC3D2A00C64E4E /* glm4-moe.cpp */; };
+		165848CD2EEC3D2A00C64E4E /* t5-enc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848862EEC3D2A00C64E4E /* t5-enc.cpp */; };
+		165848CE2EEC3D2A00C64E4E /* olmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848632EEC3D2A00C64E4E /* olmo.cpp */; };
+		165848CF2EEC3D2A00C64E4E /* ernie4-5-moe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483D2EEC3D2A00C64E4E /* ernie4-5-moe.cpp */; };
+		165848D02EEC3D2A00C64E4E /* internlm2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848522EEC3D2A00C64E4E /* internlm2.cpp */; };
+		165848D12EEC3D2A00C64E4E /* gemma3n-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848462EEC3D2A00C64E4E /* gemma3n-iswa.cpp */; };
+		165848D22EEC3D2A00C64E4E /* arwkv7.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848292EEC3D2A00C64E4E /* arwkv7.cpp */; };
+		165848D32EEC3D2A00C64E4E /* mpt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658485F2EEC3D2A00C64E4E /* mpt.cpp */; };
+		165848D42EEC3D2A00C64E4E /* qwen3vl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848762EEC3D2A00C64E4E /* qwen3vl.cpp */; };
+		165848D52EEC3D2A00C64E4E /* ernie4-5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483C2EEC3D2A00C64E4E /* ernie4-5.cpp */; };
+		165848D62EEC3D2A00C64E4E /* llama.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848582EEC3D2A00C64E4E /* llama.cpp */; };
+		165848D72EEC3D2A00C64E4E /* rwkv6.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658487A2EEC3D2A00C64E4E /* rwkv6.cpp */; };
+		165848D82EEC3D2A00C64E4E /* olmo2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848642EEC3D2A00C64E4E /* olmo2.cpp */; };
+		165848D92EEC3D2A00C64E4E /* qwen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486F2EEC3D2A00C64E4E /* qwen.cpp */; };
+		165848DA2EEC3D2A00C64E4E /* exaone4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483F2EEC3D2A00C64E4E /* exaone4.cpp */; };
+		165848DB2EEC3D2A00C64E4E /* xverse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848882EEC3D2A00C64E4E /* xverse.cpp */; };
+		165848DC2EEC3D2A00C64E4E /* nemotron-h.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848612EEC3D2A00C64E4E /* nemotron-h.cpp */; };
+		165848DD2EEC3D2A00C64E4E /* mistral3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658485D2EEC3D2A00C64E4E /* mistral3.cpp */; };
+		165848DE2EEC3D2A00C64E4E /* phi2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486A2EEC3D2A00C64E4E /* phi2.cpp */; };
+		165848DF2EEC3D2A00C64E4E /* gpt2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848492EEC3D2A00C64E4E /* gpt2.cpp */; };
+		165848E02EEC3D2A00C64E4E /* gemma3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848452EEC3D2A00C64E4E /* gemma3.cpp */; };
+		165848E12EEC3D2A00C64E4E /* codeshell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848322EEC3D2A00C64E4E /* codeshell.cpp */; };
+		165848E22EEC3D2A00C64E4E /* stablelm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848822EEC3D2A00C64E4E /* stablelm.cpp */; };
+		165848E32EEC3D2A00C64E4E /* smallthinker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848802EEC3D2A00C64E4E /* smallthinker.cpp */; };
+		165848E42EEC3D2A00C64E4E /* glm4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848472EEC3D2A00C64E4E /* glm4.cpp */; };
+		165848E52EEC3D2A00C64E4E /* phi3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658486B2EEC3D2A00C64E4E /* phi3.cpp */; };
+		165848E62EEC3D2A00C64E4E /* dream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658483B2EEC3D2A00C64E4E /* dream.cpp */; };
+		165848E72EEC3D2A00C64E4E /* qwen2vl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848722EEC3D2A00C64E4E /* qwen2vl.cpp */; };
+		165848E82EEC3D2A00C64E4E /* minicpm3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658485B2EEC3D2A00C64E4E /* minicpm3.cpp */; };
+		165848E92EEC3D2A00C64E4E /* smollm3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848812EEC3D2A00C64E4E /* smollm3.cpp */; };
+		165848EA2EEC3D2A00C64E4E /* hunyuan-dense.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848502EEC3D2A00C64E4E /* hunyuan-dense.cpp */; };
+		165848EB2EEC3D2A00C64E4E /* qwen3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848732EEC3D2A00C64E4E /* qwen3.cpp */; };
+		165848EC2EEC3D2A00C64E4E /* granite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1658484B2EEC3D2A00C64E4E /* granite.cpp */; };
+		165848FA2EEC3DFC00C64E4E /* ggml-metal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 165848EE2EEC3DFC00C64E4E /* ggml-metal.metal */; };
+		165848FB2EEC3DFC00C64E4E /* ggml-metal-common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848F02EEC3DFC00C64E4E /* ggml-metal-common.cpp */; };
+		165848FC2EEC3DFC00C64E4E /* ggml-metal-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848F82EEC3DFC00C64E4E /* ggml-metal-ops.cpp */; };
+		165848FD2EEC3DFC00C64E4E /* ggml-metal-device.m in Sources */ = {isa = PBXBuildFile; fileRef = 165848F52EEC3DFC00C64E4E /* ggml-metal-device.m */; };
+		165848FE2EEC3DFC00C64E4E /* ggml-metal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848ED2EEC3DFC00C64E4E /* ggml-metal.cpp */; };
+		165848FF2EEC3DFC00C64E4E /* ggml-metal-device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165848F42EEC3DFC00C64E4E /* ggml-metal-device.cpp */; };
+		165849002EEC3DFC00C64E4E /* ggml-metal-context.m in Sources */ = {isa = PBXBuildFile; fileRef = 165848F22EEC3DFC00C64E4E /* ggml-metal-context.m */; };
 		165D9E872CB5C41300AAE9FB /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165D9E862CB5C41300AAE9FB /* Model.swift */; };
 		167382EF2D04887D002353D2 /* Variant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382EE2D04887D002353D2 /* Variant.swift */; };
 		167382F12D0488A2002353D2 /* Params.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167382F02D0488A2002353D2 /* Params.swift */; };
@@ -80,8 +186,6 @@
 		16A6F4472E1301790078D603 /* cpu-feats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F3F82E1301790078D603 /* cpu-feats.cpp */; };
 		16A6F4482E1301790078D603 /* unary-ops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F4292E1301790078D603 /* unary-ops.cpp */; };
 		16A6F44F2E1301880078D603 /* ggml-blas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F4492E1301880078D603 /* ggml-blas.cpp */; };
-		16A6F4502E1301880078D603 /* ggml-metal.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F44B2E1301880078D603 /* ggml-metal.m */; };
-		16A6F4512E1301880078D603 /* ggml-metal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F44C2E1301880078D603 /* ggml-metal.metal */; };
 		16A82B5E2DD50E5E002FC4FE /* ggml-opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */; };
 		16A82B622DD50E8D002FC4FE /* llama-model-saver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A82B612DD50E87002FC4FE /* llama-model-saver.cpp */; };
 		16AF9D8E2B8238100064B66C /* UTF8Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AF9D8D2B8238100064B66C /* UTF8Builder.swift */; };
@@ -189,6 +293,118 @@
 		16578A312B18CA5A0038A680 /* ConversationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationState.swift; sourceTree = "<group>"; };
 		16578A332B18CA820038A680 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		16578A382B1924B80038A680 /* WhisperContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhisperContext.swift; sourceTree = "<group>"; };
+		165848252EEC3D2A00C64E4E /* afmoe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = afmoe.cpp; sourceTree = "<group>"; };
+		165848262EEC3D2A00C64E4E /* apertus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = apertus.cpp; sourceTree = "<group>"; };
+		165848272EEC3D2A00C64E4E /* arcee.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arcee.cpp; sourceTree = "<group>"; };
+		165848282EEC3D2A00C64E4E /* arctic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arctic.cpp; sourceTree = "<group>"; };
+		165848292EEC3D2A00C64E4E /* arwkv7.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arwkv7.cpp; sourceTree = "<group>"; };
+		1658482A2EEC3D2A00C64E4E /* baichuan.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = baichuan.cpp; sourceTree = "<group>"; };
+		1658482B2EEC3D2A00C64E4E /* bailingmoe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bailingmoe.cpp; sourceTree = "<group>"; };
+		1658482C2EEC3D2A00C64E4E /* bailingmoe2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bailingmoe2.cpp; sourceTree = "<group>"; };
+		1658482D2EEC3D2A00C64E4E /* bert.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bert.cpp; sourceTree = "<group>"; };
+		1658482E2EEC3D2A00C64E4E /* bitnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bitnet.cpp; sourceTree = "<group>"; };
+		1658482F2EEC3D2A00C64E4E /* bloom.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bloom.cpp; sourceTree = "<group>"; };
+		165848302EEC3D2A00C64E4E /* chameleon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chameleon.cpp; sourceTree = "<group>"; };
+		165848312EEC3D2A00C64E4E /* chatglm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chatglm.cpp; sourceTree = "<group>"; };
+		165848322EEC3D2A00C64E4E /* codeshell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = codeshell.cpp; sourceTree = "<group>"; };
+		165848332EEC3D2A00C64E4E /* cogvlm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cogvlm.cpp; sourceTree = "<group>"; };
+		165848342EEC3D2A00C64E4E /* cohere2-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "cohere2-iswa.cpp"; sourceTree = "<group>"; };
+		165848352EEC3D2A00C64E4E /* command-r.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "command-r.cpp"; sourceTree = "<group>"; };
+		165848362EEC3D2A00C64E4E /* dbrx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dbrx.cpp; sourceTree = "<group>"; };
+		165848372EEC3D2A00C64E4E /* deci.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deci.cpp; sourceTree = "<group>"; };
+		165848382EEC3D2A00C64E4E /* deepseek.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deepseek.cpp; sourceTree = "<group>"; };
+		165848392EEC3D2A00C64E4E /* deepseek2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deepseek2.cpp; sourceTree = "<group>"; };
+		1658483A2EEC3D2A00C64E4E /* dots1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dots1.cpp; sourceTree = "<group>"; };
+		1658483B2EEC3D2A00C64E4E /* dream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dream.cpp; sourceTree = "<group>"; };
+		1658483C2EEC3D2A00C64E4E /* ernie4-5.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ernie4-5.cpp"; sourceTree = "<group>"; };
+		1658483D2EEC3D2A00C64E4E /* ernie4-5-moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ernie4-5-moe.cpp"; sourceTree = "<group>"; };
+		1658483E2EEC3D2A00C64E4E /* exaone.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = exaone.cpp; sourceTree = "<group>"; };
+		1658483F2EEC3D2A00C64E4E /* exaone4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = exaone4.cpp; sourceTree = "<group>"; };
+		165848402EEC3D2A00C64E4E /* falcon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = falcon.cpp; sourceTree = "<group>"; };
+		165848412EEC3D2A00C64E4E /* falcon-h1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "falcon-h1.cpp"; sourceTree = "<group>"; };
+		165848422EEC3D2A00C64E4E /* gemma.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gemma.cpp; sourceTree = "<group>"; };
+		165848432EEC3D2A00C64E4E /* gemma-embedding.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gemma-embedding.cpp"; sourceTree = "<group>"; };
+		165848442EEC3D2A00C64E4E /* gemma2-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gemma2-iswa.cpp"; sourceTree = "<group>"; };
+		165848452EEC3D2A00C64E4E /* gemma3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gemma3.cpp; sourceTree = "<group>"; };
+		165848462EEC3D2A00C64E4E /* gemma3n-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gemma3n-iswa.cpp"; sourceTree = "<group>"; };
+		165848472EEC3D2A00C64E4E /* glm4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = glm4.cpp; sourceTree = "<group>"; };
+		165848482EEC3D2A00C64E4E /* glm4-moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "glm4-moe.cpp"; sourceTree = "<group>"; };
+		165848492EEC3D2A00C64E4E /* gpt2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gpt2.cpp; sourceTree = "<group>"; };
+		1658484A2EEC3D2A00C64E4E /* gptneox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gptneox.cpp; sourceTree = "<group>"; };
+		1658484B2EEC3D2A00C64E4E /* granite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = granite.cpp; sourceTree = "<group>"; };
+		1658484C2EEC3D2A00C64E4E /* granite-hybrid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "granite-hybrid.cpp"; sourceTree = "<group>"; };
+		1658484D2EEC3D2A00C64E4E /* graph-context-mamba.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "graph-context-mamba.cpp"; sourceTree = "<group>"; };
+		1658484E2EEC3D2A00C64E4E /* grok.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = grok.cpp; sourceTree = "<group>"; };
+		1658484F2EEC3D2A00C64E4E /* grovemoe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = grovemoe.cpp; sourceTree = "<group>"; };
+		165848502EEC3D2A00C64E4E /* hunyuan-dense.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "hunyuan-dense.cpp"; sourceTree = "<group>"; };
+		165848512EEC3D2A00C64E4E /* hunyuan-moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "hunyuan-moe.cpp"; sourceTree = "<group>"; };
+		165848522EEC3D2A00C64E4E /* internlm2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = internlm2.cpp; sourceTree = "<group>"; };
+		165848532EEC3D2A00C64E4E /* jais.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jais.cpp; sourceTree = "<group>"; };
+		165848542EEC3D2A00C64E4E /* jamba.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jamba.cpp; sourceTree = "<group>"; };
+		165848552EEC3D2A00C64E4E /* lfm2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lfm2.cpp; sourceTree = "<group>"; };
+		165848562EEC3D2A00C64E4E /* llada.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = llada.cpp; sourceTree = "<group>"; };
+		165848572EEC3D2A00C64E4E /* llada-moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llada-moe.cpp"; sourceTree = "<group>"; };
+		165848582EEC3D2A00C64E4E /* llama.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = llama.cpp; sourceTree = "<group>"; };
+		165848592EEC3D2A00C64E4E /* llama-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-iswa.cpp"; sourceTree = "<group>"; };
+		1658485A2EEC3D2A00C64E4E /* mamba.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mamba.cpp; sourceTree = "<group>"; };
+		1658485B2EEC3D2A00C64E4E /* minicpm3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = minicpm3.cpp; sourceTree = "<group>"; };
+		1658485C2EEC3D2A00C64E4E /* minimax-m2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "minimax-m2.cpp"; sourceTree = "<group>"; };
+		1658485D2EEC3D2A00C64E4E /* mistral3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mistral3.cpp; sourceTree = "<group>"; };
+		1658485E2EEC3D2A00C64E4E /* models.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = models.h; sourceTree = "<group>"; };
+		1658485F2EEC3D2A00C64E4E /* mpt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mpt.cpp; sourceTree = "<group>"; };
+		165848602EEC3D2A00C64E4E /* nemotron.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nemotron.cpp; sourceTree = "<group>"; };
+		165848612EEC3D2A00C64E4E /* nemotron-h.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "nemotron-h.cpp"; sourceTree = "<group>"; };
+		165848622EEC3D2A00C64E4E /* neo-bert.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "neo-bert.cpp"; sourceTree = "<group>"; };
+		165848632EEC3D2A00C64E4E /* olmo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = olmo.cpp; sourceTree = "<group>"; };
+		165848642EEC3D2A00C64E4E /* olmo2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = olmo2.cpp; sourceTree = "<group>"; };
+		165848652EEC3D2A00C64E4E /* olmoe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = olmoe.cpp; sourceTree = "<group>"; };
+		165848662EEC3D2A00C64E4E /* openai-moe-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "openai-moe-iswa.cpp"; sourceTree = "<group>"; };
+		165848672EEC3D2A00C64E4E /* openelm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = openelm.cpp; sourceTree = "<group>"; };
+		165848682EEC3D2A00C64E4E /* orion.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = orion.cpp; sourceTree = "<group>"; };
+		165848692EEC3D2A00C64E4E /* pangu-embedded.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "pangu-embedded.cpp"; sourceTree = "<group>"; };
+		1658486A2EEC3D2A00C64E4E /* phi2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = phi2.cpp; sourceTree = "<group>"; };
+		1658486B2EEC3D2A00C64E4E /* phi3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = phi3.cpp; sourceTree = "<group>"; };
+		1658486C2EEC3D2A00C64E4E /* plamo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = plamo.cpp; sourceTree = "<group>"; };
+		1658486D2EEC3D2A00C64E4E /* plamo2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = plamo2.cpp; sourceTree = "<group>"; };
+		1658486E2EEC3D2A00C64E4E /* plm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = plm.cpp; sourceTree = "<group>"; };
+		1658486F2EEC3D2A00C64E4E /* qwen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen.cpp; sourceTree = "<group>"; };
+		165848702EEC3D2A00C64E4E /* qwen2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen2.cpp; sourceTree = "<group>"; };
+		165848712EEC3D2A00C64E4E /* qwen2moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen2moe.cpp; sourceTree = "<group>"; };
+		165848722EEC3D2A00C64E4E /* qwen2vl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen2vl.cpp; sourceTree = "<group>"; };
+		165848732EEC3D2A00C64E4E /* qwen3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen3.cpp; sourceTree = "<group>"; };
+		165848742EEC3D2A00C64E4E /* qwen3moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen3moe.cpp; sourceTree = "<group>"; };
+		165848752EEC3D2A00C64E4E /* qwen3next.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen3next.cpp; sourceTree = "<group>"; };
+		165848762EEC3D2A00C64E4E /* qwen3vl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qwen3vl.cpp; sourceTree = "<group>"; };
+		165848772EEC3D2A00C64E4E /* qwen3vl-moe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "qwen3vl-moe.cpp"; sourceTree = "<group>"; };
+		165848782EEC3D2A00C64E4E /* refact.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = refact.cpp; sourceTree = "<group>"; };
+		165848792EEC3D2A00C64E4E /* rnd1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rnd1.cpp; sourceTree = "<group>"; };
+		1658487A2EEC3D2A00C64E4E /* rwkv6.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rwkv6.cpp; sourceTree = "<group>"; };
+		1658487B2EEC3D2A00C64E4E /* rwkv6-base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "rwkv6-base.cpp"; sourceTree = "<group>"; };
+		1658487C2EEC3D2A00C64E4E /* rwkv6qwen2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rwkv6qwen2.cpp; sourceTree = "<group>"; };
+		1658487D2EEC3D2A00C64E4E /* rwkv7.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rwkv7.cpp; sourceTree = "<group>"; };
+		1658487E2EEC3D2A00C64E4E /* rwkv7-base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "rwkv7-base.cpp"; sourceTree = "<group>"; };
+		1658487F2EEC3D2A00C64E4E /* seed-oss.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "seed-oss.cpp"; sourceTree = "<group>"; };
+		165848802EEC3D2A00C64E4E /* smallthinker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = smallthinker.cpp; sourceTree = "<group>"; };
+		165848812EEC3D2A00C64E4E /* smollm3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = smollm3.cpp; sourceTree = "<group>"; };
+		165848822EEC3D2A00C64E4E /* stablelm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stablelm.cpp; sourceTree = "<group>"; };
+		165848832EEC3D2A00C64E4E /* starcoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = starcoder.cpp; sourceTree = "<group>"; };
+		165848842EEC3D2A00C64E4E /* starcoder2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = starcoder2.cpp; sourceTree = "<group>"; };
+		165848852EEC3D2A00C64E4E /* t5-dec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "t5-dec.cpp"; sourceTree = "<group>"; };
+		165848862EEC3D2A00C64E4E /* t5-enc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "t5-enc.cpp"; sourceTree = "<group>"; };
+		165848872EEC3D2A00C64E4E /* wavtokenizer-dec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "wavtokenizer-dec.cpp"; sourceTree = "<group>"; };
+		165848882EEC3D2A00C64E4E /* xverse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xverse.cpp; sourceTree = "<group>"; };
+		165848ED2EEC3DFC00C64E4E /* ggml-metal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-metal.cpp"; sourceTree = "<group>"; };
+		165848EE2EEC3DFC00C64E4E /* ggml-metal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = "ggml-metal.metal"; sourceTree = "<group>"; };
+		165848EF2EEC3DFC00C64E4E /* ggml-metal-common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-common.h"; sourceTree = "<group>"; };
+		165848F02EEC3DFC00C64E4E /* ggml-metal-common.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-metal-common.cpp"; sourceTree = "<group>"; };
+		165848F12EEC3DFC00C64E4E /* ggml-metal-context.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-context.h"; sourceTree = "<group>"; };
+		165848F22EEC3DFC00C64E4E /* ggml-metal-context.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ggml-metal-context.m"; sourceTree = "<group>"; };
+		165848F32EEC3DFC00C64E4E /* ggml-metal-device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-device.h"; sourceTree = "<group>"; };
+		165848F42EEC3DFC00C64E4E /* ggml-metal-device.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-metal-device.cpp"; sourceTree = "<group>"; };
+		165848F52EEC3DFC00C64E4E /* ggml-metal-device.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ggml-metal-device.m"; sourceTree = "<group>"; };
+		165848F62EEC3DFC00C64E4E /* ggml-metal-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-impl.h"; sourceTree = "<group>"; };
+		165848F72EEC3DFC00C64E4E /* ggml-metal-ops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-ops.h"; sourceTree = "<group>"; };
+		165848F82EEC3DFC00C64E4E /* ggml-metal-ops.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-metal-ops.cpp"; sourceTree = "<group>"; };
 		165D9E852CB59E8400AAE9FB /* Emeltal-visionOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Emeltal-visionOS.entitlements"; sourceTree = "<group>"; };
 		165D9E862CB5C41300AAE9FB /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		167382EE2D04887D002353D2 /* Variant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variant.swift; sourceTree = "<group>"; };
@@ -247,9 +463,6 @@
 		16A6F42A2E1301790078D603 /* vec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 		16A6F42B2E1301790078D603 /* vec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vec.cpp; sourceTree = "<group>"; };
 		16A6F4492E1301880078D603 /* ggml-blas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-blas.cpp"; sourceTree = "<group>"; };
-		16A6F44B2E1301880078D603 /* ggml-metal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ggml-metal.m"; sourceTree = "<group>"; };
-		16A6F44C2E1301880078D603 /* ggml-metal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = "ggml-metal.metal"; sourceTree = "<group>"; };
-		16A6F44D2E1301880078D603 /* ggml-metal-impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-metal-impl.h"; sourceTree = "<group>"; };
 		16A82B5D2DD50E5E002FC4FE /* ggml-opt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-opt.cpp"; sourceTree = "<group>"; };
 		16A82B5F2DD50E6A002FC4FE /* ggml-opt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ggml-opt.h"; sourceTree = "<group>"; };
 		16A82B602DD50E87002FC4FE /* llama-model-saver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llama-model-saver.h"; sourceTree = "<group>"; };
@@ -425,6 +638,132 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		165848892EEC3D2A00C64E4E /* models */ = {
+			isa = PBXGroup;
+			children = (
+				165848252EEC3D2A00C64E4E /* afmoe.cpp */,
+				165848262EEC3D2A00C64E4E /* apertus.cpp */,
+				165848272EEC3D2A00C64E4E /* arcee.cpp */,
+				165848282EEC3D2A00C64E4E /* arctic.cpp */,
+				165848292EEC3D2A00C64E4E /* arwkv7.cpp */,
+				1658482A2EEC3D2A00C64E4E /* baichuan.cpp */,
+				1658482B2EEC3D2A00C64E4E /* bailingmoe.cpp */,
+				1658482C2EEC3D2A00C64E4E /* bailingmoe2.cpp */,
+				1658482D2EEC3D2A00C64E4E /* bert.cpp */,
+				1658482E2EEC3D2A00C64E4E /* bitnet.cpp */,
+				1658482F2EEC3D2A00C64E4E /* bloom.cpp */,
+				165848302EEC3D2A00C64E4E /* chameleon.cpp */,
+				165848312EEC3D2A00C64E4E /* chatglm.cpp */,
+				165848322EEC3D2A00C64E4E /* codeshell.cpp */,
+				165848332EEC3D2A00C64E4E /* cogvlm.cpp */,
+				165848342EEC3D2A00C64E4E /* cohere2-iswa.cpp */,
+				165848352EEC3D2A00C64E4E /* command-r.cpp */,
+				165848362EEC3D2A00C64E4E /* dbrx.cpp */,
+				165848372EEC3D2A00C64E4E /* deci.cpp */,
+				165848382EEC3D2A00C64E4E /* deepseek.cpp */,
+				165848392EEC3D2A00C64E4E /* deepseek2.cpp */,
+				1658483A2EEC3D2A00C64E4E /* dots1.cpp */,
+				1658483B2EEC3D2A00C64E4E /* dream.cpp */,
+				1658483C2EEC3D2A00C64E4E /* ernie4-5.cpp */,
+				1658483D2EEC3D2A00C64E4E /* ernie4-5-moe.cpp */,
+				1658483E2EEC3D2A00C64E4E /* exaone.cpp */,
+				1658483F2EEC3D2A00C64E4E /* exaone4.cpp */,
+				165848402EEC3D2A00C64E4E /* falcon.cpp */,
+				165848412EEC3D2A00C64E4E /* falcon-h1.cpp */,
+				165848422EEC3D2A00C64E4E /* gemma.cpp */,
+				165848432EEC3D2A00C64E4E /* gemma-embedding.cpp */,
+				165848442EEC3D2A00C64E4E /* gemma2-iswa.cpp */,
+				165848452EEC3D2A00C64E4E /* gemma3.cpp */,
+				165848462EEC3D2A00C64E4E /* gemma3n-iswa.cpp */,
+				165848472EEC3D2A00C64E4E /* glm4.cpp */,
+				165848482EEC3D2A00C64E4E /* glm4-moe.cpp */,
+				165848492EEC3D2A00C64E4E /* gpt2.cpp */,
+				1658484A2EEC3D2A00C64E4E /* gptneox.cpp */,
+				1658484B2EEC3D2A00C64E4E /* granite.cpp */,
+				1658484C2EEC3D2A00C64E4E /* granite-hybrid.cpp */,
+				1658484D2EEC3D2A00C64E4E /* graph-context-mamba.cpp */,
+				1658484E2EEC3D2A00C64E4E /* grok.cpp */,
+				1658484F2EEC3D2A00C64E4E /* grovemoe.cpp */,
+				165848502EEC3D2A00C64E4E /* hunyuan-dense.cpp */,
+				165848512EEC3D2A00C64E4E /* hunyuan-moe.cpp */,
+				165848522EEC3D2A00C64E4E /* internlm2.cpp */,
+				165848532EEC3D2A00C64E4E /* jais.cpp */,
+				165848542EEC3D2A00C64E4E /* jamba.cpp */,
+				165848552EEC3D2A00C64E4E /* lfm2.cpp */,
+				165848562EEC3D2A00C64E4E /* llada.cpp */,
+				165848572EEC3D2A00C64E4E /* llada-moe.cpp */,
+				165848582EEC3D2A00C64E4E /* llama.cpp */,
+				165848592EEC3D2A00C64E4E /* llama-iswa.cpp */,
+				1658485A2EEC3D2A00C64E4E /* mamba.cpp */,
+				1658485B2EEC3D2A00C64E4E /* minicpm3.cpp */,
+				1658485C2EEC3D2A00C64E4E /* minimax-m2.cpp */,
+				1658485D2EEC3D2A00C64E4E /* mistral3.cpp */,
+				1658485E2EEC3D2A00C64E4E /* models.h */,
+				1658485F2EEC3D2A00C64E4E /* mpt.cpp */,
+				165848602EEC3D2A00C64E4E /* nemotron.cpp */,
+				165848612EEC3D2A00C64E4E /* nemotron-h.cpp */,
+				165848622EEC3D2A00C64E4E /* neo-bert.cpp */,
+				165848632EEC3D2A00C64E4E /* olmo.cpp */,
+				165848642EEC3D2A00C64E4E /* olmo2.cpp */,
+				165848652EEC3D2A00C64E4E /* olmoe.cpp */,
+				165848662EEC3D2A00C64E4E /* openai-moe-iswa.cpp */,
+				165848672EEC3D2A00C64E4E /* openelm.cpp */,
+				165848682EEC3D2A00C64E4E /* orion.cpp */,
+				165848692EEC3D2A00C64E4E /* pangu-embedded.cpp */,
+				1658486A2EEC3D2A00C64E4E /* phi2.cpp */,
+				1658486B2EEC3D2A00C64E4E /* phi3.cpp */,
+				1658486C2EEC3D2A00C64E4E /* plamo.cpp */,
+				1658486D2EEC3D2A00C64E4E /* plamo2.cpp */,
+				1658486E2EEC3D2A00C64E4E /* plm.cpp */,
+				1658486F2EEC3D2A00C64E4E /* qwen.cpp */,
+				165848702EEC3D2A00C64E4E /* qwen2.cpp */,
+				165848712EEC3D2A00C64E4E /* qwen2moe.cpp */,
+				165848722EEC3D2A00C64E4E /* qwen2vl.cpp */,
+				165848732EEC3D2A00C64E4E /* qwen3.cpp */,
+				165848742EEC3D2A00C64E4E /* qwen3moe.cpp */,
+				165848752EEC3D2A00C64E4E /* qwen3next.cpp */,
+				165848762EEC3D2A00C64E4E /* qwen3vl.cpp */,
+				165848772EEC3D2A00C64E4E /* qwen3vl-moe.cpp */,
+				165848782EEC3D2A00C64E4E /* refact.cpp */,
+				165848792EEC3D2A00C64E4E /* rnd1.cpp */,
+				1658487A2EEC3D2A00C64E4E /* rwkv6.cpp */,
+				1658487B2EEC3D2A00C64E4E /* rwkv6-base.cpp */,
+				1658487C2EEC3D2A00C64E4E /* rwkv6qwen2.cpp */,
+				1658487D2EEC3D2A00C64E4E /* rwkv7.cpp */,
+				1658487E2EEC3D2A00C64E4E /* rwkv7-base.cpp */,
+				1658487F2EEC3D2A00C64E4E /* seed-oss.cpp */,
+				165848802EEC3D2A00C64E4E /* smallthinker.cpp */,
+				165848812EEC3D2A00C64E4E /* smollm3.cpp */,
+				165848822EEC3D2A00C64E4E /* stablelm.cpp */,
+				165848832EEC3D2A00C64E4E /* starcoder.cpp */,
+				165848842EEC3D2A00C64E4E /* starcoder2.cpp */,
+				165848852EEC3D2A00C64E4E /* t5-dec.cpp */,
+				165848862EEC3D2A00C64E4E /* t5-enc.cpp */,
+				165848872EEC3D2A00C64E4E /* wavtokenizer-dec.cpp */,
+				165848882EEC3D2A00C64E4E /* xverse.cpp */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		165848F92EEC3DFC00C64E4E /* ggml-metal */ = {
+			isa = PBXGroup;
+			children = (
+				165848ED2EEC3DFC00C64E4E /* ggml-metal.cpp */,
+				165848EE2EEC3DFC00C64E4E /* ggml-metal.metal */,
+				165848EF2EEC3DFC00C64E4E /* ggml-metal-common.h */,
+				165848F02EEC3DFC00C64E4E /* ggml-metal-common.cpp */,
+				165848F12EEC3DFC00C64E4E /* ggml-metal-context.h */,
+				165848F22EEC3DFC00C64E4E /* ggml-metal-context.m */,
+				165848F32EEC3DFC00C64E4E /* ggml-metal-device.h */,
+				165848F42EEC3DFC00C64E4E /* ggml-metal-device.cpp */,
+				165848F52EEC3DFC00C64E4E /* ggml-metal-device.m */,
+				165848F62EEC3DFC00C64E4E /* ggml-metal-impl.h */,
+				165848F72EEC3DFC00C64E4E /* ggml-metal-ops.h */,
+				165848F82EEC3DFC00C64E4E /* ggml-metal-ops.cpp */,
+			);
+			path = "ggml-metal";
+			sourceTree = "<group>";
+		};
 		168F56042B331BD8007CADC1 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -527,19 +866,11 @@
 			path = "ggml-blas";
 			sourceTree = "<group>";
 		};
-		16A6F44E2E1301880078D603 /* ggml-metal */ = {
-			isa = PBXGroup;
-			children = (
-				16A6F44B2E1301880078D603 /* ggml-metal.m */,
-				16A6F44C2E1301880078D603 /* ggml-metal.metal */,
-				16A6F44D2E1301880078D603 /* ggml-metal-impl.h */,
-			);
-			path = "ggml-metal";
-			sourceTree = "<group>";
-		};
 		16B558412CF133FC00A7F8C8 /* llama-cpp */ = {
 			isa = PBXGroup;
 			children = (
+				165848F92EEC3DFC00C64E4E /* ggml-metal */,
+				165848892EEC3D2A00C64E4E /* models */,
 				16B558222CF133FC00A7F8C8 /* ggml-alloc.c */,
 				16B5582E2CF133FC00A7F8C8 /* ggml-quants.c */,
 				16B5581E2CF133FC00A7F8C8 /* ggml.c */,
@@ -609,7 +940,6 @@
 				16B5583A2CF133FC00A7F8C8 /* sync-llama.sh */,
 				16A6F44A2E1301880078D603 /* ggml-blas */,
 				16A6F42C2E1301790078D603 /* ggml-cpu */,
-				16A6F44E2E1301880078D603 /* ggml-metal */,
 			);
 			path = "llama-cpp";
 			sourceTree = "<group>";
@@ -804,6 +1134,105 @@
 				16A6F43E2E1301790078D603 /* hbm.cpp in Sources */,
 				16A6F43F2E1301790078D603 /* amx.cpp in Sources */,
 				16A6F4422E1301790078D603 /* sgemm.cpp in Sources */,
+				1658488A2EEC3D2A00C64E4E /* chatglm.cpp in Sources */,
+				1658488B2EEC3D2A00C64E4E /* qwen2.cpp in Sources */,
+				1658488C2EEC3D2A00C64E4E /* bloom.cpp in Sources */,
+				1658488D2EEC3D2A00C64E4E /* deepseek.cpp in Sources */,
+				1658488E2EEC3D2A00C64E4E /* llama-iswa.cpp in Sources */,
+				1658488F2EEC3D2A00C64E4E /* dbrx.cpp in Sources */,
+				165848902EEC3D2A00C64E4E /* t5-dec.cpp in Sources */,
+				165848912EEC3D2A00C64E4E /* arcee.cpp in Sources */,
+				165848922EEC3D2A00C64E4E /* plm.cpp in Sources */,
+				165848932EEC3D2A00C64E4E /* starcoder.cpp in Sources */,
+				165848942EEC3D2A00C64E4E /* gemma-embedding.cpp in Sources */,
+				165848952EEC3D2A00C64E4E /* grovemoe.cpp in Sources */,
+				165848962EEC3D2A00C64E4E /* minimax-m2.cpp in Sources */,
+				165848972EEC3D2A00C64E4E /* qwen3vl-moe.cpp in Sources */,
+				165848982EEC3D2A00C64E4E /* gemma2-iswa.cpp in Sources */,
+				165848992EEC3D2A00C64E4E /* arctic.cpp in Sources */,
+				1658489A2EEC3D2A00C64E4E /* openelm.cpp in Sources */,
+				1658489B2EEC3D2A00C64E4E /* mamba.cpp in Sources */,
+				1658489C2EEC3D2A00C64E4E /* granite-hybrid.cpp in Sources */,
+				1658489D2EEC3D2A00C64E4E /* refact.cpp in Sources */,
+				1658489E2EEC3D2A00C64E4E /* bitnet.cpp in Sources */,
+				1658489F2EEC3D2A00C64E4E /* llada-moe.cpp in Sources */,
+				165848A02EEC3D2A00C64E4E /* openai-moe-iswa.cpp in Sources */,
+				165848A12EEC3D2A00C64E4E /* rnd1.cpp in Sources */,
+				165848A22EEC3D2A00C64E4E /* rwkv6qwen2.cpp in Sources */,
+				165848A32EEC3D2A00C64E4E /* deepseek2.cpp in Sources */,
+				165848A42EEC3D2A00C64E4E /* qwen3moe.cpp in Sources */,
+				165848A52EEC3D2A00C64E4E /* neo-bert.cpp in Sources */,
+				165848A62EEC3D2A00C64E4E /* baichuan.cpp in Sources */,
+				165848A72EEC3D2A00C64E4E /* nemotron.cpp in Sources */,
+				165848A82EEC3D2A00C64E4E /* starcoder2.cpp in Sources */,
+				165848A92EEC3D2A00C64E4E /* qwen3next.cpp in Sources */,
+				165848AA2EEC3D2A00C64E4E /* jais.cpp in Sources */,
+				165848AB2EEC3D2A00C64E4E /* deci.cpp in Sources */,
+				165848AC2EEC3D2A00C64E4E /* command-r.cpp in Sources */,
+				165848AD2EEC3D2A00C64E4E /* gemma.cpp in Sources */,
+				165848AE2EEC3D2A00C64E4E /* exaone.cpp in Sources */,
+				165848AF2EEC3D2A00C64E4E /* afmoe.cpp in Sources */,
+				165848B02EEC3D2A00C64E4E /* falcon-h1.cpp in Sources */,
+				165848B12EEC3D2A00C64E4E /* grok.cpp in Sources */,
+				165848B22EEC3D2A00C64E4E /* cogvlm.cpp in Sources */,
+				165848B32EEC3D2A00C64E4E /* qwen2moe.cpp in Sources */,
+				165848B42EEC3D2A00C64E4E /* bailingmoe.cpp in Sources */,
+				165848B52EEC3D2A00C64E4E /* llada.cpp in Sources */,
+				165848B62EEC3D2A00C64E4E /* bert.cpp in Sources */,
+				165848B72EEC3D2A00C64E4E /* bailingmoe2.cpp in Sources */,
+				165848B82EEC3D2A00C64E4E /* plamo2.cpp in Sources */,
+				165848B92EEC3D2A00C64E4E /* wavtokenizer-dec.cpp in Sources */,
+				165848BA2EEC3D2A00C64E4E /* seed-oss.cpp in Sources */,
+				165848BB2EEC3D2A00C64E4E /* jamba.cpp in Sources */,
+				165848BC2EEC3D2A00C64E4E /* graph-context-mamba.cpp in Sources */,
+				165848BD2EEC3D2A00C64E4E /* rwkv7-base.cpp in Sources */,
+				165848BE2EEC3D2A00C64E4E /* hunyuan-moe.cpp in Sources */,
+				165848BF2EEC3D2A00C64E4E /* falcon.cpp in Sources */,
+				165848C02EEC3D2A00C64E4E /* dots1.cpp in Sources */,
+				165848C12EEC3D2A00C64E4E /* gptneox.cpp in Sources */,
+				165848C22EEC3D2A00C64E4E /* rwkv7.cpp in Sources */,
+				165848C32EEC3D2A00C64E4E /* cohere2-iswa.cpp in Sources */,
+				165848C42EEC3D2A00C64E4E /* apertus.cpp in Sources */,
+				165848C52EEC3D2A00C64E4E /* pangu-embedded.cpp in Sources */,
+				165848C62EEC3D2A00C64E4E /* olmoe.cpp in Sources */,
+				165848C72EEC3D2A00C64E4E /* rwkv6-base.cpp in Sources */,
+				165848C82EEC3D2A00C64E4E /* lfm2.cpp in Sources */,
+				165848C92EEC3D2A00C64E4E /* orion.cpp in Sources */,
+				165848CA2EEC3D2A00C64E4E /* chameleon.cpp in Sources */,
+				165848CB2EEC3D2A00C64E4E /* plamo.cpp in Sources */,
+				165848CC2EEC3D2A00C64E4E /* glm4-moe.cpp in Sources */,
+				165848CD2EEC3D2A00C64E4E /* t5-enc.cpp in Sources */,
+				165848CE2EEC3D2A00C64E4E /* olmo.cpp in Sources */,
+				165848CF2EEC3D2A00C64E4E /* ernie4-5-moe.cpp in Sources */,
+				165848D02EEC3D2A00C64E4E /* internlm2.cpp in Sources */,
+				165848D12EEC3D2A00C64E4E /* gemma3n-iswa.cpp in Sources */,
+				165848D22EEC3D2A00C64E4E /* arwkv7.cpp in Sources */,
+				165848D32EEC3D2A00C64E4E /* mpt.cpp in Sources */,
+				165848D42EEC3D2A00C64E4E /* qwen3vl.cpp in Sources */,
+				165848D52EEC3D2A00C64E4E /* ernie4-5.cpp in Sources */,
+				165848D62EEC3D2A00C64E4E /* llama.cpp in Sources */,
+				165848D72EEC3D2A00C64E4E /* rwkv6.cpp in Sources */,
+				165848D82EEC3D2A00C64E4E /* olmo2.cpp in Sources */,
+				165848D92EEC3D2A00C64E4E /* qwen.cpp in Sources */,
+				165848DA2EEC3D2A00C64E4E /* exaone4.cpp in Sources */,
+				165848DB2EEC3D2A00C64E4E /* xverse.cpp in Sources */,
+				165848DC2EEC3D2A00C64E4E /* nemotron-h.cpp in Sources */,
+				165848DD2EEC3D2A00C64E4E /* mistral3.cpp in Sources */,
+				165848DE2EEC3D2A00C64E4E /* phi2.cpp in Sources */,
+				165848DF2EEC3D2A00C64E4E /* gpt2.cpp in Sources */,
+				165848E02EEC3D2A00C64E4E /* gemma3.cpp in Sources */,
+				165848E12EEC3D2A00C64E4E /* codeshell.cpp in Sources */,
+				165848E22EEC3D2A00C64E4E /* stablelm.cpp in Sources */,
+				165848E32EEC3D2A00C64E4E /* smallthinker.cpp in Sources */,
+				165848E42EEC3D2A00C64E4E /* glm4.cpp in Sources */,
+				165848E52EEC3D2A00C64E4E /* phi3.cpp in Sources */,
+				165848E62EEC3D2A00C64E4E /* dream.cpp in Sources */,
+				165848E72EEC3D2A00C64E4E /* qwen2vl.cpp in Sources */,
+				165848E82EEC3D2A00C64E4E /* minicpm3.cpp in Sources */,
+				165848E92EEC3D2A00C64E4E /* smollm3.cpp in Sources */,
+				165848EA2EEC3D2A00C64E4E /* hunyuan-dense.cpp in Sources */,
+				165848EB2EEC3D2A00C64E4E /* qwen3.cpp in Sources */,
+				165848EC2EEC3D2A00C64E4E /* granite.cpp in Sources */,
 				16A6F4432E1301790078D603 /* repack.cpp in Sources */,
 				16A6F4452E1301790078D603 /* mmq.cpp in Sources */,
 				16A6F4462E1301790078D603 /* repack.cpp in Sources */,
@@ -825,6 +1254,13 @@
 				16B5584E2CF133FC00A7F8C8 /* llama.cpp in Sources */,
 				16B5584F2CF133FC00A7F8C8 /* unicode.cpp in Sources */,
 				16B558512CF133FC00A7F8C8 /* ggml-threading.cpp in Sources */,
+				165848FA2EEC3DFC00C64E4E /* ggml-metal.metal in Sources */,
+				165848FB2EEC3DFC00C64E4E /* ggml-metal-common.cpp in Sources */,
+				165848FC2EEC3DFC00C64E4E /* ggml-metal-ops.cpp in Sources */,
+				165848FD2EEC3DFC00C64E4E /* ggml-metal-device.m in Sources */,
+				165848FE2EEC3DFC00C64E4E /* ggml-metal.cpp in Sources */,
+				165848FF2EEC3DFC00C64E4E /* ggml-metal-device.cpp in Sources */,
+				165849002EEC3DFC00C64E4E /* ggml-metal-context.m in Sources */,
 				16B558532CF133FC00A7F8C8 /* ggml-backend-reg.cpp in Sources */,
 				16B558542CF133FC00A7F8C8 /* ggml.c in Sources */,
 				16B558562CF133FC00A7F8C8 /* ggml-quants.c in Sources */,
@@ -855,8 +1291,6 @@
 				16FCFAE42D2DD52A008AD758 /* llama-mmap.cpp in Sources */,
 				16578A322B18CA5A0038A680 /* ConversationState.swift in Sources */,
 				16A6F44F2E1301880078D603 /* ggml-blas.cpp in Sources */,
-				16A6F4502E1301880078D603 /* ggml-metal.m in Sources */,
-				16A6F4512E1301880078D603 /* ggml-metal.metal in Sources */,
 				163EF0572B31B78300565F49 /* PushButton.swift in Sources */,
 				16FCFAED2D2DD6CA008AD758 /* llama-arch.cpp in Sources */,
 				16815BF42B52ADEE00D7C8B9 /* GGMLActor.swift in Sources */,

@@ -126,8 +126,8 @@ final actor Speaker {
     }
 
     func render(text: String) async -> Data? {
-        let utterance = utterance(for: text)
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
+            let utterance = utterance(for: text)
             synth.write(utterance) { audioBuffer in
                 if let buf = audioBuffer as? AVAudioPCMBuffer, let speech = buf.floatChannelData?[0] {
                     let data = Data(bytes: speech, count: Int(buf.frameLength))

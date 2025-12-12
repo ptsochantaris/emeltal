@@ -41,6 +41,7 @@ cp -r\
  $LSRC/ggml/include/ggml-cpu.h\
  $LSRC/ggml/src/ggml-threading.h\
  $LSRC/ggml/src/ggml-blas\
+ $LSRC/src/models\
  $LSRC/src/llama-chat.h\
  $LSRC/src/llama-chat.cpp\
  $LSRC/src/llama-io.h\

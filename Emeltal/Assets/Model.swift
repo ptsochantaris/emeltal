@@ -175,8 +175,10 @@ final class Model: Hashable, Identifiable, Sendable {
             } else {
                 ""
             }
-            print(">> Model \(variant), actual: \(usedString), diff: \(diffString) \(warning)")
-            print(">> -----------------------------------------------------------------------------")
+            if !warning.isEmpty {
+                print(">> \(warning) -----------------------------------------------------------")
+                print(">> Actual: \(usedString), diff: \(diffString)\n>>\n")
+            }
         }
 
         await state.shutdown()

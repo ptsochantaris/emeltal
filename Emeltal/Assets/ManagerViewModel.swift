@@ -126,7 +126,8 @@ final class ManagerViewModel {
              for model in models.sorted(by: { $0.memoryEstimate.gpuUsageEstimateBytes < $1.memoryEstimate.gpuUsageEstimateBytes }) where model.category.displayable {
                  await model.sanityCheckEstimates(whisper: whisper)
              }
-         }
-          */
+             log(">> Model sizing done")
+             }
+         */
     }
 }

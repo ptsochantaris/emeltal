@@ -227,47 +227,47 @@ extension Model {
             case .dolphinThree3b: 87
             case .llama3compact: 113
             case .gemma34: 94
-            case .gptOpenSmall: 620
-            case .dolphinThree8b: 187
+            case .gptOpenSmall: 610
+            case .dolphinThree8b: 185
             case .qwen25small: 168
             case .deepSeekCoder33: 460
-            case .dolphinCoder: 318
+            case .dolphinCoder: 308
             case .deepSeekCoder7: 184
-            case .mythoMax: 261
+            case .mythoMax: 256
             case .whisper: 1
             case .dolphin72b: 590
             case .dolphinNemo: 200
             case .calme: 544
-            case .qwen25large: 590
+            case .qwen25large: 564
             case .qwenQwQ32: 370
-            case .qwen3regular: 370
-            case .am1: 360
+            case .qwen3regular: 350
+            case .am1: 344
             case .qwen3tiny: 68
             case .qwen3compact: 170
             case .qwen25regular: 304
-            case .qwen25coder: 423
+            case .qwen25coder: 406
             case .qwen25medium: 218
-            case .athene: 568
-            case .llama3large: 568
+            case .athene: 540
+            case .llama3large: 540
             case .supernovaMedius: 222
-            case .codeLlama70b: 610
+            case .codeLlama70b: 572
             case .llamaNemotron: 517
             case .llama4scout: 884
-            case .llama3: 199
-            case .samantha70b: 605
+            case .llama3: 196
+            case .samantha70b: 576
             case .samantha7b: 163
-            case .neuralStory7b: 186
-            case .qwen3coder: 540
-            case .codestral: 320
+            case .neuralStory7b: 183
+            case .qwen3coder: 520
+            case .codestral: 310
             case .shuttle: 590
-            case .dsro70: 487
-            case .dolphinThreeR1: 424
-            case .gemma312: 164
-            case .gemma327: 272
-            case .mistral2503: 483
-            case .magistral: 483
-            case .glm4, .glmz1: 380
-            case .sage: 960
+            case .dsro70: 464
+            case .dolphinThreeR1: 408
+            case .gemma312: 160
+            case .gemma327: 260
+            case .mistral2503: 460
+            case .magistral: 460
+            case .glm4, .glmz1: 370
+            case .sage: 840
             }
 
             let totalLayers: Int64 = switch self {
@@ -321,7 +321,7 @@ extension Model {
             case .sage: 32
             }
 
-            let layerSize = (layerSizeM + 4) * 1_000_000
+            let layerSize = layerSizeM * 1_048_576
 
             let outputLayerSize: Int64 = switch self {
             case .athene, .dsro70, .llama3large: 5_000_000_000
