@@ -53,7 +53,9 @@ extension Model {
              am1,
              magistral,
              gptOpenSmall,
-             sage
+             sage,
+             devstralSmall,
+             devstralLarge
 
         var recommended: Bool {
             self == .qwen3regular
@@ -69,7 +71,7 @@ extension Model {
             case .samantha7b, .samantha70b: .vicuna
             case .sage: .llama2
             case .codestral, .neuralStory7b: .mistral
-            case .magistral, .mistral2503: .mistralNew
+            case .devstralLarge, .devstralSmall, .magistral, .mistral2503: .mistralNew
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .mythoMax, .whisper: .alpaca
@@ -83,7 +85,7 @@ extension Model {
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .qwen25coder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .qwen25coder:
                 "You are a helpful AI programming assistant."
             case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .sage, .shuttle, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
@@ -130,6 +132,8 @@ extension Model {
             case .am1,
                  .athene,
                  .calme,
+                 .devstralLarge,
+                 .devstralSmall,
                  .dolphin72b,
                  .dolphinNemo,
                  .dolphinThree3b,
@@ -213,6 +217,8 @@ extension Model {
             case .dolphinThreeR1: 2560
             case .glm4, .glmz1: 1952
             case .mistral2503: 2560
+            case .devstralLarge: 2560
+            case .devstralSmall: 2560
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -230,16 +236,16 @@ extension Model {
             case .gptOpenSmall: 610
             case .dolphinThree8b: 185
             case .qwen25small: 168
-            case .deepSeekCoder33: 460
+            case .deepSeekCoder33: 410
             case .dolphinCoder: 308
             case .deepSeekCoder7: 184
             case .mythoMax: 256
             case .whisper: 1
-            case .dolphin72b: 590
-            case .dolphinNemo: 200
-            case .calme: 544
+            case .dolphin72b: 564
+            case .dolphinNemo: 190
+            case .calme: 520
             case .qwen25large: 564
-            case .qwenQwQ32: 370
+            case .qwenQwQ32: 350
             case .qwen3regular: 350
             case .am1: 344
             case .qwen3tiny: 68
@@ -249,22 +255,24 @@ extension Model {
             case .qwen25medium: 218
             case .athene: 540
             case .llama3large: 540
-            case .supernovaMedius: 222
+            case .supernovaMedius: 210
             case .codeLlama70b: 572
             case .llamaNemotron: 517
-            case .llama4scout: 884
+            case .llama4scout: 848
             case .llama3: 196
             case .samantha70b: 576
             case .samantha7b: 163
             case .neuralStory7b: 183
             case .qwen3coder: 520
             case .codestral: 310
-            case .shuttle: 590
+            case .shuttle: 564
             case .dsro70: 464
             case .dolphinThreeR1: 408
             case .gemma312: 160
             case .gemma327: 260
             case .mistral2503: 460
+            case .devstralLarge: 520
+            case .devstralSmall: 484
             case .magistral: 460
             case .glm4, .glmz1: 370
             case .sage: 840
@@ -317,6 +325,8 @@ extension Model {
             case .gemma312: 49
             case .gemma327: 63
             case .mistral2503: 41
+            case .devstralLarge: 41
+            case .devstralSmall: 41
             case .glm4, .glmz1: 62
             case .sage: 32
             }
@@ -504,6 +514,8 @@ extension Model {
             case .magistral: "19.7 GB"
             case .sage: "28.5 GB"
             case .gptOpenSmall: "12.1 GB"
+            case .devstralLarge: "49 GB"
+            case .devstralSmall: "20.8 GB"
             }
         }
 
@@ -549,6 +561,8 @@ extension Model {
             case .glmz1: "This is the same as the 4 model but extended with explicit thinking display and processing."
             case .magistral: "An extension of Mistral 2503, with added reasoning capabilities, undergoing SFT from Magistral Medium traces and RL on top."
             case .gptOpenSmall: "OpenAI's open-weight language model."
+            case .devstralLarge: "This model claims to be the top coding model for its size, but heavily quantised."
+            case .devstralSmall: "A more compact version of the Devstral Small model, but with less quantisation."
             }
         }
 
@@ -561,7 +575,7 @@ extension Model {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .dolphinCoder, .qwen3coder, .qwen25coder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .dolphinCoder, .qwen3coder, .qwen25coder:
                 true
             default:
                 false
@@ -583,13 +597,15 @@ extension Model {
         }
 
         private var defaultMinP: Float {
-            isCodingLLm ? 0 : 0.1
+            isCodingLLm ? 0.01 : 0.1
         }
 
         private var defaultTemperature: Float {
             switch self {
             case .magistral, .qwen3coder, .sage:
                 0.7
+            case .devstralLarge, .devstralSmall:
+                0.15
             default:
                 isCodingLLm ? 0.1 : 0.6
             }
@@ -695,6 +711,8 @@ extension Model {
             case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
             case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF"
             case .gptOpenSmall: "https://huggingface.co/lmstudio-community/gpt-oss-20b-GGUF"
+            case .devstralLarge: "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF"
+            case .devstralSmall: "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF"
             }
             return URL(string: uri)!
         }
@@ -750,6 +768,8 @@ extension Model {
             case .am1: "AM-Thinking-v1.Q5_K_M.gguf"
             case .magistral: "mistralai_Magistral-Small-2506-Q6_K_L.gguf"
             case .sage: "sage-ft-mixtral-8x7b-q4_k_m.gguf"
+            case .devstralLarge: "Devstral-2-123B-Instruct-2512-UD-IQ3_XXS.gguf"
+            case .devstralSmall: "Devstral-Small-2-24B-Instruct-2512-UD-Q6_K_XL.gguf"
             }
         }
 
@@ -818,6 +838,8 @@ extension Model {
             case .magistral: "Magistral 2506"
             case .sage: "Sage"
             case .gptOpenSmall: "OpenAI GPT Open Weight"
+            case .devstralLarge: "Devstral 2"
+            case .devstralSmall: "Devstral 2 Small"
             }
         }
 
@@ -872,6 +894,8 @@ extension Model {
             case .magistral: "24b params, on Mistral 2503"
             case .sage: "on Mixtral MoE 8x7b"
             case .gptOpenSmall: "v1, 20b params"
+            case .devstralLarge: "v2, 123b params"
+            case .devstralSmall: "v2, 24b params"
             }
         }
 
@@ -926,6 +950,8 @@ extension Model {
             case .magistral: "BEFA3CE3-3DF7-41EA-B297-7841DA3C647A"
             case .sage: "4A3A6C15-6B0B-4FE0-9DE5-F3E37B8C0852"
             case .gptOpenSmall: "67A142D7-D2DA-4FBC-8E06-39E4D2CC4E54"
+            case .devstralLarge: "F64C21C9-6A2C-42EF-A0F9-F8E87E89FC0B"
+            case .devstralSmall: "74CDF6DE-4243-447D-B920-100FA5DA5B87"
             }
         }
 

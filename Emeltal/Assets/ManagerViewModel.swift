@@ -24,6 +24,8 @@ final class ManagerViewModel {
         Model(category: .creative, variant: .mythoMax),
         Model(category: .creative, variant: .neuralStory7b),
 
+        Model(category: .coding, variant: .devstralLarge),
+        Model(category: .coding, variant: .devstralSmall),
         Model(category: .coding, variant: .qwen3coder),
         Model(category: .coding, variant: .qwen25coder),
         Model(category: .coding, variant: .codestral),
