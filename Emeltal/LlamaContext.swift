@@ -179,7 +179,7 @@ final class LlamaContext {
         candidateBuffer.deallocate()
     }
 
-    deinit {
+    isolated deinit {
         wordBuffer.deallocate()
         log("Llama context deinit")
     }
@@ -290,7 +290,7 @@ final class LlamaContext {
         }
     }
 
-    private nonisolated(unsafe) let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
+    private let wordBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
 
     private func process(initialText: String, to continuation: AsyncStream<Character>.Continuation, template: Template) async {
         let start = Date.now

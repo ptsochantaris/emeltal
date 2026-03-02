@@ -27,7 +27,6 @@ final class ManagerViewModel {
         Model(category: .coding, variant: .devstralLarge),
         Model(category: .coding, variant: .devstralSmall),
         Model(category: .coding, variant: .qwen3coder),
-        Model(category: .coding, variant: .qwen25coder),
         Model(category: .coding, variant: .codestral),
         Model(category: .coding, variant: .dolphinCoder),
         Model(category: .coding, variant: .deepSeekCoder33),
@@ -42,16 +41,11 @@ final class ManagerViewModel {
         Model(category: .llamas, variant: .llama3compact),
         Model(category: .llamas, variant: .llama3tiny),
         Model(category: .llamas, variant: .llama4scout),
-        Model(category: .llamas, variant: .llamaNemotron),
 
+        Model(category: .qwen, variant: .qwen35regular),
         Model(category: .qwen, variant: .qwen3regular),
         Model(category: .qwen, variant: .qwen3compact),
         Model(category: .qwen, variant: .qwen3tiny),
-        Model(category: .qwen, variant: .qwen25large),
-        Model(category: .qwen, variant: .qwen25regular),
-        Model(category: .qwen, variant: .qwen25medium),
-        Model(category: .qwen, variant: .qwen25small),
-        Model(category: .qwen, variant: .qwenQwQ32),
 
         Model(category: .gemma, variant: .gemma327),
         Model(category: .gemma, variant: .gemma312),
@@ -59,7 +53,6 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma31),
 
         Model(category: .glm, variant: .glm4),
-        Model(category: .glm, variant: .glmz1),
 
         Model(category: .apple, variant: .sage),
 
@@ -67,13 +60,9 @@ final class ManagerViewModel {
         Model(category: .mistrals, variant: .mistral2503),
 
         Model(category: .experimental, variant: .gptOpenSmall),
-        Model(category: .experimental, variant: .am1),
         Model(category: .experimental, variant: .dsro70),
-        Model(category: .experimental, variant: .athene),
         Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .experimental, variant: .smol),
-        Model(category: .experimental, variant: .shuttle),
-        Model(category: .experimental, variant: .calme),
 
         Model(category: .system, variant: .whisper)
     ]

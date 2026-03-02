@@ -6,16 +6,26 @@ import WebKit
 #if canImport(AppKit)
     struct WebView: NSViewRepresentable {
         let handler: ConversationHandler
-        func makeNSView(context: Context) -> WKWebView { context.coordinator.webView }
+        func makeNSView(context: Context) -> WKWebView {
+            context.coordinator.webView
+        }
+
         func updateNSView(_: WKWebView, context _: Context) {}
-        func makeCoordinator() -> Coordinator { Coordinator(handler: handler) }
+        func makeCoordinator() -> Coordinator {
+            Coordinator(handler: handler)
+        }
     }
 #else
     struct WebView: UIViewRepresentable {
         let handler: ConversationHandler
-        func makeUIView(context: Context) -> WKWebView { context.coordinator.webView }
+        func makeUIView(context: Context) -> WKWebView {
+            context.coordinator.webView
+        }
+
         func updateUIView(_: WKWebView, context _: Context) {}
-        func makeCoordinator() -> Coordinator { Coordinator(handler: handler) }
+        func makeCoordinator() -> Coordinator {
+            Coordinator(handler: handler)
+        }
     }
 #endif
 
@@ -170,7 +180,7 @@ final actor MessageLog {
 
     nonisolated func setHistory(from url: URL?) {
         let historyString = if let url {
-            (try? String(contentsOf: url)) ?? ""
+            (try? String(contentsOf: url, encoding: .utf8)) ?? ""
         } else {
             ""
         }

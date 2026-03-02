@@ -33,9 +33,14 @@ final class EmeltalProtocol: NWProtocolFramerImplementation {
 
     init(framer _: NWProtocolFramer.Instance) {}
     func wakeup(framer _: NWProtocolFramer.Instance) {}
-    func stop(framer _: NWProtocolFramer.Instance) -> Bool { true }
+    func stop(framer _: NWProtocolFramer.Instance) -> Bool {
+        true
+    }
+
     func cleanup(framer _: NWProtocolFramer.Instance) {}
-    func start(framer _: NWProtocolFramer.Instance) -> NWProtocolFramer.StartResult { .ready }
+    func start(framer _: NWProtocolFramer.Instance) -> NWProtocolFramer.StartResult {
+        .ready
+    }
 
     func handleInput(framer: NWProtocolFramer.Instance) -> Int {
         while true {

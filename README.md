@@ -24,11 +24,9 @@ A light helper app which can run on an iPhone or device with not enough processi
 Emeltal offers a curated list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of certain extremely large variants, which are capped at 16384 tokens) run at their maximum context size.
 
 #### Qwen Series
-- [Qwen QwQ] (https://huggingface.co/bartowski/Qwen_QwQ-32B-GGUF)
-- [Qwen 2.5 72b] (https://huggingface.co/bartowski/Qwen2.5-72B-Instruct-GGUF)
-- [Qwen 2.5 32b] (https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF)
-- [Qwen 2.5 14b] (https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF)
-- [Qwen 2.5 7b] (https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF)
+- [Qwen 3 32b] (https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF)
+- [Qwen 3 8b] (https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF)
+- [Qwen 3 6b] (https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF)
 
 #### Dolphin Series
 - [Dolphin 3 on Mistral 24b & R1 dataset](https://huggingface.co/bartowski/cognitivecomputations_Dolphin3.0-R1-Mistral-24B-GGUF)
@@ -74,14 +72,9 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 #### Other & Experimental
 - [OpenAI Open weights model](https://huggingface.co/openai/gpt-oss-20b)
 - [THUD GLM 4](https://huggingface.co/THUDM/GLM-4-32B-0414)
-- [THUD GLM Z1](https://huggingface.co/THUDM/GLM-Z1-32B-0414)
-- [Nvidia Llama Nemo](https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1)
 - [DeepSeek R1 Distill on Llama](https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5)
 - [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
-- [Shuttle 3](https://huggingface.co/shuttleai/shuttle-3)
 - [SmolLM 2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct)
-- [Athene V2](https://huggingface.co/Nexusflow/Athene-V2-Chat)
-- [Calme](https://huggingface.co/MaziyarPanahi/calme-2.4-rys-78b)
 
 #### Voice Recognition
 - [Whisper](https://huggingface.co/ggerganov/whisper.cpp)

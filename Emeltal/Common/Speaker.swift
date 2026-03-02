@@ -49,11 +49,17 @@ final actor Speaker {
     private final actor UtteranceWatcher: NSObject, AVSpeechSynthesizerDelegate {
         private var utterances = Set<AVSpeechUtterance>()
 
-        private func remove(utterance: AVSpeechUtterance) { utterances.remove(utterance) }
+        private func remove(utterance: AVSpeechUtterance) {
+            utterances.remove(utterance)
+        }
 
-        func add(utterance: AVSpeechUtterance) { utterances.insert(utterance) }
+        func add(utterance: AVSpeechUtterance) {
+            utterances.insert(utterance)
+        }
 
-        func reset() { utterances.removeAll() }
+        func reset() {
+            utterances.removeAll()
+        }
 
         nonisolated func speechSynthesizer(_: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
             Task {

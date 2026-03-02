@@ -25,6 +25,10 @@ time_meas::~time_meas() {
     }
 }
 
+void llama_log_get(ggml_log_callback * log_callback, void ** user_data) {
+    ggml_log_get(log_callback, user_data);
+}
+
 void llama_log_set(ggml_log_callback log_callback, void * user_data) {
     ggml_log_set(log_callback, user_data);
     g_logger_state.log_callback = log_callback ? log_callback : llama_log_callback_default;
@@ -105,9 +109,9 @@ std::string llama_format_tensor_shape(const std::vector<int64_t> & ne) {
 
 std::string llama_format_tensor_shape(const struct ggml_tensor * t) {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%5" PRId64, t->ne[0]);
+    snprintf(buf, sizeof(buf), "%6" PRId64, t->ne[0]);
     for (int i = 1; i < GGML_MAX_DIMS; i++) {
-        snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ", %5" PRId64, t->ne[i]);
+        snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ", %6" PRId64, t->ne[i]);
     }
     return buf;
 }

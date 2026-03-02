@@ -15,7 +15,6 @@ extension Model {
              codestral,
              dolphinCoder,
              deepSeekCoder33,
-             qwen25coder,
              codeLlama70b,
              deepSeekCoder7,
              samantha7b,
@@ -27,30 +26,20 @@ extension Model {
              llama3large,
              llama3compact,
              llama3tiny,
-             qwen25regular,
-             qwen25large,
-             qwen25medium,
-             qwen25small,
-             qwenQwQ32,
              qwen3regular,
+             qwen35regular,
              qwen3compact,
              qwen3tiny,
              qwen3coder,
              supernovaMedius,
              smol,
-             shuttle,
-             athene,
-             calme,
              gemma327,
              gemma312,
              gemma34,
              gemma31,
              dsro70,
              mistral2503,
-             llamaNemotron,
              glm4,
-             glmz1,
-             am1,
              magistral,
              gptOpenSmall,
              sage,
@@ -72,22 +61,22 @@ extension Model {
             case .sage: .llama2
             case .codestral, .neuralStory7b: .mistral
             case .devstralLarge, .devstralSmall, .magistral, .mistral2503: .mistralNew
-            case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron: .llama3
+            case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .mythoMax, .whisper: .alpaca
-            case .am1, .athene, .calme, .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen3coder, .qwen25coder, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .shuttle, .smol, .supernovaMedius: .chatml
-            case .qwen3compact, .qwen3regular, .qwen3tiny: .chatmlNoThink
+            case .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen3coder, .smol, .supernovaMedius: .chatml
+            case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
-            case .glm4, .glmz1: .glm
+            case .glm4: .glm
             case .gptOpenSmall: .harmony
             }
         }
 
         private var defaultPrompt: String {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .qwen25coder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall:
                 "You are a helpful AI programming assistant."
-            case .athene, .calme, .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glmz1, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .llamaNemotron, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small, .qwenQwQ32, .sage, .shuttle, .smol, .supernovaMedius:
+            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol, .supernovaMedius:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -95,19 +84,13 @@ extension Model {
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .dolphinCoder:
                 "You are DolphinCoder, a helpful AI programming assistant."
-            case .am1:
-                "You are a helpful assistant. To answer the user's question, you first think about the reasoning process and then provide the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answer here </answer>."
             case .dsro70, .llama4scout, .qwen3coder, .whisper:
                 ""
             }
         }
 
         var muteTokens: Set<String>? {
-            if case .am1 = self {
-                ["answer"]
-            } else {
-                nil
-            }
+            nil
         }
 
         var contextSize: UInt32 {
@@ -118,21 +101,16 @@ extension Model {
                  .deepSeekCoder33,
                  .dolphinCoder,
                  .glm4,
-                 .glmz1,
                  .gptOpenSmall,
                  .mythoMax,
                  .neuralStory7b,
-                 .qwen25small,
                  .sage,
                  .samantha7b,
                  .samantha70b,
                  .smol,
                  .whisper:
                 0
-            case .am1,
-                 .athene,
-                 .calme,
-                 .devstralLarge,
+            case .devstralLarge,
                  .devstralSmall,
                  .dolphin72b,
                  .dolphinNemo,
@@ -150,19 +128,13 @@ extension Model {
                  .llama3large,
                  .llama3tiny,
                  .llama4scout,
-                 .llamaNemotron,
                  .magistral,
                  .mistral2503,
                  .qwen3coder,
                  .qwen3compact,
                  .qwen3regular,
                  .qwen3tiny,
-                 .qwen25coder,
-                 .qwen25large,
-                 .qwen25medium,
-                 .qwen25regular,
-                 .qwenQwQ32,
-                 .shuttle,
+                 .qwen35regular,
                  .supernovaMedius:
                 16384
             }
@@ -186,24 +158,13 @@ extension Model {
             case .llama3tiny: 512
             case .llama3large: 5120
             case .llama4scout: 3072
-            case .llamaNemotron: 3136
-            case .calme: 5504
-            case .qwen25large: 5120
             case .qwen3regular: 4096
-            case .am1: 4096
             case .sage: 4096
             case .qwen3compact: 2304
             case .qwen3tiny: 1024
-            case .qwen25regular: 4096
-            case .qwen25coder: 4096
-            case .qwen25medium: 3072
             case .magistral: 2560
-            case .qwenQwQ32: 4096
-            case .athene: 5120
             case .supernovaMedius: 3072
             case .smol: 1536
-            case .shuttle: 5120
-            case .qwen25small: 1800
             case .mythoMax: 3200
             case .samantha70b: 1280
             case .samantha7b: 4096
@@ -215,10 +176,11 @@ extension Model {
             case .dolphinThree3b: 576
             case .dolphinThree8b: 2048
             case .dolphinThreeR1: 2560
-            case .glm4, .glmz1: 1952
+            case .glm4: 1952
             case .mistral2503: 2560
             case .devstralLarge: 2560
             case .devstralSmall: 2560
+            case .qwen35regular: 4000 // TODO:
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -235,7 +197,6 @@ extension Model {
             case .gemma34: 94
             case .gptOpenSmall: 610
             case .dolphinThree8b: 185
-            case .qwen25small: 168
             case .deepSeekCoder33: 410
             case .dolphinCoder: 308
             case .deepSeekCoder7: 184
@@ -243,29 +204,20 @@ extension Model {
             case .whisper: 1
             case .dolphin72b: 564
             case .dolphinNemo: 190
-            case .calme: 520
-            case .qwen25large: 564
-            case .qwenQwQ32: 350
             case .qwen3regular: 350
-            case .am1: 344
             case .qwen3tiny: 68
             case .qwen3compact: 170
-            case .qwen25regular: 304
-            case .qwen25coder: 406
-            case .qwen25medium: 218
-            case .athene: 540
             case .llama3large: 540
             case .supernovaMedius: 210
             case .codeLlama70b: 572
-            case .llamaNemotron: 517
             case .llama4scout: 848
             case .llama3: 196
             case .samantha70b: 576
             case .samantha7b: 163
             case .neuralStory7b: 183
             case .qwen3coder: 520
+            case .qwen35regular: 620
             case .codestral: 310
-            case .shuttle: 564
             case .dsro70: 464
             case .dolphinThreeR1: 408
             case .gemma312: 160
@@ -274,7 +226,7 @@ extension Model {
             case .devstralLarge: 520
             case .devstralSmall: 484
             case .magistral: 460
-            case .glm4, .glmz1: 370
+            case .glm4: 370
             case .sage: 840
             }
 
@@ -288,33 +240,23 @@ extension Model {
             case .whisper: 1
             case .dolphin72b: 81
             case .smol: 25
-            case .shuttle: 81
-            case .calme: 87
             case .qwen3regular: 65
-            case .am1: 65
             case .qwen3compact: 37
             case .qwen3tiny: 29
-            case .qwen25large: 81
-            case .qwen25regular: 65
-            case .qwen25coder: 65
-            case .qwen25medium: 49
-            case .qwen25small: 29
             case .magistral: 41
-            case .qwenQwQ32: 65
             case .supernovaMedius: 49
             case .codeLlama70b: 81
             case .samantha70b: 81
             case .samantha7b: 33
             case .neuralStory7b: 33
             case .qwen3coder: 49
-            case .llamaNemotron: 81
+            case .qwen35regular: 41
             case .llama3large: 81
             case .llama4scout: 49
             case .llama3: 33
             case .llama3tiny: 16
             case .llama3compact: 29
             case .codestral: 57
-            case .athene: 81
             case .dsro70: 81
             case .dolphinThreeR1: 41
             case .dolphinThreeTiny: 29
@@ -327,14 +269,14 @@ extension Model {
             case .mistral2503: 41
             case .devstralLarge: 41
             case .devstralSmall: 41
-            case .glm4, .glmz1: 62
+            case .glm4: 62
             case .sage: 32
             }
 
             let layerSize = layerSizeM * 1_048_576
 
             let outputLayerSize: Int64 = switch self {
-            case .athene, .dsro70, .llama3large: 5_000_000_000
+            case .dsro70, .llama3large: 5_000_000_000
             case .whisper: 0
             default: layerSize * 2 // catch-all
             }
@@ -466,22 +408,16 @@ extension Model {
 
         var sizeDescription: String {
             switch self {
-            case .calme: "47.0 GB"
             case .dolphin72b: "47.5 GB"
             case .dolphinNemo: "8.8 GB"
             case .deepSeekCoder33: "27.4 GB"
             case .deepSeekCoder7: "5.67 GB"
             case .mythoMax: "10.7 GB"
             case .whisper: "0.6 GB"
-            case .qwen25large: "47.5 GB"
             case .qwen3regular: "23.7 GB"
             case .qwen3compact: "6.3 GB"
             case .qwen3tiny: "0.8 GB"
-            case .qwen25regular: "20.0 GB"
-            case .qwen25coder: "27.3 GB"
-            case .qwen25medium: "11.0 GB"
             case .supernovaMedius: "10.5 GB"
-            case .qwen25small: "4.5 GB"
             case .codeLlama70b: "48.8"
             case .samantha70b: "48.8 GB"
             case .samantha7b: "5.2 GB"
@@ -493,29 +429,25 @@ extension Model {
             case .llama3: "6.6 GB"
             case .llama3tiny: "1.1 GB"
             case .llama3compact: "2.8 GB"
-            case .llamaNemotron: "50.0 GB"
             case .codestral: "18.3 GB"
             case .smol: "1.5 GB"
-            case .shuttle: "47.5 GB"
-            case .athene: "48.3 GB"
             case .dsro70: "42.5 GB"
             case .dolphinThreeR1: "17.2 GB"
             case .dolphinThreeTiny: "1.4 GB"
             case .dolphinThree3b: "2.7 GB"
             case .dolphinThree8b: "5.8 GB"
-            case .qwenQwQ32: "23.8 GB"
             case .gemma31: "0.8 GB"
             case .gemma34: "2.5 GB"
             case .gemma312: "7.3 GB"
             case .gemma327: "16.6 GB"
             case .mistral2503: "19.7 GB"
-            case .glm4, .glmz1: "23.7 GB"
-            case .am1: "23.3 GB"
+            case .glm4: "23.7 GB"
             case .magistral: "19.7 GB"
             case .sage: "28.5 GB"
             case .gptOpenSmall: "12.1 GB"
             case .devstralLarge: "49 GB"
             case .devstralSmall: "20.8 GB"
+            case .qwen35regular: "30.3 GB"
             }
         }
 
@@ -527,10 +459,7 @@ extension Model {
             case .dolphin72b: "An extra large size version of Dolphin for those with a lot of memory, curiosity and/or patience."
             case .whisper: "OpenAI's industry leading speech recognition. Lets you talk directly to the model if you prefer. Ensure you have a good mic and 'voice isolation' is selected from the menubar for best results."
             case .dolphinNemo: "The Dolhpin personality running on the Mistral Nemo base model."
-            case .qwenQwQ32: "An evolution of the Qwen model that, at least on benchmarks, offers a very high quality of reasoning. It will display its thinking process by default."
-            case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen25large, .qwen25medium, .qwen25regular, .qwen25small: "A consistently well regarded all-round model by users and benchmarks."
-            case .am1: "Strong performance on reasoning benchmarks, comparable to larger MoE models. Aims to be one of the best dense models at its size."
-            case .qwen25coder: "A consistently well regarded all-round model by users and benchmarks."
+            case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular: "A consistently well regarded all-round model by users and benchmarks."
             case .codeLlama70b: "The latest large coding assistant model from Meta, for more intricate but obviously slower coding problems."
             case .samantha70b: "A larger but slightly older version of the Samantha model."
             case .samantha7b: "A wonderful conversation partner that feels genuinely friendly and caring. Especially good for voice conversations."
@@ -544,10 +473,7 @@ extension Model {
             case .codestral: "The state of the art code assistant from Mistral.AI"
             case .sage: "A state of the art Apple model focusing on empathy and emptional intelligence."
             case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
-            case .shuttle: "Shuttle-3 is a fine-tuned version of Qwen, emulating the writing style of Claude 3 models and thoroughly trained on role-playing data."
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
-            case .calme: "Derived from Qwen using a method that allegedly improves performance, and finetuned for chat. Currently top of the open-source benchmarks."
-            case .athene: "Athene is based on Qwen and seems to have promise, with very high benchmark results, even above Nemotron Llama."
             case .dsro70: "Distill of DeepSeek R1 on the Llama 70b model"
             case .dolphinThreeR1: "Dolphin 3.0 R1 combines the latest release with training data from the R1 model."
             case .dolphinThreeTiny: "The smallest and lightest version of Dolphin."
@@ -556,9 +482,7 @@ extension Model {
             case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
             case .qwen3coder: "Latest Qwen coding model with very impressive benchmarks."
             case .mistral2503: "Multilingual and very knowledge-dense model by Mistral."
-            case .llamaNemotron: "NVIDIA's reasoning model that is post trained for reasoning, human chat preferences, and tasks."
             case .glm4: "High performance model that claims equivalent performance to R1 and GPT."
-            case .glmz1: "This is the same as the 4 model but extended with explicit thinking display and processing."
             case .magistral: "An extension of Mistral 2503, with added reasoning capabilities, undergoing SFT from Magistral Medium traces and RL on top."
             case .gptOpenSmall: "OpenAI's open-weight language model."
             case .devstralLarge: "This model claims to be the top coding model for its size, but heavily quantised."
@@ -575,7 +499,7 @@ extension Model {
 
         var isCodingLLm: Bool {
             switch self {
-            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .dolphinCoder, .qwen3coder, .qwen25coder:
+            case .codeLlama70b, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .dolphinCoder, .qwen3coder:
                 true
             default:
                 false
@@ -584,7 +508,7 @@ extension Model {
 
         private var defaultTopK: Int {
             switch self {
-            case .qwen3coder: 20
+            case .qwen3coder, .qwen35regular: 20
             default: 40
             }
         }
@@ -597,11 +521,18 @@ extension Model {
         }
 
         private var defaultMinP: Float {
-            isCodingLLm ? 0.01 : 0.1
+            switch self {
+            case .qwen35regular:
+                0
+            default:
+                isCodingLLm ? 0.01 : 0.1
+            }
         }
 
         private var defaultTemperature: Float {
             switch self {
+            case .qwen35regular:
+                1.0
             case .magistral, .qwen3coder, .sage:
                 0.7
             case .devstralLarge, .devstralSmall:
@@ -617,7 +548,7 @@ extension Model {
             }
 
             switch self {
-            case .qwenQwQ32, .sage:
+            case .sage:
                 return 0
             default:
                 return 0.2
@@ -632,7 +563,10 @@ extension Model {
             if isCodingLLm {
                 1.05
             } else {
-                1.17
+                switch self {
+                case .qwen35regular: 1.0
+                default: 1.17
+                }
             }
         }
 
@@ -645,7 +579,10 @@ extension Model {
         }
 
         private var defaultPresentPenalty: Float {
-            1
+            switch self {
+            case .qwen35regular: 1.5
+            default: 1
+            }
         }
 
         private var defaultRepeatCheckPenalty: Int {
@@ -670,12 +607,6 @@ extension Model {
             case .qwen3coder: "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF"
             case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
             case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
-            case .qwen25regular: "https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF"
-            case .qwen25coder: "https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF"
-            case .qwen25large: "https://huggingface.co/bartowski/Qwen2.5-72B-Instruct-GGUF"
-            case .qwen25medium: "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF"
-            case .qwen25small: "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF"
-            case .qwenQwQ32: "https://huggingface.co/bartowski/Qwen_QwQ-32B-GGUF"
             case .dolphin72b: "https://huggingface.co/mradermacher/dolphin-2.9.2-qwen2-72b-i1-GGUF"
             case .dolphinNemo: "https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b-gguf"
             case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
@@ -687,9 +618,6 @@ extension Model {
             case .llama3compact: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"
             case .supernovaMedius: "https://huggingface.co/arcee-ai/SuperNova-Medius"
             case .smol: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"
-            case .shuttle: "https://huggingface.co/shuttleai/shuttle-3"
-            case .calme: "https://huggingface.co/MaziyarPanahi/calme-2.4-rys-78b"
-            case .athene: "https://huggingface.co/bartowski/Athene-V2-Chat-GGUF"
             case .dsro70: "https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5"
             case .dolphinThreeTiny: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-1.5B-GGUF"
             case .dolphinThree3b: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-3b-GGUF"
@@ -700,19 +628,17 @@ extension Model {
             case .gemma312: "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF"
             case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF"
             case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF"
-            case .llamaNemotron: "https://huggingface.co/bartowski/nvidia_Llama-3_3-Nemotron-Super-49B-v1-GGUF"
             case .llama4scout: "https://huggingface.co/unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF"
             case .glm4: "https://huggingface.co/bartowski/THUDM_GLM-4-32B-0414-GGUF"
-            case .glmz1: "https://huggingface.co/bartowski/THUDM_GLM-Z1-32B-0414-GGUF"
             case .qwen3regular: "https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF"
             case .qwen3compact: "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF"
             case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF"
-            case .am1: "https://huggingface.co/a-m-team/AM-Thinking-v1-gguf"
             case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
             case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF"
             case .gptOpenSmall: "https://huggingface.co/lmstudio-community/gpt-oss-20b-GGUF"
             case .devstralLarge: "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF"
             case .devstralSmall: "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF"
+            case .qwen35regular: "https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF"
             }
             return URL(string: uri)!
         }
@@ -726,13 +652,7 @@ extension Model {
             case .whisper: "ggml-large-v3-turbo-q5_0.bin"
             case .dolphin72b: "dolphin-2.9.2-qwen2-72b.i1-Q4_K_M.gguf"
             case .dolphinNemo: "dolphin-2.9.3-mistral-nemo-12b.Q5_K_M.gguf"
-            case .qwen25regular: "Qwen2.5-32B-Instruct-Q4_K_M.gguf"
-            case .qwen25large: "Qwen2.5-72B-Instruct-Q4_K_M.gguf"
-            case .qwen25coder: "Qwen2.5-Coder-32B-Instruct-Q6_K_L.gguf"
-            case .qwen25medium: "Qwen2.5-14B-Instruct-Q5_K_L.gguf"
-            case .qwen25small: "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
             case .qwen3tiny: "Qwen_Qwen3-0.6B-Q8_0.gguf"
-            case .qwenQwQ32: "Qwen_QwQ-32B-Q5_K_L.gguf"
             case .codeLlama70b: "CodeLlama-70b-Instruct-hf-Q5_K_M.gguf"
             case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
             case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
@@ -747,9 +667,6 @@ extension Model {
             case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
             case .supernovaMedius: "SuperNova-Medius-Q5_K_M.gguf"
             case .smol: "SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
-            case .shuttle: "shuttle-3-Q4_K_M.gguf"
-            case .calme: "calme-2.4-rys-78b.i1-Q4_K_S.gguf"
-            case .athene: "Athene-V2-Chat-Q4_K_L.gguf"
             case .dsro70: "DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf"
             case .dolphinThreeR1: "cognitivecomputations_Dolphin3.0-R1-Mistral-24B-Q5_K_L.gguf"
             case .dolphinThreeTiny: "Dolphin3.0-Qwen2.5-1.5B-Q6_K_L.gguf"
@@ -760,16 +677,14 @@ extension Model {
             case .gemma312: "gemma-3-12b-it-Q4_K_M.gguf"
             case .gemma327: "gemma-3-27b-it-Q4_K_M.gguf"
             case .mistral2503: "mistralai_Mistral-Small-3.1-24B-Instruct-2503-Q6_K_L.gguf"
-            case .llamaNemotron: "nvidia_Llama-3_3-Nemotron-Super-49B-v1-Q6_K.gguf"
             case .glm4: "THUDM_GLM-4-32B-0414-Q5_K_L.gguf"
-            case .glmz1: "THUDM_GLM-Z1-32B-0414-Q5_K_L.gguf"
             case .qwen3regular: "Qwen_Qwen3-32B-Q5_K_L.gguf"
             case .qwen3compact: "Qwen_Qwen3-8B-Q5_K_L.gguf"
-            case .am1: "AM-Thinking-v1.Q5_K_M.gguf"
             case .magistral: "mistralai_Magistral-Small-2506-Q6_K_L.gguf"
             case .sage: "sage-ft-mixtral-8x7b-q4_k_m.gguf"
             case .devstralLarge: "Devstral-2-123B-Instruct-2512-UD-IQ3_XXS.gguf"
             case .devstralSmall: "Devstral-Small-2-24B-Instruct-2512-UD-Q6_K_XL.gguf"
+            case .qwen35regular: "Qwen3.5-35B-A3B-UD-Q6_K_XL.gguf"
             }
         }
 
@@ -792,16 +707,10 @@ extension Model {
             case .dolphinNemo: "Dolphin Nemo"
             case .deepSeekCoder33: "DeepSeek Coder"
             case .deepSeekCoder7: "DeepSeek Coder (Compact)"
-            case .qwenQwQ32: "Qwen QwQ"
-            case .qwen25coder: "Qwen 2.5 Coder"
             case .mythoMax: "MythoMax Writing Assistant"
             case .whisper: "Whisper Voice Recognition"
             case .dolphin72b: "Dolphin (Large)"
-            case .qwen25large: "Qwen 2.5 (Large)"
-            case .qwen25regular: "Qwen 2.5"
             case .qwen3regular: "Qwen 3"
-            case .qwen25medium: "Qwen 2.5 (Medium)"
-            case .qwen25small: "Qwen 2.5 (Compact)"
             case .qwen3compact: "Qwen 3 (Compact)"
             case .qwen3tiny: "Qwen 3 (Tiny)"
             case .codeLlama70b: "CodeLlama (Large)"
@@ -814,14 +723,10 @@ extension Model {
             case .llama3: "Llama 3.1 (Regular)"
             case .llama3compact: "Llama 3.2 (Small)"
             case .llama3tiny: "Llama 3.2 (Compact)"
-            case .llamaNemotron: "LLama 3.3 Nemotron"
             case .llama4scout: "Llama 4 Scout"
             case .codestral: "Codestral"
             case .supernovaMedius: "Supernova Medius"
             case .smol: "SmolLM 2"
-            case .shuttle: "Shuttle 3"
-            case .calme: "Calme 2.4"
-            case .athene: "Athene V2"
             case .dsro70: "Deepseek R1 Distill"
             case .dolphinThreeR1: "Dolphin 3 R1"
             case .dolphinThreeTiny: "Dolphin 3 Tiny"
@@ -833,13 +738,12 @@ extension Model {
             case .gemma327: "Gemma 3 Regular"
             case .mistral2503: "Mistral 2503"
             case .glm4: "GLM 4"
-            case .glmz1: "GLM Z1"
-            case .am1: "AM‑Thinking"
             case .magistral: "Magistral 2506"
             case .sage: "Sage"
             case .gptOpenSmall: "OpenAI GPT Open Weight"
             case .devstralLarge: "Devstral 2"
             case .devstralSmall: "Devstral 2 Small"
+            case .qwen35regular: "Qwen 3.5 Regular"
             }
         }
 
@@ -849,14 +753,7 @@ extension Model {
             case .deepSeekCoder7: "v1.5, on Llama2"
             case .mythoMax: "vL2 13b variant"
             case .whisper: "Large v3 Turbo"
-            case .qwenQwQ32: "32b params"
-            case .qwen25large: "v2.5, 72b variant"
-            case .qwen25regular: "v2.5, 32b variant"
-            case .qwen25coder: "v2.5, 32b variant"
-            case .qwen25medium: "v2.5, 14b variant"
-            case .qwen25small: "v2.5, 7b variant"
             case .qwen3regular: "30b params"
-            case .am1: "v1, on Qwen2.5 32b"
             case .qwen3compact: "8b params"
             case .qwen3tiny: "0.6b params"
             case .codeLlama70b: "70b HF variant, on Llama2"
@@ -872,9 +769,6 @@ extension Model {
             case .supernovaMedius: "on LLama 3.1 405b & Qwen 2.5 14b"
             case .codestral: "22b params"
             case .smol: "v2, 1.7b variant"
-            case .shuttle: "v2, on Qwen-2.5-72b-Instruct"
-            case .calme: "v2.4, on Qwen 2 78b"
-            case .athene: "v2, on Qwen 2.5 72b"
             case .dsro70: "R1, on Llama 70b"
             case .dolphin72b: "v2.9.2 on Qwen 2.5 72b"
             case .dolphinNemo: "v2.9.3 on Mistral Nemo 12b"
@@ -888,14 +782,13 @@ extension Model {
             case .gemma312: "v3, 12b variant"
             case .gemma327: "v3, 27b params"
             case .mistral2503: "v2503, 27b params"
-            case .llamaNemotron: "v1, on Llama 3.3 70b"
             case .glm4: "32b params"
-            case .glmz1: "32b params"
             case .magistral: "24b params, on Mistral 2503"
             case .sage: "on Mixtral MoE 8x7b"
             case .gptOpenSmall: "v1, 20b params"
             case .devstralLarge: "v2, 123b params"
             case .devstralSmall: "v2, 24b params"
+            case .qwen35regular: "35b params MoE"
             }
         }
 
@@ -906,11 +799,6 @@ extension Model {
             case .whisper: "0FCCC65B-BD2B-470C-AFE2-637FABDA95EE"
             case .dolphin72b: "26FD3A09-48C6-412C-A9C0-51F17A3E5C9A"
             case .dolphinNemo: "006EFFA0-CFCA-4EB9-87C0-2F07BB0EB4CE"
-            case .qwen25regular: "7D602BDC-DB4E-4DD1-8FC3-0A6A173B38DE"
-            case .qwen25medium: "AC9644D5-E5FA-4804-B247-BB4DF21C88C7"
-            case .qwen25coder: "ED72B569-DD85-40B0-B41A-6E1FA33B18B0"
-            case .qwen25large: "56D9FEFF-788B-4319-9C01-564110C5275A"
-            case .qwen25small: "50911087-9A0E-467B-AF5C-18132840C33D"
             case .deepSeekCoder7: "57A70BFB-4005-4B53-9404-3A2B107A6677"
             case .codeLlama70b: "C1B93F86-721B-4560-A398-A6E69BFCA99B"
             case .samantha70b: "259CD082-71B4-4CD4-8D52-08DC317CC41A"
@@ -922,19 +810,14 @@ extension Model {
             case .llama3: "2F547D7D-612B-4BA0-A42E-B17392346FA0"
             case .llama3compact: "8EBC25F2-8F1D-492E-8A55-9B67AFB3AA89"
             case .llama3tiny: "611A636C-59C0-451C-A435-FD6A9041DB37"
-            case .llamaNemotron: "D057894C-FFCD-4F1A-B195-222E68759D73"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
             case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
             case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
-            case .shuttle: "9044B741-783F-471B-8447-FB773AAEF051"
-            case .calme: "5F0BEDAB-59B3-43B8-B4D7-65F9B16A8735"
-            case .athene: "87D0BDE7-55EE-4349-9428-18FAACB524EC"
             case .dsro70: "0E1DA288-951A-45AE-841D-4F8F2F451801"
             case .dolphinThreeR1: "E08D44B7-28F5-4270-BFD8-3CEB212AD658"
             case .dolphinThreeTiny: "9B7C2BEB-18AE-4AE7-8979-869EB93E7538"
             case .dolphinThree3b: "FB9A0C29-596F-455E-A7D1-FCD96DB4E10D"
             case .dolphinThree8b: "9DD1221B-3574-4A21-9BD9-F3D4DE54BCE3"
-            case .qwenQwQ32: "EFB122A6-E3FE-4EDF-82FF-12AB4236DA95"
             case .gemma31: "B858AFEE-A5AD-4101-9063-C6A559119F1D"
             case .gemma34: "61F39A7E-BF26-4A01-9A9F-0220E77A4BF5"
             case .gemma312: "484668C7-1E34-4E39-927C-29D9BD20690A"
@@ -942,16 +825,15 @@ extension Model {
             case .mistral2503: "AB57FC85-01E6-4673-97A6-E33C94CFCC94"
             case .llama4scout: "EE521F32-CD7E-49B8-845D-BB3464C729A1"
             case .glm4: "8A967384-3F18-490C-BB87-40C9393C5077"
-            case .glmz1: "7F163A0E-E615-4B65-8C66-AB5C0076B1BA"
             case .qwen3regular: "DCEF523D-74C7-465D-A81E-2018B588B8D9"
             case .qwen3compact: "89CF3A8B-8A9F-46AC-93AB-540C51E4FFB7"
             case .qwen3tiny: "172F84EA-02C3-4CC7-8130-BBF282452EB2"
-            case .am1: "22D9BBAB-8F6D-4217-852D-CE284F3E8F34"
             case .magistral: "BEFA3CE3-3DF7-41EA-B297-7841DA3C647A"
             case .sage: "4A3A6C15-6B0B-4FE0-9DE5-F3E37B8C0852"
             case .gptOpenSmall: "67A142D7-D2DA-4FBC-8E06-39E4D2CC4E54"
             case .devstralLarge: "F64C21C9-6A2C-42EF-A0F9-F8E87E89FC0B"
             case .devstralSmall: "74CDF6DE-4243-447D-B920-100FA5DA5B87"
+            case .qwen35regular: "C16F9CE6-CC01-4EBC-9444-EC07E80FCA5C"
             }
         }
 

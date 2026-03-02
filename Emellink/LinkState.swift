@@ -3,7 +3,7 @@ import Foundation
 import Network
 import SwiftUI
 
-// Stub
+/// Stub
 final class AssetManager {}
 
 @MainActor
@@ -55,7 +55,9 @@ final class LinkState: ModeProvider, ConversationHandler {
         }
     }
 
-    var mode: AppMode { remoteAppMode }
+    var mode: AppMode {
+        remoteAppMode
+    }
 
     var remoteAppMode = AppMode.booting {
         didSet {

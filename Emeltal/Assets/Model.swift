@@ -70,12 +70,11 @@ final class Model: Hashable, Identifiable, Sendable {
             var request = URLRequest(url: variant.fetchUrl)
             request.httpMethod = "head"
             let response = try? await URLSession.shared.data(for: request).1 as? HTTPURLResponse
-            let newStatus: Model.Status = if let code = response?.statusCode, code >= 200, code < 300 {
+            return if let code = response?.statusCode, code >= 200, code < 300 {
                 variant.recommended ? .recommended : .available
             } else {
                 .notReady
             }
-            return newStatus
         }
 
         Task {

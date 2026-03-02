@@ -2,7 +2,9 @@ import Foundation
 
 extension Model {
     enum Category: Int, CaseIterable, Identifiable {
-        var id: Int { rawValue }
+        var id: Int {
+            rawValue
+        }
 
         case qwen, dolphin, samantha, coding, creative, gemma, llamas, mistrals, apple, glm, system, experimental
 

@@ -26,26 +26,21 @@ enum Persisted {
 extension Binding {
     // thanks to https://stackoverflow.com/questions/65736518/how-do-i-create-a-slider-in-swiftui-for-an-int-type-property
 
-    static func convert<TInt, TFloat>(from intBinding: Binding<TInt>) -> Binding<TFloat>
-        where TInt: BinaryInteger & Sendable,
-        TFloat: BinaryFloatingPoint & Sendable {
+    static func convert<TInt: BinaryInteger & Sendable, TFloat: BinaryFloatingPoint & Sendable>(from intBinding: Binding<TInt>) -> Binding<TFloat> {
         Binding<TFloat>(
             get: { TFloat(intBinding.wrappedValue) },
             set: { intBinding.wrappedValue = TInt($0) }
         )
     }
 
-    static func convert<TFloat, TInt>(from floatBinding: Binding<TFloat>) -> Binding<TInt>
-        where TFloat: BinaryFloatingPoint & Sendable,
-        TInt: BinaryInteger & Sendable {
+    static func convert<TFloat: BinaryFloatingPoint & Sendable, TInt: BinaryInteger & Sendable>(from floatBinding: Binding<TFloat>) -> Binding<TInt> {
         Binding<TInt>(
             get: { TInt(floatBinding.wrappedValue) },
             set: { floatBinding.wrappedValue = TFloat($0) }
         )
     }
 
-    static func round<TFloat>(from floatBinding: Binding<TFloat>) -> Binding<TFloat>
-        where TFloat: BinaryFloatingPoint & Sendable {
+    static func round<TFloat: BinaryFloatingPoint & Sendable>(from floatBinding: Binding<TFloat>) -> Binding<TFloat> {
         Binding<TFloat>(
             get: { floatBinding.wrappedValue },
             set: { floatBinding.wrappedValue = ($0 * 100.0).rounded() / 100.0 }
