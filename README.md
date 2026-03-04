@@ -24,6 +24,7 @@ A light helper app which can run on an iPhone or device with not enough processi
 Emeltal offers a curated list of proven open-source high-performance models, aiming to provide the best model for each category/size combination. This list often changes as new models become available, or others are superceeded by much better performing ones. Most models (with the exception of certain extremely large variants, which are capped at 16384 tokens) run at their maximum context size.
 
 #### Qwen Series
+- [Qwen 3.5] (https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF)
 - [Qwen 3 32b] (https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF)
 - [Qwen 3 8b] (https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF)
 - [Qwen 3 6b] (https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF)
@@ -57,12 +58,10 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 #### Coding
 - [Devstral 2](https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF)
 - [Devstral 2 Small](https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF)
-- [Qwen 3.0 Coder](https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF)
-- [Qwen 2.5 Coder](https://huggingface.co/bartowski/Qwen2.5-Coder-32B-Instruct-GGUF)
+- [Qwen 3.0 Coder Next](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF)
 - [Dolphin Coder](https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b)
 - [Deepseek Coder 33b](https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct)
 - [Deepseek Coder 7b](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
-- [CodeLlama 70b](https://huggingface.co/codellama/CodeLlama-70b-Instruct-hf)
 - [Codestral](https://huggingface.co/mistralai/Codestral-22B-v0.1)
 
 #### Creative
@@ -92,4 +91,4 @@ All model data which is downloaded locally by the app comes from HuggingFace, an
 
 ## Copyright
 
-Copyright (c) 2023-2024 Paul Tsochantaris
+Copyright (c) 2023-2026 Paul Tsochantaris

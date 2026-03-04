@@ -79,7 +79,15 @@ final class LlamaContext {
         let threadCounts = Int32(performanceCpuCount)
 
         var ctx_params = llama_context_default_params()
-        ctx_params.n_ctx = asset.variant.contextSize
+        let trainCount = UInt32(llama_model_n_ctx_train(model))
+        if let cap = asset.variant.contextCap, trainCount > 0 {
+            ctx_params.n_ctx = min(trainCount, cap)
+        }
+        ctx_params.no_perf = true
+        ctx_params.kv_unified = true
+        if let limit = asset.variant.uBatchLimit {
+            ctx_params.n_ubatch = limit
+        }
         ctx_params.n_threads = threadCounts
         ctx_params.n_threads_batch = threadCounts
         ctx_params.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_AUTO
@@ -301,6 +309,7 @@ final class LlamaContext {
 
         let turnId = (turns.last?.id ?? -1) + 1
         let currentTurn = Turn(id: turnId)
+
         var logits = currentTurn.append(tokens: newTokens, in: context, andPredict: true, offset: allTokensCount)
         turns.append(currentTurn)
 

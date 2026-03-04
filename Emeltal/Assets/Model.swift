@@ -106,7 +106,7 @@ final class Model: Hashable, Identifiable, Sendable {
 
     func mlTemplate(in context: LlamaContext) -> Template? {
         Template(format: variant.format,
-                 system: params.systemPrompt,
+                 system: variant.acceptsSystemPrompt ? params.systemPrompt : "",
                  bosToken: context.bosToken)
     }
 
