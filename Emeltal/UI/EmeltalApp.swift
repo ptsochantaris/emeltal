@@ -36,11 +36,13 @@ struct AppStack: View {
 
             case .shutdown:
                 Text("Bye")
+                #if canImport(AppKit)
                     .task {
                         // create a delay so things can de-init
                         try? await Task.sleep(for: .seconds(0.4))
                         NSApplication.shared.reply(toApplicationShouldTerminate: true)
                     }
+                #endif
             }
         }
         .preferredColorScheme(.dark)
