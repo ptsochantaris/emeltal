@@ -3,7 +3,7 @@ import Accelerate
 import Foundation
 
 final actor Mic {
-    enum State: Equatable, Sendable {
+    enum State: Equatable {
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch lhs {
             case .quiet:

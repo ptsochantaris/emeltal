@@ -2,8 +2,19 @@ import Foundation
 
 extension Model {
     @MainActor
-    enum Status: Sendable, Equatable {
-        case checking, available, recommended, installed(AssetFetcher), notReady, installing(AssetFetcher)
+    enum Status: Equatable {
+        case checking, available(size: String?), recommended(size: String?), installed(AssetFetcher, size: String?), notReady, installing(AssetFetcher, size: String?)
+
+        var sizeDescription: String? {
+            switch self {
+            case let .available(size), let .installed(_, size), let .installing(_, size), let .recommended(size):
+                size
+            case .notReady:
+                nil
+            case .checking:
+                "…"
+            }
+        }
 
         var badgeInfo: (label: String, progress: CGFloat)? {
             switch self {
@@ -15,7 +26,7 @@ extension Model {
                 return ("INSTALLED", 0)
             case .notReady:
                 return ("NOT AVAILABLE", 0)
-            case let .installing(fetcher):
+            case let .installing(fetcher, _):
                 let percent = fetcher.progressPercentage
                 return ("INSTALLING: \(Int(percent * 100))%", percent)
             }

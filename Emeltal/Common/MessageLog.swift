@@ -95,7 +95,7 @@ final actor MessageLog {
         LowPriorityExecutor.sharedExecutor.asUnownedSerialExecutor()
     }
 
-    private enum Change: Sendable {
+    private enum Change {
         case append(text: String),
              commit,
              save(to: URL, @Sendable (Error?) -> Void),

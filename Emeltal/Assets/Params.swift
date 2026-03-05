@@ -1,7 +1,7 @@
 import Foundation
 
 extension Model {
-    struct Params: Codable, Sendable {
+    struct Params: Codable {
         enum Descriptors {
             struct Descriptor {
                 let title: String

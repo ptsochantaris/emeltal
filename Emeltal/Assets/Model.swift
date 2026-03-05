@@ -56,10 +56,13 @@ final class Model: Hashable, Identifiable, Sendable {
         updateInstalledStatus()
     }
 
+    private nonisolated static let byteFormatter = ByteCountFormatStyle(style: .file, allowedUnits: .all, spellsOutZero: false, includesActualByteCount: false, locale: .autoupdatingCurrent)
+
     func updateInstalledStatus() {
         if FileManager.default.fileExists(atPath: localModelPath.path) {
             let fetcher = AssetFetcher(fetching: self)
-            status = .installed(fetcher)
+            let size = try? FileManager.default.attributesOfItem(atPath: localModelPath.path)[.size] as? NSNumber
+            status = .installed(fetcher, size: Model.byteFormatter.format(size?.int64Value ?? 0))
             return
         }
 
@@ -70,10 +73,11 @@ final class Model: Hashable, Identifiable, Sendable {
             var request = URLRequest(url: variant.fetchUrl)
             request.httpMethod = "head"
             let response = try? await URLSession.shared.data(for: request).1 as? HTTPURLResponse
-            return if let code = response?.statusCode, code >= 200, code < 300 {
-                variant.recommended ? .recommended : .available
+            if let response, response.statusCode >= 200, response.statusCode < 300 {
+                let sizeString = Model.byteFormatter.format(response.expectedContentLength)
+                return variant.recommended ? .recommended(size: sizeString) : .available(size: sizeString)
             } else {
-                .notReady
+                return .notReady
             }
         }
 
@@ -132,14 +136,14 @@ final class Model: Hashable, Identifiable, Sendable {
     }
 
     func cancelInstall() {
-        guard case let .installing(fetcher) = status else { return }
+        guard case let .installing(fetcher, _) = status else { return }
         fetcher.cancel()
-        status = .available
+        status = .available(size: status.sizeDescription)
     }
 
     func install() {
         let fetcher = AssetFetcher(fetching: self)
-        status = .installing(fetcher)
+        status = .installing(fetcher, size: status.sizeDescription)
     }
 
     private var cachedMemoryEstimate: MemoryEstimate?
@@ -151,7 +155,7 @@ final class Model: Hashable, Identifiable, Sendable {
     }
 
     func sanityCheckEstimates(whisper: AssetFetcher) async {
-        guard case let .installed(fetcher) = status else {
+        guard case let .installed(fetcher, size: status.sizeDescription) = status else {
             return
         }
 

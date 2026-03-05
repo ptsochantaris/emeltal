@@ -61,7 +61,6 @@ final class ManagerViewModel {
 
         Model(category: .experimental, variant: .gptOpenSmall),
         Model(category: .experimental, variant: .dsro70),
-        Model(category: .experimental, variant: .supernovaMedius),
         Model(category: .experimental, variant: .smol),
 
         Model(category: .system, variant: .whisper)

@@ -30,7 +30,6 @@ extension Model {
              qwen35regular,
              qwen3compact,
              qwen3tiny,
-             supernovaMedius,
              smol,
              gemma327,
              gemma312,
@@ -63,7 +62,7 @@ extension Model {
             case .dsro70, .llama3, .llama3compact, .llama3large, .llama3tiny: .llama3
             case .llama4scout: .llama4
             case .deepSeekCoder7, .deepSeekCoder33, .mythoMax, .whisper: .alpaca
-            case .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .smol, .supernovaMedius, .qwen3coderNext: .chatml
+            case .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen3coderNext, .smol: .chatml
             case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
             case .glm4, .glm47: .glm
@@ -75,7 +74,7 @@ extension Model {
             switch self {
             case .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall:
                 "You are a helpful AI programming assistant."
-            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol, .supernovaMedius, .glm47:
+            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glm47, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -83,7 +82,7 @@ extension Model {
                 "You are a helpful, imaginative, collaborative, and friendly writing assistant."
             case .dolphinCoder:
                 "You are DolphinCoder, a helpful AI programming assistant."
-            case .dsro70, .llama4scout, .whisper, .qwen3coderNext:
+            case .dsro70, .llama4scout, .qwen3coderNext, .whisper:
                 ""
             }
         }
@@ -129,6 +128,7 @@ extension Model {
                  .gemma34,
                  .gemma312,
                  .gemma327,
+                 .glm47,
                  .llama3,
                  .llama3compact,
                  .llama3large,
@@ -136,13 +136,11 @@ extension Model {
                  .llama4scout,
                  .magistral,
                  .mistral2503,
+                 .qwen3coderNext,
                  .qwen3compact,
                  .qwen3regular,
                  .qwen3tiny,
-                 .qwen35regular,
-                 .qwen3coderNext,
-                 .glm47,
-                 .supernovaMedius:
+                 .qwen35regular:
                 16384
             }
         }
@@ -170,7 +168,6 @@ extension Model {
             case .qwen3compact: 2304
             case .qwen3tiny: 1024
             case .magistral: 2560
-            case .supernovaMedius: 3072
             case .smol: 1536
             case .mythoMax: 3200
             case .samantha70b: 1280
@@ -215,7 +212,6 @@ extension Model {
             case .qwen3tiny: 68
             case .qwen3compact: 170
             case .llama3large: 540
-            case .supernovaMedius: 210
             case .qwen3coderNext: 880
             case .llama4scout: 848
             case .llama3: 196
@@ -233,7 +229,7 @@ extension Model {
             case .devstralSmall: 484
             case .magistral: 460
             case .glm4: 370
-            case .glm47: 500
+            case .glm47: 530
             case .sage: 840
             }
 
@@ -251,7 +247,6 @@ extension Model {
             case .qwen3compact: 37
             case .qwen3tiny: 29
             case .magistral: 41
-            case .supernovaMedius: 49
             case .qwen3coderNext: 49
             case .samantha70b: 81
             case .samantha7b: 33
@@ -409,51 +404,6 @@ extension Model {
             }
         }
 
-        var sizeDescription: String {
-            switch self {
-            case .dolphin72b: "47.5 GB"
-            case .dolphinNemo: "8.8 GB"
-            case .deepSeekCoder33: "27.4 GB"
-            case .deepSeekCoder7: "5.67 GB"
-            case .mythoMax: "10.7 GB"
-            case .whisper: "0.6 GB"
-            case .qwen3regular: "23.7 GB"
-            case .qwen3compact: "6.3 GB"
-            case .qwen3tiny: "0.8 GB"
-            case .supernovaMedius: "10.5 GB"
-            case .qwen3coderNext: "44.6"
-            case .samantha70b: "48.8 GB"
-            case .samantha7b: "5.2 GB"
-            case .neuralStory7b: "6.0 GB"
-            case .dolphinCoder: "13.1 GB"
-            case .llama3large: "48.7 GB"
-            case .llama4scout: "42.6 GB"
-            case .llama3: "6.6 GB"
-            case .llama3tiny: "1.1 GB"
-            case .llama3compact: "2.8 GB"
-            case .codestral: "18.3 GB"
-            case .smol: "1.5 GB"
-            case .dsro70: "42.5 GB"
-            case .dolphinThreeR1: "17.2 GB"
-            case .dolphinThreeTiny: "1.4 GB"
-            case .dolphinThree3b: "2.7 GB"
-            case .dolphinThree8b: "5.8 GB"
-            case .gemma31: "0.8 GB"
-            case .gemma34: "2.5 GB"
-            case .gemma312: "7.3 GB"
-            case .gemma327: "16.6 GB"
-            case .mistral2503: "19.7 GB"
-            case .glm4: "23.7 GB"
-            case .magistral: "19.7 GB"
-            case .sage: "28.5 GB"
-            case .gptOpenSmall: "12.1 GB"
-            case .devstralLarge: "49 GB"
-            case .devstralSmall: "20.8 GB"
-            case .qwen35regular: "30.3 GB"
-            case .glm47: "26.2 GB"
-            }
-        }
-
         var aboutText: String {
             switch self {
             case .deepSeekCoder33: "This no-nonsense model focuses specifically on code-related generation and questions."
@@ -475,7 +425,6 @@ extension Model {
             case .llama3tiny: "The smallest, edge-optimised version of the Llama-3 model from Meta."
             case .codestral: "The state of the art code assistant from Mistral.AI"
             case .sage: "A state of the art Apple model focusing on empathy and emptional intelligence."
-            case .supernovaMedius: "By leveraging these two models, SuperNova-Medius achieves high-quality results in a mid-sized, efficient form."
             case .smol: "A very capable mini-model by HuggingFace, currently with the top performance in the compact model range."
             case .dsro70: "Distill of DeepSeek R1 on the Llama 70b model"
             case .dolphinThreeR1: "Dolphin 3.0 R1 combines the latest release with training data from the R1 model."
@@ -502,7 +451,7 @@ extension Model {
 
         var isCodingLLm: Bool {
             switch self {
-            case .qwen3coderNext, .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .dolphinCoder:
+            case .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall, .dolphinCoder, .qwen3coderNext:
                 true
             default:
                 false
@@ -533,7 +482,7 @@ extension Model {
 
         private var defaultTemperature: Float {
             switch self {
-            case .qwen35regular, .qwen3coderNext:
+            case .qwen3coderNext, .qwen35regular:
                 1.0
             case .magistral, .sage:
                 0.7
@@ -566,7 +515,7 @@ extension Model {
                 1.0
             } else {
                 switch self {
-                case .qwen35regular, .glm47: 1.0
+                case .glm47, .qwen35regular: 1.0
                 default: 1.17
                 }
             }
@@ -595,106 +544,59 @@ extension Model {
             }
         }
 
-        var emeltalRepo: URL {
-            URL(string: "https://huggingface.co/acertainbru/emeltal-collection")!
+        var fileName: String {
+            String(fetchUrl.path.split(separator: "/").last!)
         }
 
         var originalRepoUrl: URL {
-            let uri = switch self {
-            case .glm47: "https://huggingface.co/unsloth/GLM-4.7-Flash-GGUF"
-            case .mythoMax: "https://huggingface.co/Gryphe/MythoMax-L2-13b"
-            case .whisper: "https://huggingface.co/ggerganov/whisper.cpp"
-            case .deepSeekCoder33: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
-            case .deepSeekCoder7: "https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5"
-            case .qwen3coderNext: "https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF"
-            case .codestral: "https://huggingface.co/mistralai/Codestral-22B-v0.1"
-            case .dolphinCoder: "https://huggingface.co/cognitivecomputations/dolphincoder-starcoder2-15b"
-            case .dolphin72b: "https://huggingface.co/mradermacher/dolphin-2.9.2-qwen2-72b-i1-GGUF"
-            case .dolphinNemo: "https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b-gguf"
-            case .samantha70b: "https://huggingface.co/cognitivecomputations/Samantha-1.11-70b"
-            case .samantha7b: "https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b"
-            case .neuralStory7b: "https://huggingface.co/NeuralNovel/Mistral-7B-Instruct-v0.2-Neural-Story"
-            case .llama3large: "https://huggingface.co/bartowski/Llama-3.3-70B-Instruct-GGUF"
-            case .llama3: "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct"
-            case .llama3tiny: "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct"
-            case .llama3compact: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"
-            case .supernovaMedius: "https://huggingface.co/arcee-ai/SuperNova-Medius"
-            case .smol: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"
-            case .dsro70: "https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5"
-            case .dolphinThreeTiny: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-1.5B-GGUF"
-            case .dolphinThree3b: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-3b-GGUF"
-            case .dolphinThree8b: "https://huggingface.co/cognitivecomputations/Dolphin3.0-Llama3.1-8B-GGUF"
-            case .dolphinThreeR1: "https://huggingface.co/bartowski/cognitivecomputations_Dolphin3.0-R1-Mistral-24B-GGUF"
-            case .gemma31: "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF"
-            case .gemma34: "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF"
-            case .gemma312: "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF"
-            case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF"
-            case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF"
-            case .llama4scout: "https://huggingface.co/unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF"
-            case .glm4: "https://huggingface.co/bartowski/THUDM_GLM-4-32B-0414-GGUF"
-            case .qwen3regular: "https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF"
-            case .qwen3compact: "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF"
-            case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF"
-            case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF"
-            case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF"
-            case .gptOpenSmall: "https://huggingface.co/lmstudio-community/gpt-oss-20b-GGUF"
-            case .devstralLarge: "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF"
-            case .devstralSmall: "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF"
-            case .qwen35regular: "https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF"
-            }
-            return URL(string: uri)!
-        }
-
-        var fileName: String {
-            switch self {
-            case .glm47: "GLM-4.7-Flash-UD-Q6_K_XL.gguf"
-            case .gptOpenSmall: "gpt-oss-20b-MXFP4.gguf"
-            case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
-            case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
-            case .mythoMax: "mythomax-l2-13b.Q6_K.gguf"
-            case .whisper: "ggml-large-v3-turbo-q5_0.bin"
-            case .dolphin72b: "dolphin-2.9.2-qwen2-72b.i1-Q4_K_M.gguf"
-            case .dolphinNemo: "dolphin-2.9.3-mistral-nemo-12b.Q5_K_M.gguf"
-            case .qwen3tiny: "Qwen_Qwen3-0.6B-Q8_0.gguf"
-            case .qwen3coderNext: "Qwen3-Coder-Next-UD-Q4_K_XL.gguf"
-            case .samantha70b: "samantha-1.11-70b.Q5_K_M.gguf"
-            case .samantha7b: "samantha-1.1-westlake-7b.Q5_K_M.gguf"
-            case .neuralStory7b: "Mistral-7B-Instruct-v0.2-Neural-Story_Q6_K.gguf"
-            case .dolphinCoder: "dolphincoder-starcoder2-15b.Q6_K.gguf"
-            case .llama3large: "Llama-3.3-70B-Instruct-Q5_K_S.gguf"
-            case .llama4scout: "Llama-4-Scout-17B-16E-Instruct-UD-Q2_K_XL.gguf"
-            case .llama3: "Meta-Llama-3.1-8B-Instruct-Q6_K.gguf"
-            case .llama3tiny: "Llama-3.2-1B-Instruct-Q6_K_L.gguf"
-            case .llama3compact: "Llama-3.2-3B-Instruct-Q6_K_L.gguf"
-            case .codestral: "Codestral-22B-v0.1-Q6_K.gguf"
-            case .supernovaMedius: "SuperNova-Medius-Q5_K_M.gguf"
-            case .smol: "SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
-            case .dsro70: "DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf"
-            case .dolphinThreeR1: "cognitivecomputations_Dolphin3.0-R1-Mistral-24B-Q5_K_L.gguf"
-            case .dolphinThreeTiny: "Dolphin3.0-Qwen2.5-1.5B-Q6_K_L.gguf"
-            case .dolphinThree3b: "Dolphin3.0-Qwen2.5-3b-Q6_K_L.gguf"
-            case .dolphinThree8b: "Dolphin3.0-Llama3.1-8B-Q5_K_M.gguf"
-            case .gemma31: "gemma-3-1b-it-Q4_K_M.gguf"
-            case .gemma34: "gemma-3-4b-it-Q4_K_M.gguf"
-            case .gemma312: "gemma-3-12b-it-Q4_K_M.gguf"
-            case .gemma327: "gemma-3-27b-it-Q4_K_M.gguf"
-            case .mistral2503: "mistralai_Mistral-Small-3.1-24B-Instruct-2503-Q6_K_L.gguf"
-            case .glm4: "THUDM_GLM-4-32B-0414-Q5_K_L.gguf"
-            case .qwen3regular: "Qwen_Qwen3-32B-Q5_K_L.gguf"
-            case .qwen3compact: "Qwen_Qwen3-8B-Q5_K_L.gguf"
-            case .magistral: "mistralai_Magistral-Small-2506-Q6_K_L.gguf"
-            case .sage: "sage-ft-mixtral-8x7b-q4_k_m.gguf"
-            case .devstralLarge: "Devstral-2-123B-Instruct-2512-UD-IQ3_XXS.gguf"
-            case .devstralSmall: "Devstral-Small-2-24B-Instruct-2512-UD-Q6_K_XL.gguf"
-            case .qwen35regular: "Qwen3.5-35B-A3B-UD-Q6_K_XL.gguf"
-            }
+            let repoPath = fetchUrl.path.split(separator: "/resolve/main/").first!
+            return URL(string: "https://huggingface.co/" + repoPath)!
         }
 
         var fetchUrl: URL {
-            emeltalRepo
-                .appendingPathComponent("resolve", conformingTo: .directory)
-                .appendingPathComponent("main", conformingTo: .directory)
-                .appendingPathComponent(fileName)
+            let urlString = switch self {
+            case .glm47: "https://huggingface.co/unsloth/GLM-4.7-Flash-GGUF/resolve/main/GLM-4.7-Flash-UD-Q6_K_XL.gguf"
+            case .gptOpenSmall: "https://huggingface.co/lmstudio-community/gpt-oss-20b-GGUF/resolve/main/gpt-oss-20b-MXFP4.gguf"
+            case .deepSeekCoder33: "https://huggingface.co/TheBloke/deepseek-coder-33B-instruct-GGUF/resolve/main/deepseek-coder-33b-instruct.Q6_K.gguf"
+            case .deepSeekCoder7: "https://huggingface.co/mradermacher/deepseek-coder-7b-instruct-v1.5-GGUF/resolve/main/deepseek-coder-7b-instruct-v1.5.Q6_K.gguf"
+            case .mythoMax: "https://huggingface.co/TheBloke/MythoMax-L2-13B-GGUF/resolve/main/mythomax-l2-13b.Q6_K.gguf"
+            case .whisper: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin"
+            case .dolphin72b: "https://huggingface.co/mradermacher/dolphin-2.9.2-qwen2-72b-i1-GGUF/resolve/main/dolphin-2.9.2-qwen2-72b.i1-Q4_K_M.gguf"
+            case .dolphinNemo: "https://huggingface.co/dphn/dolphin-2.9.3-mistral-nemo-12b-gguf/resolve/main/dolphin-2.9.3-mistral-nemo-12b.Q5_K_M.gguf"
+            case .qwen3tiny: "https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q8_0.gguf"
+            case .qwen3coderNext: "https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF/resolve/main/Qwen3-Coder-Next-UD-Q4_K_XL.gguf"
+            case .samantha70b: "https://huggingface.co/TheBloke/Samantha-1.11-70B-GGUF/resolve/main/samantha-1.11-70b.Q5_K_M.gguf"
+            case .samantha7b: "https://huggingface.co/mradermacher/samantha-1.1-westlake-7b-GGUF/resolve/main/samantha-1.1-westlake-7b.Q5_K_M.gguf"
+            case .neuralStory7b: "https://huggingface.co/mradermacher/Mistral-7B-Instruct-v0.2-Neural-Story-GGUF/resolve/main/Mistral-7B-Instruct-v0.2-Neural-Story.Q6_K.gguf"
+            case .dolphinCoder: "https://huggingface.co/mradermacher/dolphincoder-starcoder2-15b-GGUF/resolve/main/dolphincoder-starcoder2-15b.Q6_K.gguf"
+            case .llama3large: "https://huggingface.co/bartowski/Llama-3.3-70B-Instruct-GGUF/resolve/main/Llama-3.3-70B-Instruct-Q5_K_S.gguf"
+            case .llama4scout: "https://huggingface.co/unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF/resolve/main/Llama-4-Scout-17B-16E-Instruct-UD-Q2_K_XL.gguf"
+            case .llama3: "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q6_K.gguf"
+            case .llama3tiny: "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q6_K_L.gguf"
+            case .llama3compact: "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q6_K_L.gguf"
+            case .codestral: "https://huggingface.co/bartowski/Codestral-22B-v0.1-GGUF/resolve/main/Codestral-22B-v0.1-Q6_K.gguf"
+            case .smol: "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q6_K_L.gguf"
+            case .dsro70: "https://huggingface.co/unsloth/DeepSeek-R1-Distill-Llama-70B-GGUF/resolve/main/DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf"
+            case .dolphinThreeR1: "https://huggingface.co/bartowski/cognitivecomputations_Dolphin3.0-R1-Mistral-24B-GGUF/resolve/main/cognitivecomputations_Dolphin3.0-R1-Mistral-24B-Q5_K_L.gguf"
+            case .dolphinThreeTiny: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-1.5B-GGUF/resolve/main/Dolphin3.0-Qwen2.5-1.5B-Q6_K_L.gguf"
+            case .dolphinThree3b: "https://huggingface.co/bartowski/Dolphin3.0-Qwen2.5-3b-GGUF/resolve/main/Dolphin3.0-Qwen2.5-3b-Q6_K_L.gguf"
+            case .dolphinThree8b: "https://huggingface.co/dphn/Dolphin3.0-Llama3.1-8B-GGUF/resolve/main/Dolphin3.0-Llama3.1-8B-Q5_K_M.gguf"
+            case .gemma31: "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q4_K_M.gguf"
+            case .gemma34: "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf"
+            case .gemma312: "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/main/gemma-3-12b-it-Q4_K_M.gguf"
+            case .gemma327: "https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF/resolve/main/gemma-3-27b-it-Q4_K_M.gguf"
+            case .mistral2503: "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/main/mistralai_Mistral-Small-3.1-24B-Instruct-2503-Q6_K_L.gguf"
+            case .glm4: "https://huggingface.co/bartowski/THUDM_GLM-4-32B-0414-GGUF/resolve/main/THUDM_GLM-4-32B-0414-Q5_K_L.gguf"
+            case .qwen3regular: "https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF/resolve/main/Qwen_Qwen3-32B-Q5_K_L.gguf"
+            case .qwen3compact: "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF/resolve/main/Qwen_Qwen3-8B-Q5_K_L.gguf"
+            case .magistral: "https://huggingface.co/bartowski/mistralai_Magistral-Small-2506-GGUF/resolve/main/mistralai_Magistral-Small-2506-Q6_K_L.gguf"
+            case .sage: "https://huggingface.co/Lucy-in-the-Sky/sage-ft-mixtral-8x7b-Q4_K_M-GGUF/resolve/main/sage-ft-mixtral-8x7b-q4_k_m.gguf"
+            case .devstralLarge: "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF/resolve/main/Devstral-2-123B-Instruct-2512-UD-IQ3_XXS.gguf"
+            case .devstralSmall: "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/main/Devstral-Small-2-24B-Instruct-2512-UD-Q6_K_XL.gguf"
+            case .qwen35regular: "https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/Qwen3.5-35B-A3B-UD-Q6_K_XL.gguf"
+            }
+
+            return URL(string: urlString)!
         }
 
         var eosManual: String? {
@@ -726,7 +628,6 @@ extension Model {
             case .llama3tiny: "Llama 3.2 (Compact)"
             case .llama4scout: "Llama 4 Scout"
             case .codestral: "Codestral"
-            case .supernovaMedius: "Supernova Medius"
             case .smol: "SmolLM 2"
             case .dsro70: "Deepseek R1 Distill"
             case .dolphinThreeR1: "Dolphin 3 R1"
@@ -767,7 +668,6 @@ extension Model {
             case .llama3: "v3.1, 8b params"
             case .llama3compact: "v3.2, 3b params"
             case .llama3tiny: "v3.2, 1b params"
-            case .supernovaMedius: "on LLama 3.1 405b & Qwen 2.5 14b"
             case .codestral: "22b params"
             case .smol: "v2, 1.7b variant"
             case .dsro70: "R1, on Llama 70b"
@@ -812,7 +712,6 @@ extension Model {
             case .llama3compact: "8EBC25F2-8F1D-492E-8A55-9B67AFB3AA89"
             case .llama3tiny: "611A636C-59C0-451C-A435-FD6A9041DB37"
             case .codestral: "303D7134-7861-4167-B465-402DA071C685"
-            case .supernovaMedius: "CDCA7E8F-7411-4AEC-A76B-2DB17A62BE3F"
             case .smol: "0767CF26-7090-4B85-A584-2ECAE5499C22"
             case .dsro70: "0E1DA288-951A-45AE-841D-4F8F2F451801"
             case .dolphinThreeR1: "E08D44B7-28F5-4270-BFD8-3CEB212AD658"

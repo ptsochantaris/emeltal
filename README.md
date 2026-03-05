@@ -72,7 +72,6 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [OpenAI Open weights model](https://huggingface.co/openai/gpt-oss-20b)
 - [THUD GLM 4](https://huggingface.co/THUDM/GLM-4-32B-0414)
 - [DeepSeek R1 Distill on Llama](https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5)
-- [Supernova Medius](https://huggingface.co/arcee-ai/SuperNova-Medius)
 - [SmolLM 2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct)
 
 #### Voice Recognition

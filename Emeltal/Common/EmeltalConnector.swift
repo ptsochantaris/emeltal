@@ -54,7 +54,7 @@ class EmeltalConnector {
         }
     }
 
-    enum State: Sendable {
+    enum State {
         case boot, searching, connecting, unConnected, connected(NWConnection), error(Error)
 
         var isConnected: Bool {

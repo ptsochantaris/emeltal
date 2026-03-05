@@ -69,10 +69,12 @@ struct AssetCell: View {
 
                     Spacer()
 
-                    Text(variant.sizeDescription)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.trailing, 2)
+                    if let size = model.status.sizeDescription {
+                        Text(size)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .padding(.trailing, 2)
+                    }
                 }
             }
             .multilineTextAlignment(.center)

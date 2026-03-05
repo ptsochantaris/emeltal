@@ -379,7 +379,7 @@ private struct Buttons: View {
                     .foregroundStyle(.black)
                     #endif
 
-                case let .installed(fetcher):
+                case let .installed(fetcher, _):
                     Button("Start") {
                         if usage.warningBeforeStart == nil {
                             proceed(with: fetcher)
