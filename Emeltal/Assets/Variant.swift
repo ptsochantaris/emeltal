@@ -39,6 +39,7 @@ extension Model {
              dsro70,
              mistral2503,
              glm4,
+             glm47,
              magistral,
              gptOpenSmall,
              sage,
@@ -65,7 +66,7 @@ extension Model {
             case .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .smol, .supernovaMedius, .qwen3coderNext: .chatml
             case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
-            case .glm4: .glm
+            case .glm4, .glm47: .glm
             case .gptOpenSmall: .harmony
             }
         }
@@ -74,7 +75,7 @@ extension Model {
             switch self {
             case .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall:
                 "You are a helpful AI programming assistant."
-            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol, .supernovaMedius:
+            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol, .supernovaMedius, .glm47:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -140,6 +141,7 @@ extension Model {
                  .qwen3tiny,
                  .qwen35regular,
                  .qwen3coderNext,
+                 .glm47,
                  .supernovaMedius:
                 16384
             }
@@ -181,6 +183,7 @@ extension Model {
             case .dolphinThree8b: 2048
             case .dolphinThreeR1: 2560
             case .glm4: 1952
+            case .glm47: 846
             case .mistral2503: 2560
             case .devstralLarge: 2560
             case .devstralSmall: 2560
@@ -230,6 +233,7 @@ extension Model {
             case .devstralSmall: 484
             case .magistral: 460
             case .glm4: 370
+            case .glm47: 500
             case .sage: 840
             }
 
@@ -272,6 +276,7 @@ extension Model {
             case .devstralLarge: 41
             case .devstralSmall: 41
             case .glm4: 62
+            case .glm47: 48
             case .sage: 32
             }
 
@@ -445,6 +450,7 @@ extension Model {
             case .devstralLarge: "49 GB"
             case .devstralSmall: "20.8 GB"
             case .qwen35regular: "30.3 GB"
+            case .glm47: "26.2 GB"
             }
         }
 
@@ -479,6 +485,7 @@ extension Model {
             case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
             case .mistral2503: "Multilingual and very knowledge-dense model by Mistral."
             case .glm4: "High performance model that claims equivalent performance to R1 and GPT."
+            case .glm47: "Built for local deployment, delivering best-in-class performance for coding, agentic workflows, and chat."
             case .magistral: "An extension of Mistral 2503, with added reasoning capabilities, undergoing SFT from Magistral Medium traces and RL on top."
             case .gptOpenSmall: "OpenAI's open-weight language model."
             case .devstralLarge: "This model claims to be the top coding model for its size, but heavily quantised."
@@ -515,6 +522,8 @@ extension Model {
 
         private var defaultMinP: Float {
             switch self {
+            case .glm47:
+                0.01
             case .qwen35regular:
                 0
             default:
@@ -557,7 +566,7 @@ extension Model {
                 1.0
             } else {
                 switch self {
-                case .qwen35regular: 1.0
+                case .qwen35regular, .glm47: 1.0
                 default: 1.17
                 }
             }
@@ -592,6 +601,7 @@ extension Model {
 
         var originalRepoUrl: URL {
             let uri = switch self {
+            case .glm47: "https://huggingface.co/unsloth/GLM-4.7-Flash-GGUF"
             case .mythoMax: "https://huggingface.co/Gryphe/MythoMax-L2-13b"
             case .whisper: "https://huggingface.co/ggerganov/whisper.cpp"
             case .deepSeekCoder33: "https://huggingface.co/deepseek-ai/deepseek-coder-33b-instruct"
@@ -637,6 +647,7 @@ extension Model {
 
         var fileName: String {
             switch self {
+            case .glm47: "GLM-4.7-Flash-UD-Q6_K_XL.gguf"
             case .gptOpenSmall: "gpt-oss-20b-MXFP4.gguf"
             case .deepSeekCoder33: "deepseek-coder-33b-instruct.Q6_K.gguf"
             case .deepSeekCoder7: "deepseek-coder-7b-instruct-v1.5-Q6_K.gguf"
@@ -728,6 +739,7 @@ extension Model {
             case .gemma327: "Gemma 3 Regular"
             case .mistral2503: "Mistral 2503"
             case .glm4: "GLM 4"
+            case .glm47: "GLM 4.7"
             case .magistral: "Magistral 2506"
             case .sage: "Sage"
             case .gptOpenSmall: "OpenAI GPT Open Weight"
@@ -772,6 +784,7 @@ extension Model {
             case .gemma327: "v3, 27b params"
             case .mistral2503: "v2503, 27b params"
             case .glm4: "32b params"
+            case .glm47: "30b params, MoE"
             case .magistral: "24b params, on Mistral 2503"
             case .sage: "on Mixtral MoE 8x7b"
             case .gptOpenSmall: "v1, 20b params"
@@ -822,6 +835,7 @@ extension Model {
             case .devstralLarge: "F64C21C9-6A2C-42EF-A0F9-F8E87E89FC0B"
             case .devstralSmall: "74CDF6DE-4243-447D-B920-100FA5DA5B87"
             case .qwen35regular: "D16F9CE6-CC01-4EBC-9444-EC07E80FCA5C"
+            case .glm47: "131FF4EE-ECD2-45A1-87B5-79084B0ECFBF"
             }
         }
 

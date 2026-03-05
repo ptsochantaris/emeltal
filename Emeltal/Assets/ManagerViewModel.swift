@@ -51,6 +51,7 @@ final class ManagerViewModel {
         Model(category: .gemma, variant: .gemma34),
         Model(category: .gemma, variant: .gemma31),
 
+        Model(category: .glm, variant: .glm47),
         Model(category: .glm, variant: .glm4),
 
         Model(category: .apple, variant: .sage),
