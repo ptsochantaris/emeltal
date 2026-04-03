@@ -51,7 +51,7 @@ extension Model {
             case .experimental:
                 "Experimental models that are interesting for different reasons - merges, novelty value, or have a very specific use case."
             case .gemma:
-                "Google claims Gemma 3 is the most natural chatbot in its size category."
+                "Google's Gemma models are relatively powerful and are using the same tech as the cloud-based Gemini models, adapted to run locally."
             case .apple:
                 "Models published by Apple, focusing on maximising performance at each size category."
             case .glm:

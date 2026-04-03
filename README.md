@@ -42,7 +42,8 @@ Emeltal offers a curated list of proven open-source high-performance models, aim
 - [Samantha 1.11 70b](https://huggingface.co/cognitivecomputations/Samantha-1.11-70b)
 - [Samantha 1.1 7b](https://huggingface.co/cognitivecomputations/samantha-1.1-westlake-7b)
 
-#### Gemma 3 Series
+#### Gemma Series
+- [Gemma 4 31b](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF)
 - [Gemma 3 27b](https://huggingface.co/ggml-org/gemma-3-27b-it-GGUF)
 - [Gemma 3 12b](https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF)
 - [Gemma 3 4b](https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF)

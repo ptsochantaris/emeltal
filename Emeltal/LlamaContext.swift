@@ -325,6 +325,7 @@ final class LlamaContext {
         let muteTags = asset.variant.muteTokens?.flatMap { [$0, "/\($0)"] }
 
         let isHarmony = asset.variant.format == .harmony
+        let isGemma4 = asset.variant.format == .gemma4
         var inSentenceHeader = false
         var harmonyChannel = ""
 
@@ -351,18 +352,26 @@ final class LlamaContext {
                 default:
                     break
                 }
+
+            } else if isGemma4 {
+                switch tag {
+                case "|channel":
+                    inSentenceHeader = true
+                    return ""
+
+                case "channel|":
+                    inSentenceHeader = false
+                    return ""
+
+                default:
+                    break
+                }
             }
 
             if let muteTags, muteTags.contains(tag) {
                 log("Trimmed tag: \(tag)")
                 return ""
             }
-
-            /*
-             <|channel|>analysis<|message|>User says "Hello". That's a greeting. We should respond appropriately.<|end|>
-
-             <|start|>assistant<|channel|>final<|message|>Hello! How can I help you today?
-             */
 
             switch tag {
             case "think":

@@ -31,6 +31,7 @@ extension Model {
              qwen3compact,
              qwen3tiny,
              smol,
+             gemma431,
              gemma327,
              gemma312,
              gemma34,
@@ -65,6 +66,7 @@ extension Model {
             case .dolphin72b, .dolphinCoder, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .qwen3coderNext, .smol: .chatml
             case .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular: .chatmlNoThink
             case .gemma31, .gemma34, .gemma312, .gemma327: .gemma
+            case .gemma431: .gemma4
             case .glm4, .glm47: .glm
             case .gptOpenSmall: .harmony
             }
@@ -74,7 +76,7 @@ extension Model {
             switch self {
             case .codestral, .deepSeekCoder7, .deepSeekCoder33, .devstralLarge, .devstralSmall:
                 "You are a helpful AI programming assistant."
-            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .glm4, .glm47, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol:
+            case .dolphin72b, .dolphinNemo, .dolphinThree3b, .dolphinThree8b, .dolphinThreeR1, .dolphinThreeTiny, .gemma31, .gemma34, .gemma312, .gemma327, .gemma431, .glm4, .glm47, .gptOpenSmall, .llama3, .llama3compact, .llama3large, .llama3tiny, .magistral, .mistral2503, .qwen3compact, .qwen3regular, .qwen3tiny, .qwen35regular, .sage, .smol:
                 "You are a friendly and honest conversation partner. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don’t know the answer to a question, please don’t share false information."
             case .samantha7b, .samantha70b:
                 "You are a caring and empathetic sentient AI companion named Samantha."
@@ -128,6 +130,7 @@ extension Model {
                  .gemma34,
                  .gemma312,
                  .gemma327,
+                 .gemma431,
                  .glm47,
                  .llama3,
                  .llama3compact,
@@ -185,6 +188,7 @@ extension Model {
             case .devstralLarge: 2560
             case .devstralSmall: 2560
             case .qwen35regular: 320
+            case .gemma431: 1280
             case .whisper: 0
             }
             return Int64((kvCache * 1_048_576).rounded(.up))
@@ -231,6 +235,7 @@ extension Model {
             case .glm4: 370
             case .glm47: 530
             case .sage: 840
+            case .gemma431: 510
             }
 
             let totalLayers: Int64 = switch self {
@@ -273,6 +278,7 @@ extension Model {
             case .glm4: 62
             case .glm47: 48
             case .sage: 32
+            case .gemma431: 61
             }
 
             let layerSize = layerSizeM * 1_048_576
@@ -432,6 +438,7 @@ extension Model {
             case .dolphinThree3b: "A compact simplified version of Dolphin for low memory environments."
             case .dolphinThree8b: "The \"regular\" Dolphin model, a great default starting point for lower memory systems."
             case .gemma31, .gemma34, .gemma312, .gemma327: "A quantised variant of the Gemma 3 model."
+            case .gemma431: "The Gemma 4 model, derived from the Gemini models."
             case .mistral2503: "Multilingual and very knowledge-dense model by Mistral."
             case .glm4: "High performance model that claims equivalent performance to R1 and GPT."
             case .glm47: "Built for local deployment, delivering best-in-class performance for coding, agentic workflows, and chat."
@@ -461,6 +468,7 @@ extension Model {
         private var defaultTopK: Int {
             switch self {
             case .qwen35regular: 20
+            case .gemma431: 64
             default: 40
             }
         }
@@ -482,7 +490,7 @@ extension Model {
 
         private var defaultTemperature: Float {
             switch self {
-            case .qwen3coderNext, .qwen35regular:
+            case .gemma431, .qwen3coderNext, .qwen35regular:
                 1.0
             case .magistral, .sage:
                 0.7
@@ -499,7 +507,7 @@ extension Model {
             }
 
             switch self {
-            case .sage:
+            case .gemma431, .sage:
                 return 0
             default:
                 return 0.2
@@ -550,7 +558,7 @@ extension Model {
 
         var originalRepoUrl: URL {
             let repoPath = fetchUrl.path.split(separator: "/resolve/main/").first!
-            return URL(string: "https://huggingface.co/" + repoPath)!
+            return URL(string: "https://huggingface.co" + repoPath)!
         }
 
         var fetchUrl: URL {
@@ -594,6 +602,7 @@ extension Model {
             case .devstralLarge: "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF/resolve/main/Devstral-2-123B-Instruct-2512-UD-IQ3_XXS.gguf"
             case .devstralSmall: "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/main/Devstral-Small-2-24B-Instruct-2512-UD-Q6_K_XL.gguf"
             case .qwen35regular: "https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/Qwen3.5-35B-A3B-UD-Q6_K_XL.gguf"
+            case .gemma431: "https://huggingface.co/unsloth/gemma-4-31B-it-GGUF/resolve/main/gemma-4-31B-it-UD-Q4_K_XL.gguf"
             }
 
             return URL(string: urlString)!
@@ -647,6 +656,7 @@ extension Model {
             case .devstralLarge: "Devstral 2"
             case .devstralSmall: "Devstral 2 Small"
             case .qwen35regular: "Qwen 3.5 Regular"
+            case .gemma431: "Gemma 4 Regular"
             }
         }
 
@@ -691,6 +701,7 @@ extension Model {
             case .devstralLarge: "v2, 123b params"
             case .devstralSmall: "v2, 24b params"
             case .qwen35regular: "35b params MoE"
+            case .gemma431: "31b params"
             }
         }
 
@@ -735,6 +746,7 @@ extension Model {
             case .devstralSmall: "74CDF6DE-4243-447D-B920-100FA5DA5B87"
             case .qwen35regular: "D16F9CE6-CC01-4EBC-9444-EC07E80FCA5C"
             case .glm47: "131FF4EE-ECD2-45A1-87B5-79084B0ECFBF"
+            case .gemma431: "CC40CAFE-A782-4A20-BAAF-2D0F5EB7C8D1"
             }
         }
 

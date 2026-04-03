@@ -183,6 +183,7 @@
 		16905E4C2B2E0D6D006B4EC8 /* AssetFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4B2B2E0D6D006B4EC8 /* AssetFetcher.swift */; };
 		16905E4E2B2E2DED006B4EC8 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4D2B2E2DED006B4EC8 /* Globals.swift */; };
 		16905E502B2E5190006B4EC8 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16905E4F2B2E5190006B4EC8 /* Template.swift */; };
+		16965D4D2F8018D000CD2C17 /* gemma4-iswa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16965D4C2F8018D000CD2C17 /* gemma4-iswa.cpp */; };
 		16A090F82CB46F0C00468E93 /* ManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A090F72CB46F0700468E93 /* ManagerViewModel.swift */; };
 		16A6F4322E1301790078D603 /* quants.c in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F3F92E1301790078D603 /* quants.c */; };
 		16A6F4342E1301790078D603 /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16A6F4272E1301790078D603 /* traits.cpp */; };
@@ -449,6 +450,7 @@
 		16905E4B2B2E0D6D006B4EC8 /* AssetFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetFetcher.swift; sourceTree = "<group>"; };
 		16905E4D2B2E2DED006B4EC8 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		16905E4F2B2E5190006B4EC8 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
+		16965D4C2F8018D000CD2C17 /* gemma4-iswa.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "gemma4-iswa.cpp"; sourceTree = "<group>"; };
 		16A090F72CB46F0700468E93 /* ManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagerViewModel.swift; sourceTree = "<group>"; };
 		16A6F3ED2E1301030078D603 /* llama-memory-hybrid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-memory-hybrid.cpp"; sourceTree = "<group>"; };
 		16A6F3EF2E1301030078D603 /* llama-memory-recurrent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "llama-memory-recurrent.cpp"; sourceTree = "<group>"; };
@@ -657,6 +659,7 @@
 				164D2B642F55C2B600B7CF6A /* gemma2-iswa.cpp */,
 				164D2B652F55C2B600B7CF6A /* gemma3.cpp */,
 				164D2B662F55C2B600B7CF6A /* gemma3n-iswa.cpp */,
+				16965D4C2F8018D000CD2C17 /* gemma4-iswa.cpp */,
 				164D2B682F55C2B600B7CF6A /* glm4-moe.cpp */,
 				164D2B672F55C2B600B7CF6A /* glm4.cpp */,
 				164D2B692F55C2B600B7CF6A /* gpt2.cpp */,
@@ -991,7 +994,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 2630;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					1608DB672B151B4F00FFFB09 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -1198,6 +1201,7 @@
 				164D2BF82F55C2B600B7CF6A /* glm4.cpp in Sources */,
 				164D2BF92F55C2B600B7CF6A /* grok.cpp in Sources */,
 				164D2BFA2F55C2B600B7CF6A /* kimi-linear.cpp in Sources */,
+				16965D4D2F8018D000CD2C17 /* gemma4-iswa.cpp in Sources */,
 				164D2BFB2F55C2B600B7CF6A /* nemotron.cpp in Sources */,
 				164D2BFC2F55C2B600B7CF6A /* llada.cpp in Sources */,
 				164D2BFD2F55C2B600B7CF6A /* gemma-embedding.cpp in Sources */,

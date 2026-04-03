@@ -6,12 +6,12 @@ struct Template {
     }
 
     enum Format {
-        case alpaca, chatml, chatmlNoThink, llamaLarge, mistral, mistralNew, vicuna, gemma, llama2, llama3, llama4, glm, harmony
+        case alpaca, chatml, chatmlNoThink, llamaLarge, mistral, mistralNew, vicuna, gemma, gemma4, llama2, llama3, llama4, glm, harmony
 
         var acceptsSystemPrompt: Bool {
             switch self {
             case .llama2, .llama4, .mistral: false
-            case .alpaca, .chatml, .chatmlNoThink, .gemma, .glm, .harmony, .llama3, .llamaLarge, .mistralNew, .vicuna: true
+            case .alpaca, .chatml, .chatmlNoThink, .gemma, .gemma4, .glm, .harmony, .llama3, .llamaLarge, .mistralNew, .vicuna: true
             }
         }
     }
@@ -64,6 +64,13 @@ struct Template {
             case .initial: "\(bosToken)<start_of_turn>system\n"
             case .cancel: ""
             case .turn: "\(bosToken)<start_of_turn>user\n"
+            }
+
+        case .gemma4:
+            switch step {
+            case .initial: "<bos><|turn>system\n"
+            case .cancel: ""
+            case .turn: "<|turn>user\n"
             }
 
         case .harmony:
@@ -153,6 +160,12 @@ struct Template {
             case .turn: "<end_of_turn>\n<start_of_turn>model"
             }
 
+        case .gemma4:
+            switch step {
+            case .cancel, .initial: "<turn|>\n"
+            case .turn: "<turn|>\n<|turn>model\n"
+            }
+
         case .harmony:
             switch step {
             case .cancel, .initial: "<|end|>"
@@ -233,7 +246,7 @@ struct Template {
 
     var failsafeStop: String? {
         switch format {
-        case .gemma, .glm, .harmony, .llama2, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna:
+        case .gemma, .gemma4, .glm, .harmony, .llama2, .llama3, .llama4, .llamaLarge, .mistral, .mistralNew, .vicuna:
             nil
 
         case .chatml, .chatmlNoThink:

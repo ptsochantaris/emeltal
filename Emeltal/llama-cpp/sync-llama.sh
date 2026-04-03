@@ -43,6 +43,7 @@ cp -r\
  $LSRC/ggml/src/ggml-threading.h\
  $LSRC/ggml/src/ggml-blas\
  $LSRC/src/models\
+ $LSRC/src/llama-ext.*\
  $LSRC/src/llama-sampler.*\
  $LSRC/src/llama-chat.*\
  $LSRC/src/llama-io.*\
