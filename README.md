@@ -9,6 +9,8 @@ Local ML voice chat using high-end models, aiming for a self contained, user-fri
 
 This is a work in progress with frequent updates; [TestFlight builds are available here](https://testflight.apple.com/join/NTIomxyk) for macOS, iOS and visionOS.
 
+An experimental variant called Emextal, built on MLX and more focused on conversational experience, is under development here: https://github.com/ptsochantaris/emextal
+
 |Selection|Full|Mini|
 |---------|----|----|
 |<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot0.png" alt="Screenshot 0">|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot1.png" alt="Screenshot 1">|<img src="https://ptsochantaris.github.io/trailer/EmeltalScreenshot2.png" alt="Screenshot 2">|
